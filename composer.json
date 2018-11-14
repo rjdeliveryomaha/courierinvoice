@@ -1,0 +1,43 @@
+{
+  "name": "RJDeliveryOmaha/CourierInvoice",
+  "version": "1.0",
+  "type": "library",
+  "keywords": [ "courier invoice" ],
+  "description": "Tools for using the Courier Invoice API",
+  "authors": [
+    {
+      "name": "Paul Pierce",
+      "email": "paul@rjdeliveryomaha.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.0",
+    "ext-curl": "*",
+    "phpmailer/phpmailer": "~6.0.0",
+    "willdurand/geocoder": "^4.0",
+    "geocoder-php/chain-provider": "^4.0",
+    "php-http/guzzle6-adapter": "^1.1"
+  },
+  "suggest": {
+    "geocoder-php/algolia-places-provider": "Algolia Places Geocoder Provider",
+    "geocoder-php/arcgis-online-provider":  "ArcGIS Online Geocoder Provider",
+    "geocoder-php/bing-maps-provider": "Bing Maps Geocoder Provider",
+    "geocoder-php/geonames-provider": "Geonames Geocoder Provider",
+    "geocoder-php/google-maps-provider": "Google Map Geocoder Provider",
+    "geocoder-php/here-provider": "Here Geocoder Provider",
+    "geocoder-php/locationiq-provider": "LocationIQ Geocoder Provider",
+    "geocoder-php/mapbox-provider": "Mapbox Geocoder Provider",
+    "geocoder-php/mapquest-provider": "MapQuest Geocoder Provider",
+    "geocoder-php/mapzen-provider": "Mapzen Geocoder Provider",
+    "geocoder-php/nominatim-provider": "Nominatim Geocoder Provider",
+    "geocoder-php/open-cage-provider": "OpenCage Geocoder Provider",
+    "geocoder-php/pickpoint-provider": "PickPoint Geocoder Provider",
+    "geocoder-php/tomtom-provider": "TomTom Geocoder Provider",
+    "geocoder-php/yandex-provider": "Yandex Geocoder Provider"
+  },
+  "autoload": {
+    "psr-4": {
+      "RJDeliveryOmaha\\CourierInvoice\\": "src/"
+    }
+  }
+}
