@@ -1,12 +1,12 @@
 <?php
   namespace RJDeliveryOmaha\CourierInvoice;
-  
+
   use RJDeliveryOmaha\CourierInvoice\CommonFunctions;
   /***
   * throws Exception
   *
   ***/
-  
+
   class Route extends CommonFunctions {
     protected $newTickets;
     protected $activeTicketSet = array();
@@ -40,7 +40,7 @@
     // Flag of returning all on call tickets that have not been dispatched
     public $forDisatch = FALSE;
     private $tTest;
-    
+
     public function __construct($options, $data=[]) {
       try {
         parent::__construct($options, $data);
@@ -69,7 +69,7 @@
       $temp->modify('- 7 days');
       $this->backstop = $temp->format('Y-m-d');
     }
-    
+
     private function setLastSeen() {
       $lastSeenUpdateData['endPoint'] = (array_key_exists('driver_index', $_SESSION)) ? 'drivers' : 'dispatchers';
       $lastSeenUpdateData['method'] = 'PUT';
@@ -91,7 +91,7 @@
       }
       return $this->LastSeen = $_SESSION['LastSeen'] = $this->today;
     }
-    
+
     public function onCallTickets() {
       $this->ticketSet = $ticketQueryData = array();
       // Pull on call tickets for today
@@ -162,7 +162,7 @@
       }
       return $returnData;
     }
-    
+
     public function activeTickets() {
       $output = '';
       if (!self::buildRoute()) {
@@ -261,8 +261,9 @@
       }
       return $output;
     }
-    
+
     public function transferredTickets() {
+      $this->contractTicketSet = $this->singleLocation = [];
       $returnData = '';
       // Drivers without dispatch authorization need a single datalist for transferring tickets.
       if ($this->ulevel === "driver" && $this->CanDispatch === 0) {
@@ -288,8 +289,11 @@
       $transfersQueryData['endPoint'] = "tickets";
       $transfersQueryData['method'] = 'GET';
       $transfersQueryData['formKey'] = $this->formKey;
-      // API does not support complex filters (with both "and" & "or") so grab all active transfers and filter them here
-      $transfersQueryData['queryParams']["filter"] = array(array("Resource"=>"TransferState", "Filter"=>"eq", "Value"=>1));
+      $transfersQueryData['queryParams']['filter'] = [];
+      $transfersQueryData['queryParams']['filter'][] = [ ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>'5'], ['Resource'=>'dTimeStamp', 'Filter'=>'is'] ];
+      $transfersQueryData['queryParams']['filter'][] = [ ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>'6'], ['Resource'=>'d2TimeStamp', 'Filter'=>'is'] ];
+      $transfersQueryData['queryParams']['filter'][] = [ ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'PendingReceiver', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>'5'], ['Resource'=>'dTimeStamp', 'Filter'=>'is'] ];
+      $transfersQueryData['queryParams']['filter'][] = [ ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'PendingReceiver', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>'6'], ['Resource'=>'d2TimeStamp', 'Filter'=>'is'] ];
       if (!$transfersQuery = self::createQuery($transfersQueryData)) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -309,12 +313,10 @@
       }
       foreach ($this->activeTicketSet as $test) {
         $test["processTransfer"] = $this->processTransfer;
-        if ($test['DispatchedTo'] === $this->driverID || $test['PendingReceiver'] === $this->driverID) {
-          if ($test["Contract"] === 1) {
-            $this->contractTicketSet[] = $test;
-          } else {
-            $this->singleLocation[] = $test;
-          }
+        if ($test["Contract"] === 1) {
+          $this->contractTicketSet[] = $test;
+        } else {
+          $this->singleLocation[] = $test;
         }
       }
       if (empty($this->contractTicketSet) && empty($this->singleLocation)) {
@@ -369,7 +371,7 @@
       }
       return $returnData;
     }
-    
+
     private function buildRoute() {
       // Check if driver has been seen today
       if ($this->LastSeen === NULL || $this->LastSeen !== $this->today) {
@@ -429,7 +431,7 @@
       }
       return TRUE;
     }
-    
+
     private function fetchDriversTransfer() {
       // Pull the data to make the datalists
       $driverQueryData['method'] = 'GET';
@@ -456,7 +458,7 @@
       }
       return $this->transferList = json_encode($tempDriver);
     }
-    
+
     private function fetchRunList() {
       $runListQueryData['endPoint'] = "contract_runs";
       $runListQueryData['method'] = 'GET';
@@ -471,7 +473,7 @@
       }
       $this->runList = self::callQuery($runListQuery);
     }
-    
+
     private function fetchRescheduledRuns() {
       // Pull the list of reschedule events for this driver
       $rescheduledQueryData['endPoint'] = 'schedule_override';
@@ -535,7 +537,7 @@
         }
       }
     }
-    
+
     private function fetchContractLocations() {
       $contractLocationQueryData['endPoint'] = 'contract_locations';
       $contractLocationQueryData['method'] = 'GET';
@@ -561,7 +563,7 @@
       }
       return FALSE;
     }
-    
+
     private function fetchCancelations() {
       $cancelationQueryData['endPoint'] = 'schedule_override';
       $cancelationQueryData['method'] = 'GET';
@@ -584,7 +586,7 @@
       }
       return FALSE;
     }
-    
+
     private function addLocationsToTickets() {
       for ($i = 0; $i < count($this->newTickets); $i++) {
         foreach ($this->locations as $location) {
@@ -610,7 +612,7 @@
         }
       }
     }
-    
+
     private function processScheduleCodes() {
       for ($i = 0; $i < count($this->runList); $i++) {
         // Process the schedule codes
@@ -624,7 +626,7 @@
         }
       }
     }
-    
+
     function scheduleFrequency($code) {
       $x = $y = $schedule = "";
       $test = explode(" ", $code);
@@ -743,7 +745,7 @@
       }
       return $schedule;
     }
-    
+
     private function filterRuns() {
       for($i = 0; $i < count($this->runList); $i++) {
         for ($x = 0; $x < count($this->runList[$i]['Schedule']); $x++) {
@@ -765,14 +767,14 @@
                 }
               }
             }
-            if ($this->add === TRUE) { 
+            if ($this->add === TRUE) {
               $this->newTickets[] = $this->runList[$i];
             }
           }
         }
       }
     }
-    
+
     private function compareSchedule($runNumber, $scheduleFrequency) {
       // Stop here if the run has been cancelled
       if (self::cancelledRun($runNumber)) {
@@ -812,7 +814,7 @@
         }
       }
     }
-    
+
     private function cancelledRun($runNumber) {
       // Use month and day to determine if today has an event
       $match = FALSE;
@@ -826,7 +828,7 @@
       }
       return $match;
     }
-    
+
     private function testFrequency($test, $dayName) {
       switch ($test) {
         case "Other":
@@ -859,7 +861,7 @@
           if ($dayName === "Weekday") {
             return self::isFirstWeekday($this->dateObject->modify("- 1 day"));
           } else {
-            return $this->dateObject->format('Y-m-d') === date('Y-m-d', strtotime("second $dayName of 
+            return $this->dateObject->format('Y-m-d') === date('Y-m-d', strtotime("second $dayName of
             {$this->dateObject->format('F Y')}"));
           }
         break;
@@ -901,7 +903,7 @@
         default: return FALSE;
       }
     }
-    
+
     private function submitRouteTickets() {
       $data['multiTicket'] = [];
       $data['formKey'] = $this->formKey;
@@ -916,7 +918,7 @@
         $newTicket['DispatchedBy'] = "1.1";
         $newTicket['Charge'] = ($newTicket['RoundTrip'] === 1) ? 6 : 5;
         $newTicket['TicketBase'] = $newTicket['TicketPrice'];
-        
+
         $data['multiTicket'][] = $newTicket;
       }
       if (!$ticketPrime = self::createTicket($data)) {
@@ -932,7 +934,7 @@
       }
       return TRUE;
     }
-    
+
     private function sortTickets($ticket) {
       if (array_key_exists($ticket['locationTest'], $this->multiLocation) && self::recursive_array_search($ticket['TicketNumber'], $this->multiLocation) === FALSE) {
         $this->multiLocation[$ticket['locationTest']][] = $ticket;
@@ -952,7 +954,7 @@
         }
       }
     }
-    
+
     private function prepTickets() {
       // Set new keys 1) using client name, department, address1, and schedule time for grouping tickets, 2) indicating what step the ticket is on to ease processing.
       foreach ($this->activeTicketSet as $ticket) {
