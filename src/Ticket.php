@@ -3551,7 +3551,7 @@
                   $tempArray[] = $tempTransfer;
                   $this->Transfers = $tempArray;
                 }
-                $ticketUpdateData['payload'] = array('TransferState'=>0, 'PendingReceiver'=>0, 'Notes'=>$this->Notes, 'DispatchedTo'=>$this->pendingReceiverOld, "Transfers"=>$this->Transfers);
+                $ticketUpdateData['payload'] = array('TransferState'=>0, 'PendingReceiver'=>0, 'Notes'=>$this->Notes, 'DispatchedTo'=>$this->driverID, "Transfers"=>$this->Transfers);
               } else {
                 $ticketUpdateData['payload'] = array();
                 for ($i = 0; $i < count($this->multiTicket); $i++) {
