@@ -1,8 +1,8 @@
 <?php
   namespace RJDeliveryOmaha\CourierInvoice;
-  
+
   use RJDeliveryOmaha\CourierInvoice\CommonFunctions;
-  
+
   /***
   * throws Exception
   *
@@ -57,7 +57,7 @@
   *      call('PUT', buildURI($endPoint, array()) . '/' . $varHoldingPK, $payload);
   *    See the table above for the PRIMARY KEY resources to be used for these calls
   ***/
-  
+
   class Query extends CommonFunctions {
     protected $method;
     protected $endPoint;
@@ -75,7 +75,7 @@
     private $ch;
     private $result;
     protected $testVal;
-    
+
     public function __construct($options, $data=[]) {
       try {
         parent::__construct($options, $data);
@@ -128,11 +128,11 @@
         case 'POST': return (is_numeric($this->result) || substr($this->result, 0, 1) === '[');
         // Expects a json encoded object or array of objects
         case 'GET': return (substr($this->result,0,1) === '{' || substr($this->result,0,1) === '[');
-    
+
         default: return FALSE;
       }
     }
-    
+
     private function orderParams($params) {
       $paramList = [];
       if (isset($params['resources'])) {
@@ -150,7 +150,7 @@
       $temp = array_merge(array_flip($paramList), $params);
       return $temp;
     }
-    
+
     public function buildURI() {
       if (!in_array($this->endPoint, $this->validTables)) {
         $this->error = "Invalid End Point\n";
@@ -175,7 +175,7 @@
         $this->queryParams = $temp;
         foreach ($this->queryParams as $key => $value) {
           if ($key === 'resources') {
-            $this->query['include'] = implode(",",$this->queryParams['resources']);
+            $this->query['include'] = implode(',', $this->queryParams['resources']);
           } elseif ($key === 'filter' || $key === 'order') {
             if (!isset($value[0][0])) {
               for ($i = 0; $i < count($value); $i++) {
@@ -198,9 +198,6 @@
         $temp2 = preg_replace('/%5B[0-9]+%5D/simU', '', $temp2);
         $this->queryURI = "{$this->baseURI}{$this->endPoint}?$temp2";
       }
-      /* $this->error = $this->queryURI;
-      $this->writeLoop();
-      $this->error = ''; */
       return $this;
     }
 
@@ -226,9 +223,6 @@
       /**
       ** How to create and store cacert.pem:
       ** http://unitstep.net/blog/2009/05/05/using-curl-in-php-to-access-https-ssltls-protected-sites/
-      ** gd_bundle-g2-g1.crt can be downloaded from the GoDaddy Repository:
-      ** https://certs.godaddy.com/repository/
-      ** if it is not the sole bundle it should be appended to the bundle in use
       **/
       // curl_setopt($this->ch, CURLOPT_CAINFO, __DIR__ . DIRECTORY_SEPARATOR . "cacert.pem");
       // Set the authorization headers");
@@ -243,9 +237,7 @@
       }
       curl_setopt($this->ch, CURLOPT_HTTPHEADER, $this->headers);
       curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, TRUE);
-      //self::safe_print_r(curl_getinfo($this->ch)); //return FALSE;
       $this->result = curl_exec($this->ch);
-      //self::safe_print_r(curl_getinfo($this->ch)); //return FALSE;
       if (!$this->result) {
         // TODO Implement retry with backoff here
         $this->result = curl_error($this->ch);
