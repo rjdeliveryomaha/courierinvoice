@@ -1,6 +1,6 @@
 <?php
   namespace RJDeliveryOmaha\CourierInvoice;
-  
+
   use RJDeliveryOmaha\CourierInvoice\CommonFunctions;
   use RJDeliveryOmaha\CourierInvoice\Query;
   /***
@@ -8,7 +8,7 @@
   *
   * handles login useing (int)clientID, 'driver'+(int)driverID, 'dispatch'+(int)dispatchID, 'userLogin'
   ***/
-  
+
   class LoginHandler extends CommonFunctions {
     protected $clientID;
     protected $upw;
@@ -22,10 +22,10 @@
     private $client;
     private $loginType;
     // Define an array of key names not to include in the session
-    private $exclude = array('Password', 'AdminPassword', 'Deleted');
+    private $exclude = ['Password', 'AdminPassword', 'Deleted'];
     // Define key names that will be sent through countryFromAbbr()
-    private $countryParams = array('ShippingCountry', 'BillingCountry');
-    
+    private $countryParams = ['ShippingCountry', 'BillingCountry'];
+
     public function __construct($options, $data=[]) {
       try {
         parent::__construct($options, $data);
@@ -35,16 +35,16 @@
       $_SESSION['mobile'] = (array_key_exists('mobile', $data)) ? self::test_bool($data['mobile']) : FALSE;
       if (!isset($_SESSION['formKey']) && isset($data['formKey'])) $_SESSION['formKey'] = $data['formKey'];
     }
-    
+
     public function login() {
       // Save the formKey
-      $tempKey = (array_key_exists("formKey", $_SESSION)) ? $_SESSION['formKey'] : NULL;
-      $tempFlag = (array_key_exists("mobile", $_SESSION)) ? $_SESSION['mobile'] : FALSE;
+      $tempKey = (array_key_exists('formKey', $_SESSION)) ? $_SESSION['formKey'] : NULL;
+      $tempFlag = (array_key_exists('mobile', $_SESSION)) ? $_SESSION['mobile'] : FALSE;
       // Clear any session created by prior login
       $_SESSION = array();
       // Restore the formKey
       $_SESSION['formKey'] = $tempKey;
-      $_SESSION["mobile"] = $tempFlag;
+      $_SESSION['mobile'] = $tempFlag;
       if ($this->clientID === NULL || $this->upw === NULL) {
         throw new \Exception('Invalid Credentials');
       }
@@ -54,7 +54,7 @@
         $this->queryData['formKey'] = $this->formKey;
         $this->queryData['method'] = 'GET';
         $this->queryData['endPoint'] = 'clients';
-        $this->queryData['queryParams']['filter'] = array(array('Resource'=>'ClientID', 'Filter'=>'eq', 'Value'=>self::test_int($this->clientID)),array('Resource'=>'RepeatClient','Filter'=>'eq','Value'=>$this->repeatFlag),array('Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>'0'));
+        $this->queryData['queryParams']['filter'] = [ ['Resource'=>'ClientID', 'Filter'=>'eq', 'Value'=>self::test_int($this->clientID)], ['Resource'=>'RepeatClient','Filter'=>'eq','Value'=>$this->repeatFlag], ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0] ];
         $this->query = self::createQuery($this->queryData);
         if ($this->query === FALSE) {
           throw new \Exception($this->error);
@@ -67,7 +67,7 @@
           throw new \Exception('<span class="error">Invalid Credentials</span>');
         }
         return self::validateClient();
-      } elseif (strtolower(substr($this->clientID, 0, 6)) === "driver") {
+      } elseif (strtolower(substr($this->clientID, 0, 6)) === 'driver') {
         // Driver Login Using "driver" + ID Number
         $temp = self::test_int($this->clientID);
         $this->clientID = $temp;
@@ -75,7 +75,7 @@
         $this->queryData['formKey'] = $this->formKey;
         $this->queryData['method'] = 'GET';
         $this->queryData['endPoint'] = 'drivers';
-        $this->queryData['queryParams']['filter'] = array(array('Resource'=>'DriverID', 'Filter'=>'eq', 'Value'=>$this->clientID),array('Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>'0'));
+        $this->queryData['queryParams']['filter'] = [ ['Resource'=>'DriverID', 'Filter'=>'eq', 'Value'=>$this->clientID], ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0] ];
         $this->query = self::createQuery($this->queryData);
         if ($this->query === FALSE) {
           throw new \Exception($this->error);
@@ -96,7 +96,7 @@
         $this->queryData['formKey'] = $this->formKey;
         $this->queryData['method'] = 'GET';
         $this->queryData['endPoint'] = 'dispatchers';
-        $this->queryData['queryParams']['filter'] = array(array('Resource'=>'DispatchID', 'Filter'=>'eq', 'Value'=>$this->clientID),array('Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>'0'));
+        $this->queryData['queryParams']['filter'] = [ ['Resource'=>'DispatchID', 'Filter'=>'eq', 'Value'=>$this->clientID], ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0] ];
         $this->query = self::createQuery($this->queryData);
         if ($this->query === FALSE) {
           throw new \Exception($this->error);
@@ -116,7 +116,7 @@
           $this->queryData['formKey'] = $this->formKey;
           $this->queryData['method'] = 'GET';
           $this->queryData['endPoint'] = 'clients';
-          $this->queryData['queryParams']['filter'] = array(array('Resource'=>'ClientID', 'Filter'=>'eq', 'Value'=>0));
+          $this->queryData['queryParams']['filter'] = [ ['Resource'=>'ClientID', 'Filter'=>'eq', 'Value'=>0] ];
         } else {
           // Single word login for organizations
           $temp = self::test_input($this->clientID);
@@ -125,7 +125,7 @@
           $this->queryData['formKey'] = $this->formKey;
           $this->queryData['method'] = 'GET';
           $this->queryData['endPoint'] = 'o_clients';
-          $this->queryData['queryParams']['filter'] = array(array('Resource'=>'Login', 'Filter'=>'eq', 'Value'=>$this->clientID),array('Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>'0'));
+          $this->queryData['queryParams']['filter'] = [ ['Resource'=>'Login', 'Filter'=>'eq', 'Value'=>$this->clientID], ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0] ];
         }
         $this->query = self::createQuery($this->queryData);
         if ($this->query === FALSE) {
@@ -143,7 +143,7 @@
         throw new \Exception('Invalid Credentials');
       }
     }
-    
+
     private function validateDriver() {
       if (password_verify($this->upw, $this->result[0]['Password'])) {
         $this->loginType = 'driver';
@@ -171,7 +171,7 @@
       echo '/drivers';
       return FALSE;
     }
-    
+
     private function validateDispatch() {
       if (password_verify($this->upw, $this->result[0]['Password'])) {
         $this->loginType = 'dispatch';
@@ -199,7 +199,7 @@
       echo '/drivers';
       return FALSE;
     }
-    
+
     private function validateClient() {
       if (password_verify($this->upw, $this->result[0]['Password'])) {
         $this->loginType = 'client';
@@ -237,7 +237,7 @@
       echo '/clients';
       return FALSE;
     }
-    
+
     private function validateOrg() {
       if (password_verify($this->upw, $this->result[0]['Password'])) {
         $this->loginType = 'org';
@@ -263,7 +263,7 @@
       echo "/clients";
       return FALSE;
     }
-    
+
     private function fetchConfig() {
       $this->queryData = [];
       $this->queryData['noSession'] = TRUE;
@@ -286,7 +286,7 @@
       // pause for one quater (1/4 (0.25)) of a second between API calls
       time_nanosleep(0, 250000000);
       $this->queryData['endPoint'] = 'clients';
-      $this->queryData['queryParams']['filter'][] = [ 'Resource'=>'ClientID', 'Filter'=>'eq', 'Value'=>0 ];
+      $this->queryData['queryParams']['filter'] = [ ['Resource'=>'ClientID', 'Filter'=>'eq', 'Value'=>0] ];
       $this->query = self::createQuery($this->queryData);
       if ($this->query === FALSE) {
         throw new \Exception($this->error);
@@ -308,9 +308,9 @@
       if ($this->loginType === 'driver' || $this->loginType === 'dispatch') {
         // pause for one quater (1/4 (0.25)) of a second between API calls
         time_nanosleep(0, 250000000);
-        $this->queryData['queryParams']['filter'] = [];
-        $this->queryData['queryParams']['filter'][] = [ 'Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0 ];
-        $this->queryData['queryParams']['resources'] = [ 'ClientID', 'ContractDiscount', 'GeneralDiscount' ];$this->query = self::createQuery($this->queryData);
+        $this->queryData['queryParams']['resources'] = [ 'ClientID', 'ContractDiscount', 'GeneralDiscount' ];
+        $this->queryData['queryParams']['filter'] = [ ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0] ];
+        $this->query = self::createQuery($this->queryData);
         if ($this->query === FALSE) {
           throw new \Exception($this->error);
         }
@@ -327,7 +327,7 @@
         }
       }
     }
-    
+
     private function fetchOrgClients() {
       $this->queryData = [];
       $this->queryData['noSession'] = TRUE;
@@ -335,7 +335,6 @@
       $this->queryData['method'] = 'GET';
       $this->queryData['endPoint'] = 'clients';
       $this->queryData['queryParams']['filter'] = [ [ 'Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0 ], [ 'Resource'=>'Organization', 'Filter'=>'eq', 'Value'=>$_SESSION['ClientID'] ] ];
-      // $this->queryData['queryParams']['resources'] = [];
       $this->query = self::createQuery($this->queryData);
       if ($this->query === FALSE) {
         throw new \Exception($this->error);
@@ -349,34 +348,10 @@
       }
       foreach ($this->result as $member) {
         $marker = ($member['RepeatClient'] === 0) ? 't' : '';
-        $_SESSION['members'][$marker . $member['ClientID']] = array();
+        $_SESSION['members'][$marker . $member['ClientID']] = [];
         foreach ($member as $key => $value) {
           if (!in_array($key, $this->exclude)) {
             $_SESSION['members'][$marker . $member['ClientID']][$key] = (in_array($key, $this->countryParams)) ? self::countryFromAbbr($value) : $value;
-          }
-        }
-      }
-      // pause for one quater (1/4 (0.25)) of a second between API calls
-      time_nanosleep(0, 250000000);
-      $this->queryData['endPoint'] = 't_clients';
-      $this->query = self::createQuery($this->queryData);
-      if ($this->query === FALSE) {
-        throw new \Exception($this->error);
-      }
-      $this->result = self::callQuery($this->query);
-      if ($this->result === FALSE) {
-        throw new \Exception($this->error);
-      }
-      if (empty($this->result)) {
-        // there may not be non repeat clients in the organization. Don't throw Exception
-        return FALSE;
-      }
-      foreach ($this->result as $member) {
-        $_SESSION['members']["t{$member['ClientID']}"] = array();
-        foreach ($member as $key => $value) {
-          if (!in_array($key, $this->exclude)) {
-            $_SESSION['members']["t{$member['ClientID']}"][$key] = (in_array($key, $this->countryParams)) ? self::countryFromAbbr($value) : $value;
-            $_SESSION['members']["t{$member['ClientID']}"]['repeat'] = 0;
           }
         }
       }
