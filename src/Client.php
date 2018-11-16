@@ -1,6 +1,6 @@
 <?php
   namespace RJDeliveryOmaha\CourierInvoice;
-  
+
   use RJDeliveryOmaha\CourierInvoice\CommonFunctions;
   /***
   * throws Exception
@@ -44,7 +44,7 @@
     private $updateValues = [ 'ShippingAddress1', 'ShippingAddress2', 'ShippingCountry', 'BillingName', 'BillingAddress1', 'BillingAddress2', 'BillingCountry', 'Telephone', 'EmailAddress', 'Attention' ];
     private $nullable = [ 'Telephone', 'EmailAddress', 'Attention' ];
     private $clientInfo;
-    
+
     public function __construct($options, $data=[]) {
       try {
         parent::__construct($options, $data);
@@ -73,7 +73,7 @@
         ];
       }
     }
-    
+
     public function getAllClientInfo() {
       $returnData = [];
       foreach ($this as $key => $value) {
@@ -81,7 +81,7 @@
       }
       return $returnData;
     }
-    
+
     public function changePassword() {
       $client = self::test_int($_SESSION['ClientID']);
       $this->queryData['method'] = 'GET';
@@ -91,22 +91,22 @@
         $this->testAgainst = 'Password';
         $this->primaryKey = 'client_index';
         $this->queryData['endPoint'] = 'clients';
-        $this->queryData['queryParams']['resources'] = array('AdminPassword', 'Password', 'client_index');
-        $this->queryData['queryParams']['filter'] = array(array('Resource'=>'ClientID', 'Filter'=>'eq', 'Value'=>$client), array('Resource'=>'RepeatClient', 'Filter'=>'eq','Value'=>$this->RepeatClient));
+        $this->queryData['queryParams']['resources'] = ['AdminPassword', 'Password', 'client_index'];
+        $this->queryData['queryParams']['filter'] = [ ['Resource'=>'ClientID', 'Filter'=>'eq', 'Value'=>$client], ['Resource'=>'RepeatClient', 'Filter'=>'eq','Value'=>$this->RepeatClient] ];
       } elseif ($this->flag === 'daily') {
         $this->resourceName = 'Password';
         $this->testAgainst = 'AdminPassword';
         $this->primaryKey = 'client_index';
         $this->queryData['endPoint'] = 'clients';
-        $this->queryData['queryParams']['resources'] = array('AdminPassword', 'Password', 'client_index');
-        $this->queryData['queryParams']['filter'] = array(array('Resource'=>'ClientID', 'Filter'=>'eq', 'Value'=>$client), array('Resource'=>'RepeatClient', 'Filter'=>'eq','Value'=>$this->RepeatClient));
+        $this->queryData['queryParams']['resources'] = ['AdminPassword', 'Password', 'client_index'];
+        $this->queryData['queryParams']['filter'] = [ ['Resource'=>'ClientID', 'Filter'=>'eq', 'Value'=>$client], ['Resource'=>'RepeatClient', 'Filter'=>'eq','Value'=>$this->RepeatClient] ];
       } elseif ($this->flag === 'org') {
         $this->resourceName = 'Password';
         $this->secondTest = FALSE;
         $this->primaryKey = 'o_client_index';
         $this->queryData['endPoint'] = 'o_clients';
-        $this->queryData['queryParams']['resources'] = array('Password', 'o_client_index');
-        $this->queryData['queryParams']['filter'] = array(array('Resource'=>'ID', 'Filter'=>'eq', 'Value'=>$client));
+        $this->queryData['queryParams']['resources'] = ['Password', 'o_client_index'];
+        $this->queryData['queryParams']['filter'] = [ ['Resource'=>'ID', 'Filter'=>'eq', 'Value'=>$client] ];
       } else {
         return '<span class="error">Invalid Flag</span>';
       }
@@ -156,7 +156,7 @@
          'cost' => 12,
         ];
         $this->newPass = password_hash($this->newPw1, PASSWORD_DEFAULT, $options);
-        $this->queryData['payload'] = array($this->resourceName=>$this->newPass);
+        $this->queryData['payload'] = [$this->resourceName=>$this->newPass];
         $this->query = self::createQuery($this->queryData);
         if ($this->query === FALSE) {
           echo $this->error . ' No chages were made to the account.';
@@ -206,7 +206,7 @@
         return TRUE;
       }
     }
-    
+
     public function updateInfo() {
       if ($this->same === 1) {
         $this->BillingName = $this->ClientName;
