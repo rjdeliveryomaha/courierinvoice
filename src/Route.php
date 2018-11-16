@@ -414,8 +414,8 @@
       $driverQueryData['method'] = 'GET';
       $driverQueryData['endPoint'] = 'drivers';
       $driverQueryData['formKey'] = $this->formKey;
-      $driverQueryData['queryParams']['resources'] = array('DriverID', 'FirstName', 'LastName');
-      $driverQueryData['queryParams']['filter'] = array(array('Resource'=>'Deleted', 'Filter'=>'neq', 'Value'=>1));
+      $driverQueryData['queryParams']['resources'] = ['DriverID', 'FirstName', 'LastName'];
+      $driverQueryData['queryParams']['filter'] = [ ['Resource'=>'Deleted', 'Filter'=>'neq', 'Value'=>1] ];
       if (!$driverQuery = self::createQuery($driverQueryData)) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -437,11 +437,11 @@
     }
 
     private function fetchRunList() {
-      $runListQueryData['endPoint'] = "contract_runs";
+      $runListQueryData['endPoint'] = 'contract_runs';
       $runListQueryData['method'] = 'GET';
       $runListQueryData['formKey'] = $this->formKey;
-      $runListQueryData['queryParams']['resources'] = array('crun_index', 'RunNumber', 'BillTo', 'PickUp', 'DropOff', 'RoundTrip', 'pTime', 'dTime', 'd2Time', 'Schedule', 'StartDate', 'LastCompleted', 'Notes', 'DryIce', 'diWeight', 'PriceOverride', 'TicketPrice');
-      $runListQueryData['queryParams']['filter'] = array(array('Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID));
+      $runListQueryData['queryParams']['resources'] = ['crun_index', 'RunNumber', 'BillTo', 'PickUp', 'DropOff', 'RoundTrip', 'pTime', 'dTime', 'd2Time', 'Schedule', 'StartDate', 'LastCompleted', 'Notes', 'DryIce', 'diWeight', 'PriceOverride', 'TicketPrice'];
+      $runListQueryData['queryParams']['filter'] = [ ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID] ];
       if (!$runListQuery = self::createQuery($runListQueryData)) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -456,8 +456,8 @@
       $rescheduledQueryData['endPoint'] = 'schedule_override';
       $rescheduledQueryData['method'] = 'GET';
       $rescheduledQueryData['formKey'] = $this->formKey;
-      $rescheduledQueryData['queryParams']['resources'] = array('ID','StartDate','EndDate','RunNumber','pTime','dTime','d2Time');
-      $rescheduledQueryData['queryParams']['filter'] = array(array('Resource'=>'Cancel', 'Filter'=>'eq', 'Value'=>'5'),array('Resource'=>'DriverID', 'Filter'=>'eq', 'Value'=>$this->driverID));
+      $rescheduledQueryData['queryParams']['resources'] = ['ID','StartDate','EndDate','RunNumber','pTime','dTime','d2Time'];
+      $rescheduledQueryData['queryParams']['filter'] = [ ['Resource'=>'Cancel', 'Filter'=>'eq', 'Value'=>5], ['Resource'=>'DriverID', 'Filter'=>'eq', 'Value'=>$this->driverID] ];
       if (!$rescheduledQuery = self::createQuery($rescheduledQueryData)) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -481,8 +481,8 @@
           $runQueryData['endPoint'] = 'contract_runs';
           $runQueryData['method'] = 'GET';
           $runQueryData['formKey'] = $this->formKey;
-          $runQueryData['queryParams']['resources'] = array('crun_index', 'RunNumber', 'BillTo', 'PickUp', 'DropOff', 'Notes', 'DryIce', 'diWeight', 'PriceOverride', 'TicketPrice');
-          $runQueryData['queryParams']['filter'] = array(array('Resource'=>'RunNumber', 'Filter'=>'eq', 'Value'=>$event['RunNumber']));
+          $runQueryData['queryParams']['resources'] = ['crun_index', 'RunNumber', 'BillTo', 'PickUp', 'DropOff', 'Notes', 'DryIce', 'diWeight', 'PriceOverride', 'TicketPrice'];
+          $runQueryData['queryParams']['filter'] = [ ['Resource'=>'RunNumber', 'Filter'=>'eq', 'Value'=>$event['RunNumber']] ];
           if (!$runQuery = self::createQuery($runQueryData)) {
             $temp = $this->error . "\n";
             $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -519,7 +519,7 @@
       $contractLocationQueryData['endPoint'] = 'contract_locations';
       $contractLocationQueryData['method'] = 'GET';
       $contractLocationQueryData['formKey'] = $this->formKey;
-      $contractLocationQueryData['queryParams']['resources'] = array('ID','ClientName','Department', 'Contact', 'Telephone', 'Address1', 'Address2', 'Country');
+      $contractLocationQueryData['queryParams']['resources'] = ['ID','ClientName','Department', 'Contact', 'Telephone', 'Address1', 'Address2', 'Country'];
       if (!$contractLocationQuery = self::createQuery($contractLocationQueryData)) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -545,8 +545,8 @@
       $cancelationQueryData['endPoint'] = 'schedule_override';
       $cancelationQueryData['method'] = 'GET';
       $cancelationQueryData['formKey'] = $this->formKey;
-      $cancelationQueryData['queryParams']['resources'] = array('Cancel', 'RunNumber', 'StartDate', 'EndDate');
-      $cancelationQueryData['queryParams']['filter'] = array(array('Resource'=>'Cancel', 'Filter'=>'le', 'Value'=>'4'));
+      $cancelationQueryData['queryParams']['resources'] = ['Cancel', 'RunNumber', 'StartDate', 'EndDate'];
+      $cancelationQueryData['queryParams']['filter'] = [ ['Resource'=>'Cancel', 'Filter'=>'le', 'Value'=>4] ];
       if (!$cancelationQuery = self::createQuery($cancelationQueryData)) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -593,8 +593,8 @@
     private function processScheduleCodes() {
       for ($i = 0; $i < count($this->runList); $i++) {
         // Process the schedule codes
-        if (strpos($this->runList[$i]['Schedule'], ",")) {
-          $this->runList[$i]['Schedule'] = explode(",", $this->runList[$i]['Schedule']);
+        if (strpos($this->runList[$i]['Schedule'], ',')) {
+          $this->runList[$i]['Schedule'] = explode(',', $this->runList[$i]['Schedule']);
           for ($x = 0; $x < count($this->runList[$i]['Schedule']); $x++) {
             $this->runList[$i]['Schedule'][$x] = self::scheduleFrequency($this->runList[$i]['Schedule'][$x]);
           }
@@ -605,120 +605,120 @@
     }
 
     function scheduleFrequency($code) {
-      $x = $y = $schedule = "";
-      $test = explode(" ", $code);
+      $x = $y = $schedule = '';
+      $test = explode(' ', $code);
       if (count($test) === 1) {
         switch(substr($code, 0, 1)) {
-          case "a":
-            $x = "Every";
+          case 'a':
+            $x = 'Every';
           break;
-          case "b":
-            $x = "Every Other";
+          case 'b':
+            $x = 'Every Other';
           break;
-          case "c":
-            $x = "Every First";
+          case 'c':
+            $x = 'Every First';
           break;
-          case "d":
-            $x = "Every Second";
+          case 'd':
+            $x = 'Every Second';
           break;
-          case "e":
-            $x = "Every Third";
+          case 'e':
+            $x = 'Every Third';
           break;
-          case "f":
-            $x = "Every Fourth";
+          case 'f':
+            $x = 'Every Fourth';
           break;
-          case "g":
-            $x = "Every Last";
+          case 'g':
+            $x = 'Every Last';
           break;
         }
         switch (substr($code, 1, 1)) {
-          case "1":
-            $y = "Day";
+          case '1':
+            $y = 'Day';
           break;
-          case "2":
-            $y = "Weekday";
+          case '2':
+            $y = 'Weekday';
           break;
-          case "3":
-            $y = "Monday";
+          case '3':
+            $y = 'Monday';
           break;
-          case "4":
-            $y = "Tuesday";
+          case '4':
+            $y = 'Tuesday';
           break;
-          case "5":
-            $y = "Wednesday";
+          case '5':
+            $y = 'Wednesday';
           break;
-          case "6":
-            $y = "Thursday";
+          case '6':
+            $y = 'Thursday';
           break;
-          case "7":
-            $y = "Friday";
+          case '7':
+            $y = 'Friday';
           break;
-          case "8":
-            $y = "Saturday";
+          case '8':
+            $y = 'Saturday';
           break;
-          case "9":
-            $y = "Sunday";
+          case '9':
+            $y = 'Sunday';
           break;
         }
-        $schedule = $x . " " . $y;
+        $schedule = "{$x} {$y}";
       } else {
         if(count($test) === 3) {
           // If the literal schedule is 3 words long the first must be Every and can be eliminated
           array_shift($test);
         }
         switch($test[0]) {
-          case "Every":
-            $x = "a";
+          case 'Every':
+            $x = 'a';
           break;
-          case "Other":
-            $x = "b";
+          case 'Other':
+            $x = 'b';
           break;
-          case "First":
-            $x = "c";
+          case 'First':
+            $x = 'c';
           break;
-          case "Second":
-            $x = "d";
+          case '"econd':
+            $x = 'd';
           break;
-          case "Third":
-            $x = "e";
+          case 'Third':
+            $x = 'e';
           break;
-          case "Fourth":
-            $x = "f";
+          case 'Fourth':
+            $x = 'f';
           break;
-          case "Last":
-            $x = "g";
+          case 'Last':
+            $x = 'g';
           break;
         }
         switch ($test[1]) {
-          case "Day":
-            $y = "1";
+          case 'Day':
+            $y = '1';
           break;
-          case "Weekday":
-            $y = "2";
+          case 'Weekday':
+            $y = '2';
           break;
-          case "Monday":
-            $y = "3";
+          case 'Monday':
+            $y = '3';
           break;
-          case "Tuesday":
-            $y = "4";
+          case 'Tuesday':
+            $y = '4';
           break;
-          case "Wednesday":
-            $y = "5";
+          case 'Wednesday':
+            $y = '5';
           break;
-          case "Thursday":
-            $y = "6";
+          case 'Thursday':
+            $y = '6';
           break;
-          case "Friday":
-            $y = "7";
+          case 'Friday':
+            $y = '7';
           break;
-          case "Saturday":
-            $y = "8";
+          case 'Saturday':
+            $y = '8';
           break;
-          case "Sunday":
-            $y = "9";
+          case 'Sunday':
+            $y = '9';
           break;
         }
-        $schedule = $x . $y;
+        $schedule = "{$x} {$y}";
       }
       return $schedule;
     }
@@ -768,23 +768,23 @@
         return FALSE;
       }
       if ($this->error != NULL) return FALSE;
-      $test = explode(" ", $scheduleFrequency);
-      if ($test[0] !== "Every") {
+      $test = explode(' ', $scheduleFrequency);
+      if ($test[0] !== 'Every') {
         $this->error = 'Something is very wrong. This error should never occur. Line ' . __line__;
         if ($this->enableLogging !== FALSE) self::writeLoop();
         return FALSE;
       }
       if (count($test) === 2) {
         switch ($test[1]) {
-          case "Day":
+          case 'Day':
             return TRUE;
-          case "Weekday":
+          case 'Weekday':
             return $this->dateObject->format('N') <= 5;
           default:
             return $test[1] === $this->dateObject->format('l');
         }
       } elseif (count($test) === 3) {
-        if ($test[2] === "Day" || $test[2] === "Weekday" || $test[2] === $this->dateObject->format('l')) {
+        if ($test[2] === 'Day' || $test[2] === 'Weekday' || $test[2] === $this->dateObject->format('l')) {
           return self::testFrequency($test[1], $test[2]);
         } else {
           return FALSE;
@@ -808,56 +808,56 @@
 
     private function testFrequency($test, $dayName) {
       switch ($test) {
-        case "Other":
+        case 'Other':
           switch ($dayName) {
-            case "Day":
+            case 'Day':
               return $this->testDateObject->format('j') % 2 === $this->dateObject->format('j') % 2;
             break;
-            case "Weekday":
+            case 'Weekday':
               $diff = $this->dateObject->diff($this->testDateObject);
               //If it's been more than two days and today is not Monday
               if ($diff->d > 2 && $this->dateObject->format('N') > 1) {
                 return $diff->d % 2 == 0;
               } else {
-                return $this->testDateObject->modify("+ 2 weekdays")->format('Y-m-d') === $this->dateObject->format('Y-m-d');
+                return $this->testDateObject->modify('+ 2 weekdays')->format('Y-m-d') === $this->dateObject->format('Y-m-d');
               }
             break;
             default:
               /*Sun - Sat*/
-              return $this->testDateObject->modify("+ 1 fortnight")->format('Y-m-d') === $this->dateObject->format('Y-m-d'); break;
+              return $this->testDateObject->modify('+ 1 fortnight')->format('Y-m-d') === $this->dateObject->format('Y-m-d'); break;
           }
         break;
-        case "First":
-          if ($dayName === "Weekday") {
+        case 'First':
+          if ($dayName === 'Weekday') {
             return self::isFirstWeekday($this->dateObject);
           } else {
-            return $this->dateObject->format('Y-m-d') === date('Y-m-d', strtotime("first $dayName of {$this->dateObject->format('F Y')}"));
+            return $this->dateObject->format('Y-m-d') === date('Y-m-d', strtotime("first {$dayName} of {$this->dateObject->format('F Y')}"));
           }
         break;
-        case "Second":
-          if ($dayName === "Weekday") {
-            return self::isFirstWeekday($this->dateObject->modify("- 1 day"));
+        case 'Second':
+          if ($dayName === 'Weekday') {
+            return self::isFirstWeekday($this->dateObject->modify('- 1 day'));
           } else {
-            return $this->dateObject->format('Y-m-d') === date('Y-m-d', strtotime("second $dayName of
+            return $this->dateObject->format('Y-m-d') === date('Y-m-d', strtotime("second {$dayName} of
             {$this->dateObject->format('F Y')}"));
           }
         break;
-        case "Third":
-          if ($dayName === "Weekday") {
+        case 'Third':
+          if ($dayName === 'Weekday') {
             return self::isFirstWeekday($this->dateObject->modify("- 2 day"));
           } else {
-            return $this->dateObject->format('Y-m-d') === date('Y-m-d', strtotime("third $dayName of {$this->dateObject->format('F Y')}"));
+            return $this->dateObject->format('Y-m-d') === date('Y-m-d', strtotime("third {$dayName} of {$this->dateObject->format('F Y')}"));
           }
         break;
-        case "Fourth":
-          if ($dayName === "Weekday") {
-            return self::isFirstWeekday($this->dateObject->modify("- 3 day"));
+        case 'Fourth':
+          if ($dayName === 'Weekday') {
+            return self::isFirstWeekday($this->dateObject->modify('- 3 day'));
           } else {
-            return $this->dateObject->format('Y-m-d') === date('Y-m-d', strtotime("fourth $dayName of {$this->dateObject->format('F Y')}"));
+            return $this->dateObject->format('Y-m-d') === date('Y-m-d', strtotime("fourth {$dayName} of {$this->dateObject->format('F Y')}"));
           }
         break;
-        case "Last":
-          if ($dayName === "Weekday") {
+        case 'Last':
+          if ($dayName === 'Weekday') {
             switch ($this->dateObject->format('t') - $this->dateObject->format('j')) {
               case 0: return $this->dateObject->format('N') <= 5;
               case 1:
@@ -865,7 +865,7 @@
               default: return FALSE;
             }
           } else {
-            return $this->dateObject->format('Y-m-d') === date('Y-m-d', strtotime("last $dayName of {$this->dateObject->format('F Y')}"));
+            return $this->dateObject->format('Y-m-d') === date('Y-m-d', strtotime("last {$dayName} of {$this->dateObject->format('F Y')}"));
           }
         break;
         default: return FALSE;
