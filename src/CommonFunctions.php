@@ -1,13 +1,13 @@
 <?php
   namespace RJDeliveryOmaha\CourierInvoice;
-  
+
   use RJDeliveryOmaha\CourierInvoice\Query;
   use RJDeliveryOmaha\CourierInvoice\Ticket;
   use RJDeliveryOmaha\CourierInvoice\Invoice;
   use RJDeliveryOmaha\CourierInvoice\Client;
   use RJDeliveryOmaha\CourierInvoice\TicketChart;
   use RJDeliveryOmaha\CourierInvoice\InvoiceChart;
-  
+
   /**
   * throws Exception
   *
@@ -42,7 +42,7 @@
   * ];
   *
   **/
-  
+
   class CommonFunctions {
     protected $username;
     protected $publicKey;
@@ -77,30 +77,30 @@
     // maximum number of months to display on a chart
     protected $allTimeChartLimit = 6;
     // Client names that should be changed for example to abbreviate
-    protected $clientNameExceptions = array();
+    protected $clientNameExceptions = [];
     // Addresses that should be ignored for example due to change of address
-    protected $clientAddressExceptions = array();
+    protected $clientAddressExceptions = [];
     protected $sanitized;
     protected $enableLogging = FALSE;
     protected $targetFile;
     protected $fileWriteTry;
     protected $loggingError = FALSE;
     protected $error = '';
-    private $ints = array('dryIce', 'DryIce', 'diWeight', 'fromMe', 'toMe', 'charge', 'Charge', 'type', 'Type', 'contract', 'Contract', 'DispatchedTo', 'emailConfirm', 'EmailConfirm', 'pSigReq', 'dSigReq', 'd2SigReq', 'repeatClient', 'RepeatClient', 'ticketNumber', 'TicketNumber', 'sigType', 'PriceOverride', 'RunNumber', 'holder', 'receiver', 'TransferState', 'ClientID', 'Organization', 'ListBy', 'same');
+    private $ints = ['dryIce', 'DryIce', 'diWeight', 'fromMe', 'toMe', 'charge', 'Charge', 'type', 'Type', 'contract', 'Contract', 'DispatchedTo', 'emailConfirm', 'EmailConfirm', 'pSigReq', 'dSigReq', 'd2SigReq', 'repeatClient', 'RepeatClient', 'ticketNumber', 'TicketNumber', 'sigType', 'PriceOverride', 'RunNumber', 'holder', 'receiver', 'TransferState', 'ClientID', 'Organization', 'ListBy', 'same'];
     // Properties that should always be floats
-    private $floats = array('diPrice', 'TicketBase', 'RunPrice', 'TicketPrice', 'Multiplier', 'timestamp', 'lat',' lng', 'maxRange');
+    private $floats = ['diPrice', 'TicketBase', 'RunPrice', 'TicketPrice', 'Multiplier', 'timestamp', 'lat',' lng', 'maxRange'];
     // Properties that should always be boolean
-    private $bools = array('newTicket', 'compare', 'compareMembers', 'ticketEditor', 'updateTicket', 'consolidateContractTicketsOnInvoice', 'showCancelledTicketsOnInvoice', 'organizationFlag', 'noSession', 'processTransfer');
+    private $bools = ['newTicket', 'compare', 'compareMembers', 'ticketEditor', 'updateTicket', 'consolidateContractTicketsOnInvoice', 'showCancelledTicketsOnInvoice', 'organizationFlag', 'noSession', 'processTransfer'];
     // Properties that are passed at the end of a string value
-    private $afterSemicolon = array('billTo', 'dispatchedTo', 'PendingReceiver');
-    // Properties that are json encoded strings 
-    private $jsonStrings = array('Transfers');
+    private $afterSemicolon = ['billTo', 'dispatchedTo', 'PendingReceiver'];
+    // Properties that are json encoded strings
+    private $jsonStrings = ['Transfers'];
     // No need to filter passwords they will be hashed
-    private $noFilter = array('currentPw', 'newPw1', 'newPw2');
+    private $noFilter = ['currentPw', 'newPw1', 'newPw2'];
     // These properties should not be accessible when setting values from the $data argument
     private $protectedProperties = [ 'username', 'publicKey', 'privateKey', 'config', 'weightMarker', 'rangeMarker', 'countryClass', 'countryInput', 'requireCountry', 'shippingCountry', 'headerLogo', 'headerLogo2', 'myInfo', 'clientNameExceptions', 'clientAddressExceptions', 'showCancelledTicketsOnInvoiceExceptions', 'ignoreValues', 'showCancelledTicketsOnInvoice', 'consolidateContractTicketsOnInvoice', 'ints', 'floats', 'bools', 'afterSemicolon', 'jsonStrings', 'noFilter', 'sanitized', 'enableLogging', 'targetFile', 'fileWriteTry', 'loggingError', 'error', 'protectedProperties', 'RangeCenter', 'lat', 'lng', 'maxRange', 'timezone', 'emailConfig', 'allTimeChartLimit' ];
     private $noGetProps = [ 'error', 'loggingError', 'fileWriteTry', 'sanitized' ];
-    
+
     public function __construct($options, $data=[]) {
       if (!is_array($options) || empty($options)) {
         throw new \Exception('Invalid Configuration');
@@ -110,7 +110,7 @@
         $this->{key($options)} = current($options);
         next($options);
       } while (key($options) !== NULL);
-      
+
       if ($this->enableLogging !== FALSE && ($this->targetFile === '' || $this->targetFile === NULL)) {
         $this->error .= "Logging Enabled With No Target File.\n";
         $this->loggingError = TRUE;
@@ -139,7 +139,7 @@
         $this->config = $_SESSION['config'];
         // RangeCenter is stored as a string it needs to be an array
         if (strpos($_SESSION['config']['RangeCenter'], ',') !== FALSE) $this->config['RangeCenter'] = [ 'lat' => (float)self::before(',', $_SESSION['config']['RangeCenter']), 'lng' => (float)self::after(',', $_SESSION['config']['RangeCenter']) ];
-        
+
         if (isset($_SESSION['pwWarning'])) $this->pwWarning = $_SESSION['pwWarning'];
         if (($this->ulevel === 1 || $this->ulevel === 2) && self::after_last('\\', get_class($this)) !== 'Client') {
           $this->ClientID = $_SESSION['ClientID'];
@@ -210,7 +210,7 @@
         }
         next($this->sanitized);
       } while (key($this->sanitized) !== NULL);
-      
+
       if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($data['noSession'])) {
         if (!$this->validate()) {
           $this->error = 'Session Validation Error';
@@ -219,14 +219,14 @@
         }
       }
     }
-    
+
     public function getProperty($property) {
       if (property_exists($this, $property) && !in_array($property, $this->noGetProps)) {
         return $this->{$property};
       }
       return FALSE;
     }
-    
+
     public function updateProperty($property, $value) {
       if (property_exists($this, $property) && !in_array($property, $this->noGetProps)) {
         if (in_array($property, $this->ints)) {
@@ -242,21 +242,21 @@
       }
       return FALSE;
     }
-    
+
     public function addToProperty($property, $value) {
       if (property_exists($this, $property) && (in_array($property, $this->ints) || in_array($property, $this->floats))) {
         return $this->{$property} += $value;
       }
       return FALSE;
     }
-    
+
     public function substractFromProperty($property, $value) {
       if (property_exists($this, $property) && (in_array($property, $this->ints) || in_array($property, $this->floats))) {
         return $this->{$property} -= $value;
       }
       return FALSE;
     }
-    
+
     public function compareProperties($obj1, $obj2, $property, $strict=FALSE) {
       if (!(is_object($obj1) && is_object($obj2))) {
         return FALSE;
@@ -266,11 +266,11 @@
       }
       return ($strict === TRUE) ? ($obj1->getProperty($property) === $obj2->getProperty($property)) : ($obj1->getProperty($property) == $obj2->getProperty($property));
     }
-    
+
     public function debug() {
       return self::safe_print_r($this);
     }
-    
+
     public function getError() {
       return $this->error;
     }
@@ -287,7 +287,7 @@
     protected function writeFile() {
       /*** http://php.net/manual/en/function.fwrite.php#81269 ***/
       /*** open the file for writing and truncate it to zero length ***/
-      $fp = fopen( $this->targetFile, "ab" );
+      $fp = fopen( $this->targetFile, 'ab' );
       /*** write the new file content ***/
       $bytes_to_write = strlen($this->error);
       $bytes_written = 0;
@@ -304,7 +304,7 @@
       }
       return $bytes_written;
     }
-    
+
     protected function setTimezone() {
       if (!date_default_timezone_set($this->config['TimeZone'])) {
         $this->error = 'Timezone Error Line ' . __line__;
@@ -331,7 +331,7 @@
       // Return a hash of the string for added opacity
       return md5($ip . $uniqid);
     }
-  
+
     // Public function to output the key in a hidden form element
     public function outputKey() {
       // Generate the key and store it in the class
@@ -341,33 +341,33 @@
       //Output the form key
       return '<input type="hidden" name="formKey" class="formKey" id="formKey" value="' . $this->formKey . '" />';
     }
-  
+
     //Public function to output a key for use in multi-form pages
     public function outputMultiKey() {
       //Generate the key and store it in the class
       $this->formKey = self::generateKey();
       //Store the key as a session variable
       $_SESSION['formKey'] = $this->formKey;
-    
+
       return $this->formKey;
     }
-  
+
     //Public function to validate the key as POST data
     private function validate() {
       // Compare the POST value to the previous key
       return (isset($_SESSION['formKey']) && $this->formKey === $_SESSION['formKey']);
     }
-    
+
     protected function recursive_santizer($array, $filter='input') {
       // possible filters: email, float, int
       $returnData = array();
-      
+
       foreach ($array as $key => $value) {
         if (is_object($value)) {
           $returnData[$key] = $value;
         } elseif (is_array($value)) {
           $returnData[$key] = self::recursive_santizer($value);
-        } elseif (in_array($key, $this->ints, true) || substr($key, -5) === "index") {
+        } elseif (in_array($key, $this->ints, true) || substr($key, -5) === 'index') {
           $returnData[$key] = self::test_int($value);
         } elseif (in_array($key, $this->bools, true)) {
           $returnData[$key] = self::test_bool($value);
@@ -377,7 +377,7 @@
           // Capture client name and driver name from this group
           if (strpos($value, ';') !== FALSE) {
             switch ($key) {
-              case "billTo":
+              case 'billTo':
                 if (strpos($value, ';') !== FALSE) {
                   $returnData['ClientName'] = self::decode(self::test_input(self::before_last(';', $value)));
                   $returnData['BillTo'] = self::test_int(self::after_last(';', $value));
@@ -385,7 +385,7 @@
                   $returnData['BillTo'] = self::test_int($value);
                 }
               break;
-              case "dispatchedTo":
+              case 'dispatchedTo':
                 if (strpos($value, ';') !== FALSE) {
                   $returnData['DriverName'] = self::decode(self::test_input(self::before_last(';', $value)));
                   $returnData['driverID'] = $returnData['DispatchedTo'] = self::test_int(self::after_last(';', $value));
@@ -393,7 +393,7 @@
                   $returnData['driverID'] = $returnData['DispatchedTo'] = self::test_int($value);
                 }
               break;
-              case "PendingReceiver":
+              case 'PendingReceiver':
                 if (strpos($value, ';') !== FALSE) {
                   $returnData['receiverName'] = self::decode(self::test_input(self::before_last(';', $value)));
                   $returnData[$key] = self::test_int(self::after_last(';', $value));
@@ -431,7 +431,7 @@
       }
       return FALSE;
     }
-    
+
     protected function user_array_sort($array, $on, $order=SORT_ASC) {
       // http://php.net/manual/en/function.sort.php#99419
       $new_array = array();
@@ -488,7 +488,7 @@
     protected function between_last($needle, $that, $inthat) {
       return self::after_last($needle, self::before_last($that, $inthat));
     }
-    
+
     protected function esc_url($url) {
       if ('' == $url) {
         return $url;
@@ -510,22 +510,22 @@
         return $url;
       }
     }
-    
+
     protected function decode($data) {
       if (preg_match('/(&#\d+;)/', $data)) {
-        $data = preg_replace_callback("/(&#[0-9]+;)/", function($m) { return mb_convert_encoding($m[1], "UTF-8", "HTML-ENTITIES"); }, $data);
+        $data = preg_replace_callback("/(&#[0-9]+;)/", function($m) { return mb_convert_encoding($m[1], 'UTF-8', '"HTML-ENTITIES'); }, $data);
       }
       if (preg_match('/(&\w+;)/', $data)) {
         $data = html_entity_decode($data);
       }
       return $data;
     }
-    
+
     protected function encodeURIComponent($str) {
       $revert = array('%21'=>'!', '%2A'=>'*', '%27'=>"'", '%28'=>'(', '%29'=>')');
       return strtr(rawurlencode($str), $revert);
     }
-  
+
     protected function test_input($val) {
       return filter_var(htmlentities(stripcslashes(trim($val))), FILTER_SANITIZE_STRING);
     }
@@ -542,7 +542,7 @@
     protected function test_email($val) {
       return filter_var($val, FILTER_SANITIZE_EMAIL);
     }
-    
+
     protected function test_bool($val) {
       return filter_var($val, FILTER_VALIDATE_BOOLEAN);
     }
@@ -554,11 +554,11 @@
     protected function test_phone($val) {
       return preg_match('/(\d{3})-(\d{3})-(\d{4})x(\d+)/i', $val) || preg_match('/(\d{3})-(\d{3})-(\d{4})/', $val);
     }
-    
+
     protected function test_invoice_number($val) {
       return (preg_match('/(^[\d]{2}EX[\d]+-t[\d]+$)/', $val) || preg_match('/(^[\d]{2}EX[\d]+-[\d]+$)/', $val));
     }
-    
+
     protected function safe_print_r($data) {
       echo "<pre>\n{$this->safe_print($data)}\n</pre>";
     }
@@ -568,18 +568,18 @@
       $returnData = '';
       if (!is_object($data) && !is_array($data) && !is_resource($data)) {
         switch (gettype($data)) {
-          case "string": $returnData .= ucfirst(gettype($data)) . " (" . strlen($data) . "): " . var_export($data, TRUE) . "\n"; break;
-          case "integer": 
-          case "double": $returnData .= ucfirst(gettype($data)) . " (" . var_export($data, TRUE) . ")\n"; break;
+          case 'string': $returnData .= ucfirst(gettype($data)) . ' (' . strlen($data) . '): ' . var_export($data, TRUE) . "\n"; break;
+          case "integer":
+          case "double": $returnData .= ucfirst(gettype($data)) . ' (' . var_export($data, TRUE) . ")\n"; break;
           case "NULL": $returnData .= ucfirst(gettype($data)) . "\n"; break;
           // boolean is covered by default
-          default: $returnData .= ucfirst(gettype($data)) . ": " . var_export($data, TRUE) . "\n"; break;
+          default: $returnData .= ucfirst(gettype($data)) . ': ' . var_export($data, TRUE) . "\n"; break;
         }
       } elseif ($nesting < 0) {
         $returnData .= "** MORE **\n";
       } else {
         $returnData .= ucfirst(gettype($data)) . " (\n";
-        $objFullName = (is_object($data)) ? get_class($data) : "";
+        $objFullName = (is_object($data)) ? get_class($data) : '';
         $objType = (strpos($objFullName, '\\') !== FALSE) ? self::after_last('\\', $objFullName) : $objFullName;
         $objType .= ($objType === '') ? '' : ':';
         foreach ($data as $k => $v) {
@@ -592,19 +592,17 @@
     }
     //Turn an array into a nice printed list
     protected function arrayToList($array) {
-      $list = "";
       $elements = count($array);
       if ($elements === 0) {
         return FALSE;
       } elseif ($elements === 1) {
-        $list = $array[0];
+        return $array[0];
       } elseif ($elements === 2) {
-        $list = $array[0] . " and " . $array[1];
+        return "{$array[0]} and {$array[1]}";
       } else {
-        $part = array_slice($array, 0, $elements - 1);
-        $list = implode(', ', $part) . " and " . $array[($elements - 1)];
+        $end = array_pop($array);
+        return implode(', ', $array) . ", and {$end}";
       }
-      return $list;
     }
     /***
     * http://php.net/manual/de/function.money-format.php#112890
@@ -628,15 +626,15 @@
     //Prevent division by zero when trying to show percentages
     protected function displayPercentage($numerator, $denominator) {
       if ((float)$denominator == 0) {
-        return "0";
+        return '0';
       }
       return self::number_format_drop_zero_decimals((float)$numerator/(float)$denominator * 100, 2);
     }
-    
+
     protected function clientListBy($val) {
       return ($this->ListBy === 0) ? $this->members[$val]->getProperty('ShippingAddress1') : $this->members[$val]->getProperty('Department');
     }
-    
+
     protected function chartIndexToProperty() {
       switch ($this->chartIndex) {
         case 1: return $this->firstChart;
@@ -644,7 +642,7 @@
         default: return NULL;
       }
     }
-    
+
     protected function createClient($data) {
       try {
         $obj = new Client($this->options, $data);
@@ -654,7 +652,7 @@
       }
       return $obj;
     }
-    
+
     protected function createTicket($data) {
       try {
         $obj = new Ticket($this->options, $data);
@@ -664,7 +662,7 @@
       }
       return $obj;
     }
-    
+
     protected function createTicketChart($data) {
       try {
         $obj = new TicketChart($this->options, $data);
@@ -674,7 +672,7 @@
       }
       return $obj;
     }
-    
+
     protected function createInvoice($data) {
       try {
         $obj = new Invoice($this->options, $data);
@@ -684,7 +682,7 @@
       }
       return $obj;
     }
-    
+
     protected function createInvoiceChart($data) {
       try {
         $obj = new InvoiceChart($this->options, $data);
@@ -694,7 +692,7 @@
       }
       return $obj;
     }
-    
+
     protected function createQuery($data) {
       try {
         $obj = new Query($this->options, $data);
@@ -704,7 +702,7 @@
       }
       return $obj;
     }
-    
+
     protected function callQuery($query) {
       try {
         $result = $query->buildURI()->call();
@@ -715,38 +713,38 @@
       $returnData = json_decode($result, true);
       return (strtoupper($query->getProperty('method')) === 'GET') ? $returnData['records'] : $returnData;
     }
-    
-    private function createLimitedMonthInput($clientIDs, $inputID, $disabled=FALSE, $type="month", $table="invoices", $required=FALSE) {
-      $sql = $min = $max = $returnData = "";
+
+    private function createLimitedMonthInput($clientIDs, $inputID, $disabled=FALSE, $type='month', $table='invoices', $required=FALSE) {
+      $sql = $min = $max = $returnData = '';
       $dates = $data = array();
       $disableInput = ($disabled === FALSE) ? '' : 'disabled';
       $requireInput = ($required === FALSE) ? '' : 'required';
-      $id = ($type === "month") ? $inputID . "Month" : $inputID;
-      $inputName = (strpos($inputID,"invoice") === FALSE) ? $inputID : substr($inputID, 7);
+      $id = ($type === "month") ? $inputID . 'Month' : $inputID;
+      $inputName = (strpos($inputID,'invoice') === FALSE) ? $inputID : substr($inputID, 7);
       $queryData = [];
       $queryData['endPoint'] = $table;
       $queryData['formKey'] = $this->formKey;
       $queryData['method'] = 'GET';
       // Define variables based on the input type
-      if ($type === "month") {
-        $format = "Y-m";
+      if ($type === 'month') {
+        $format = 'Y-m';
         $when = 'DateIssued';
-        $queryData['queryParams']['resources'] = array('DateIssued');
-        $queryData['queryParams']['filter'][] = array('Resource'=>'InvoiceNumber', 'Filter'=>'ncs', 'Value'=>'t');
+        $queryData['queryParams']['resources'] = ['DateIssued'];
+        $queryData['queryParams']['filter'] = [ ['Resource'=>'InvoiceNumber', 'Filter'=>'ncs', 'Value'=>'t'] ];
         $who = 'ClientID';
         $placeholder = 'JAN 2000';
-      } elseif ($type === "date") {
-        $format = "Y-m-d";
+      } elseif ($type === 'date') {
+        $format = 'Y-m-d';
         $when = 'ReceivedDate';
-        $queryData['queryParams']['resources'] = array('ReceivedDate');
-        $queryData['queryParams']['filter'][] = array('Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1);
+        $queryData['queryParams']['resources'] = ['ReceivedDate'];
+        $queryData['queryParams']['filter'] = [ ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1] ];
         $who = 'BillTo';
         $placeholder = '';
       }
       // Make sure that $clientIDs is an array
       if ($clientIDs !== NULL && !is_array($clientIDs)) {
         $temp = $clientIDs;
-        $clientIDs = array();
+        $clientIDs = [];
         $clientIDs[] = $temp;
       }
       // Return an error if no clients are listed
@@ -754,7 +752,7 @@
         $returnData = "No Clients In Organization";
         return $returnData;
       }
-      $queryData['queryParams']['filter'][] = array('Resource'=>$who, 'Filter'=>'in', 'Value'=> implode(',', $clientIDs));
+      $queryData['queryParams']['filter'][] = ['Resource'=>$who, 'Filter'=>'in', 'Value'=> implode(',', $clientIDs)];
       if (!$query = self::createQuery($queryData)) {
         return $this->error;
       }
@@ -777,14 +775,14 @@
       }
       return $returnData;
     }
-    
+
     private function createInvoiceNumberSelect($search) {
       $queryData = [];
       $queryData['formKey'] = $this->formKey;
       $queryData['method'] = 'GET';
       $queryData['endPoint'] = 'invoices';
-      $queryData['queryParams']['resources'] = array('InvoiceNumber', 'Closed');
-      $queryData['queryParams']['filter'] = array(array('Resource'=>'ClientID','Filter'=>'eq','Value'=>$search), array('Resource'=>'InvoiceNumber','Filter'=>'ncs','Value'=>'t'));
+      $queryData['queryParams']['resources'] = ['InvoiceNumber', 'Closed'];
+      $queryData['queryParams']['filter'] = [ ['Resource'=>'ClientID','Filter'=>'eq','Value'=>$search], ['Resource'=>'InvoiceNumber','Filter'=>'ncs','Value'=>'t'] ];
       $queryData['queryParams']['order'] = array('InvoiceNumber', 'desc');
       if (!$query = self::createQuery($queryData)) {
         return $this->error;
@@ -804,14 +802,14 @@
       $returnData .= '</select>';
       return $returnData;
     }
-    
+
     private function getCredit() {
       $data = [];
       $data['formKey'] = $this->formKey;
       $data['method'] = 'GET';
       $data['endPoint'] = 'invoices';
-      $data['queryParams']['resources'] = array('Balance', 'DatePaid');
-      $data['queryParams']['filter'] = array(array('Resource'=>'ClientID', 'Filter'=>'eq', 'Value'=>$_SESSION['ClientID']), array('Resource'=>'Closed', 'Filter'=>'eq', 'Value'=>'1'));
+      $data['queryParams']['resources'] = ['Balance', 'DatePaid'];
+      $data['queryParams']['filter'] = [ ['Resource'=>'ClientID', 'Filter'=>'eq', 'Value'=>$_SESSION['ClientID']], ['Resource'=>'Closed', 'Filter'=>'eq', 'Value'=>1] ];
       if (!$query = self::createQuery($data)) {
         return $this->error;
       }
@@ -819,17 +817,17 @@
       if ($temp === FALSE) {
         return $this->error;
       }
-      
-      $credit = array('Balance'=>'0', 'DatePaid'=>'0');
-      
+
+      $credit = ['Balance'=>'0', 'DatePaid'=>'0'];
+
       foreach ($temp as $test) {
         if ($test['DatePaid'] > $credit['DatePaid']) {
           $credit = $test;
         }
       }
       $data['endPoint'] = 'tickets';
-      $data['queryParams']['resources'] = array('TicketPrice');
-      $data['queryParams']['filter'] = array(array('Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=>$_SESSION['ClientID']), array('Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>'-'), array('Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>'9'));
+      $data['queryParams']['resources'] = ['TicketPrice'];
+      $data['queryParams']['filter'] = [ ['Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=>$_SESSION['ClientID']], ['Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>'-'], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>9] ];
       if (!$query = self::createQuery($data)) {
         return $this->error;
       }
@@ -842,7 +840,7 @@
       }
       return self::negParenth(self::number_format_drop_zero_decimals($credit['Balance'], 2));
     }
-    
+
     private function listOrgMembers($identifier) {
       $returnData = '';
       $x = 0;
@@ -853,7 +851,7 @@
       }
       return $returnData;
     }
-    
+
     public function createNavMenu() {
       $displayClientName = '<span class="error">User Name Error</span>';
       $menuLinks = '
@@ -951,7 +949,7 @@
         </ul>';
       return $navMenu;
     }
-    
+
     public function createAppLayout() {
       $appLayout = '
         <div class="swipe-wrap">
@@ -985,32 +983,32 @@
                   <legend>Search Parameters</legend>
                   <div>
                     <p>
-                      <label for="allTime">All Time:</label>  
+                      <label for="allTime">All Time:</label>
                       <input type="hidden" name="allTime" value="N" />
                       <input type="checkbox" name="allTime" id="allTime" class="allTime2" value="Y" />
                     </p>
                     <p>
-                      <label for="ticketNumber" class="switchable">Ticket<span class="mobileHide"> Number</span>:</label>  
+                      <label for="ticketNumber" class="switchable">Ticket<span class="mobileHide"> Number</span>:</label>
                       <input type="number" min="0" name="ticketNumber" id="ticketNumber" class="switchable" />
                     </p>
                   </div>
                   <div>
                     <p>
-                      <label for="startDate">Start Date:</label>  
+                      <label for="startDate">Start Date:</label>
                       <input type="hidden" name="startDate" class="startDateMarker" disabled />
-                      <span style="display:none;" class="chartDate" title="Query Range Limited To 6 Month Periods">' . self::createLimitedMonthInput($search, "startDate", TRUE) . '</span>
-                      <span class="ticketDate">' . self::createLimitedMonthInput($search, "startDate", FALSE, "date", "tickets") . '</span>
+                      <span style="display:none;" class="chartDate" title="Query Range Limited To 6 Month Periods">' . self::createLimitedMonthInput($search, 'startDate', TRUE) . '</span>
+                      <span class="ticketDate">' . self::createLimitedMonthInput($search, 'startDate', FALSE, 'date', 'tickets') . '</span>
                     </p>
                     <p>
-                      <label for="endDate">End Date:</label>  
+                      <label for="endDate">End Date:</label>
                       <input type="hidden" name="endDate" class="endDateMarker" disabled />
-                      <span style="display:none;" class="chartDate" title="Query Range Limited To 6 Month Periods">' . self::createLimitedMonthInput($search, "endDate", TRUE) . '</span>
-                      <span class="ticketDate">' . self::createLimitedMonthInput($search, "endDate", FALSE, "date", "tickets") . '</span>
+                      <span style="display:none;" class="chartDate" title="Query Range Limited To 6 Month Periods">' . self::createLimitedMonthInput($search, 'endDate', TRUE) . '</span>
+                      <span class="ticketDate">' . self::createLimitedMonthInput($search, 'endDate', FALSE, 'date', 'tickets') . '</span>
                     </p>
                   </div>
                   <div>
                     <p>
-                      <label for="chargeHistory" class="switchable">Charge:</label>  
+                      <label for="chargeHistory" class="switchable">Charge:</label>
                       <input type="hidden" name="charge" id="chargeMarker" value="10" />
                       <select name="charge" id="chargeHistory" class="switchable">
                         <option value="5">Routine</option>
@@ -1022,7 +1020,7 @@
                     </p>
                     <p>
                       <input type="hidden" name="type" id="typeMarker" value="2" />
-                      <label for="type" class="switchable">Type:</label>  
+                      <label for="type" class="switchable">Type:</label>
                       <select name="type" id="type" class="switchable">
                         <option value="2">All</option>
                         <option value="1">Contract</option>
@@ -1099,19 +1097,19 @@
                     <p>
                       <label for="startDate">Start Date:</label>
                       <input type="hidden" name="startDate" class="startDateMarker" disabled />
-                      <span style="display:none;" class="chartDate" title="Query Range Limited To 6 Month Periods">' . self::createLimitedMonthInput($search, "startDate", TRUE) . '</span>
-                      <span class="ticketDate">' . self::createLimitedMonthInput($search, "startDate", FALSE, "date", "tickets") . '</span>
+                      <span style="display:none;" class="chartDate" title="Query Range Limited To 6 Month Periods">' . self::createLimitedMonthInput($search, 'startDate', TRUE) . '</span>
+                      <span class="ticketDate">' . self::createLimitedMonthInput($search, 'startDate', FALSE, 'date', 'tickets') . '</span>
                     </p>
                     <p>
                       <label for="endDate">End Date:</label>
                       <input type="hidden" name="endDate" class="endDateMarker" disabled />
-                      <span style="display:none;" class="chartDate" title="Query Range Limited To 6 Month Periods">' . self::createLimitedMonthInput($search, "endDate", TRUE) . '</span>
-                      <span class="ticketDate">' . self::createLimitedMonthInput($search, "endDate", FALSE, "date", "tickets") . '</span>
+                      <span style="display:none;" class="chartDate" title="Query Range Limited To 6 Month Periods">' . self::createLimitedMonthInput($search, 'endDate', TRUE) . '</span>
+                      <span class="ticketDate">' . self::createLimitedMonthInput($search, 'endDate', FALSE, 'date', 'tickets') . '</span>
                     </p>
                   </div>
                   <div>
                     <p>
-                      <label for="chargeHistory" class="switchable">Charge:</label>  
+                      <label for="chargeHistory" class="switchable">Charge:</label>
                       <input type="hidden" name="charge" id="chargeMarker" value="10" />
                       <select name="charge" id="chargeHistory" class="switchable">
                         <option value="10">All</option>
@@ -1127,7 +1125,7 @@
                     </p>
                     <p>
                       <input type="hidden" name="type" id="typeMarker" value="2" />
-                      <label for="type" class="switchable">Type:</label>  
+                      <label for="type" class="switchable">Type:</label>
                       <select name="type" id="type" class="switchable">
                         <option value="2">All</option>
                         <option value="1">Contract</option>
@@ -1175,7 +1173,7 @@
                       <table>
                         <tr>
                           <td><label for="dateIssued">Date Issued:  </label></td>
-                          <td class="pullLeft">' . self::createLimitedMonthInput($_SESSION['ClientID'], "dateIssued", FALSE, "month", "invoices", TRUE) . '</td>
+                          <td class="pullLeft">' . self::createLimitedMonthInput($_SESSION['ClientID'], 'dateIssued', FALSE, 'month', 'invoices', TRUE) . '</td>
                         </tr>
                         <tr>
                           <td><label for="invoiceNumber">Invoice Number:  </label></td>
@@ -1203,11 +1201,11 @@
                       <table>
                         <tr>
                           <td><label for="startDate">Start Date:</label></td>
-                          <td>' . self::createLimitedMonthInput($_SESSION['ClientID'], "startDate", FALSE, "month", "invoices", TRUE) . '</td>
+                          <td>' . self::createLimitedMonthInput($_SESSION['ClientID'], 'startDate', FALSE, 'month', 'invoices', TRUE) . '</td>
                         </tr>
                         <tr>
                           <td><label for="endDate">End Date:</label></td>
-                          <td>' . self::createLimitedMonthInput($_SESSION['ClientID'], "endDate", FALSE, "month", "invoices", TRUE). '</td>
+                          <td>' . self::createLimitedMonthInput($_SESSION['ClientID'], 'endDate', FALSE, 'month', 'invoices', TRUE). '</td>
                         </tr>
                         <tr>
                           <td colspan="2" title="Range limited to 6 months.">
@@ -1232,7 +1230,7 @@
           <div id="changePassword" data-function="initChangePasswordForm" class="page">
             <div class="PWcontainer">
               <div class="PWform">
-                <form id="pwUpdate" action="' . self::esc_url($_SERVER["REQUEST_URI"]) . '" method="post">
+                <form id="pwUpdate" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
                   <input type="hidden" name="client" class="client" value="' . $_SESSION['ClientID'] . '" form="pwUpdate" />
                   <input type="hidden" name="flag" class="flag" value="daily" form="pwUpdate" />
                   <table>
@@ -1283,7 +1281,7 @@
           <div id="changeAdminPassword" data-function="initChangeAdminPasswordForm" class="page">
             <div class="PWcontainer">
               <div class="PWform">
-                <form id="apwUpdate" action="' . self::esc_url($_SERVER["REQUEST_URI"]) . '" method="post">
+                <form id="apwUpdate" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
                   <input type="hidden" name="client" class="client" value="' . $_SESSION['ClientID'] . '" form="apwUpdate" />
                   <input type="hidden" name="flag" class="flag" value="admin" form="apwUpdate" />
                   <table>
@@ -1456,10 +1454,10 @@
                     <td colspan="6">If greater changes are required than are permitted here please contact us.</td>
                   </tr>
                   <tr>
-                    <td colspan="6">By phone at ' . $_SESSION["config"]["Telephone"] . '</td>
+                    <td colspan="6">By phone at ' . $_SESSION['config']['Telephone'] . '</td>
                   </tr>
                   <tr>
-                    <td colspan="6">Or via email at <a style="color:green" href="mailto:' . $_SESSION["config"]["EmailAddress"] . '?subject=Update Contact Information">' . $_SESSION["config"]["EmailAddress"] . '</a></td>
+                    <td colspan="6">Or via email at <a style="color:green" href="mailto:' . $_SESSION['config']['EmailAddress'] . '?subject=Update Contact Information">' . $_SESSION['config']['EmailAddress'] . '</a></td>
                   </tr>
                 </table>
 	            </form>
@@ -1508,7 +1506,7 @@
                         <table>
                           <tr>
                             <td><label for="dateIssued">Date Issued:</label></td>
-                            <td class="pullLeft">' . self::createLimitedMonthInput(array_keys($_SESSION['members']), "dateIssued", FALSE, "month", "invoices", TRUE) . '</td>
+                            <td class="pullLeft">' . self::createLimitedMonthInput(array_keys($_SESSION['members']), 'dateIssued', FALSE, 'month', 'invoices', TRUE) . '</td>
                           </tr>
                           <tr>
                             <td colspan="2">&nbsp;</td>
@@ -1531,12 +1529,12 @@
                         <table>
                           <tr>
                             <td class="pullLeft"><label for="invoiceStartDateMonth">Start Date:  </label></td>
-                            <td>' . self::createLimitedMonthInput(array_keys($_SESSION['members']), "invoiceStartDate"). '</td>
+                            <td>' . self::createLimitedMonthInput(array_keys($_SESSION['members']), 'invoiceStartDate'). '</td>
                             <td colspan="2" class="center bold">Compare</td>
                           </tr>
                           <tr>
                             <td class="pullLeft"><label for="invoiceEndDateMonth">End Date:  </label></td>
-                            <td class="pullLeft">' . self::createLimitedMonthInput(array_keys($_SESSION['members']), "invoiceEndDate") . '</td>
+                            <td class="pullLeft">' . self::createLimitedMonthInput(array_keys($_SESSION['members']), 'invoiceEndDate') . '</td>
                             <td class="center">
                               <label for="compareInvoices">Months:</label>
                               <input type="hidden" name="compare" value="0" />
@@ -1577,7 +1575,7 @@
                       <input type="checkbox" name="allTime" id="allTime" value="Y" />
                     </p>
                     <p>
-                      <label for="ticketNumber" class="switchable">Ticket<span class="mobileHide"> Number</span>:</label>  
+                      <label for="ticketNumber" class="switchable">Ticket<span class="mobileHide"> Number</span>:</label>
                       <input type="hidden" class="ticketNumberMarker" name="ticketNumber" />
                       <input type="number" min="1" name="ticketNumber" id="ticketNumber" />
                     </p>
@@ -1587,20 +1585,20 @@
                       <label for="startDate">Start Date:  </label>
                       <input type="hidden" name="startDate" id="startDateMarker" disabled />
                       <span class="chartDate" style="display:none;" title="Query Range Limited To 6 Month Periods">
-                        ' . self::createLimitedMonthInput(array_keys($_SESSION['members']), "startDate", TRUE) . '
+                        ' . self::createLimitedMonthInput(array_keys($_SESSION['members']), 'startDate', TRUE) . '
                       </span>
                       <span class="ticketDate">
-                        ' . self::createLimitedMonthInput(array_keys($_SESSION['members']), "startDate", FALSE, "date", "tickets") . '
+                        ' . self::createLimitedMonthInput(array_keys($_SESSION['members']), 'startDate', FALSE, 'date', 'tickets') . '
                       </span>
                     </p>
                     <p>
                       <label for="endDate">End Date: </label>
                       <input type="hidden" name="endDate" id="endDateMarker" />
                       <span class="chartDate" style="display:none;" title="Query Range Limited To 6 Month Periods">
-                        ' . self::createLimitedMonthInput(array_keys($_SESSION['members']), "endDate", TRUE) . '
+                        ' . self::createLimitedMonthInput(array_keys($_SESSION['members']), 'endDate', TRUE) . '
                       </span>
                       <span class="ticketDate">
-                        ' . self::createLimitedMonthInput(array_keys($_SESSION['members']), "endDate", FALSE, "date", "tickets") . '
+                        ' . self::createLimitedMonthInput(array_keys($_SESSION['members']), 'endDate', FALSE, 'date', 'tickets') . '
                       </span>
                     </p>
                   </div>
@@ -1661,7 +1659,7 @@
           <div id="changeOrgPW" data-function="initChangeOrgPasswordForm" class="page">
             <div class="PWcontainer">
               <div class="PWform">
-                <form id="opwUpdate" action="' . self::esc_url($_SERVER["REQUEST_URI"]) . '" method="post">
+                <form id="opwUpdate" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
                   <input type="hidden" name="client" class="client" value="' . $_SESSION['ClientID'] . '" form="opwUpdate" />
                   <input type="hidden" name="flag" class="flag" value="org" form="opwUpdate" />
                   <table>
@@ -1734,7 +1732,7 @@
           <div id="dispatch" data-function="ticketsToDispatch" class="page">
           </div>
           <div id="ticketEditor" data-function="initTicketEditor" class="page">
-            <form action="'. self::esc_url($_SERVER["REQUEST_URI"]) . '" method="post">
+            <form action="'. self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
               <input type="hidden" name="ticketEditor" value="1" />
               <table class="centerDiv">
                 <tr>
@@ -1786,7 +1784,7 @@
           <div id="priceCalculator" data-function="runPriceForm" class="page">
           </div>
           <div id="ticketEditor" data-function="initTicketEditor" class="page">
-            <form action="'. self::esc_url($_SERVER["REQUEST_URI"]) . '" method="post">
+            <form action="'. self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
               <input type="hidden" name="ticketEditor" value="1" />
               <table class="centerDiv">
                 <tr>
@@ -1823,7 +1821,7 @@
       }
       return $appLayout;
     }
-    
+
     protected function countryFromAbbr($abbr) {
       // Credits will have a value of '-' for pCountry and dCountry
       if ($abbr === '-') return $abbr;
@@ -1831,375 +1829,375 @@
       if ($abbr == NULL) return '';
       if (strlen($abbr) === 2) {
         switch ($abbr) {
-          case "AL": return "Albania";
-          case "DZ": return "Algeria";
-          case "AD": return "Andorra";
-          case "AO": return "Angola";
-          case "AR": return "Argentina";
-          case "AM": return "Armenia";
-          case "AW": return "Aruba";
-          case "AU": return "Australia";
-          case "AT": return "Austria";
-          case "AZ": return "Azerbaijan";
-          case "PT": return "Azores";
-          case "BS": return "Bahamas";
-          case "BH": return "Bahrain";
-          case "BD": return "Bangladesh";
-          case "BB": return "Barbados";
-          case "BY": return "Belarus";
-          case "BE": return "Belgium";
-          case "BZ": return "Belize";
-          case "BJ": return "Benin";
-          case "BM": return "Bermuda";
-          case "BT": return "Bhutan";
-          case "BO": return "Bolivia";
-          case "BA": return "Bosna-Herzegovina";
-          case "BW": return "Botswana";
-          case "BR": return "Brazil";
-          case "BN": return "Brunei Darussalam";
-          case "BG": return "Bulgaria";
-          case "BF": return "Burkina FASO";
-          case "BI": return "Burundi";
-          case "KH": return "Cambodia";
-          case "CM": return "Cameroon";
-          case "CA": return "Canada";
-          case "CV": return "Cape Verde";
-          case "KY": return "Cayman Islands";
-          case "CF": return "Cntl African Republic";
-          case "TS": return "Chad";
-          case "CL": return "Chile";
-          case "CN": return "China";
-          case "CO": return "Columbia";
-          case "ZR": return "Democratic Republic of Congo";
-          case "CG": return "Republic of the Congo (Brazaville)";
-          case "CR": return "Costa Rica";
-          case "CI": return "Cote d'Ivoire (Ivory Coast)";
-          case "HR": return "Croatia";
-          case "CY": return "Cyprus";
-          case "CZ": return "Czech Republic";
-          case "DK": return "Denmark";
-          case "DJ": return "Djibouti";
-          case "DO": return "Dominican Republic";
-          case "EC": return "Ecuador";
-          case "EG": return "Egypt";
-          case "SV": return "El Salvador";
-          case "GQ": return "Equatorial Guinea";
-          case "ER": return "Eritrea";
-          case "EE": return "Estonia";
-          case "ET": return "Ethiopia";
-          case "DK": return "Faroe Islands";
-          case "FJ": return "Fiji";
-          case "FI": return "Finland";
-          case "FR": return "France";
-          case "GF": return "French Guiana";
-          case "PF": return "French Polynesia (Tahitti)";
-          case "GA": return "Gabon";
-          case "GE": return "Georgia, Republic of";
-          case "DE": return "Germany";
-          case "GH": return "Ghana";
-          case "GB": return "Great Britain &amp; Northern Ireland";
-          case "GR": return "Greece";
-          case "GD": return "Grenada";
-          case "GP": return "Guadeloupe";
-          case "GT": return "Guatemala";
-          case "GN": return "Guinea";
-          case "GW": return "Guinea-Bissau";
-          case "GY": return "Guyana";
-          case "HT": return "Haiti";
-          case "HN": return "Honduras";
-          case "HK": return "Hong Kong";
-          case "HU": return "Hungary";
-          case "IS": return "Iceland";
-          case "IN": return "India";
-          case "ID": return "Indonesia";
-          case "IR": return "Iran";
-          case "IQ": return "Iraq";
-          case "IE": return "Ireland (Eire)";
-          case "IL": return "Israel";
-          case "IT": return "Italy";
-          case "JM": return "Jamaica";
-          case "JP": return "Japan";
-          case "JO": return "Jordan";
-          case "KG": return "Kazakhstan";
-          case "KE": return "Kenya";
-          case "KR": return "South Korea, Republic of";
-          case "KW": return "Kuwait";
-          case "KG": return "Kyrgyzstan";
-          case "LA": return "Laos";
-          case "LV": return "Latvia";
-          case "LS": return "Lesotho";
-          case "LR": return "Liberia";
-          case "LI": return "Liechtenstein";
-          case "LT": return "Lithuania";
-          case "LU": return "Luxembourg";
-          case "MO": return "Macao";
-          case "MK": return "Macedonia, Republic of";
-          case "MG": return "Madagascar";
-          case "PT": return "Madeira Islands";
-          case "MW": return "Malawi";
-          case "MY": return "Malaysia";
-          case "MV": return "Maldives";
-          case "ML": return "Mali";
-          case "MT": return "Malta";
-          case "MQ": return "Martinique";
-          case "MR": return "Mauritania";
-          case "MU": return "Mauritius";
-          case "MX": return "Mexico";
-          case "MD": return "Moldova";
-          case "MN": return "Mongolia";
-          case "MA": return "Morocco";
-          case "MZ": return "Mozambique";
-          case "NA": return "Namibia";
-          case "NR": return "Nauru";
-          case "NP": return "Nepal";
-          case "NL": return "Netherlands (Holland)";
-          case "AN": return "Netherlands Antilles";
-          case "NC": return "New Caledonia";
-          case "NZ": return "New Zealand";
-          case "NI": return "Nicaragua";
-          case "NE": return "Niger";
-          case "NG": return "Nigeria";
-          case "NO": return "Norway";
-          case "OM": return "Oman";
-          case "PK": return "Pakistan";
-          case "PA": return "Panama";
-          case "PG": return "Papua New Guinea";
-          case "PY": return "Paraguay";
-          case "PE": return "Peru";
-          case "PH": return "Philippines";
-          case "PL": return "Poland";
-          case "PT": return "Portugal";
-          case "QA": return "Qatar";
-          case "RO": return "Romania";
-          case "RU": return "Russia (Russia Federation)";
-          case "RW": return "Rwanda";
-          case "KN"; return "St. Christopher (St. Kitts) &amp; Nevis";
-          case "LC": return "St. Lucia";
-          case "VC": return "St. Vincent &amp; the Grenadines";
-          case "SA": return "Saudi Arabia";
-          case "SN": return "Senegal";
-          case "YU": return "Serbia Montenegro (Yugoslavia)";
-          case "SC": return "Seychelles";
-          case "SL": return "Sierra Leone";
-          case "SG": return "Singapore";
-          case "SK": return "Slovak Republic (Slovakia)";
-          case "SI": return "Slovenia";
-          case "SB": return "Solomon Islands";
-          case "SO": return "Somalia";
-          case "ZA": return "South Africa";
-          case "ES": return "Spain";
-          case "LK": return "Sri Lanka";
-          case "SD": return "Sudan";
-          case "SZ": return "Swaziland";
-          case "SE": return "Sweden";
-          case "CH": return "Switzerland";
-          case "SY": return "Syrian Arab Republic";
-          case "TW": return "Taiwan";
-          case "TJ": return "Tajikistan";
-          case "TZ": return "Tanzania";
-          case "TH": return "Thailand";
-          case "TG": return "Togo";
-          case "TT": return "Trinidad &amp; Tobago";
-          case "TN": return "Tunisia";
-          case "TR": return "Turkey";
-          case "TM": return "Turkmenistan";
-          case "UG": return "Uganda";
-          case "AE": return "United Arab Emirates";
-          case "UA": return "Ukraine";
-          case "US": return "United States of America";
-          case "UY": return "Uruguay";
-          case "VU": return "Vanuatu";
-          case "VE": return "Venezuela";
-          case "VN": return "Vietnam";
-          case "WS": return "Western Samoa";
-          case "YE": return "Yemen";
-          default: return "Not On File";
+          case 'AL': return 'Albania';
+          case 'DZ': return 'Algeria';
+          case 'AD': return 'Andorra';
+          case 'AO': return 'Angola';
+          case 'AR': return 'Argentina';
+          case 'AM': return 'Armenia';
+          case 'AW': return 'Aruba';
+          case 'AU': return 'Australia';
+          case 'AT': return 'Austria';
+          case 'AZ': return 'Azerbaijan';
+          case 'PT': return 'Azores';
+          case 'BS': return 'Bahamas';
+          case 'BH': return 'Bahrain';
+          case 'BD': return 'Bangladesh';
+          case 'BB': return 'Barbados';
+          case 'BY': return 'Belarus';
+          case 'BE': return 'Belgium';
+          case 'BZ': return 'Belize';
+          case 'BJ': return 'Benin';
+          case 'BM': return 'Bermuda';
+          case 'BT': return 'Bhutan';
+          case 'BO': return 'Bolivia';
+          case 'BA': return 'Bosna-Herzegovina';
+          case 'BW': return 'Botswana';
+          case 'BR': return 'Brazil';
+          case 'BN': return 'Brunei Darussalam';
+          case 'BG': return 'Bulgaria';
+          case 'BF': return 'Burkina FASO';
+          case 'BI': return 'Burundi';
+          case 'KH': return 'Cambodia';
+          case 'CM': return 'Cameroon';
+          case 'CA': return 'Canada';
+          case 'CV': return 'Cape Verde';
+          case 'KY': return 'Cayman Islands';
+          case 'CF': return 'Cntl African Republic';
+          case 'TS': return 'Chad';
+          case 'CL': return 'Chile';
+          case 'CN': return 'China';
+          case 'CO': return 'Columbia';
+          case 'ZR': return 'Democratic Republic of Congo';
+          case 'CG': return 'Republic of the Congo (Brazaville)';
+          case 'CR': return 'Costa Rica';
+          case 'CI': return 'Cote d\'Ivoire (Ivory Coast)';
+          case 'HR': return 'Croatia';
+          case 'CY': return 'Cyprus';
+          case 'CZ': return 'Czech Republic';
+          case 'DK': return 'Denmark';
+          case 'DJ': return 'Djibouti';
+          case 'DO': return 'Dominican Republic';
+          case 'EC': return 'Ecuador';
+          case 'EG': return 'Egypt';
+          case 'SV': return 'El Salvador';
+          case 'GQ': return 'Equatorial Guinea';
+          case 'ER': return 'Eritrea';
+          case 'EE': return 'Estonia';
+          case 'ET': return 'Ethiopia';
+          case 'DK': return 'Faroe Islands';
+          case 'FJ': return 'Fiji';
+          case 'FI': return 'Finland';
+          case 'FR': return 'France';
+          case 'GF': return 'French Guiana';
+          case 'PF': return 'French Polynesia (Tahitti)';
+          case 'GA': return 'Gabon';
+          case 'GE': return 'Georgia, Republic of';
+          case 'DE': return 'Germany';
+          case 'GH': return 'Ghana';
+          case 'GB': return 'Great Britain &amp; Northern Ireland';
+          case 'GR': return 'Greece';
+          case 'GD': return 'Grenada';
+          case 'GP': return 'Guadeloupe';
+          case 'GT': return 'Guatemala';
+          case 'GN': return 'Guinea';
+          case 'GW': return 'Guinea-Bissau';
+          case 'GY': return 'Guyana';
+          case 'HT': return 'Haiti';
+          case 'HN': return 'Honduras';
+          case 'HK': return 'Hong Kong';
+          case 'HU': return 'Hungary';
+          case 'IS': return 'Iceland';
+          case 'IN': return 'India';
+          case 'ID': return 'Indonesia';
+          case 'IR': return 'Iran';
+          case 'IQ': return 'Iraq';
+          case 'IE': return 'Ireland (Eire)';
+          case 'IL': return 'Israel';
+          case 'IT': return 'Italy';
+          case 'JM': return 'Jamaica';
+          case 'JP': return 'Japan';
+          case 'JO': return 'Jordan';
+          case 'KG': return 'Kazakhstan';
+          case 'KE': return 'Kenya';
+          case 'KR': return 'South Korea, Republic of';
+          case 'KW': return 'Kuwait';
+          case 'KG': return 'Kyrgyzstan';
+          case 'LA': return 'Laos';
+          case 'LV': return 'Latvia';
+          case 'LS': return 'Lesotho';
+          case 'LR': return 'Liberia';
+          case 'LI': return 'Liechtenstein';
+          case 'LT': return 'Lithuania';
+          case 'LU': return 'Luxembourg';
+          case 'MO': return 'Macao';
+          case 'MK': return 'Macedonia, Republic of';
+          case 'MG': return 'Madagascar';
+          case 'PT': return 'Madeira Islands';
+          case 'MW': return 'Malawi';
+          case 'MY': return 'Malaysia';
+          case 'MV': return 'Maldives';
+          case 'ML': return 'Mali';
+          case 'MT': return 'Malta';
+          case 'MQ': return 'Martinique';
+          case 'MR': return 'Mauritania';
+          case 'MU': return 'Mauritius';
+          case 'MX': return 'Mexico';
+          case 'MD': return 'Moldova';
+          case 'MN': return 'Mongolia';
+          case 'MA': return 'Morocco';
+          case 'MZ': return 'Mozambique';
+          case 'NA': return 'Namibia';
+          case 'NR': return 'Nauru';
+          case 'NP': return 'Nepal';
+          case 'NL': return 'Netherlands (Holland)';
+          case 'AN': return 'Netherlands Antilles';
+          case 'NC': return 'New Caledonia';
+          case 'NZ': return 'New Zealand';
+          case 'NI': return 'Nicaragua';
+          case 'NE': return 'Niger';
+          case 'NG': return 'Nigeria';
+          case 'NO': return 'Norway';
+          case 'OM': return 'Oman';
+          case 'PK': return 'Pakistan';
+          case 'PA': return 'Panama';
+          case 'PG': return 'Papua New Guinea';
+          case 'PY': return 'Paraguay';
+          case 'PE': return 'Peru';
+          case 'PH': return 'Philippines';
+          case 'PL': return 'Poland';
+          case 'PT': return 'Portugal';
+          case 'QA': return 'Qatar';
+          case 'RO': return 'Romania';
+          case 'RU': return 'Russia (Russia Federation)';
+          case 'RW': return 'Rwanda';
+          case 'KN'; return 'St. Christopher (St. Kitts) &amp; Nevis';
+          case 'LC': return 'St. Lucia';
+          case 'VC': return 'St. Vincent &amp; the Grenadines';
+          case 'SA': return 'Saudi Arabia';
+          case 'SN': return 'Senegal';
+          case 'YU': return 'Serbia Montenegro (Yugoslavia)';
+          case 'SC': return 'Seychelles';
+          case 'SL': return 'Sierra Leone';
+          case 'SG': return 'Singapore';
+          case 'SK': return 'Slovak Republic (Slovakia)';
+          case 'SI': return 'Slovenia';
+          case 'SB': return 'Solomon Islands';
+          case 'SO': return 'Somalia';
+          case 'ZA': return 'South Africa';
+          case 'ES': return 'Spain';
+          case 'LK': return 'Sri Lanka';
+          case 'SD': return 'Sudan';
+          case 'SZ': return 'Swaziland';
+          case 'SE': return 'Sweden';
+          case 'CH': return 'Switzerland';
+          case 'SY': return 'Syrian Arab Republic';
+          case 'TW': return 'Taiwan';
+          case 'TJ': return 'Tajikistan';
+          case 'TZ': return 'Tanzania';
+          case 'TH': return 'Thailand';
+          case 'TG': return 'Togo';
+          case 'TT': return 'Trinidad &amp; Tobago';
+          case 'TN': return 'Tunisia';
+          case 'TR': return 'Turkey';
+          case 'TM': return 'Turkmenistan';
+          case 'UG': return 'Uganda';
+          case 'AE': return 'United Arab Emirates';
+          case 'UA': return 'Ukraine';
+          case 'US': return 'United States of America';
+          case 'UY': return 'Uruguay';
+          case 'VU': return 'Vanuatu';
+          case 'VE': return 'Venezuela';
+          case 'VN': return 'Vietnam';
+          case 'WS': return 'Western Samoa';
+          case 'YE': return 'Yemen';
+          default: return 'Not On File';
         }
       } else {
         switch ($abbr) {
-          case "Albania": return "AL";
-          case "Algeria": return "DZ";
-          case "Andorra": return "AD";
-          case "Angola": return "AO";
-          case "Argentina": return "AR";
-          case "Armenia": return "AM";
-          case "Aruba": return "AW";
-          case "Australia": return "AU";
-          case "Austria": return "AT";
-          case "Azerbaijan": return "AZ";
-          case "Azores": return "PT";
-          case "Bahamas": return "BS";
-          case "Bahrain": return "BH";
-          case "Bangladesh": return "BD";
-          case "Barbados": return "BB";
-          case "Belarus": return "BY";
-          case "Belgium": return "BE";
-          case "Belize": return "BZ";
-          case "Benin": return "BJ";
-          case "Bermuda": return "BM";
-          case "Bhutan": return "BT";
-          case "Bolivia": return "BO";
-          case "Bosna-Herzegovina": return "BA";
-          case "Botswana": return "BW";
-          case "Brazil": return "BR";
-          case "Brunei Darussalam": return "BN";
-          case "Bulgaria": return "BG";
-          case "Burkina FASO": return "BF";
-          case "Burundi": return "BI";
-          case "Cambodia": return "KH";
-          case "Cameroon": return "CM";
-          case "Canada": return "CA";
-          case "Cape Verde": return "CV";
-          case "Cayman Islands": return "KY";
-          case "Cntl African Republic": return "CF";
-          case "Chad": return "TS";
-          case "Chile": return "CL";
-          case "China": return "CN";
-          case "Columbia": return "CO";
-          case "Democratic Republic of Congo": return "ZR";
-          case "Republic of the Congo (Brazaville)": return "CG";
-          case "Costa Rica": return "CR";
-          case "Cote d'Ivoire (Ivory Coast)": return "CI";
-          case "Croatia": return "HR";
-          case "Cyprus": return "CY";
-          case "Czech Republic": return "CZ";
-          case "Denmark": return "DK";
-          case "Djibouti": return "DJ";
-          case "Dominican Republic": return "DO";
-          case "Ecuador": return "EC";
-          case "Egypt": return "EG";
-          case "El Salvador": return "SV";
-          case "Equatorial Guinea": return "GQ";
-          case "Eritrea": return "ER";
-          case "Estonia": return "EE";
-          case "Ethiopia": return "ET";
-          case "Faroe Islands": return "DK";
-          case "Fiji": return "FJ";
-          case "Finland": return "FI";
-          case "France": return "FR";
-          case "French Guiana": return "GF";
-          case "French Polynesia (Tahitti)": return "PF";
-          case "Gabon": return "GA";
-          case "Georgia, Republic of": return "GE";
-          case "Germany": return "DE";
-          case "Ghana": return "GH";
-          case "Great Britain &amp; Northern Ireland": return "GB";
-          case "Greece": return "GR";
-          case "Grenada": return "GD";
-          case "Guadeloupe": return "GP";
-          case "Guatemala": return "GT";
-          case "Guinea": return "GN";
-          case "Guinea-Bissau": return "GW";
-          case "Guyana": return "GY";
-          case "Haiti": return "HT";
-          case "Honduras": return "HN";
-          case "Hong Kong": return "HK";
-          case "Hungary": return "HU";
-          case "Iceland": return "IS";
-          case "India": return "IN";
-          case "Indonesia": return "ID";
-          case "Iran": return "IR";
-          case "Iraq": return "IQ";
-          case "Ireland (Eire)": return "IE";
-          case "Israel": return "IL";
-          case "Italy": return "IT";
-          case "Jamaica": return "JM";
-          case "Japan": return "JP";
-          case "Jordan": return "JO";
-          case "Kazakhstan": return "KG";
-          case "Kenya": return "KE";
-          case "South Korea, Republic of": return "KR";
-          case "Kuwait": return "KW";
-          case "Kyrgyzstan": return "KG";
-          case "Laos": return "LA";
-          case "Latvia": return "LV";
-          case "Lesotho": return "LS";
-          case "Liberia": return "LR";
-          case "Liechtenstein": return "LI";
-          case "Lithuania": return "LT";
-          case "Luxembourg": return "LU";
-          case "Macao": return "MO";
-          case "Macedonia, Republic of": return "MK";
-          case "Madagascar": return "MG";
-          case "Madeira Islands": return "PT";
-          case "Malawi": return "MW";
-          case "Malaysia": return "MY";
-          case "Maldives": return "MV";
-          case "Mali": return "ML";
-          case "Malta": return "MT";
-          case "Martinique": return "MQ";
-          case "Mauritania": return "MR";
-          case "Mauritius": return "MU";
-          case "Mexico": return "MX";
-          case "Moldova": return "MD";
-          case "Mongolia": return "MN";
-          case "Morocco": return "MA";
-          case "Mozambique": return "MZ";
-          case "Namibia": return "NA";
-          case "Nauru": return "NR";
-          case "Nepal": return "NP";
-          case "Netherlands (Holland)": return "NL";
-          case "Netherlands Antilles": return "AN";
-          case "New Caledonia": return "NC";
-          case "New Zealand": return "NZ";
-          case "Nicaragua": return "NI";
-          case "Niger": return "NE";
-          case "Nigeria": return "NG";
-          case "Norway": return "NO";
-          case "Oman": return "OM";
-          case "Pakistan": return "PK";
-          case "Panama": return "PA";
-          case "Papua New Guinea": return "PG";
-          case "Paraguay": return "PY";
-          case "Peru": return "PE";
-          case "Philippines": return "PH";
-          case "Poland": return "PL";
-          case "Portugal": return "PT";
-          case "Qatar": return "QA";
-          case "Romania": return "RO";
-          case "Russia (Russia Federation)": return "RU";
-          case "Rwanda": return "RW";
-          case "St. Christopher (St. Kitts) &amp; Nevis"; return "KN";
-          case "St. Lucia": return "LC";
-          case "St. Vincent &amp; the Grenadines": return "VC";
-          case "Saudi Arabia": return "SA";
-          case "Senegal": return "SN";
-          case "Serbia Montenegro (Yugoslavia)": return "YU";
-          case "Seychelles": return "SC";
-          case "Sierra Leone": return "SL";
-          case "Singapore": return "SG";
-          case "Slovak Republic (Slovakia)": return "SK";
-          case "Slovenia": return "SI";
-          case "Solomon Islands": return "SB";
-          case "Somalia": return "SO";
-          case "South Africa": return "ZA";
-          case "Spain": return "ES";
-          case "Sri Lanka": return "LK";
-          case "Sudan": return "SD";
-          case "Swaziland": return "SZ";
-          case "Sweden": return "SE";
-          case "Switzerland": return "CH";
-          case "Syrian Arab Republic": return "SY";
-          case "Taiwan": return "TW";
-          case "Tajikistan": return "TJ";
-          case "Tanzania": return "TZ";
-          case "Thailand": return "TH";
-          case "Togo": return "TG";
-          case "Trinidad &amp; Tobago": return "TT";
-          case "Tunisia": return "TN";
-          case "Turkey": return "TR";
-          case "Turkmenistan": return "TM";
-          case "Uganda": return "UG";
-          case "United Arab Emirates": return "AE";
-          case "Ukraine": return "UA";
-          case "United States of America": return "US";
-          case "Uruguay": return "UY";
-          case "Vanuatu": return "VU";
-          case "Venezuela": return "VE";
-          case "Vietnam": return "VN";
-          case "Western Samoa": return "WS";
-          case "Yemen": return "YE";
-          default: return "XZ";
+          case 'Albania': return 'AL';
+          case 'Algeria': return 'DZ';
+          case 'Andorra': return 'AD';
+          case 'Angola': return 'AO';
+          case 'Argentina': return 'AR';
+          case 'Armenia': return 'AM';
+          case 'Aruba': return 'AW';
+          case 'Australia': return 'AU';
+          case 'Austria': return 'AT';
+          case 'Azerbaijan': return 'AZ';
+          case 'Azores': return 'PT';
+          case 'Bahamas': return 'BS';
+          case 'Bahrain': return 'BH';
+          case 'Bangladesh': return 'BD';
+          case 'Barbados': return 'BB';
+          case 'Belarus': return 'BY';
+          case 'Belgium': return 'BE';
+          case 'Belize': return 'BZ';
+          case 'Benin': return 'BJ';
+          case 'Bermuda': return 'BM';
+          case 'Bhutan': return 'BT';
+          case 'Bolivia': return 'BO';
+          case 'Bosna-Herzegovina': return 'BA';
+          case 'Botswana': return 'BW';
+          case 'Brazil': return 'BR';
+          case 'Brunei Darussalam': return 'BN';
+          case 'Bulgaria': return 'BG';
+          case 'Burkina FASO': return 'BF';
+          case 'Burundi': return 'BI';
+          case 'Cambodia': return 'KH';
+          case 'Cameroon': return 'CM';
+          case 'Canada': return 'CA';
+          case 'Cape Verde': return 'CV';
+          case 'Cayman Islands': return 'KY';
+          case 'Cntl African Republic': return 'CF';
+          case 'Chad': return 'TS';
+          case 'Chile': return 'CL';
+          case 'China': return 'CN';
+          case 'Columbia': return 'CO';
+          case 'Democratic Republic of Congo': return 'ZR';
+          case 'Republic of the Congo (Brazaville)': return 'CG';
+          case 'Costa Rica': return 'CR';
+          case 'Cote d\'Ivoire (Ivory Coast)': return 'CI';
+          case 'Croatia': return 'HR';
+          case 'Cyprus': return 'CY';
+          case 'Czech Republic': return 'CZ';
+          case 'Denmark': return 'DK';
+          case 'Djibouti': return 'DJ';
+          case 'Dominican Republic': return 'DO';
+          case 'Ecuador': return 'EC';
+          case 'Egypt': return 'EG';
+          case 'El Salvador': return 'SV';
+          case 'Equatorial Guinea': return 'GQ';
+          case 'Eritrea': return 'ER';
+          case 'Estonia': return 'EE';
+          case 'Ethiopia': return 'ET';
+          case 'Faroe Islands': return 'DK';
+          case 'Fiji': return 'FJ';
+          case 'Finland': return 'FI';
+          case 'France': return 'FR';
+          case 'French Guiana': return 'GF';
+          case 'French Polynesia (Tahitti)': return 'PF';
+          case 'Gabon': return 'GA';
+          case 'Georgia, Republic of': return 'GE';
+          case 'Germany': return 'DE';
+          case 'Ghana': return 'GH';
+          case 'Great Britain &amp; Northern Ireland': return 'GB';
+          case 'Greece': return 'GR';
+          case 'Grenada': return 'GD';
+          case 'Guadeloupe': return 'GP';
+          case 'Guatemala': return 'GT';
+          case 'Guinea': return 'GN';
+          case 'Guinea-Bissau': return 'GW';
+          case 'Guyana': return 'GY';
+          case 'Haiti': return 'HT';
+          case 'Honduras': return 'HN';
+          case 'Hong Kong': return 'HK';
+          case 'Hungary': return 'HU';
+          case 'Iceland': return 'IS';
+          case 'India': return 'IN';
+          case 'Indonesia': return 'ID';
+          case 'Iran': return 'IR';
+          case 'Iraq': return 'IQ';
+          case 'Ireland (Eire)': return 'IE';
+          case 'Israel': return 'IL';
+          case 'Italy': return 'IT';
+          case 'Jamaica': return 'JM';
+          case 'Japan': return 'JP';
+          case 'Jordan': return 'JO';
+          case 'Kazakhstan': return 'KG';
+          case 'Kenya': return 'KE';
+          case 'South Korea, Republic of': return 'KR';
+          case 'Kuwait': return 'KW';
+          case 'Kyrgyzstan': return 'KG';
+          case 'Laos': return 'LA';
+          case 'Latvia': return 'LV';
+          case 'Lesotho': return 'LS';
+          case 'Liberia': return 'LR';
+          case 'Liechtenstein': return 'LI';
+          case 'Lithuania': return 'LT';
+          case 'Luxembourg': return 'LU';
+          case 'Macao': return 'MO';
+          case 'Macedonia, Republic of': return 'MK';
+          case 'Madagascar': return 'MG';
+          case 'Madeira Islands': return 'PT';
+          case 'Malawi': return 'MW';
+          case 'Malaysia': return 'MY';
+          case 'Maldives': return 'MV';
+          case 'Mali': return 'ML';
+          case 'Malta': return 'MT';
+          case 'Martinique': return 'MQ';
+          case 'Mauritania': return 'MR';
+          case 'Mauritius': return 'MU';
+          case 'Mexico': return 'MX';
+          case 'Moldova': return 'MD';
+          case 'Mongolia': return 'MN';
+          case 'Morocco': return 'MA';
+          case 'Mozambique': return 'MZ';
+          case 'Namibia': return 'NA';
+          case 'Nauru': return 'NR';
+          case 'Nepal': return 'NP';
+          case 'Netherlands (Holland)': return 'NL';
+          case 'Netherlands Antilles': return 'AN';
+          case 'New Caledonia': return 'NC';
+          case 'New Zealand': return 'NZ';
+          case 'Nicaragua': return 'NI';
+          case 'Niger': return 'NE';
+          case 'Nigeria': return 'NG';
+          case 'Norway': return 'NO';
+          case 'Oman': return 'OM';
+          case 'Pakistan': return 'PK';
+          case 'Panama': return 'PA';
+          case 'Papua New Guinea': return 'PG';
+          case 'Paraguay': return 'PY';
+          case 'Peru': return 'PE';
+          case 'Philippines': return 'PH';
+          case 'Poland': return 'PL';
+          case 'Portugal': return 'PT';
+          case 'Qatar': return 'QA';
+          case 'Romania': return 'RO';
+          case 'Russia (Russia Federation)': return 'RU';
+          case 'Rwanda': return 'RW';
+          case 'St. Christopher (St. Kitts) &amp; Nevis'; return 'KN';
+          case 'St. Lucia': return 'LC';
+          case 'St. Vincent &amp; the Grenadines': return 'VC';
+          case 'Saudi Arabia': return 'SA';
+          case 'Senegal': return 'SN';
+          case 'Serbia Montenegro (Yugoslavia)': return 'YU';
+          case 'Seychelles': return 'SC';
+          case 'Sierra Leone': return 'SL';
+          case 'Singapore': return 'SG';
+          case 'Slovak Republic (Slovakia)': return 'SK';
+          case 'Slovenia': return 'SI';
+          case 'Solomon Islands': return 'SB';
+          case 'Somalia': return 'SO';
+          case 'South Africa': return 'ZA';
+          case 'Spain': return 'ES';
+          case 'Sri Lanka': return 'LK';
+          case 'Sudan': return 'SD';
+          case 'Swaziland': return 'SZ';
+          case 'Sweden': return 'SE';
+          case 'Switzerland': return 'CH';
+          case 'Syrian Arab Republic': return 'SY';
+          case 'Taiwan': return 'TW';
+          case 'Tajikistan': return 'TJ';
+          case 'Tanzania': return 'TZ';
+          case 'Thailand': return 'TH';
+          case 'Togo': return 'TG';
+          case 'Trinidad &amp; Tobago': return 'TT';
+          case 'Tunisia': return 'TN';
+          case 'Turkey': return 'TR';
+          case 'Turkmenistan': return 'TM';
+          case 'Uganda': return 'UG';
+          case 'United Arab Emirates': return 'AE';
+          case 'Ukraine': return 'UA';
+          case 'United States of America': return 'US';
+          case 'Uruguay': return 'UY';
+          case 'Vanuatu': return 'VU';
+          case 'Venezuela': return 'VE';
+          case 'Vietnam': return 'VN';
+          case 'Western Samoa': return 'WS';
+          case 'Yemen': return 'YE';
+          default: return 'XZ';
         }
       }
     }
