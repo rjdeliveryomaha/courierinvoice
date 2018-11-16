@@ -1,12 +1,12 @@
 <?php
   namespace RJDeliveryOmaha\CourierInvoice;
-  
+
   use RJDeliveryOmaha\CourierInvoice\CommonFunctions;
   /***
   * throws Exception
   *
   ***/
-  
+
   class Invoice extends CommonFunctions {
     protected $invoice_index;
     protected $InvoiceNumber;
@@ -26,7 +26,7 @@
     protected $consolidateContractTicketsOnInvoice = TRUE;
     protected $showCancelledTicketsOnInvoice = FALSE;
     protected $Tickets;
-    protected $ConsolidatedTickets = array();
+    protected $ConsolidatedTickets = [];
     protected $RegenThisInvoice;
     protected $Late30Invoice;
     protected $Late30Value;
@@ -39,14 +39,14 @@
     protected $ticketList;
     protected $invoiceQueryResult;
     private $repeat;
-    private $pastDueData = array();
+    private $pastDueData = [];
     private $paymentDisplay;
     private $closedMarker;
     private $invoiceDisplay;
     private $page1max;
     private $pageMax = 9;
     private $counter = 2;
-    
+
     public function __construct($options, $data=[]) {
       try {
         parent::__construct($options, $data);
@@ -54,13 +54,13 @@
         throw $e;
       }
     }
-    
+
     private function fetchInvoiceTickets() {
       $ticketQueryData['method'] = 'GET';
       $ticketQueryData['endPoint'] = 'tickets';
       $ticketQueryData['queryParams']['resources'] = [ 'ticket_index', 'TicketNumber', 'RunNumber', 'BillTo', 'RequestedBy', 'ReceivedDate', 'pClient', 'pDepartment', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'dClient', 'dDepartment', 'dAddress1', 'dAddress2', 'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'TicketBase', 'Charge', 'Contract', 'Multiplier', 'RunPrice', 'TicketPrice', 'EmailConfirm', 'EmailAddress', 'Notes', 'DispatchTimeStamp', 'DispatchedTo', 'DispatchedBy', 'Transfers', 'TransferState', 'PendingReceiver', 'pTimeStamp', 'dTimeStamp', 'd2TimeStamp', 'pTime', 'dTime', 'd2Time', 'pSigReq', 'dSigReq', 'd2SigReq', 'pSigPrint', 'dSigPrint', 'd2SigPrint', 'pSig', 'dSig', 'd2Sig', 'pSigType', 'dSigType', 'd2SigType', 'RepeatClient', 'InvoiceNumber' ];
-      $ticketQueryData['queryParams']['filter'] = array(array('Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=>$this->ClientID), array('Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>$this->InvoiceNumber));
-      $ticketQueryData['queryParams']['order'] = array('ReceivedDate','asc');
+      $ticketQueryData['queryParams']['filter'] = [ ['Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=>$this->ClientID], ['Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>$this->InvoiceNumber] ];
+      $ticketQueryData['queryParams']['order'] = ['ReceivedDate','asc'];
       $ticketQueryData['formKey'] = $this->formKey;
       if (!$ticketQuery = self::createQuery($ticketQueryData)) {
         $temp = $this->error . "\n";
@@ -89,7 +89,7 @@
         }
       }
     }
-    
+
     private function multiInvoiceForm() {
       $returnData = '
         <p data-error="error" class="center">Multiple invoices available for ' . date('F Y', strtotime($this->invoiceQueryResult[0]['DateIssued'])) . '.</p>
@@ -108,7 +108,7 @@
         </form>';
       return $returnData;
     }
-    
+
     private function consolidateTickets() {
       //Merge contract tickets
       foreach ($this->Tickets as $ticket) {
@@ -160,7 +160,7 @@
         }
       }
     }
-    
+
     private function invoiceBodyTickets() {
       // Check for ticket consolidation request
       if ($this->consolidateContractTicketsOnInvoice === TRUE) {
@@ -336,7 +336,7 @@
             </table>';
       return $body;
     }
-    
+
     public function regenInvoice() {
       if (count($this->invoiceQueryResult) > 1) {
         return self::multiInvoiceForm();
@@ -499,5 +499,5 @@
 </div>';
       return $this->invoiceDisplay;
     }
-    
+
   }
