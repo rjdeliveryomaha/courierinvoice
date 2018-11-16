@@ -172,7 +172,6 @@
         return self::getError();
       }
       // Check for active contract tickets
-      // The API does not support complex filters (with both "and" & "or") so a call must be made for each charge type
       // Pull Round Trip ticket
       $ticketQueryData['endPoint'] = 'tickets';
       $ticketQueryData['method'] = 'GET';
@@ -197,7 +196,7 @@
       // Check for completed contract tickets
       if (empty($this->activeTicketSet)) {
         //  Check for completed contract tickets for today
-        // Only queryParams['filter'] should need to be change here
+        // Only queryParams['filter'] needs to be changed here
         $ticketQueryData['queryParams']['filter'] = array(array('Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>1),array('Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID), array('Resource'=>'Charge', 'Filter'=>'neq', 'Value'=>0),array('Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>$this->today . ' 00:00:00,' . $this->today . ' 23:59:59'), array('Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0));
         if (!$ticketQuery = self::createQuery($ticketQueryData)) {
           $temp = $this->error . "\n";
