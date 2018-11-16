@@ -99,7 +99,11 @@
       $ticketQueryData['endPoint'] = 'tickets';
       $ticketQueryData['method'] = 'GET';
       $ticketQueryData['formKey'] = $this->formKey;
-      $ticketQueryData['queryParams']['filter'] = array(array('Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>'-'),array('Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>'0'),array('Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID),array('Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>$this->backstop . ' 00:00:00,' . $this->today . ' 23:59:59'), array('Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0));
+      $ticketQueryData['queryParams']['filter'] = [];
+      $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>'-'], ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>$this->backstop . ' 00:00:00,' . $this->today . ' 23:59:59'], ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'Charge', 'Filter'=>'bt', 'Value'=>'1,5'], ['Resource'=>'dTimeStamp', 'Filter'=>'is'] ];
+      $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>'-'], ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>$this->backstop . ' 00:00:00,' . $this->today . ' 23:59:59'], ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>6], ['Resource'=>'d2TimeStamp', 'Filter'=>'is'] ];
+      $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>'-'], ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>$this->backstop . ' 00:00:00,' . $this->today . ' 23:59:59'], ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>7], ['Resource'=>'dTimeStamp', 'Filter'=>'is'], ['Resource'=>'d2SigReq', 'Filter'=>'eq', 'Value'=>0] ];
+      $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>'-'], ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>$this->backstop . ' 00:00:00,' . $this->today . ' 23:59:59'], ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>7], ['Resource'=>'d2TimeStamp', 'Filter'=>'is'], ['Resource'=>'d2SigReq', 'Filter'=>'eq', 'Value'=>1] ];
       if (!$ticketQuery = self::createQuery($ticketQueryData)) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -114,41 +118,10 @@
         return "<p class=\"center\"><span class=\"error\>Error</span>: {$this->error}</p>";
       }
       if (count($this->onCallTicketSet) === 0) {
-        return '<p class="center">No On Call Tickets On File</p>';
-      }
-      foreach ($this->onCallTicketSet as $ticket) {
-        switch ($ticket['Charge']) {
-          case 1:
-          case 2:
-          case 3:
-          case 4:
-          case 5:
-            if ($ticket['dTimeStamp'] === $this->tTest) {
-              $this->ticketSet[] = $ticket;
-            }
-          break;
-          case 6:
-            if ($ticket['d2TimeStamp'] === $this->tTest) {
-              $this->ticketSet[] = $ticket;
-            }
-          break;
-          case 7:
-            if ($ticket['dTimeStamp'] === $this->tTest) {
-              $this->ticketSet[] = $ticket;
-            } elseif ($ticket['d2SigReq'] === 1 && $ticket['d2TimeStamp'] === $this->tTest) {
-              $this->ticketSet[] = $ticket;
-            }
-          break;
-        }
-      }
-      if ($this->countTickets === TRUE) {
-        return count($this->ticketSet);
-      }
-      if (count($this->ticketSet) === 0) {
-        return '<p class="center">No On Call Tickets On File</p>';
+        return ($this->countTickets === TRUE) ? 0 : '<p class="center">No On Call Tickets On File</p>';
       }
       $returnData = '';
-      for ($i = 0; $i < count($this->ticketSet); $i++) {
+      for ($i = 0; $i < count($this->onCallTicketSet); $i++) {
         $this->ticketSet[$i]['formKey'] = $this->formKey;
         $ticket = self::createTicket($this->ticketSet[$i]);
         if ($ticket === FALSE) {
