@@ -1,12 +1,12 @@
 <?php
   namespace RJDeliveryOmaha\CourierInvoice;
-  
+
   use RJDeliveryOmaha\CourierInvoice\CommonFunctions;
   /***
   * throws Exception
   *
   ***/
-  
+
   class InvoiceChart extends CommonFunctions {
     protected $dataSet;
     private $tempData;
@@ -14,18 +14,18 @@
     protected $compare;
     protected $compareMembers;
     protected $organizationFlag = FALSE;
-    protected $orgClients = array();
+    protected $orgClients = [];
     protected $ListBy;
     protected $invoiceChartRowLimit = 9;
     private $listByKey;
-    protected $memberList = array();
+    protected $memberList = [];
     private $newData;
     protected $singleMember;
     private $memberInput;
-    private $totals = array();
-    private $monthKeys = array();
+    private $totals = [];
+    private $monthKeys = [];
     // Define the order for the keys in $dataSet
-    private $properOrder = array('monthTotal', 'contract', 'onCall', 'dryIce', 'iceDelivery', 'oneHour', 'twoHour', 'threeHour', 'fourHour', 'routine', 'roundTrip', 'dedicated', 'deadRun');
+    private $properOrder = ['monthTotal', 'contract', 'onCall', 'dryIce', 'iceDelivery', 'oneHour', 'twoHour', 'threeHour', 'fourHour', 'routine', 'roundTrip', 'dedicated', 'deadRun'];
     private $graph_height = 12.5;
     private $bar_width = 0.35;  //width of bar in em
     private $bar_gap = 0.35;  //gap between adjacent bars
@@ -33,24 +33,24 @@
     private $interval_border = 0.125; //border-width of bar container
     // $ratio will be used to make sure that bars never go beyond graph height
     private $ratio;
-    private $testMax = array();
-    private $monthMaxs= array();
+    private $testMax = [];
+    private $monthMaxs= [];
     private $maxVal;
     private $heights;
     private $margins;
     private $counts;
     private $split;
-    private $labels = array();
-    private $tableLabelGroups = array();
+    private $labels = [];
+    private $tableLabelGroups = [];
     private $tableHead;
     private $tableHeadPrefix;
     private $tableHeadAddendum;
     private $headerSpan;
     private $nestedTableColspan;
-    private $nonZeroIgnore = array("invoices", "cancelled", "credit", "billTo");
-    private $nonZero = array();
+    private $nonZeroIgnore = ['invoices', 'cancelled', 'credit', 'billTo'];
+    private $nonZero = [];
     private $orderedData;
-    private $groupLabels = array();
+    private $groupLabels = [];
     private $groups;
     protected $chartIndex = 1;
     protected $firstChart;
@@ -64,7 +64,7 @@
     private $graphOutput;
     private $colorCode = 0;
     private $today;
-    
+
     public function __construct($options, $data=[]) {
       try {
         parent::__construct($options, $data);
@@ -77,7 +77,7 @@
         }
       }
     }
-    
+
     public function displayChart() {
       if (empty($this->dataSet)) {
         $this->error = '<p class="center">No invoices on file</p>';
@@ -136,28 +136,28 @@
         self::displayBarGraph();
       }
     }
-    
+
     private function arrayValueToChartLabel($arrayValue) {
       switch ($arrayValue) {
-        case "monthTotal": return "Total";
-        case "contract": return "Contract";
-        case "onCall": return "On Call";
-        case "dryIce": return "Dry Ice";
-        case "iceDelivery": return "Ice Delivery";
-        case "deadRun": return "Dead Run";
-        case "oneHour": return "Stat";
-        case "twoHour": return "ASAP";
-        case "threeHour": return "3 Hour";
-        case "fourHour": return "4 Hour";
-        case "routine": return "Routine";
-        case "roundTrip": return "Round Trip";
-        case "dedicatedRun": return "Dedicated Run";
-        default: return "Label Error";
+        case 'monthTotal': return 'Total';
+        case 'contract': return 'Contract';
+        case 'onCall': return 'On Call';
+        case 'dryIce': return 'Dry Ice';
+        case 'iceDelivery': return 'Ice Delivery';
+        case 'deadRun': return 'Dead Run';
+        case 'oneHour': return 'Stat';
+        case 'twoHour': return 'ASAP';
+        case 'threeHour': return '3 Hour';
+        case 'fourHour': return '4 Hour';
+        case 'routine': return 'Routine';
+        case 'roundTrip': return 'Round Trip';
+        case 'dedicatedRun': return 'Dedicated Run';
+        default: return 'Label Error';
       }
     }
-    
+
     private function orderDataSet() {
-      $reorder = $ordered = array();
+      $reorder = $ordered = [];
       foreach ($this->dataSet as $key => $value) {
         $reorder[] = date('Y-m', strtotime($key));
       }
@@ -167,7 +167,7 @@
       }
       $this->dataSet = array_merge(array_flip($ordered), $this->dataSet);
     }
-    
+
     private function sortData() {
       if (count($this->dataSet) < 1) {
         $this->error = 'Chart Data Empty Line ' . __line__;
@@ -230,7 +230,7 @@
             $this->counts[$k . '_counts'][] = self::number_format_drop_zero_decimals($v, 2);
           }
         }
-        
+
         $conjunction = ($this->compare === TRUE || count($this->monthKeys) === 2) ? ' And ' : ' Through ';
         if (count($this->monthKeys) === 1) {
           $this->tableHead = $this->monthKeys[0];
@@ -250,7 +250,7 @@
         }
       }
     }
-    
+
     private function sortDataForMemberCompare() {
       if (count($this->dataSet) < 1) {
         $this->error = 'Chart Data Empty Line ' . __line__;
@@ -323,7 +323,7 @@
         }
       }
     }
-    
+
     private function resortData() {
       $temp = array();
       for ($i = 0; $i < count($this->properOrder); $i++) {
@@ -371,7 +371,7 @@
       }
       $this->monthKeys = $this->memberList;
     }
-    
+
     private function displayCompareTable() {
       for ($i = 0; $i < count($this->tableLabelGroups); $i++) {
         $this->headerSpan = count($this->tableLabelGroups[$i]) + 2;
@@ -407,8 +407,7 @@
               <td class="bar' . $x . 'Label center">' . self::clientListBy($this->memberList[$x]) . '</td>';
               for ($y = 0; $y < count($this->tableLabelGroups[$i]); $y++) {
                 $this->tableOutput .= '
-              <td class="center highlight2"><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . $this->orderedData[$this->monthKeys[$j]][$this->memberList[$x]][$this->tableLabelGroups[$i][$y]] . '<br>' . self::displayPercentage($this->orderedData[$this->monthKeys[$j]][$this->memberList[$x]][$this->tableLabelGroups[$i][$y]], $this->totals[$this->tableLabelGroups[$i][$y]]) . '&#37;</td>
-                ';
+              <td class="center highlight2"><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . $this->orderedData[$this->monthKeys[$j]][$this->memberList[$x]][$this->tableLabelGroups[$i][$y]] . '<br>' . self::displayPercentage($this->orderedData[$this->monthKeys[$j]][$this->memberList[$x]][$this->tableLabelGroups[$i][$y]], $this->totals[$this->tableLabelGroups[$i][$y]]) . '&#37;</td>';
               }
               $this->tableOutput .= '
             </tr>
@@ -422,8 +421,7 @@
         <th>Month Total:</th>';
           for ($y = 0; $y < count($this->tableLabelGroups[$i]); $y++) {
             $this->tableOutput .= '
-        <td class="center highlight2 error"><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . $this->totals[$this->monthKeys[$j]][$this->tableLabelGroups[$i][$y]] . '<br>' . self::displayPercentage($this->totals[$this->monthKeys[$j]][$this->tableLabelGroups[$i][$y]], $this->totals[$this->tableLabelGroups[$i][$y]]) . '&#37;</td>
-                ';
+        <td class="center highlight2 error"><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . $this->totals[$this->monthKeys[$j]][$this->tableLabelGroups[$i][$y]] . '<br>' . self::displayPercentage($this->totals[$this->monthKeys[$j]][$this->tableLabelGroups[$i][$y]], $this->totals[$this->tableLabelGroups[$i][$y]]) . '&#37;</td>';
               }
           $this->tableOutput .= '
       </tr>
@@ -432,8 +430,7 @@
         <th>Query Total:</th>';
           for ($y = 0; $y < count($this->tableLabelGroups[$i]); $y++) {
             $this->tableOutput .= '
-        <td class="center highlight2"><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::number_format_drop_zero_decimals($this->totals[$this->tableLabelGroups[$i][$y]], 2) . '</td>
-                ';
+        <td class="center highlight2"><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::number_format_drop_zero_decimals($this->totals[$this->tableLabelGroups[$i][$y]], 2) . '</td>';
               }
           $this->tableOutput .= '
       </tr>';
@@ -443,8 +440,9 @@
   </table>';
       }
       echo $this->tableOutput;
+      return FALSE;
     }
-    
+
     private function displayTable() {
       if ($this->error !== '') return FALSE;
       $this->tableHeadPrefix = ($this->compare === TRUE) ? 'Comparing Expenses For ' : 'Expenses for the period between ';
@@ -478,15 +476,16 @@
                 ';
             }
             $this->tableOutput .= '<td class="center"><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::negParenth(self::number_format_drop_zero_decimals($this->totals[$this->tableLabelGroups[$i][$y]][$x], 2)) . '</td>';
-            
+
             if ($y === count($this->tableLabelGroups[$i]) - 1) $this->tableOutput .= '</tr>';
           }
         }
       }
       $this->tableOutput .= '</tbody></table></div>';
       echo $this->tableOutput;
+      return FALSE;
     }
-    
+
     private function displayBarGraph() {
       if ($this->error !== '') return FALSE;
       $this->currentChart = self::chartIndexToProperty();
