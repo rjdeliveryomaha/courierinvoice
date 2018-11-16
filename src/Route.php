@@ -9,13 +9,13 @@
 
   class Route extends CommonFunctions {
     protected $newTickets;
-    protected $activeTicketSet = array();
-    protected $onCallTicketSet = array();
-    protected $contractTicketSet = array();
-    protected $transferredTicketSet = array();
-    protected $ticketSet = array();
-    protected $singleLocation = array();
-    protected $multiLocation = array();
+    protected $activeTicketSet = [];
+    protected $onCallTicketSet = [];
+    protected $contractTicketSet = [];
+    protected $transferredTicketSet = [];
+    protected $ticketSet = [];
+    protected $singleLocation = [];
+    protected $multiLocation = [];
     protected $cancelations;
     protected $processTransfer = FALSE;
     protected $overrideTickets;
@@ -29,8 +29,8 @@
     protected $testDateObject;
     protected $secondTestDate;
     protected $add;
-    protected $runList = array();
-    protected $locations = array();
+    protected $runList = [];
+    protected $locations = [];
     protected $locationTest;
     protected $LastSeen;
     // List of drivers on file for transfer data list for drivers without dispatch authorization
@@ -93,7 +93,7 @@
     }
 
     public function onCallTickets() {
-      $this->ticketSet = $ticketQueryData = array();
+      $this->ticketSet = $ticketQueryData = [];
       // Pull on call tickets for today
       if ($this->forDisatch === TRUE) $this->driverID = 0;
       $ticketQueryData['endPoint'] = 'tickets';
@@ -102,8 +102,8 @@
       $ticketQueryData['queryParams']['filter'] = [];
       $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>'-'], ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>$this->backstop . ' 00:00:00,' . $this->today . ' 23:59:59'], ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'Charge', 'Filter'=>'bt', 'Value'=>'1,5'], ['Resource'=>'dTimeStamp', 'Filter'=>'is'] ];
       $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>'-'], ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>$this->backstop . ' 00:00:00,' . $this->today . ' 23:59:59'], ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>6], ['Resource'=>'d2TimeStamp', 'Filter'=>'is'] ];
-      $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>'-'], ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>$this->backstop . ' 00:00:00,' . $this->today . ' 23:59:59'], ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>7], ['Resource'=>'dTimeStamp', 'Filter'=>'is'], ['Resource'=>'d2SigReq', 'Filter'=>'eq', 'Value'=>0] ];
-      $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>'-'], ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>$this->backstop . ' 00:00:00,' . $this->today . ' 23:59:59'], ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>7], ['Resource'=>'d2TimeStamp', 'Filter'=>'is'], ['Resource'=>'d2SigReq', 'Filter'=>'eq', 'Value'=>1] ];
+      $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>'-'], ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>"{$this->backstop} 00:00:00,{$this->today} 23:59:59"], ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>7], ['Resource'=>'dTimeStamp', 'Filter'=>'is'], ['Resource'=>'d2SigReq', 'Filter'=>'eq', 'Value'=>0] ];
+      $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>'-'], ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>"{$this->backstop} 00:00:00,{$this->today} 23:59:59"], ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>7], ['Resource'=>'d2TimeStamp', 'Filter'=>'is'], ['Resource'=>'d2SigReq', 'Filter'=>'eq', 'Value'=>1] ];
       if (!$ticketQuery = self::createQuery($ticketQueryData)) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -149,10 +149,11 @@
       $ticketQueryData['endPoint'] = 'tickets';
       $ticketQueryData['method'] = 'GET';
       $ticketQueryData['formKey'] = $this->formKey;
-      $filter1 = array(array('Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>1),array('Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID),array('Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>$this->today . ' 00:00:00,' . $this->today . ' 23:59:59'),array('Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>6),array('Resource'=>'d2TimeStamp', 'Filter'=>'is'), array('Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0));
+      $ticketQueryData['queryParams']['filter'] = [];
+      // Pull RoundTrip tickets
+      $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>"{$this->today} 00:00:00,{$this->today} 23:59:59"], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>6], ['Resource'=>'d2TimeStamp', 'Filter'=>'is'], ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0] ];
       // Pull Routine tickets
-      $filter2 = array(array('Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>'1'),array('Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID),array('Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>$this->today . ' 00:00:00,' . $this->today . ' 23:59:59'),array('Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>5),array('Resource'=>'dTimeStamp', 'Filter'=>'is'), array('Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0));
-      $ticketQueryData['queryParams']['filter'] = [ $filter1, $filter2 ];
+      $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>"{$this->today} 00:00:00,{$this->today} 23:59:59"], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>5], ['Resource'=>'dTimeStamp', 'Filter'=>'is'], ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0] ];
       if (!$ticketQuery = self::createQuery($ticketQueryData)) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -170,7 +171,7 @@
       if (empty($this->activeTicketSet)) {
         //  Check for completed contract tickets for today
         // Only queryParams['filter'] needs to be changed here
-        $ticketQueryData['queryParams']['filter'] = array(array('Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>1),array('Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID), array('Resource'=>'Charge', 'Filter'=>'neq', 'Value'=>0),array('Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>$this->today . ' 00:00:00,' . $this->today . ' 23:59:59'), array('Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0));
+        $ticketQueryData['queryParams']['filter'] = [ ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'Charge', 'Filter'=>'neq', 'Value'=>0], ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>"{$this->today} 00:00:00,{$this->today} 23:59:59"], ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0] ];
         if (!$ticketQuery = self::createQuery($ticketQueryData)) {
           $temp = $this->error . "\n";
           $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -252,20 +253,24 @@
           $returnData = '<datalist id="receivers">';
           foreach (json_decode($this->transferList, TRUE) as $driver) {
             $driverName = ($driver['LastName'] == NULL) ? htmlentities($driver['FirstName']) . '; ' . $driver['DriverID'] : htmlentities($driver['FirstName']) . ' ' . htmlentities($driver['LastName']) . '; ' . $driver['DriverID'];
-            $returnData .= ($driver["DriverID"] !== $_SESSION["DriverID"]) ? '<option value="' . $driverName . '">' . $driverName . '</option>' : '';
+            $returnData .= ($driver['DriverID'] !== $_SESSION['DriverID']) ? '<option value="' . $driverName . '">' . $driverName . '</option>' : '';
           }
           $returnData .= '</datalist>';
         }
       }
       $this->processTransfer = TRUE;
-      $transfersQueryData['endPoint'] = "tickets";
+      $transfersQueryData['endPoint'] = 'tickets';
       $transfersQueryData['method'] = 'GET';
       $transfersQueryData['formKey'] = $this->formKey;
       $transfersQueryData['queryParams']['filter'] = [];
-      $transfersQueryData['queryParams']['filter'][] = [ ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>'5'], ['Resource'=>'dTimeStamp', 'Filter'=>'is'] ];
-      $transfersQueryData['queryParams']['filter'][] = [ ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>'6'], ['Resource'=>'d2TimeStamp', 'Filter'=>'is'] ];
-      $transfersQueryData['queryParams']['filter'][] = [ ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'PendingReceiver', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>'5'], ['Resource'=>'dTimeStamp', 'Filter'=>'is'] ];
-      $transfersQueryData['queryParams']['filter'][] = [ ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'PendingReceiver', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>'6'], ['Resource'=>'d2TimeStamp', 'Filter'=>'is'] ];
+      $transfersQueryData['queryParams']['filter'][] = [ ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'Charge', 'Filter'=>'bt', 'Value'=>'1,5'], ['Resource'=>'dTimeStamp', 'Filter'=>'is'] ];
+      $transfersQueryData['queryParams']['filter'][] = [ ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>6], ['Resource'=>'d2TimeStamp', 'Filter'=>'is'] ];
+      $transfersQueryData['queryParams']['filter'][] = [ ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'PendingReceiver', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'Charge', 'Filter'=>'bt', 'Value'=>'1,5'], ['Resource'=>'dTimeStamp', 'Filter'=>'is'] ];
+      $transfersQueryData['queryParams']['filter'][] = [ ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'PendingReceiver', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>6], ['Resource'=>'d2TimeStamp', 'Filter'=>'is'] ];
+      $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>7], ['Resource'=>'dTimeStamp', 'Filter'=>'is'], ['Resource'=>'d2SigReq', 'Filter'=>'eq', 'Value'=>0] ];
+      $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>7], ['Resource'=>'d2TimeStamp', 'Filter'=>'is'], ['Resource'=>'d2SigReq', 'Filter'=>'eq', 'Value'=>1] ];
+      $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'PendingReceiver', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>7], ['Resource'=>'dTimeStamp', 'Filter'=>'is'], ['Resource'=>'d2SigReq', 'Filter'=>'eq', 'Value'=>0] ];
+      $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'PendingReceiver', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>7], ['Resource'=>'d2TimeStamp', 'Filter'=>'is'], ['Resource'=>'d2SigReq', 'Filter'=>'eq', 'Value'=>1] ];
       if (!$transfersQuery = self::createQuery($transfersQueryData)) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
