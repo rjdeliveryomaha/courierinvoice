@@ -1,6 +1,6 @@
 <?php
   namespace RJDeliveryOmaha\CourierInvoice;
-  
+
   use RJDeliveryOmaha\CourierInvoice\CommonFunctions;
   use Geocoder\Query\GeocodeQuery;
   use GuzzleHttp\Client as GuzzleClient;
@@ -11,7 +11,7 @@
   * throws Exception
   *
   ***/
-  
+
   class Ticket extends CommonFunctions {
     protected $startDate;
     protected $endDate;
@@ -87,7 +87,7 @@
     protected $ReceivedDate;
     protected $DispatchTimeStamp;
     protected $DispatchMicroTime;
-    protected $DispatchedBy = "0.0";
+    protected $DispatchedBy = '0.0';
     protected $Transfers;
     /* TransferState will be bool to and from the API
      * Here it is used to indicate how to process a transfer
@@ -118,7 +118,7 @@
     // Ticket values that should not be included on datalists
     protected $ignoreValues = [];
     // Other needed properties
-    private $activeTicketSet = array();
+    private $activeTicketSet = [];
     private $today;
     private $backstop;
     private $dateObject;
@@ -135,10 +135,10 @@
     private $result;
     // Default dateTime value in the database
     private $tTest;
-    private $newTicketDatabaseKeys = array('Contract', 'RunNumber', 'TicketNumber', 'TicketBase', 'BillTo', 'RequestedBy', 'pClient', 'dClient', 'pDepartment', 'dDepartment', 'pAddress1', 'dAddress1', 'pAddress2', 'dAddress2', 'pCountry', 'dCountry', 'pContact', 'dContact', 'pTelephone', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'Charge', 'RunPrice', 'TicketPrice', 'EmailConfirm', 'EmailAddress', 'Telephone', 'pTime', 'dTime', 'd2Time', 'pSigReq', 'dSigReq', 'd2SigReq', 'DispatchedTo', 'Transfers', 'ReceivedDate', 'DispatchTimeStamp', 'DispatchMicroTime', 'DispatchedBy', 'Notes');
-    private $updateTicketDatabaseKeys = array('BillTo', 'Charge', 'EmailAddress', 'EmailConfirm', 'Telephone', 'RequestedBy', 'pClient', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'dClient', 'dAddress1', 'dAddress2', 'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'DispatchedTo', 'Transfers', 'TicketBase', 'RunPrice', 'TicketPrice', 'Notes', 'pSigReq', 'dSigReq', 'd2SigReq');
-    private $postableKeys = array('repeatClient', 'fromMe', 'pClient', 'pDepartment', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'pSigReq', 'toMe', 'dClient', 'dDepartment', 'dAddress1', 'dAddress2', 'dCountry', 'dContact', 'dTelephone', 'dSigReq', 'dryIce', 'diWeight', 'Notes', 'Charge', 'DispatchedTo', 'd2SigReq', 'EmailAddress', 'EmailConfirm', 'Telephone', 'RequestedBy', 'locationList', 'clientList', 'tClientList', 'driverList');
-    private $javascriptKeys = array('ClientName', 'Department', 'ShippingAddress1', 'ShippingAddress2', 'ShippingCountry');
+    private $newTicketDatabaseKeys = ['Contract', 'RunNumber', 'TicketNumber', 'TicketBase', 'BillTo', 'RequestedBy', 'pClient', 'dClient', 'pDepartment', 'dDepartment', 'pAddress1', 'dAddress1', 'pAddress2', 'dAddress2', 'pCountry', 'dCountry', 'pContact', 'dContact', 'pTelephone', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'Charge', 'RunPrice', 'TicketPrice', 'EmailConfirm', 'EmailAddress', 'Telephone', 'pTime', 'dTime', 'd2Time', 'pSigReq', 'dSigReq', 'd2SigReq', 'DispatchedTo', 'Transfers', 'ReceivedDate', 'DispatchTimeStamp', 'DispatchMicroTime', 'DispatchedBy', 'Notes'];
+    private $updateTicketDatabaseKeys = ['BillTo', 'Charge', 'EmailAddress', 'EmailConfirm', 'Telephone', 'RequestedBy', 'pClient', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'dClient', 'dAddress1', 'dAddress2', 'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'DispatchedTo', 'Transfers', 'TicketBase', 'RunPrice', 'TicketPrice', 'Notes', 'pSigReq', 'dSigReq', 'd2SigReq'];
+    private $postableKeys = ['repeatClient', 'fromMe', 'pClient', 'pDepartment', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'pSigReq', 'toMe', 'dClient', 'dDepartment', 'dAddress1', 'dAddress2', 'dCountry', 'dContact', 'dTelephone', 'dSigReq', 'dryIce', 'diWeight', 'Notes', 'Charge', 'DispatchedTo', 'd2SigReq', 'EmailAddress', 'EmailConfirm', 'Telephone', 'RequestedBy', 'locationList', 'clientList', 'tClientList', 'driverList'];
+    private $javascriptKeys = ['ClientName', 'Department', 'ShippingAddress1', 'ShippingAddress2', 'ShippingCountry'];
     // Results form geocoder
     private $result1obj;
     private $result2obj;
@@ -163,10 +163,10 @@
     // bool flag indicating if a map will be displayed for price calculation
     private $mapAvailable = TRUE;
     /**
-      int flag indicating what range to solve for
-        0: range. distance between location 1 and location 2
-        1: loc1Range. distance between home and location 1
-        2: loc2Range. distance between home and location 2
+    *  int flag indicating what range to solve for
+    *    0: range. distance between location 1 and location 2
+    *    1: loc1Range. distance between home and location 1
+    *    2: loc2Range. distance between home and location 2
     */
     private $rangeFlag = 0;
     private $rangeVal;
@@ -198,7 +198,7 @@
     public $sigImage;
     public $sigType;
     public $printName;
-    
+
     public function __construct($options, $data=[]) {
       try {
         parent::__construct($options, $data);
@@ -250,7 +250,7 @@
         $this->Charge = $this->charge;
       }
     }
-    
+
     private function rangeTest() {
       switch ($this->rangeFlag) {
         case 0:
@@ -271,13 +271,13 @@
       $this->rangeLoc1['lng'] *= $this->pi80;
       $this->rangeLoc2['lat'] *= $this->pi80;
       $this->rangeLoc2['lng'] *= $this->pi80;
-      
+
       $this->dLat = $this->rangeLoc2['lat'] - $this->rangeLoc1['lat'];
-      
+
       $this->dLng = $this->rangeLoc2['lng'] - $this->rangeLoc1['lng'];
-      
+
       $this->angle = sin($this->dLat / 2) * sin($this->dLat / 2) + cos($this->rangeLoc1['lat']) * cos($this->rangeLoc2['lat']) * sin($this->dLng / 2) * sin($this->dLng / 2);
-      
+
       $this->greatCircleDistance = 2 * atan2(sqrt($this->angle), sqrt(1 - $this->angle));
       // Distance in km
       switch ($this->rangeFlag) {
@@ -286,7 +286,7 @@
         case 2: return $this->dRangeTest = round($this->MER * $this->greatCircleDistance, 2);
       }
     }
-    
+
     private function solveTicketPrice() {
       if ($this->fromMe === 1) {
         $this->pClient = $_SESSION['ClientName'];
@@ -338,7 +338,7 @@
           $contractRunQueryData['method'] = 'GET';
           $contractRunQueryData['formKey'] = $this->formKey;
           $contractRunQueryData['queryParams'] = [];
-          $contractRunQueryData['queryParams']['filter'] = array(array('Resource'=>'RunNumber', 'Filter'=>'eq', 'Value'=>$testTicket[0]["RunNumber"]));
+          $contractRunQueryData['queryParams']['filter'] = array(array('Resource'=>'RunNumber', 'Filter'=>'eq', 'Value'=>$testTicket[0]['RunNumber']));
           if (!$contractRunQuery = self::createQuery($contractRunQueryData)) {
             $temp = $this->error;
             $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -367,7 +367,7 @@
         }
         $this->Contract = $originalTicket["Contract"];
       }
-      
+
       if ($this->PriceOverride !== 1) {
         if (strlen($this->pCountry) === 2) {
           $this->pCountry = self::countryFromAbbr($this->pCountry);
@@ -421,7 +421,7 @@
         // dump the objects as json strings and encode them as array
         $this->result1 = json_decode($this->dumper->dump($this->result1obj));
         $this->result2 = json_decode($this->dumper->dump($this->result2obj));
-        
+
         $this->loc1['lat'] = $this->result1->geometry->coordinates[1];
         $this->loc1['lng'] = $this->result1->geometry->coordinates[0];
         $this->loc2['lat'] = $this->result2->geometry->coordinates[1];
@@ -494,7 +494,7 @@
       }
       return TRUE;
     }
-    
+
     public function solveDedicatedRunPrice() {
       // Define the start and end times based on return signature request
       if ($this->d2SigReq === 1) {
@@ -566,12 +566,12 @@
       }
       return TRUE;
     }
-    
+
     private function buildLocationList() {
-      if ($this->organizationFlag === TRUE) $this->ClientID = implode(",", array_keys($this->members));
+      if ($this->organizationFlag === TRUE) $this->ClientID = implode(',', array_keys($this->members));
       $tempClients = $uniqueTest = array();
-      $locationQueryData['queryParams']['resources'] = array('pClient', 'dClient', 'pAddress1', 'pAddress2', 'pCountry', 'dAddress1', 'dAddress2', 'dCountry', 'pDepartment', 'dDepartment', 'pContact', 'dContact');
-      $locationQueryData['queryParams']['filter'] = ($this->ulevel === 'dispatch' || $this->ulevel === 'driver') ? array() : array(array('Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>$this->ClientID));
+      $locationQueryData['queryParams']['resources'] = ['pClient', 'dClient', 'pAddress1', 'pAddress2', 'pCountry', 'dAddress1', 'dAddress2', 'dCountry', 'pDepartment', 'dDepartment', 'pContact', 'dContact'];
+      $locationQueryData['queryParams']['filter'] = ($this->ulevel === 'dispatch' || $this->ulevel === 'driver') ? [] : [ ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>$this->ClientID] ];
       $locationQueryData['method'] = 'GET';
       $locationQueryData['endPoint'] = 'tickets';
       $locationQueryData['formKey'] = $this->formKey;
@@ -600,7 +600,7 @@
             $exceptionTest = self::decode($location['pClient']) . ', ' . self::decode($location['pAddress1']);
             if (!in_array($test, $uniqueTest) && !in_array($exceptionTest, $this->clientAddressExceptions)) {
               $uniqueTest[] = $test;
-              $tempClients[] = array('client'=>self::decode($location['pClient']), 'department'=>self::decode($location['pDepartment']), 'contact'=>self::decode($location['pContact']), 'address1'=>self::decode($location['pAddress1']), 'address2'=>self::decode($location['pAddress2']), 'country'=>$location['pCountry']); 
+              $tempClients[] = ['client'=>self::decode($location['pClient']), 'department'=>self::decode($location['pDepartment']), 'contact'=>self::decode($location['pContact']), 'address1'=>self::decode($location['pAddress1']), 'address2'=>self::decode($location['pAddress2']), 'country'=>$location['pCountry']];
             }
           }
           if (!in_array(strtolower($location['dClient']), $this->ignoreValues)) {
@@ -608,7 +608,7 @@
             $exceptionTest = self::decode($location['dClient']) . ' ' . self::decode($location['dAddress1']);
             if (!in_array($test, $uniqueTest) && !in_array($exceptionTest, $this->clientAddressExceptions)) {
               $uniqueTest[] = $test;
-              $tempClients[] = array('client'=>self::decode($location['dClient']), 'department'=>self::decode($location['dDepartment']), 'contact'=>self::decode($location['dContact']), 'address1'=>self::decode($location['dAddress1']), 'address2'=>self::decode($location['dAddress2']), 'country'=>$location['dCountry']); 
+              $tempClients[] = ['client'=>self::decode($location['dClient']), 'department'=>self::decode($location['dDepartment']), 'contact'=>self::decode($location['dContact']), 'address1'=>self::decode($location['dAddress1']), 'address2'=>self::decode($location['dAddress2']), 'country'=>$location['dCountry']];
             }
           }
         }
@@ -616,13 +616,13 @@
         return $this->locationList = (count($tempClients) === 0) ? 'empty' : self::encodeURIComponent(json_encode(self::user_array_sort($tempClients, 'client')));
       }
     }
-    
+
     private function fetchDrivers() {
-      $tempDriver = array();
+      $tempDriver = [];
       // Pull the data to make the datalists
       $driverQueryData['queryParams'] = [];
-      $driverQueryData['queryParams']['resources'] = array('DriverID', 'FirstName', 'LastName');
-      $driverQueryData['queryParams']['filter'] = array(array('Resource'=>'Deleted', 'Filter'=>'neq', 'Value'=>1));
+      $driverQueryData['queryParams']['resources'] = ['DriverID', 'FirstName', 'LastName'];
+      $driverQueryData['queryParams']['filter'] = [ ['Resource'=>'Deleted', 'Filter'=>'neq', 'Value'=>1] ];
       $driverQueryData['method'] = 'GET';
       $driverQueryData['endPoint'] = 'drivers';
       $driverQueryData['formKey'] = $this->formKey;
@@ -646,12 +646,12 @@
       }
       return $this->driverList = self::encodeURIComponent(json_encode($tempDriver));
     }
-    
+
     private function fetchClients() {
-      $tempClients = $repeatList = $nrList = array();
+      $tempClients = $repeatList = $nrList = [];
       $clientQueryData['queryParams'] = [];
-      $clientQueryData['queryParams']['resources'] = array('ClientID', 'ClientName', 'Department', 'RepeatClient');
-      $clientQueryData['queryParams']['filter'] = array(array('Resource'=>'Deleted', 'Filter'=>'neq', 'Value'=>1));
+      $clientQueryData['queryParams']['resources'] = ['ClientID', 'ClientName', 'Department', 'RepeatClient'];
+      $clientQueryData['queryParams']['filter'] = [ ['Resource'=>'Deleted', 'Filter'=>'neq', 'Value'=>1] ];
       $clientQueryData['method'] = 'GET';
       $clientQueryData['endPoint'] = 'clients';
       $clientQueryData['formKey'] = $this->formKey;
@@ -683,7 +683,7 @@
       $this->tClientList = (empty($nrList)) ? 'empty' : self::encodeURIComponent(json_encode($nrList));
       return TRUE;
     }
-    
+
     private function buildDatalists() {
       $returnData = '';
       if ($this->userType !== 'client') {
@@ -697,18 +697,18 @@
               // Set DispatchedTo for display if the ticket_index is not NULL
               if ($this->ticket_index !== NULL) {
                 if ($this->DispatchedTo == $driver['DriverID']) {
-                  $this->DispatchedTo = ($driver['LastName'] == NULL) ? htmlentities($driver['FirstName']) . '; ' . $driver['DriverID'] : htmlentities($driver['FirstName']) . ' ' . htmlentities($driver['LastName']) . '; ' . $driver['DriverID'];
+                  $this->DispatchedTo = ($driver['LastName'] === NULL || $driver['LastName'] === '') ? htmlentities($driver['FirstName']) . '; ' . $driver['DriverID'] : htmlentities($driver['FirstName']) . ' ' . htmlentities($driver['LastName']) . '; ' . $driver['DriverID'];
                 }
               }
               $driverName = ($driver['LastName'] === NULL || $driver['LastName'] === '') ? htmlentities($driver['FirstName']) . '; ' . $driver['DriverID'] : htmlentities($driver['FirstName']) . ' ' . htmlentities($driver['LastName']) . '; ' . $driver['DriverID'];
-              $returnData .= '<option value="' . $driverName . '">' . $driverName . '</option>';
+              $returnData .= "<option value=\"{$driverName}\">{$driverName}</option>";
             }
             $returnData .= '</datalist>';
             if ($this->userType === 'driver') {
               $returnData .= '<datalist id="receivers">';
               foreach (json_decode(urldecode($this->driverList), TRUE) as $driver) {
-                $driverName = ($driver['LastName'] == NULL) ? htmlentities($driver['FirstName']) . '; ' . $driver['DriverID'] : htmlentities($driver['FirstName']) . ' ' . htmlentities($driver['LastName']) . '; ' . $driver['DriverID'];
-                $returnData .= ($driver['DriverID'] !== $_SESSION['DriverID']) ? '<option value="' . $driverName . '">' . $driverName . '</option>' : '';
+                $driverName = ($driver['LastName'] === NULL || $driver['LastName'] === '') ? htmlentities($driver['FirstName']) . '; ' . $driver['DriverID'] : htmlentities($driver['FirstName']) . ' ' . htmlentities($driver['LastName']) . '; ' . $driver['DriverID'];
+                $returnData .= ($driver['DriverID'] !== $_SESSION['DriverID']) ? "<option value=\"{$driverName}\">{$driverName}</option>" : '';
               }
               $returnData .= '</datalist>';
             }
@@ -722,7 +722,7 @@
             $returnData .= '<datalist id="receivers">';
             foreach (json_decode(urldecode($this->driverList), TRUE) as $driver) {
               $driverName = ($driver['LastName'] == NULL) ? htmlentities($driver['FirstName']) . '; ' . $driver['DriverID'] : htmlentities($driver['FirstName']) . ' ' . htmlentities($driver['LastName']) . '; ' . $driver['DriverID'];
-              $returnData .= ($driver['DriverID'] !== $_SESSION['DriverID']) ? '<option value="' . $driverName . '">' . $driverName . '</option>' : '';
+              $returnData .= ($driver['DriverID'] !== $_SESSION['DriverID']) ? "<option value=\"{$driverName}\">{$driverName}</option>" : '';
             }
             $returnData .= '</datalist>';
           }
@@ -768,7 +768,7 @@
       if ($this->locationList === 'empty' || $this->locationList === NULL) {
         return $returnData;
       }
-      $clients = $departments = $contacts = $addy1s = $addy2s = array();
+      $clients = $departments = $contacts = $addy1s = $addy2s = [];
       $locations = array_values(json_decode(urldecode($this->locationList), TRUE));
       foreach ($locations as $location) {
         foreach ($location as $key => $value) {
@@ -798,45 +798,45 @@
         }
       }
       $returnData .= '<datalist id="clientName">';
-      
+
       foreach ($clients as $client) {
         $returnData .= '<option value="' . htmlentities($client) . '">' . html_entity_decode($client) . '</option>';
       }
-      
+
       $returnData .= '</datalist>
         <datalist id="departments">';
-      
+
       foreach ($departments as $department) {
         $returnData .= '<option value="' . htmlentities($department) . '">' . html_entity_decode($department) . '</option>';
       }
-      
+
       $returnData .= '</datalist>
         <datalist id="addy1">';
-      
+
       for($i = 0; $i < count($addy1s); $i++) {
         // Use htmlentities to ensure that addresses with double quotes are displayed properly
         $returnData .= '<option value="' . htmlentities($addy1s[$i]) . '" data-value="' . $i . '">' . html_entity_decode($addy1s[$i]) . '</option>';
       }
-      
+
       $returnData .= '</datalist>
         <datalist id="addy2">';
-      
+
       for ($i = 0; $i < count($addy2s); $i++) {
         $returnData .= '<option value="' . $addy2s[$i] . '" data-value="' . $i . '">' . html_entity_decode($addy2s[$i]) . '</option>';
       }
-      
+
       $returnData .= '</datalist>
         <datalist id="contacts">';
-      
+
       foreach ($contacts as $contact) {
         $returnData .= '<option value="' . $contact . '">' . html_entity_decode($contact) . '</option>';
       }
-      
+
       $returnData .= '</datalist>';
-      
+
       return $returnData;
     }
-    
+
     private function buildSelectElement() {
       $locations = json_decode(urldecode($this->locationList), TRUE);
       $returnData = '';
@@ -850,33 +850,31 @@
       $returnData .= '</select>';
       return $returnData;
     }
-    
+
     private function testTicketNumber() {
-      if ($this->processingRoute === FALSE || ($this->processingRoute === TRUE && $this->ticketNumberList === NULL)) {
-        $ticketNumberQueryData['method'] = 'GET';
-        $ticketNumberQueryData['endPoint'] = 'tickets';
-        $ticketNumberQueryData['formKey'] = $this->formKey;
-        $ticketNumberQueryData['queryParams']['resources'] = array('TicketNumber');
-        if (!$ticketNumberQuery = self::createQuery($ticketNumberQueryData)) {
-          $temp = $this->error;
-          $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-          if ($this->enableLogging !== FALSE) self::writeLoop();
-          return FALSE;
-        }
-        $this->ticketNumberList = self::callQuery($ticketNumberQuery);
-        if ($this->ticketNumberList === FALSE) {
-          $temp = $this->error;
-          $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-          if ($this->enableLogging !== FALSE) self::writeLoop();
-          return FALSE;
-        }
+      $ticketNumberQueryData['method'] = 'GET';
+      $ticketNumberQueryData['endPoint'] = 'tickets';
+      $ticketNumberQueryData['formKey'] = $this->formKey;
+      $ticketNumberQueryData['queryParams']['resources'] = ['TicketNumber'];
+      if (!$ticketNumberQuery = self::createQuery($ticketNumberQueryData)) {
+        $temp = $this->error;
+        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        if ($this->enableLogging !== FALSE) self::writeLoop();
+        return FALSE;
+      }
+      $this->ticketNumberList = self::callQuery($ticketNumberQuery);
+      if ($this->ticketNumberList === FALSE) {
+        $temp = $this->error;
+        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        if ($this->enableLogging !== FALSE) self::writeLoop();
+        return FALSE;
       }
       while (self::recursive_array_search($this->TicketNumber, $this->ticketNumberList) !== FALSE) {
         $this->TicketNumber++;
       }
-      return ($this->processingRoute === TRUE) ? $this->ticketNumberList[] = $this->TicketNumber : TRUE;
+      return TRUE;
     }
-    
+
     public function sendEmail() {
       if ($this->step === 'pickedUp') {
         // send email on 1, 3, 5, 7
@@ -889,7 +887,7 @@
             case 6:
             case 7: return TRUE;
             default: return FALSE;
-          } 
+          }
       } elseif ($this->step === 'returned') {
         // send email on 4, 5, 6, 7
         return $this->EmailConfirm > 3;
@@ -897,15 +895,15 @@
         return FALSE;
       }
     }
-    
+
     private function queryTicket() {
       $ticketQueryResult = array();
       // When querying multiple tickets $this->ticket_index will be a comma separated list of indexes. Test for a comma and adjust the filter accordingly.
-      $queryFilter = (strpos($this->ticket_index, ',') === FALSE) ? "eq" : "in";
+      $queryFilter = (strpos($this->ticket_index, ',') === FALSE) ? 'eq' : 'in';
       $ticketQueryData['endPoint'] = 'tickets';
       $ticketQueryData['method'] = 'GET';
       $ticketQueryData['formKey'] = $this->formKey;
-      $ticketQueryData['queryParams']['filter'] = array(array('Resource'=>'ticket_index', 'Filter'=>$queryFilter, 'Value'=>$this->ticket_index));
+      $ticketQueryData['queryParams']['filter'] = [ ['Resource'=>'ticket_index', 'Filter'=>$queryFilter, 'Value'=>$this->ticket_index] ];
       if (!$ticketQuery = self::createQuery($ticketQueryData)) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -924,11 +922,11 @@
         foreach ($this->sanitized as $key => $value) {
           foreach ($this as $k => $v) {
             if (strtolower($key) === strtolower($k) && $k !== 'sanitized') {
-              if (strtolower($key) === "transfers") {
-                $this->$k = ($value === NULL || $value === "") ? NULL : json_decode(html_entity_decode($value));
-              } elseif (strtolower($key) === "transferstate" || strtolower($key) === "pendingreceiver") {
+              if (strtolower($key) === 'transfers') {
+                $this->$k = ($value === NULL || $value === '') ? NULL : json_decode(html_entity_decode($value));
+              } elseif (strtolower($key) === 'transferstate' || strtolower($key) === 'pendingreceiver') {
                 $this->$k = ($this->processTransfer === TRUE) ? $v : $value;
-                $tempkey = strtolower(substr($k, 0, 1)) . substr($k, 1) . "Old";
+                $tempkey = strtolower(substr($k, 0, 1)) . substr($k, 1) . 'Old';
                 $this->$tempkey = $value;
               } else {
                 $this->$k = $value;
@@ -941,7 +939,7 @@
       }
       return TRUE;
     }
-    
+
     private function processEmail() {
       if (!isset($this->emailConfig)) {
         return FALSE;
@@ -970,8 +968,8 @@
         $mail->addAttachment('/tmp/image.jpg', 'new.jpg');    // Optional name
         //Content */
         $mail->isHTML(TRUE);                                  // Set email format to HTML
-        $mail->Subject = "Update";
-        $mail->Body    = "Delivery " . $this->TicketNumber . " has been " . $this->stepMarker . ".<br><br>This message is automatically generated. Please do not respond.<br><br>If you believe that you've received this message in error or have questions or comments please contact " . $this->myInfo['Name'] . " by phone at <a href=\"tel:" . $this->myInfo['Telephone'] . "\">" . $this->myInfo['Telephone'] . "</a> or by email at <a href=\"mailto:" . $this->myInfo['EmailAddress'] . "\">" . $this->myInfo['EmailAddress'] . "</a>";
+        $mail->Subject = 'Update';
+        $mail->Body    = "Delivery {$this->TicketNumber} has been {$this->stepMarker}.<br><br>This message is automatically generated. Please do not respond.<br><br>If you believe that you've received this message in error or have questions or comments please contact {$this->myInfo['Name']} by phone at <a href=\"tel:{$this->myInfo['Telephone']}\">{$this->myInfo['Telephone']}</a> or by email at <a href=\"mailto:{$this->myInfo['EmailAddress']}\">{$this->myInfo['EmailAddress']}</a>";
         // $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
         $mail->send();
         //echo 'Message has been sent';
@@ -982,7 +980,7 @@
         }
       }
     }
-    
+
     //Ticket Charge values
     protected function ticketCharge() {
       switch ($this->Charge) {
@@ -1010,14 +1008,14 @@
           return FALSE;
       }
     }
-    
+
     public function invoiceBody() {
       if ($this->pDepartment == NULL) {
         $pClientDisplay = $this->pClient;
       } else {
         $pClientDisplay = $this->pClient . ' | ' . $this->pDepartment;
       }
-      
+
       if ($this->dDepartment == NULL) {
         $dClientDisplay = $this->dClient;
       } else {
@@ -1025,7 +1023,7 @@
       }
       // Define the dry ice display
       if ($this->dryIce === 1) {
-        $answerIce = 'Weight: ' . self::number_format_drop_zero_decimals($this->diWeight, 3) . $this->weightMarker . '  |   Price: <span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::number_format_drop_zero_decimals($this->diPrice, 2);
+        $answerIce = "Weight: {$this->number_format_drop_zero_decimals($this->diWeight, 3)}{$this->weightMarker}  |   Price: <span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>{$this->number_format_drop_zero_decimals($this->diPrice, 2)}";
         $labelIce = 'Dry Ice:';
       } else {
         $answerIce = '&nbsp;';
@@ -1037,44 +1035,44 @@
       } else {
         $date = date('m/d/y', strtotime($this->ReceivedDate));
       }
-      return '
+      return "
               <tr>
-                <td>' . $date . '</td>
-                <td>' . $this->TicketNumber . '</td>
-                <td>' . self::ticketCharge($this->Charge) . '</td>
-                <td>P.U.:<br><hr>D.O.:<br><hr>' . $labelIce . '</td>
-                <td>' . $pClientDisplay . '<br>' . $this->pAddress1 . '<br><hr>' . $dClientDisplay . '<br>' . $this->dAddress1 . '<br><hr>' . $answerIce . '</td>
-                <td><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::negParenth(self::number_format_drop_zero_decimals($this->RunPrice, 2)) . '</td>
-                <td>' . (float)$this->Multiplier . '</td>
-                <td><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::negParenth(self::number_format_drop_zero_decimals($this->TicketPrice, 2)) . '</td>
-              </tr>';
+                <td>{$date}</td>
+                <td>{$this->TicketNumber}</td>
+                <td>{$this->ticketCharge($this->Charge)}</td>
+                <td>P.U.:<br><hr>D.O.:<br><hr>{$labelIce}</td>
+                <td>{$pClientDisplay}<br>{$this->pAddress1}<br><hr>{$dClientDisplay}<br>{$this->dAddress1}<br><hr>{$answerIce}</td>
+                <td><span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>{$this->negParenth($this->number_format_drop_zero_decimals($this->RunPrice, 2))}</td>
+                <td>{$this->Multiplier}</td>
+                <td><span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>{$this->negParenth($this->number_format_drop_zero_decimals($this->TicketPrice, 2))}</td>
+              </tr>";
     }
-    
+
     public function regenTicket() {
       //Prepare the received, pick up, drop of, and return time stamps for display
       $hideTableHead = '';
       if ($this->forDisatch === TRUE) {
         $dispatchValue = '';
         if ($this->driverID !== 0) {
-          $dispatchValue = $this->DriverName . '; ' . $this->driverID;
+          $dispatchValue = "{$this->DriverName}; {$this->driverID}";
         }
-        $this->dispatchForm = '
-          <form id="dispatchForm' . $this->ticket_index . '" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
-            <input type="hidden" name="formKey" class="formKey" value="' . $this->formKey . '" form="dispatchForm' . $this->ticket_index . '" />
-            <input type="hidden" name="step" class="step" value="dispatched" form="dispatchForm' . $this->ticket_index . '" />
-            <input type="hidden" name="ticket_index" class="ticket_index" value="' . $this->ticket_index . '" form="dispatchForm' . $this->ticket_index . '" />
-            <input type="hidden" name="emailConfirm" class="emailConfirm" value="' . $this->EmailConfirm . '" form="dispatchForm' . $this->ticket_index . '" />
-            <input type="hidden" name="emailAddress" class="emailAddress" value="' . $this->EmailAddress . '" form="dispatchForm' . $this->ticket_index . '" />
-            <input type="hidden" name="dispatchedBy" class="dispatchedBy" value="' . $this->DispatchedBy . '" form="dispatchForm' . $this->ticket_index . '" />
-            <button type="submit" class="dTicket" form="dispatchForm' . $this->ticket_index . '">Dispatch</button>
-            <label for=dispatch' . $this->ticket_index . '" class="hide">Dispatch To: </label>
-            <input list="drivers" id="dispatch' . $this->ticket_index . '" name="dispatchedTo" id="dispatchedTo" class="dispatchedTo" form="dispatchForm' . $this->ticket_index . '" value="' . $dispatchValue . '" />
+        $this->dispatchForm = "
+          <form id=\"dispatchForm{$this->ticket_index}\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
+            <input type=\"hidden\" name=\"formKey\" class=\"formKey\" value=\"{$this->formKey}\" form=\"dispatchForm{$this->ticket_index}\" />
+            <input type=\"hidden\" name=\"step\" class=\"step\" value=\"dispatched\" form=\"dispatchForm{$this->ticket_index}\" />
+            <input type=\"hidden\" name=\"ticket_index\" class=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"dispatchForm{$this->ticket_index}\" />
+            <input type=\"hidden\" name=\"emailConfirm\" class=\"emailConfirm\" value=\"{$this->EmailConfirm}\" form=\"dispatchForm{$this->ticket_index}\" />
+            <input type=\"hidden\" name=\"emailAddress\" class=\"emailAddress\" value=\"{$this->EmailAddress}\" form=\"dispatchForm{$this->ticket_index}\" />
+            <input type=\"hidden\" name=\"dispatchedBy\" class=\"dispatchedBy\" value=\"{$this->DispatchedBy}\" form=\"dispatchForm{$this->ticket_index}\" />
+            <button type=\"submit\" class=\"dTicket\" form=\"dispatchForm{$this->ticket_index}\">Dispatch</button>
+            <label for=\"dispatch{$this->ticket_index}\" class=\"hide\">Dispatch To: </label>
+            <input list=\"drivers\" id=\"dispatch{$this->ticket_index}\" name=\"dispatchedTo\" class=\"dispatchedTo\" value=\"{$dispatchValue}\" form=\"dispatchForm{$this->ticket_index}\" />
           </form>
-        ';
+        ";
         $this->driverDatalist = '<datalist id="drivers">';
         foreach (json_decode(urldecode($this->driverList), TRUE) as $driver) {
           $driverName = ($driver['LastName'] == NULL) ? $driver['FirstName'] . '; ' . $driver['DriverID'] : $driver['FirstName'] . ' ' . $driver['LastName'] . '; ' . $driver['DriverID'];
-          $this->driverDatalist .= '<option value="' . $driverName . '">' . $driverName . '</option>';
+          $this->driverDatalist .= "<option value=\"{$driverName}\">{$driverName}</option>";
         }
         $this->driverDatalist .= '</datalist>';
         $hideTableHead = 'class="hide"';
@@ -1132,27 +1130,27 @@
       if ($this->InvoiceNumber !== '-') {
         if ($this->ulevel < 2) {
           if ($this->ulevel === 1) {
-            $url = "invoices";
+            $url = 'invoices';
           } elseif ($this->ulevel === 0) {
-            $url = "orgInvoices";
+            $url = 'orgInvoices';
           } else {
-            $url = "error";
+            $url = 'error';
           }
           if ($this->organizationFlag === TRUE) {
-            $this->memberInput = '
-            <input type="hidden" name="clientID[]" value="' . $this->BillTo . '" />';
+            $this->memberInput = "
+            <input type=\"hidden\" name=\"clientID[]\" value=\"{$this->BillTo}\" />";
           }
-          $billed = '
-          <form class="noPrint" action="' . $url . '" method="post">
-            <input type="hidden" name="formKey" value="' . $this->formKey . '" />
-            <input type="hidden" name="clientID" value="' . $this->ClientID . '" />
-            <input type="hidden" name="endPoint" value="invoices" />
-            <input type="hidden" name="display" value="invoice" />
-            <input type="hidden" name="invoiceNumber" value="' . $this->InvoiceNumber . '" />
-            ' . $this->memberInput . '
-            <button type="submit" class="invoiceQuery">' . $this->InvoiceNumber . '</button>
+          $billed = "
+          <form class=\"noPrint\" action=\"{$url}\" method=\"post\">
+            <input type=\"hidden\" name=\"formKey\" value=\"{$this->formKey}\" />
+            <input type=\"hidden\" name=\"clientID\" value=\"{$this->ClientID}\" />
+            <input type=\"hidden\" name=\"endPoint\" value=\"invoices\" />
+            <input type=\"hidden\" name=\"display\" value=\"invoice\" />
+            <input type=\"hidden\" name=\"invoiceNumber\" value=\"{$this->InvoiceNumber}\" />
+            {$this->memberInput}
+            <button type=\"submit\" class=\"invoiceQuery\">{$this->InvoiceNumber}</button>
           </form>
-          <span class="printOnly">' . $this->InvoiceNumber . '</span>';
+          <span class=\"printOnly\">{$this->InvoiceNumber}</span>";
         } else {
           $billed = $this->InvoiceNumber;
         }
@@ -1180,8 +1178,8 @@
         </table>
       ';
       $answerIce2 = '
-	        <td><span class="bold">Dry Ice Price:</span> <span class="currencySymbol">' . $this->config["CurrencySymbol"] . '</span>' . self::number_format_drop_zero_decimals($this->diPrice, 2) . '</td>';
-      if (($this->Notes !== NULL && $this->Notes !== "") || $this->forDisatch === TRUE) {
+	        <td><span class="bold">Dry Ice Price:</span> <span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::number_format_drop_zero_decimals($this->diPrice, 2) . '</td>';
+      if (($this->Notes !== NULL && $this->Notes !== '') || $this->forDisatch === TRUE) {
         $readonlyNotes = ($this->forDisatch === TRUE) ? 'form="dispatchForm' . $this->ticket_index . '"' : 'readonly';
         $answerNotes = '
           <table class="wide">
@@ -1231,64 +1229,57 @@
 	        <span class="bold">Run Price:</span>
           ';
         $runPrice2 = '
-		      <span class="currencySymbol">' . $this->config["CurrencySymbol"] . '</span>' . self::number_format_drop_zero_decimals($this->RunPrice, 2);
+		      <span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::number_format_drop_zero_decimals($this->RunPrice, 2);
           // Reset the run price display if this is an incomplete dedicated run
           if ($this->Charge === 7 && (($this->d2SigReq === 1 && $this->d2TimeStamp === $this->tTest) || ($this->d2SigReq === 0 && $this->dTimeStamp === $this->tTest))) {
-            $runPrice2 = "Pending";
+            $runPrice2 = 'Pending';
           }
       }
       // Set the ticket price display
       $ticketPriceDisplay = '<span class="currencySymbol">'. $this->config["CurrencySymbol"] . '</span>' . self::negParenth($this->TicketPrice);
       // Reset the ticket price display if this is an incomplete dedicated run
       if ($this->Charge === 7 && (($this->d2SigReq === 1 && $this->d2TimeStamp === $this->tTest) || ($this->d2SigReq === 0 && $this->dTimeStamp === $this->tTest))) {
-        $ticketPriceDisplay = "Pending";
+        $ticketPriceDisplay = 'Pending';
       }
-      if ($this->pDepartment == NULL) {
-        $pName = $this->pClient . "<br>&nbsp;";
-      } else {
-        $pName = $this->pClient . "<br>" . $this->pDepartment;
-      }  
-      if ($this->dDepartment == NULL) {
-        $dName = $this->dClient . "<br>&nbsp;";
-      } else {
-        $dName = $this->dClient . "<br>" . $this->dDepartment;
-      }
+      $pName = $this->pClient;
+      $pName .= ($this->pDepartment == NULL) ? '<br>&nbsp;' : "<br>{$this->pDepartment}";
+      $dName = $this->dClient;
+      $dName .= ($this->dDepartment == NULL) ? '<br>&nbsp;' : "<br>{$this->dDepartment}";
       $pSigDisplay = $dSigDisplay = $d2SigDisplay = '';
-      $sigTokens = array('pSig', 'dSig', 'd2Sig');
-      $tokenSet = array();
+      $sigTokens = ['pSig', 'dSig', 'd2Sig'];
+      $tokenSet = [];
       foreach ($sigTokens as $token) {
         switch ($token) {
-          case "pSig":
+          case 'pSig':
             $label = 'Pick Up';
           break;
-          case "dSig":
+          case 'dSig':
             $label = 'Delivery';
           break;
-          case "d2Sig":
+          case 'd2Sig':
             $label = 'Return';
           break;
         }
         if ($this->$token !== NULL) {
-          $fileType = $token . "Type";
+          $fileType = "{$token}Type";
           $showSig = '<img src="data:' . $this->$fileType . ';base64,' . base64_decode($this->$token) . '" height="100" width="375" />';
         } else {
           $showSig = 'Image Not On File';
         }
         $tempProperty = $token.'Print';
         $signer = $this->$tempProperty;
-        $tokenSet[$token . 'Display'] = '
-          <tr class="sigPrint">
-            <td colspan="2" class="pullLeft">' . $label . ' Signed For By: ' . $this->$tempProperty . '</td>
+        $tokenSet[$token . 'Display'] = "
+          <tr class=\"sigPrint\">
+            <td colspan=\"2\" class=\"pullLeft\">{$label} Signed For By: {$this->$tempProperty}</td>
           </tr>
-          <tr class="sigImage">
-            <td colspan="2" class="center">
-              ' . $showSig . '
+          <tr class=\"sigImage\">
+            <td colspan=\"2\" class=\"center\">
+              {$showSig}
             </td>
-          </tr>
-          ';
+          </tr>";
       }
       extract($tokenSet,EXTR_IF_EXISTS);
-      $returnData = 
+      $returnData =
         $this->driverDatalist .
         '<div class="tickets sortable">
         <table class="">
@@ -1428,7 +1419,7 @@
     </div>';
     return $returnData;
     }
-    
+
     public function displaySingleTicket() {
       $singleTicket = '';
       if ($this->Contract === 0) {
@@ -1729,7 +1720,7 @@
         <hr>
         <p class="message2 center"></p>
           ' . $confirm;
-      if ($this->processTransfer === FALSE) { 
+      if ($this->processTransfer === FALSE) {
         $singleTicket .= '
               <td><button type="button" class="cancelRun ' . $buttonClass . '">Cancel</button></td>
               <td><button type="button" class="' . $button2Class . '">' . $button2Name . '</button></td>
@@ -1748,7 +1739,7 @@
       </div>';
       return $singleTicket;
     }
-    
+
     public function displayMultiTicket() {
       $multiTicket = '';
       $this->processTransfer = $this->multiTicket[0]->processTransfer;
@@ -1825,9 +1816,9 @@
               $client .= '<br>' . self::decode($this->multiTicket[$i]->dDepartment);
             }
             $address = '<a class="plain" target="_blank" href="https://www.google.com/maps/dir//' . urlencode($this->multiTicket[$i]->dAddress1 . ', ' . $this->multiTicket[$i]->dAddress2 . ', ' . self::countryFromAbbr($this->multiTicket[$i]->dCountry)) . '">' . self::decode($this->multiTicket[$i]->dAddress1) . '<br>' . self::decode($this->multiTicket[$i]->dAddress2) . '</a>';
-            
+
             $contact = ($this->multiTicket[$i]->pContact == NULL) ? '' : '<tr><td>Contact:</td><td>' . $this->multiTicket[$i]->pContact . '</td></tr>';
-            
+
             $tel = ($this->multiTicket[$i]->pTelephone == NULL) ? '' : '<tr><td>Tel:</td><td><a href="tel:' . $this->multiTicket[$i]->pTelephone . '" style="color:blue;">' . $this->multiTicket[$i]->pTelephone . '</a></td></tr>';
           break;
         }
@@ -1938,7 +1929,7 @@
       }
       return $multiTicket;
     }
-    
+
     private function javascriptVars() {
       $returnData = '';
       $keyList = array('ShippingAddress1', 'ShippingAddress2', 'ClientName', 'Department');
@@ -1953,7 +1944,7 @@
       }
       return $returnData;
     }
-    
+
     protected function hiddenInputs() {
       $returnData = '';
       foreach ($this as $key => $value) {
@@ -1969,7 +1960,7 @@
       }
       return $returnData;
     }
-    
+
     public function ticketsToDispatch() {
       $returnData = '';
       $ticketQueryResult = array();
@@ -1995,7 +1986,7 @@
         }
       }
       if ($this->ticket_index === NULL) $ticketQueryData['queryParams']['filter'][] = array('Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->DispatchedTo);
-      
+
       if (!$ticketQuery = self::createQuery($ticketQueryData)) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -2009,7 +2000,7 @@
         if ($this->enableLogging !== FALSE) self::writeLoop();
         return $this->error;
       }
-      
+
       if (empty($ticketQueryResult)) {
         return '<p class="center">No Tickets Available.</p>';
       }
@@ -2055,7 +2046,7 @@
         return $returnData;
       }
     }
-    
+
     public function ticketForm() {
       $returnData = '';
       $this->action = self::esc_url($_SERVER['REQUEST_URI']);
@@ -2137,7 +2128,7 @@
         case 7: $emailConfirm7 = 'selected'; break;
       }
       $emailNoteDisplay = ($this->EmailConfirm === 0) ? 'hide' : '';
-      
+
       if ($this->userType === 'client') {
         $billingRowClass = 'hide';
         $dispatchInputType = 'type="hidden"';
@@ -2512,7 +2503,7 @@
     </div>';
     return $returnData;
     }
-    
+
     public function runPriceForm() {
       $returnData = '';
       if ($this->organizationFlag === TRUE) {
@@ -2613,7 +2604,7 @@
       }
       return $returnData;
     }
-    
+
     public function calculateRunPrice() {
       $this->Contract = 0;
       if ($this->ulevel === 1 || $this->ulevel === 2) {
@@ -2647,7 +2638,7 @@
       ];
       return json_encode($returnData);
     }
-    
+
     public function fetchTodaysTickets() {
       $returnData = '';
       $this->queryData['method'] = 'GET';
@@ -2680,7 +2671,7 @@
       }
       return $returnData;
     }
-    
+
     private function confirmRequest() {
       self::solveTicketPrice();
       $editForm = '<form id="editForm' . $this->ticket_index . '" method="post" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '">
@@ -2693,7 +2684,7 @@
         </form>';
       $editButton = '
           <button type="submit" class="editForm" form="editForm' . $this->ticket_index . '">Edit</button>';
-      
+
       // Generate a ticket number if one wasn't provided
       if ($this->TicketNumber == NULL) {
         $tempTicketNumber = ($this->BillTo === 0) ? date('m') . "00" : $this->BillTo . date('m') . "00";
@@ -2957,7 +2948,7 @@
       </div>';
       return $output;
     }
-    
+
     private function processTicket() {
       foreach ($this as $key => $value) {
         if (substr($key,1) === 'Country') {
@@ -3079,7 +3070,7 @@
         </div>';
       return FALSE;
     }
-    
+
     public function processRouteTicket() {
       // multiTicket data has come from the database and doesn't require sanitizing
       $tempTickets = $crun_index_list = array();
@@ -3172,13 +3163,13 @@
       }
       return TRUE;
     }
-    
+
     public function processReturnTicket() {
       $this->mapAvailable = FALSE;
       self::solveTicketPrice();
       self::processTicket();
     }
-    
+
     public function stepTicket() {
       if ($this->multiTicket !== NULL) {
         $tempIndex = array();
@@ -3383,7 +3374,7 @@
       return '<p class="center">Ticket ' . $marker . '.</p>';
       return TRUE;
     }
-    
+
     public function cancelTicket() {
       if ($this->multiTicket !== NULL) {
         $tempIndex = array();
