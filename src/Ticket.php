@@ -751,7 +751,7 @@
             <option value="new">new</option>';
           foreach (json_decode(urldecode($this->tClientList), TRUE) as $tclient) {
             $tclientVal = ($tclient['Department'] === NULL || $tclient['Department'] === '') ? $tclient['ClientName'] . '; t' . $tclient['ClientID'] : $tclient['ClientName'] . ', ' . $tclient['Department'] . '; t' . $client['ClientID'];
-            $returnData .= '<option value="' . $tclientVal . '">' . html_entity_decode($tclientVal) . '</option>';
+            $returnData .= "<option value=\"{$tclientVal}\">" . html_entity_decode($tclientVal) . '</option>';
           }
           $returnData .= '</datalist>';
         }
@@ -822,14 +822,14 @@
         <datalist id="addy2">';
 
       for ($i = 0; $i < count($addy2s); $i++) {
-        $returnData .= '<option value="' . $addy2s[$i] . '" data-value="' . $i . '">' . html_entity_decode($addy2s[$i]) . '</option>';
+        $returnData .= "<option value=\"{$addy2s[$i]}\" data-value=\"{$i}\">" . html_entity_decode($addy2s[$i]) . '</option>';
       }
 
       $returnData .= '</datalist>
         <datalist id="contacts">';
 
       foreach ($contacts as $contact) {
-        $returnData .= '<option value="' . $contact . '">' . html_entity_decode($contact) . '</option>';
+        $returnData .= "<option value=\"{$contact}\">" . html_entity_decode($contact) . '</option>';
       }
 
       $returnData .= '</datalist>';
@@ -843,7 +843,7 @@
       if ($this->locationList === 'empty') {
         return FALSE;
       }
-      $returnData = '<select name="' . $this->selectID . '" class="clientSelect" form="request" disabled>';
+      $returnData = "<select name=\"{$this->selectID}\" class=\"clientSelect\" form=\"request\" disabled>";
       for ($i=0; $i<count($locations); $i++) {
         $returnData .= '<option data-value="' . $i . '" value="' . htmlentities($locations[$i][strtolower(substr($this->selectID, 1))]) . '">' . html_entity_decode($locations[$i][strtolower(substr($this->selectID, 1))]) . '</option>';
       }
@@ -1121,11 +1121,7 @@
         $d2TimeStampDisplay = 'Not Available<span class="hide">Error: None</span>';
       }
       //Check to see if a name is listed in the requestedBy field
-      if ($this->RequestedBy == NULL) {
-        $requestedByDisplay = 'Not On File';
-      } else {
-        $requestedByDisplay = $this->RequestedBy;
-      }
+      $requestedByDisplay = ($this->RequestedBy === NULL || $this->RequestedBy === '') ? 'Not On File' : $this->RequestedBy;
       //Check to see if the ticket has been billed
       if ($this->InvoiceNumber !== '-') {
         if ($this->ulevel < 2) {
@@ -1137,8 +1133,7 @@
             $url = 'error';
           }
           if ($this->organizationFlag === TRUE) {
-            $this->memberInput = "
-            <input type=\"hidden\" name=\"clientID[]\" value=\"{$this->BillTo}\" />";
+            $this->memberInput = "<input type=\"hidden\" name=\"clientID[]\" value=\"{$this->BillTo}\" />";
           }
           $billed = "
           <form class=\"noPrint\" action=\"{$url}\" method=\"post\">
@@ -1157,11 +1152,11 @@
       } else {
         $billed = 'Not Billed';
       }
-      $answerIce = '
-        <table class="wide">
+      $answerIce = "
+        <table class=\"wide\">
           <thead>
             <tr>
-              <th class="pullLeft">Dry Ice:</th>
+              <th class=\"pullLeft\">Dry Ice:</th>
             </tr>
           </thead>
           <tbody>
@@ -1169,32 +1164,32 @@
               <td>&nbsp;</td>
             </tr>
             <tr>
-              <td class="center">' . self::number_format_drop_zero_decimals($this->diWeight, 3) . $this->weightMarker . '</td>
+              <td class=\"center\">{$this->number_format_drop_zero_decimals($this->diWeight, 3)}{$this->weightMarker}</td>
             </tr>
             <tr>
               <td>&nbsp;</td>
             </tr>
           </tbody>
         </table>
-      ';
-      $answerIce2 = '
-	        <td><span class="bold">Dry Ice Price:</span> <span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::number_format_drop_zero_decimals($this->diPrice, 2) . '</td>';
+      ";
+      $answerIce2 = "
+	        <td><span class=\"bold\">Dry Ice Price:</span> <span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>{$this->number_format_drop_zero_decimals($this->diPrice, 2)}</td>";
       if (($this->Notes !== NULL && $this->Notes !== '') || $this->forDisatch === TRUE) {
-        $readonlyNotes = ($this->forDisatch === TRUE) ? 'form="dispatchForm' . $this->ticket_index . '"' : 'readonly';
-        $answerNotes = '
-          <table class="wide">
+        $readonlyNotes = ($this->forDisatch === TRUE) ? "form=\"dispatchForm{$this->ticket_index}\"" : 'readonly';
+        $answerNotes = "
+          <table class=\"wide\">
             <thead>
               <tr>
-                <th class="pullLeft">Notes:</th>
+                <th class=\"pullLeft\">Notes:</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><textarea class="notes" ' . $readonlyNotes . ' rows="3">' . $this->Notes . '</textarea></td>
+                <td><textarea class=\"notes\" {$readonlyNotes} rows=\"3\">{$this->Notes}</textarea></td>
               </tr>
             </tbody>
   	      </table>
-          ';
+          ";
       } else {
         $answerNotes = '
           <table class="wide">
@@ -1228,15 +1223,15 @@
         $runPrice1 = '
 	        <span class="bold">Run Price:</span>
           ';
-        $runPrice2 = '
-		      <span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::number_format_drop_zero_decimals($this->RunPrice, 2);
+        $runPrice2 = "
+		      <span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>{$this->number_format_drop_zero_decimals($this->RunPrice, 2)}";
           // Reset the run price display if this is an incomplete dedicated run
           if ($this->Charge === 7 && (($this->d2SigReq === 1 && $this->d2TimeStamp === $this->tTest) || ($this->d2SigReq === 0 && $this->dTimeStamp === $this->tTest))) {
             $runPrice2 = 'Pending';
           }
       }
       // Set the ticket price display
-      $ticketPriceDisplay = '<span class="currencySymbol">'. $this->config["CurrencySymbol"] . '</span>' . self::negParenth($this->TicketPrice);
+      $ticketPriceDisplay = "<span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>{$this->negParenth($this->TicketPrice)}";
       // Reset the ticket price display if this is an incomplete dedicated run
       if ($this->Charge === 7 && (($this->d2SigReq === 1 && $this->d2TimeStamp === $this->tTest) || ($this->d2SigReq === 0 && $this->dTimeStamp === $this->tTest))) {
         $ticketPriceDisplay = 'Pending';
@@ -1281,34 +1276,34 @@
       extract($tokenSet,EXTR_IF_EXISTS);
       $returnData =
         $this->driverDatalist .
-        '<div class="tickets sortable">
-        <table class="">
-          <tr ' . $hideTableHead . '>
-            <td colspan="2" class="center"><span class="imageSpan floatLeft">' . $this->headerLogo2 . '</span><span class="ticketHeadAddress medium">' . $this->config['ShippingAddress1'] . '<br>' . $this->config['ShippingAddress2'] . '<br><span class="' . $this->countryClass . '">' . $this->config['ShippingCountry'] . '</span></span><span class="floatRight">' . $this->config['Telephone'] . '</span></td>
+        "<div class=\"tickets sortable\">
+        <table>
+          <tr {$hideTableHead}>
+            <td colspan=\"2\" class=\"center\"><span class=\"imageSpan floatLeft\">{$this->headerLogo2}</span><span class=\"ticketHeadAddress medium\">{$this->config['ShippingAddress1']}<br>{$this->config['ShippingAddress2']}<br><span class=\"{$this->countryClass}\">{$this->config['ShippingCountry']}</span></span><span class=\"floatRight\">{$this->config['Telephone']}</span></td>
           </tr>
           <tr>
             <td>
-              <table class="regenBilling">
+              <table class=\"regenBilling\">
                 <tr>
-                  <td><span class="bold">Ticket Number:</span> <span class="tNumDisplay">' . $this->TicketNumber . '</span></td>
+                  <td><span class=\"bold\">Ticket Number:</span> <span class=\"tNumDisplay\">{$this->TicketNumber}</span></td>
                 </tr>
-                <tr ' . $hideTableHead . '>
-                  <td><span class="bold">Pick Up:</span> ' . $pTimeStampDispay . '</td>
+                <tr {$hideTableHead}>
+                  <td><span class=\"bold\">Pick Up:</span> {$pTimeStampDispay}</td>
                 </tr>
-                <tr ' . $hideTableHead . '>
-                  <td><span class="bold">Return:</span> ' . $d2TimeStampDisplay . '</td>
-                </tr>
-                <tr>
-                  <td><span class="bold">Requested By:</span> ' . $requestedByDisplay . '</td>
+                <tr {$hideTableHead}>
+                  <td><span class=\"bold\">Return:</span> {$d2TimeStampDisplay}</td>
                 </tr>
                 <tr>
-                  <td><span class="bold">Charge:</span> ' . self::ticketCharge($this->Charge) . '</td>
+                  <td><span class=\"bold\">Requested By:</span> {$requestedByDisplay}</td>
                 </tr>
                 <tr>
-                  <td>' . $this->dispatchForm . '</td>
+                  <td><span class=\"bold\">Charge:</span> {$this->ticketCharge($this->Charge)}</td>
                 </tr>
-                <tr ' . $hideTableHead . '>
-                  <td>' . $runPrice1 . ' ' . $runPrice2 . '</td>
+                <tr>
+                  <td>{$this->dispatchForm}</td>
+                </tr>
+                <tr {$hideTableHead}>
+                  <td>{$runPrice1} {$runPrice2}</td>
                 </tr>
                 <tr>
                   <td></td>
@@ -1316,105 +1311,105 @@
               </table>
             </td>
             <td>
-              <table class="regenBilling">
+              <table class=\"regenBilling\">
                 <tr>
-                  <td><span class="bold">Received:</span> ' . $rDateDisplay . '</td>
+                  <td><span class=\"bold\">Received:</span> {$rDateDisplay}</td>
                 </tr>
-                <tr ' . $hideTableHead . '>
-                  <td><span class="bold">Drop Off:</span> ' . $dTimeStampDisplay . '</td>
+                <tr {$hideTableHead}>
+                  <td><span class=\"bold\">Drop Off:</span> {$dTimeStampDisplay}</td>
                 </tr>
-                <tr ' . $hideTableHead . '>
-                  <td><span class="bold">Invoice:</span> ' . $billed . '</td>
+                <tr {$hideTableHead}>
+                  <td><span class=\"bold\">Invoice:</span> {$billed}</td>
                 </tr>
-                <tr ' . $hideTableHead . '>
-                  <td>' . $answerContract1 . ' ' . $answerContract2 . '</td>
+                <tr {$hideTableHead}>
+                  <td>{$answerContract1} {$answerContract2}</td>
                 </tr>
-                <tr ' . $hideTableHead . '>
-                  <td><span class="bold">Email Address:</span> ' . $this->EmailAddress . '</td>
+                <tr {$hideTableHead}>
+                  <td><span class=\"bold\">Email Address:</span> {$this->EmailAddress}</td>
                 </tr>
-                <tr ' . $hideTableHead . '>
-                  ' . $answerIce2 . '
+                <tr {$hideTableHead}>
+                  {$answerIce2}
                 </tr>
-                <tr ' . $hideTableHead . '>
-                  <td><span class="bold">Ticket Price:</span> <span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::negParenth(self::number_format_drop_zero_decimals($this->TicketPrice, 2)) . '</td>
+                <tr {$hideTableHead}>
+                  <td><span class=\"bold\">Ticket Price:</span> <span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>{$this->negParenth($this->number_format_drop_zero_decimals($this->TicketPrice, 2))}</td>
                 </tr>
               </table>
             </td>
           </tr>
           <tr>
-            <td colspan="2"><hr></td>
+            <td colspan=\"2\"><hr></td>
           </tr>
           <tr>
             <td>
-              <table class="wide">
+              <table class=\"wide\">
                 <tr>
-                  <th colspan="2" class="pullLeft">Pick Up</th>
+                  <th colspan=\"2\" class=\"pullLeft\">Pick Up</th>
                 </tr>
               <tr>
-                <td class="ticketSpace"></td>
-                <td class="pullLeft">' . self::decode($pName) . '</td>
+                <td class=\"ticketSpace\"></td>
+                <td class=\"pullLeft\">{$this->decode($pName)}</td>
               </tr>
               <tr>
-                <td class="ticketSpace"></td>
-                <td class="pullLeft">' . self::decode($this->pAddress1) . '<br>' . self::decode($this->pAddress2) . '<br><span class="' . $this->countryClass . '">' . self::countryFromAbbr($this->pCountry) . '</span></td>
+                <td class=\"ticketSpace\"></td>
+                <td class=\"pullLeft\">{$this->decode($this->pAddress1)}<br>{$this->decode($this->pAddress2)}<br><span class=\"{$this->countryClass}\">{$this->countryFromAbbr($this->pCountry)}</span></td>
               </tr>
               <tr>
-                <td class="ticketSpace pullRight">Attn:</td>
-                <td class="pullLeft">' . $this->pContact . '</td>
+                <td class=\"ticketSpace pullRight\">Attn:</td>
+                <td class=\"pullLeft\">{$this->pContact}</td>
               </tr>
               <tr>
-                <td class="ticketSpace"></td>
-                <td class="pullLeft">' . $this->pTelephone . '</td>
+                <td class=\"ticketSpace\"></td>
+                <td class=\"pullLeft\">{$this->pTelephone}</td>
               </tr>
             </table>
           </td>
           <td>
-            <table class="wide">
+            <table class=\"wide\">
               <tr>
-                <th colspan="2" class="pullLeft">Delivery</th>
+                <th colspan=\"2\" class=\"pullLeft\">Delivery</th>
               </tr>
               <tr>
-                <td class="ticketSpace"></td>
-                <td class="pullLeft">' . self::decode($dName) . '</td>
+                <td class=\"ticketSpace\"></td>
+                <td class=\"pullLeft\">{$this->decode($dName)}</td>
               </tr>
               <tr>
-                <td class="ticketSpace"></td>
-                <td class="pullLeft">' . self::decode($this->dAddress1) . '<br>' . self::decode($this->dAddress2) . '<br><span class="' . $this->countryClass . '">' . self::countryFromAbbr($this->dCountry) . '</span></td>
+                <td class=\"ticketSpace\"></td>
+                <td class=\"pullLeft\">{$this->decode($this->dAddress1)}<br>{$this->decode($this->dAddress2)}<br><span class=\"{$this->countryClass}\">{$this->countryFromAbbr($this->dCountry)}</span></td>
               </tr>
               <tr>
-                <td class="ticketSpace pullRight">Attn:</td>
-                <td class="pullLeft">' . $this->dContact . '</td>
+                <td class=\"ticketSpace pullRight\">Attn:</td>
+                <td class=\"pullLeft\">{$this->dContact}</td>
               </tr>
               <tr>
-                <td class="ticketSpace"></td>
-                <td class="pullLeft">' . $this->dTelephone . '</td>
+                <td class=\"ticketSpace\"></td>
+                <td class=\"pullLeft\">{$this->dTelephone}</td>
               </tr>
             </table>
           </td>
         </tr>
         <tr>
-          <td colspan="2"><hr></td>
+          <td colspan=\"2\"><hr></td>
         </tr>
         <tr>
           <td>
-            ' . $answerIce . '
+            {$answerIce}
           </td>
           <td>
-            ' . $answerNotes . '
+            {$answerNotes}
           </td>
         </tr>
         <tr>
-          <td colspan="2"><hr></td>
+          <td colspan=\"2\"><hr></td>
         </tr>
-        <tr ' . $hideTableHead . '>
-          <td colspan="2">
-            <table class="wide sigTable">
-              ' . $pSigDisplay . $dSigDisplay . $d2SigDisplay . '
+        <tr {$hideTableHead}>
+          <td colspan=\"2\">
+            <table class=\"wide sigTable\">
+              {$pSigDisplay} {$dSigDisplay} {$d2SigDisplay}
             </table>
           </td>
         </tr>
-      </table>';
-      if ($this->ticketEditor === TRUE) $returnData .= '<button type="button" class="ticketEditor" data-key="' . $this->formKey . '" data-contract="' . $this->Contract . '" data-index="' . $this->ticket_index . '">Edit Ticket</button>';
+      </table>";
+      if ($this->ticketEditor === TRUE) $returnData .= "<button type=\"button\" class=\"ticketEditor\" data-key=\"{$this->formKey}\" data-contract=\"{$this->Contract}\" data-index=\"{$this->ticket_index}\">Edit Ticket</button>";
     $returnData .= '
     </div>';
     return $returnData;
