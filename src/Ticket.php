@@ -1445,25 +1445,25 @@
       }
       //Define whether the signature capture should be active for the given step of the run.
       if ($this->pSigReq === 0) {
-        $pSigClass = "";
-        $pSigActive = "";
+        $pSigClass = $pSigActive = $pSigPlaceholder = '';
       } else {
-        $pSigClass = "pulse";
-        $pSigActive = "required";
+        $pSigClass = 'pulse';
+        $pSigActive = 'required';
+        $pSigPlaceholder = 'REQUIRED';
       }
       if ($this->dSigReq === 0) {
-        $dSigClass = "";
-        $dSigActive = "";
+        $dSigClass = $dSigActive = $dSigPlaceholder = '';
       } else {
-        $dSigClass =  "pulse";
-        $dSigActive = "required";
+        $dSigClass =  'pulse';
+        $dSigActive = 'required';
+        $dSigPlaceholder = 'REQUIRED';
       }
       if ($this->d2SigReq === 0) {
-        $d2SigClass = "";
-        $d2SigActive = "";
+        $d2SigClass = $d2SigActive = $d2SigPlaceholder = '';
       } else {
-        $d2SigClass = "pulse";
-        $d2SigActive = "required";
+        $d2SigClass = 'pulse';
+        $d2SigActive = 'required';
+        $d2SigPlaceholder = 'REQUIRED';
       }
       /***
       * Set the confirmation form and the display time for the stop based on
@@ -1479,30 +1479,30 @@
         $this->pTime = date('g:i a', $temp);
         $temp2 = ($this->Contract === 0) ? '' : strtotime($this->dTime);
         $this->dTime = ($this->Contract === 0) ? '' : date('g:i a', $temp2);
-        $confirm = '
-            <table class="wide confirm">
+        $confirm = "
+            <table class=\"wide confirm\">
               <tbody>
                 <tr>
-                  <td colspan="2">
-                    <form id="ticketForm' . $this->ticket_index . '" class="routeStop">
-                      <input type="hidden" name="formKey" value="' . $this->formKey . '" form="ticketForm' . $this->ticket_index . '" />
-                      <input type="hidden" name="sigImage" class="sigImage" form="ticketForm' . $this->ticket_index . '" />
-                      <input type="hidden" name="step" class="step" value="pickedUp" form="ticketForm' . $this->ticket_index . '" />
-                      <input type="hidden" name="ticket_index" class="ticket_index" value="' . $this->ticket_index . '" form="ticketForm' . $this->ticket_index . '" />
-                      <input type="hidden" name="charge" class="charge" value="' . $this->Charge . '" form="ticketForm' . $this->ticket_index . '" />
-                      <input type="hidden" name="emailConfirm" class="emailConfirm" value="' . $this->EmailConfirm . '" form="ticketForm' . $this->ticket_index . '" />
-                      <input type="hidden" name="emailAddress" class="emailAddress" value="' . $this->EmailAddress . '" form="ticketForm' . $this->ticket_index . '" />
-                      <label for="pSigPrint' . $this->ticket_index . '">Signer</label><br><input type="text" name="pSigPrint" id="pSigPrint' . $this->ticket_index . '" class="pSigPrint printName" placeholder="' . strtoupper($pSigActive) . '" ' . $pSigActive . ' form="ticketForm' . $this->ticket_index . '" />
+                  <td colspan=\"2\">
+                    <form id=\"ticketForm{$this->ticket_index}\" class=\"routeStop\">
+                      <input type=\"hidden\" name=\"formKey\" value=\"{$this->formKey}\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"sigImage\" class=\"sigImage\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"step\" class=\"step\" value=\"pickedUp\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"ticket_index\" class=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"charge\" class=\"charge\" value=\"{$this->Charge}\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"emailConfirm\" class=\"emailConfirm\" value=\"{$this->EmailConfirm}\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"emailAddress\" class=\"emailAddress\" value=\"{$this->EmailAddress}\" form=\"ticketForm{$this->ticket_index}\" />
+                      <label for=\"pSigPrint{$this->ticket_index}\">Signer</label><br><input type=\"text\" name=\"pSigPrint\" id=\"pSigPrint{$this->ticket_index}\" class=\"pSigPrint printName\" placeholder=\"{$pSigPlaceholder}\" {$pSigActive} form=\"ticketForm{$this->ticket_index}\" />
                     </form>
                   </td>
-                  <td colspan="2" class="center" style="vertical-align:bottom;">
-                    <button type="button" class="pGetSig ' . $pSigClass . '"><img src="../images/sign.png" height="24" width="24" alt="Open Signature Box" /></button>
+                  <td colspan=\"2\" class=\"center\" style=\"vertical-align:bottom;\">
+                    <button type=\"button\" class=\"pGetSig {$pSigClass}\"><img src=\"../images/sign.png\" height=\"24\" width=\"24\" alt=\"Open Signature Box\" /></button>
                   </td>
                 </tr>
                 <tr>
                   <td>
-                    <button type="button" class="dTicket" form="ticketForm' . $this->ticket_index . '">Pick Up</button>
-                  </td>';
+                    <button type=\"button\" class=\"dTicket\" form=\"ticketForm{$this->ticket_index}\">Pick Up</button>
+                  </td>";
       } else {
         if ($this->dTimeStamp === $this->tTest) {
           $buttonClass = 'hide';
@@ -1544,30 +1544,30 @@
           $this->dAddress1 = $tempAddy1;
           $this->dAddress2 = $tempAddy2;
           $this->dCountry = $tempCountry;
-          $confirm = '
-            <table class="wide confirm">
+          $confirm = "
+            <table class=\"wide confirm\">
               <tbody>
                 <tr>
-                  <td colspan="2">
-                    <form id="ticketForm' . $this->ticket_index . '" class="routeStop">
-                      <input type="hidden" name="formKey" value="' . $this->formKey . '" form="ticketForm' . $this->ticket_index . '" />
-                      <input type="hidden" name="sigImage" class="sigImage" form="ticketForm' . $this->ticket_index . '" />
-                      <input type="hidden" name="step" class="step" value="delivered" form="ticketForm' . $this->ticket_index . '" />
-                      <input type="hidden" name="ticket_index" class="ticket_index" value="' . $this->ticket_index . '" form="ticketForm' . $this->ticket_index . '" />
-                      <input type="hidden" name="charge" class="charge" value="' . $this->Charge . '" form="ticketForm' . $this->ticket_index . '" />
-                      <input type="hidden" name="emailConfirm" class="emailConfirm" value="' . $this->EmailConfirm . '" form="ticketForm' . $this->ticket_index . '" />
-                      <input type="hidden" name="emailAddress" class="emailAddress" value="' . $this->EmailAddress . '" form="ticketForm' . $this->ticket_index . '" />
-                      <label for="dSigPrint' . $this->ticket_index . '">Signer</label><br><input type="text" name="dSigPrint" id="dSigPrint' . $this->ticket_index . '" class="dSigPrint printName" placeholder="' . strtoupper($dSigActive) . '" ' . $dSigActive . ' form="ticketForm' . $this->ticket_index . '" />
+                  <td colspan=\"2\">
+                    <form id=\"ticketForm{$this->ticket_index}\" class=\"routeStop\">
+                      <input type=\"hidden\" name=\"formKey\" value=\"{$this->formKey}\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"sigImage\" class=\"sigImage\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"step\" class=\"step\" value=\"delivered\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"ticket_index\" class=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"charge\" class=\"charge\" value=\"{$this->Charge}\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"emailConfirm\" class=\"emailConfirm\" value=\"{$this->EmailConfirm}\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"emailAddress\" class=\"emailAddress\" value=\"{$this->EmailAddress}\" form=\"ticketForm{$this->ticket_index}\" />
+                      <label for=\"dSigPrint{$this->ticket_index}\">Signer</label><br><input type=\"text\" name=\"dSigPrint\" id=\"dSigPrint{$this->ticket_index}\" class=\"dSigPrint printName\" placeholder=\"{$dSigPlaceholder}\" {$dSigActive} form=\"ticketForm{$this->ticket_index}\" />
                     </form>
                   </td>
-                  <td colspan="2" class="center" style="vertical-align:bottom;">
-                    <button type="button" class="dGetSig ' . $dSigClass . '"><img src="../images/sign.png" height="24" width="24" alt="Open Signature Box" /></button>
+                  <td colspan=\"2\" class=\"center\" style=\"vertical-align:bottom;\">
+                    <button type=\"button\" class=\"dGetSig {$dSigClass}\"><img src=\"../images/sign.png\" height=\"24\" width=\"24\" alt=\"Open Signature Box\" /></button>
                   </td>
                 </tr>
                 <tr>
                   <td>
-                    <button type="button" class="dTicket" form="ticketForm' . $this->ticket_index . '">Deliver</button>
-                  </td>';
+                    <button type=\"button\" class=\"dTicket\" form=\"ticketForm{$this->ticket_index}\">Deliver</button>
+                  </td>";
         } elseif ($this->dTimeStamp !== $this->tTest) {
           $buttonClass = $button2Class = 'hide';
           $button2Name = '';
@@ -1576,30 +1576,30 @@
           $temp = strtotime($this->d2Time);
           $this->pTime = date('g:i a', $temp);
           $this->dTime = '-';
-          $confirm = '
-            <table class="wide confirm">
+          $confirm = "
+            <table class=\"wide confirm\">
               <tbody>
                 <tr>
-                  <td colspan="2">
-                    <form id="ticketForm' . $this->ticket_index . '" class="routeStop">
-                      <input type="hidden" name="formKey" value="' . $this->formKey . '" form="ticketForm' . $this->ticket_index . '" />
-                      <input type="hidden" name="sigImage" class="sigImage" form="ticketForm' . $this->ticket_index . '" />
-                      <input type="hidden" name="step" class="step" value="returned" form="ticketForm' . $this->ticket_index . '" />
-                      <input type="hidden" name="ticket_index" class="ticket_index" value="' . $this->ticket_index . '" form="ticketForm' . $this->ticket_index . '" />
-                      <input type="hidden" name="charge" class="charge" value="' . $this->Charge . '" form="ticketForm' . $this->ticket_index . '" />
-                      <input type="hidden" name="emailConfirm" class="emailConfirm" value="' . $this->EmailConfirm . '" form="ticketForm' . $this->ticket_index . '" />
-                      <input type="hidden" name="emailAddress" class="emailAddress" value="' . $this->EmailAddress . '" form="ticketForm' . $this->ticket_index . '" />
-                      <label for="d2SigPrint' . $this->ticket_index . '">Signer</label><br><input type="text" name="d2SigPrint" id="d2SigPrint' . $this->ticket_index . '" class="d2SigPrint printName" placeholder="' . strtoupper($d2SigActive) . '" ' . $d2SigActive . ' form="ticketForm' . $this->ticket_index . '" />
+                  <td colspan=\"2\">
+                    <form id=\"ticketForm{$this->ticket_index}\" class=\"routeStop\">
+                      <input type=\"hidden\" name=\"formKey\" value=\"{$this->formKey}\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"sigImage\" class=\"sigImage\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"step\" class=\"step\" value=\"returned\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"ticket_index\" class=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"charge\" class=\"charge\" value=\"{$this->Charge}\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"emailConfirm\" class=\"emailConfirm\" value=\"{$this->EmailConfirm}\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"emailAddress\" class=\"emailAddress\" value=\"{$this->EmailAddress}\" form=\"ticketForm{$this->ticket_index}\" />
+                      <label for=\"d2SigPrint{$this->ticket_index}\">Signer</label><br><input type=\"text\" name=\"d2SigPrint\" id=\"d2SigPrint{$this->ticket_index}\" class=\"d2SigPrint printName\" placeholder=\"{$d2SigPlaceholder}\" {$d2SigActive} form=\"ticketForm{$this->ticket_index}\" />
                     </form>
                   </td>
-                  <td colspan="2" class="center" style="vertical-align:bottom;">
-                    <button type="button" class="d2GetSig ' . $d2SigClass . '"><img src="../images/sign.png" height="24" width="24" alt="Open Signature Box" /></button>
+                  <td colspan=\"2\" class=\"center\" style=\"vertical-align:bottom;\">
+                    <button type=\"button\" class=\"d2GetSig {$d2SigClass}\"><img src=\"../images/sign.png\" height=\"24\" width=\"24\" alt=\"Open Signature Box\" /></button>
                   </td>
                 </tr>
                 <tr>
                   <td>
-                    <button type="button" class="dTicket" form="ticketForm' . $this->ticket_index . '">Return</button>
-                  </td>';
+                    <button type=\"button\" class=\"dTicket\" form=\"ticketForm{$this->ticket_index}\">Return</button>
+                  </td>";
         }
       }
       if ($this->processTransfer === TRUE) {
@@ -1615,10 +1615,10 @@
       }
       // Make the client name look good for display
       if ($this->pDepartment != NULL) {
-        $this->pClient .= '<br>' . $this->pDepartment;
+        $this->pClient .= "<br>{$this->pDepartment}";
       }
       if ($this->dDepartment != NULL) {
-        $this->dClient .= '<br>' . $this->dDepartment;
+        $this->dClient .= "<br>{$this->dDepartment}";
       }
       if ($this->diWeight === 0) {
         $iceWeight = '-';
@@ -1626,66 +1626,68 @@
         $iceWeight = self::number_format_drop_zero_decimals($this->diWeight, 3);
       }
       // Set the contact info
-      $pContactDisplay = ($this->pContact == NULL) ? '' : '<tr><td>Contact:</td><td>' . $this->pContact . '</td></tr>';
-      $pTelDisplay = ($this->pTelephone == NULL) ? '' : '<tr><td>Tel:</td><td><a href="tel:' . $this->pTelephone . '" style="color:blue;">' . $this->pTelephone . '</a></td></tr>';
-      $dContactDisplay = ($this->dContact == NULL) ? '' : '<tr><td>Contact:</td><td>' . $this->dContact . '</td></tr>';
-      $dTelDisplay = ($this->dTelephone == NULL) ? '' : '<tr><td>Tel:</td><td><a href="tel:' . $this->dTelephone . '" style="color:blue;">' . $this->dTelephone . '</a></td></tr>';
-      $singleTicket .= '<div class="tickets sortable">
-        <h3>' . $this->TicketNumber . '</h3>
-        <span  class="hide tNum">' . $this->ticket_index . '</span>
-        <span class="hide rNum">' . $this->RunNumber . '</span>
-        <span class="hide formKey">' . $this->formKey . '</span>
-        <span class="hide pendingReceiver">' . $this->PendingReceiver . '</span>
-        <h3 class="error floatRight">' . self::ticketCharge($this->Charge) . '</h3>
+      $pContactDisplay = ($this->pContact == NULL) ? '' : "<tr><td>Contact:</td><td>{$this->pContact}</td></tr>";
+      $pTelDisplay = ($this->pTelephone == NULL) ? '' : "<tr><td>Tel:</td><td><a href=\"tel:{$this->pTelephone}\" style=\"color:blue;\">{$this->pTelephone}</a></td></tr>";
+      $dContactDisplay = ($this->dContact == NULL) ? '' : "<tr><td>Contact:</td><td>{$this->dContact}</td></tr>";
+      $dTelDisplay = ($this->dTelephone == NULL) ? '' : "<tr><td>Tel:</td><td><a href=\"tel:{$this->dTelephone}\" style=\"color:blue;\">{$this->dTelephone}</a></td></tr>";
+      $pAddressEncoded = urlencode($this->pAddress1 . ', ' . $this->pAddress2 . ', ' . $this->countryFromAbbr($this->pCountry));
+      $dAddressEndoded = urlencode($this->dAddress1 . ', ' . $this->dAddress2 . ', ' . $this->countryFromAbbr($this->dCountry));
+      $singleTicket .= "<div class=\"tickets sortable\">
+        <h3>{$this->TicketNumber}</h3>
+        <span  class=\"hide tNum\">{$this->ticket_index}</span>
+        <span class=\"hide rNum\">{$this->RunNumber}</span>
+        <span class=\"hide formKey\">{$this->formKey}</span>
+        <span class=\"hide pendingReceiver\">{$this->PendingReceiver}</span>
+        <h3 class=\"error floatRight\">{$this->ticketCharge($this->Charge)}</h3>
         <hr>
-        <table class="wide">
+        <table class=\"wide\">
           <thead>
             <tr>
-              <td colspan="2">' . $label1 . '<span class="timing">' . $this->pTime . '</span></td>
+              <td colspan=\"2\">{$label1}<span class=\"timing\">{$this->pTime}</span></td>
             </tr>
             <tr>
-              <td colspan="2"><hr></td>
+              <td colspan=\"2\"><hr></td>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>' . $this->pClient . '</td>
-              <td><a class="plain" target="_blank" href="https://www.google.com/maps/dir//' . urlencode($this->pAddress1 . ', ' . $this->pAddress2 . ', ' . self::countryFromAbbr($this->pCountry)) . '">' . $this->pAddress1 . '<br>' . $this->pAddress2 . '</a></td>
+              <td>{$this->pClient}</td>
+              <td><a class=\"plain\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$pAddressEncoded}\">{$this->pAddress1}<br>{$this->pAddress2}</a></td>
             </tr>
-            <tr class="' . $this->countryClass . '">
+            <tr class=\"{$this->countryClass}\">
               <td></td>
-              <td>' . self::countryFromAbbr($this->pCountry) . '</td>
+              <td>{$this->countryFromAbbr($this->pCountry)}</td>
             </tr>
-            ' . $pContactDisplay . $pTelDisplay . '
+            {$pContactDisplay} {$pTelDisplay}
           </tbody>
         </table>
         <hr>
-        <table class="wide">
+        <table class=\"wide\">
           <thead>
             <tr>
-              <td colspan="2">' . $label2 . $this->dTime . '</td>
+              <td colspan=\"2\">{$label2}{$this->dTime}</td>
             </tr>
             <tr>
-              <td colspan="2"><hr></td>
+              <td colspan=\"2\"><hr></td>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>' . $this->dClient . '</td>
-              <td><a class="plain" target="_blank" href="https://www.google.com/maps/dir//' . urlencode($this->dAddress1 . ', ' . $this->dAddress2 . ', ' . self::countryFromAbbr($this->dCountry)) . '">' . $this->dAddress1 . '<br>' . $this->dAddress2 . '</a></td>
+              <td>{$this->dClient}</td>
+              <td><a class=\"plain\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$dAddressEndoded}\">{$this->dAddress1}<br>{$this->dAddress2}</a></td>
             </tr>
-            <tr class="' . $this->countryClass . '">
+            <tr class=\"{$this->countryClass}\">
               <td></td>
-              <td>' . self::countryFromAbbr($this->dCountry) . '</td>
+              <td>{$this->countryFromAbbr($this->dCountry)}</td>
             </tr>
-            ' . $dContactDisplay . $dTelDisplay . '
+            {$dContactDisplay} {$dTelDisplay}
           </tbody>
         </table>
         <hr>
-        <table class="tFieldLeft" style="width:25%;">
+        <table class=\"tFieldLeft\" style=\"width:25%;\">
           <thead>
             <tr>
-              <th class="pullLeft">Dry Ice:</th>
+              <th class=\"pullLeft\">Dry Ice:</th>
             </tr>
           </thead>
           <tbody>
@@ -1693,33 +1695,33 @@
               <td>&nbsp;</td>
             </tr>
             <tr>
-              <td class="center" style="white-space:nowrap;">' . $iceWeight . $this->weightMarker . '</td>
+              <td class=\"center\" style=\"white-space:nowrap;\">{$iceWeight}{$this->weightMarker}</td>
             </tr>
             <tr>
               <td>&nbsp;</td>
             </tr>
           </tbody>
         </table>
-        <table class="tFieldRight" style="width:75%;">
+        <table class=\"tFieldRight\" style=\"width:75%;\">
           <thead>
             <tr>
-              <th class="pullLeft">Notes:</th>
+              <th class=\"pullLeft\">Notes:</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td class="center"><textarea class="wide notes" rows="4" name="notes" form="ticketForm' . $this->ticket_index . '">' . $this->Notes . '</textarea></td>
+              <td class=\"center\"><textarea class=\"wide notes\" rows=\"4\" name=\"notes\" form=\"ticketForm{$this->ticket_index}\">{$this->Notes}</textarea></td>
             </tr>
           </tbody>
         </table>
         <hr>
-        <p class="message2 center"></p>
-          ' . $confirm;
+        <p class=\"message2 center\"></p>
+        {$confirm}";
       if ($this->processTransfer === FALSE) {
-        $singleTicket .= '
-              <td><button type="button" class="cancelRun ' . $buttonClass . '">Cancel</button></td>
-              <td><button type="button" class="' . $button2Class . '">' . $button2Name . '</button></td>
-              <td><button type="button" class="transferTicket">Transfer</button></td>';
+        $singleTicket .= "
+              <td><button type=\"button\" class=\"cancelRun {$buttonClass}\">Cancel</button></td>
+              <td><button type=\"button\" class=\"{$button2Class}\">{$button2Name}</button></td>
+              <td><button type=\"button\" class=\"transferTicket\">Transfer</button></td>";
       } else {
         $singleTicket .= '
               <td></td>
