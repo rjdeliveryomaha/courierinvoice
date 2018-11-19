@@ -1744,12 +1744,13 @@
         $this->PendingReceiver = $this->multiTicket[0]->PendingReceiver;
       }
       switch ($this->multiTicket[0]->step) {
-        case "delivered":
+        case 'delivered':
           $topClient = self::decode($this->multiTicket[0]->dClient);
           if ($this->multiTicket[0]->dDepartment != NULL) {
             $topClient .= '<br>' . self::decode($this->multiTicket[0]->dDepartment);
           }
-          $topAddress = '<a class="plain" target="_blank" href="https://www.google.com/maps/dir//' . urlencode($this->multiTicket[0]->dAddress1 . ', ' . $this->multiTicket[0]->dAddress2 . ', ' . self::countryFromAbbr($this->multiTicket[0]->dCountry)) . '">' . self::decode($this->multiTicket[0]->dAddress1) . '<br>' . self::decode($this->multiTicket[0]->dAddress2) . '</a>';
+          $topAddressEncoded = urlencode($this->multiTicket[0]->dAddress1 . ', ' . $this->multiTicket[0]->dAddress2 . ', ' . self::countryFromAbbr($this->multiTicket[0]->dCountry));
+          $topAddress = "<a class=\"plain\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$topAddressEncoded}\">{$this->decode($this->multiTicket[0]->dAddress1)}<br>{$this->decode($this->multiTicket[0]->dAddress2)}</a>";
           $temp = strtotime($this->multiTicket[0]->dTime);
           $pTime = date('g:i a', $temp);
         break;
@@ -1758,37 +1759,38 @@
           if ($this->multiTicket[0]->pDepartment != NULL) {
             $topClient .= '<br>' . self::decode($this->multiTicket[0]->pDepartment);
           }
-          $topAddress = '<a class="plain" target="_blank" href="https://www.google.com/maps/dir//' . urlencode($this->multiTicket[0]->pAddress1 . ', ' . $this->multiTicket[0]->pAddress2 . ', ' . self::countryFromAbbr($this->multiTicket[0]->pCountry)) . '">' . self::decode($this->multiTicket[0]->pAddress1) . '<br>' . self::decode($this->multiTicket[0]->pAddress2) . '</a>';
+          $topAddressEncoded = urlencode($this->multiTicket[0]->pAddress1 . ', ' . $this->multiTicket[0]->pAddress2 . ', ' . self::countryFromAbbr($this->multiTicket[0]->pCountry));
+          $topAddress = "<a class=\"plain\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$topAddressEncoded}\">{$this->decode($this->multiTicket[0]->pAddress1)}<br>{$this->decode($this->multiTicket[0]->pAddress2)}</a>";
           switch ($this->multiTicket[0]->step) {
-            case "pickedUp":
+            case 'pickedUp':
               $temp = strtotime($this->multiTicket[0]->pTime);
               $pTime = date('g:i a', $temp);
             break;
-            case "returned":
+            case 'returned':
               $temp = strtotime($this->multiTicket[0]->d2Time);
               $pTime = date('g:i a', $temp);
             break;
           }
         break;
       }
-      $multiTicket .= '<div class="tickets sortable centerDiv">
-          <table class="wide">
+      $multiTicket .= "<div class=\"tickets sortable centerDiv\">
+          <table class=\"wide\">
             <thead>
               <tr>
-                <td colspan="2" class="center"><h3 class="timing">' . $pTime . '</h3></td>
+                <td colspan=\"2\" class=\"center\"><h3 class=\"timing\">{$pTime}</h3></td>
               </tr>
               <tr>
-                <td colspan="2"><hr></td>
+                <td colspan=\"2\"><hr></td>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>' . $topClient . '</td>
-                <td>' . $topAddress . '</td>
+                <td>{$topClient}</td>
+                <td>{$topAddress}</td>
               </tr>
             </tbody>
           </table>
-          <hr>';
+          <hr>";
       for ($i = 0; $i < count($this->multiTicket); $i++) {
         // Set the ticket Charge property to the current multiTicket Charge property for the ticketCharge function
         $this->Charge = $this->multiTicket[$i]->Charge;
@@ -1798,25 +1800,27 @@
           $iceWeight = self::number_format_drop_zero_decimals($this->multiTicket[$i]->diWeight, 3);
         }
         switch ($this->multiTicket[$i]->step) {
-          case "delivered":
+          case 'delivered':
             $client = self::decode($this->multiTicket[$i]->pClient);
             if ($this->multiTicket[$i]->pDepartment != NULL) {
               $client .= '<br>' . self::decode($this->multiTicket[$i]->pDepartment);
             }
-            $address = '<a class="plain" target="_blank" href="https://www.google.com/maps/dir//' . urlencode($this->multiTicket[$i]->pAddress1 . ', ' . $this->multiTicket[$i]->pAddress2 . ', ' . self::countryFromAbbr($this->multiTicket[$i]->pCountry)) . '">' . $this->multiTicket[$i]->pAddress1 . '<br>' . $this->multiTicket[$i]->pAddress2 . '</a>';
-            $contact = ($this->multiTicket[$i]->dContact == NULL) ? '' : '<tr><td>Contact:</td><td>' . $this->multiTicket[$i]->dContact . '</td></tr>';
-            $tel = ($this->multiTicket[$i]->dTelephone == NULL) ? '' : '<tr><td>Tel:</td><td><a href="tel:' . $this->multiTicket[$i]->dTelephone . '" style="color:blue;">' . $this->multiTicket[$i]->dTelephone . '</a></td></tr>';
+            $addressEndoded = urlencode($this->multiTicket[$i]->pAddress1 . ', ' . $this->multiTicket[$i]->pAddress2 . ', ' . self::countryFromAbbr($this->multiTicket[$i]->pCountry));
+            $address = "<a class=\"plain\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$addressEndoded}\">{$this->decode($this->multiTicket[$i]->pAddress1)}<br>{$this->decode($this->multiTicket[$i]->pAddress2)}</a>";
+            $contact = ($this->multiTicket[$i]->dContact == NULL) ? '' : "<tr><td>Contact:</td><td>{$this->decode($this->multiTicket[$i]->dContact)}</td></tr>";
+            $tel = ($this->multiTicket[$i]->dTelephone == NULL) ? '' : "<tr><td>Tel:</td><td><a href=\"tel:{$this->multiTicket[$i]->dTelephone}\" style=\"color:blue;\">{$this->multiTicket[$i]->dTelephone}</a></td></tr>";
           break;
           default:
             $client = self::decode($this->multiTicket[$i]->dClient);
             if ($this->multiTicket[$i]->dDepartment != NULL) {
               $client .= '<br>' . self::decode($this->multiTicket[$i]->dDepartment);
             }
-            $address = '<a class="plain" target="_blank" href="https://www.google.com/maps/dir//' . urlencode($this->multiTicket[$i]->dAddress1 . ', ' . $this->multiTicket[$i]->dAddress2 . ', ' . self::countryFromAbbr($this->multiTicket[$i]->dCountry)) . '">' . self::decode($this->multiTicket[$i]->dAddress1) . '<br>' . self::decode($this->multiTicket[$i]->dAddress2) . '</a>';
+            $addressEndoded = urlencode($this->multiTicket[$i]->dAddress1 . ', ' . $this->multiTicket[$i]->dAddress2 . ', ' . self::countryFromAbbr($this->multiTicket[$i]->dCountry));
+            $address = "<a class=\"plain\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$addressEndoded}\">{$this->decode($this->multiTicket[$i]->dAddress1)}<br>{$this->decode($this->multiTicket[$i]->dAddress2)}</a>";
 
-            $contact = ($this->multiTicket[$i]->pContact == NULL) ? '' : '<tr><td>Contact:</td><td>' . $this->multiTicket[$i]->pContact . '</td></tr>';
+            $contact = ($this->multiTicket[$i]->pContact == NULL) ? '' : "<tr><td>Contact:</td><td>{$this->decode($this->multiTicket[$i]->pContact)}</td></tr>";
 
-            $tel = ($this->multiTicket[$i]->pTelephone == NULL) ? '' : '<tr><td>Tel:</td><td><a href="tel:' . $this->multiTicket[$i]->pTelephone . '" style="color:blue;">' . $this->multiTicket[$i]->pTelephone . '</a></td></tr>';
+            $tel = ($this->multiTicket[$i]->pTelephone == NULL) ? '' : "<tr><td>Tel:</td><td><a href=\"tel:{$this->multiTicket[$i]->pTelephone}\" style=\"color:blue;\">{$this->multiTicket[$i]->pTelephone}</a></td></tr>";
           break;
         }
         switch ($this->multiTicket[$i]->step) {
@@ -1841,80 +1845,81 @@
             $button2Name = '';
           break;
         }
-        $multiTicket .= '<table class="tickets center">
+        $multiTicket .= "<table class=\"tickets center\">
           <tfoot>
             <tr>
-              <td><button type="button" class="' . $buttonClass . '">' . $buttonName . '</button></td>
-              <td><button type="button" class="' . $button2Class . '">' . $button2Name . '</button></td>
+              <td><button type=\"button\" class=\"{$buttonClass}\">{$buttonName}</button></td>
+              <td><button type=\"button\" class=\"{$button2Class}\">{$button2Name}</button></td>
             </tr>
             <tr>
-              <td colspan="2" class="message2 center" style="padding-top:0.5em"></td>
+              <td colspan=\"2\" class=\"message2 center\" style=\"padding-top:0.5em\"></td>
             </tr>
             <tr>
-              <td colspan="2"><hr></td>
+              <td colspan=\"2\"><hr></td>
             </tr>
           </tfoot>
           <thead>
             <tr>
-              <td colspan="2" class="center">
-                <form id="ticketForm' . $this->multiTicket[$i]->ticket_index . '" class="routeStop">
-                  <input type="hidden" name="formKey" class="formKey" value="' . $this->formKey . '" form="ticketForm' . $this->multiTicket[$i]->ticket_index . '" />
-                  <input type="hidden" name="ticket_index" class="ticket_index" value="' . $this->multiTicket[$i]->ticket_index . '" form="ticketForm' . $this->multiTicket[$i]->ticket_index . '" />
-                  <input type="hidden" name="runNumber" class="runNumber" value="' . $this->multiTicket[$i]->RunNumber . '" form="ticketForm' . $this->multiTicket[$i]->ticket_index . '" />
-                  <input type="hidden" name="charge" class="charge" value="' . $this->multiTicket[$i]->Charge . '" form="ticketForm' . $this->multiTicket[$i]->ticket_index . '" />
-                  <input type="hidden" name="emailConfirm" class="emailConfirm" value="' . $this->multiTicket[$i]->EmailConfirm . '" form="ticketForm' . $this->multiTicket[$i]->ticket_index . '" />
-                  <input type="hidden" name="emailAddress" class="emailAddress" value="' . $this->multiTicket[$i]->EmailAddress . '" form="ticketForm' . $this->multiTicket[$i]->ticket_index . '" />
-                  <input type="hidden" name="pendingReceiver" class="pendingReceiver" value="' . $this->multiTicket[$i]->PendingReceiver . '" form="ticketForm' . $this->multiTicket[$i]->ticket_index . '" />
-                  <input type="hidden" name="step" class="step" value="' . $this->multiTicket[$i]->step . '" form="ticketForm' . $this->multiTicket[$i]->ticket_index . '" />
+              <td colspan=\"2\" class=\"center\">
+                <form id=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" class=\"routeStop\">
+                  <input type=\"hidden\" name=\"formKey\" class=\"formKey\" value=\"{$this->formKey}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
+                  <input type=\"hidden\" name=\"ticket_index\" class=\"ticket_index\" value=\"{$this->multiTicket[$i]->ticket_index}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
+                  <input type=\"hidden\" name=\"runNumber\" class=\"runNumber\" value=\"{$this->multiTicket[$i]->RunNumber}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
+                  <input type=\"hidden\" name=\"charge\" class=\"charge\" value=\"{$this->multiTicket[$i]->Charge}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
+                  <input type=\"hidden\" name=\"emailConfirm\" class=\"emailConfirm\" value=\"{$this->multiTicket[$i]->EmailConfirm}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
+                  <input type=\"hidden\" name=\"emailAddress\" class=\"emailAddress\" value=\"{$this->multiTicket[$i]->EmailAddress}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
+                  <input type=\"hidden\" name=\"pendingReceiver\" class=\"pendingReceiver\" value=\"{$this->multiTicket[$i]->PendingReceiver}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
+                  <input type=\"hidden\" name=\"step\" class=\"step\" value=\"{$this->multiTicket[$i]->step}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                 </form>
-                <h3 class="floatLeft">' . $this->multiTicket[$i]->TicketNumber . '</h3>' . $label . '<h3 class="floatRight error">' . self::ticketCharge() . '</h3>
+                <h3 class=\"floatLeft\">{$this->multiTicket[$i]->TicketNumber}</h3>{$label}<h3 class=\"floatRight error\">{$this->ticketCharge()}</h3>
               </td>
             </tr>
             <tr>
-              <td colspan="2"><hr></td>
+              <td colspan=\"2\"><hr></td>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>' . $client . '</td>
-              <td>' . $address . '</td>
+              <td>{$client}</td>
+              <td>{$address}</td>
             </tr>
-            ' . $contact . $tel . '
+              {$contact} {$tel}
             <tr>
-              <td colspan="2"><hr></td>
+              <td colspan=\"2\"><hr></td>
             </tr>
             <tr>
-              <td colspan="2">
-                <table class="tFieldLeft" style="width:25%;">
+              <td colspan=\"2\">
+                <table class=\"tFieldLeft\" style=\"width:25%;\">
                   <tr>
-                    <th class="pullLeft">Dry Ice:</th>
+                    <th class=\"pullLeft\">Dry Ice:</th>
                   </tr>
                   <tr>
-                    <td class="center">' . $iceWeight . $this->weightMarker . '</td>
+                    <td class=\"center\">{$iceWeight}{$this->weightMarker}</td>
                   </tr>
                 </table>
-                <table class="tFieldRight" style="width:75%;">
+                <table class=\"tFieldRight\" style=\"width:75%;\">
                   <tr>
-                    <th class="pullLeft">Notes:</th>
+                    <th class=\"pullLeft\">Notes:</th>
                   </tr>
                   <tr>
-                    <td><textarea class="wide notes" rows="4" name="notes">' . self::decode($this->multiTicket[$i]->Notes) . '</textarea></td>
+                    <td><textarea class=\"wide notes\" rows=\"4\" name=\"notes\">{$this->decode($this->multiTicket[$i]->Notes)}</textarea></td>
                   </tr>
                 </table>
               </td>
             </tr>
           </tbody>
-        </table>';
+        </table>";
       }
       $multiTicket .= '<p class="message2 center"></p>';
+      $count = 'count';
       if ($this->processTransfer === FALSE) {
-        $multiTicket .= '
-          <p class="center">
-            <input type="hidden" name="sigImage" id="sigImage' . $this->multiTicket[0]->ticket_index . '" class="sigImage" />
-            <label for="pSigPrint' . $this->ticket_index . '">Signer</label><br><input type="text" name="pSigPrint" id="pSigPrint' . $this->multiTicket[0]->ticket_index . '" class="pSigPrint printName" form="ticketForm' . $this->multiTicket[0]->ticket_index . '" /><button type="button" style="vertical-align:middle;" class="pGetSig"><img src="../images/sign.png" height="24" width="24" alt="Open Signature Box" /></button>
+        $multiTicket .= "
+          <p class=\"center\">
+            <input type=\"hidden\" name=\"sigImage\" id=\"sigImage{$this->multiTicket[0]->ticket_index}\" class=\"sigImage\" />
+            <label for=\"pSigPrint{$this->ticket_index}\">Signer</label><br><input type=\"text\" name=\"pSigPrint\" id=\"pSigPrint{$this->multiTicket[0]->ticket_index}\" class=pSigPrint printName\" form=form=\"ticketForm{$this->multiTicket[0]->ticket_index}\" /><button type=\"button\" style=\"vertical-align:middle;\" class=\"pGetSig\"><img src=\"../images/sign.png\" height=\"24\" width=\"24\" alt=\"Open Signature Box\" /></button>
           </p>
-          <div class="signature-pad sigField"></div>
-          <button type="button" class="confirmAll">Confirm ' . count($this->multiTicket) . '</button> <button type="button" class="transferGroup">Transfer ' . count($this->multiTicket) . '</button></div>';
+          <div class=\"signature-pad sigField\"></div>
+          <button type=\"button\" class=\"confirmAll\">Confirm {$count($this->multiTicket)}</button> <button type=\"button\" class=\"transferGroup\">Transfer {$count($this->multiTicket)}</button></div>";
       } else {
         if ($this->PendingReceiver === $this->driverID) {
           $multiTicket .= '<button type="button" class="acceptTransferGroup floatLeft">Accept Transfer Group</button>
