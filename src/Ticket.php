@@ -2693,24 +2693,24 @@
 
     private function confirmRequest() {
       self::solveTicketPrice();
-      $editForm = '<form id="editForm' . $this->ticket_index . '" method="post" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '">
-          <input type="hidden" name="formKey" value="' . $this->formKey . '" form="editForm' . $this->ticket_index . '" />';
+      $editForm = "<form id=\"editForm{$this->ticket_index}\" method=\"post\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\">
+          <input type=\"hidden\" name=\"formKey\" value=\"{$this->formKey}\" form=\"editForm{$this->ticket_index}\" />";
       // Set the form name to editForm
       $this->formName = 'editForm' . $this->ticket_index;
       $editForm .= self::hiddenInputs();
-      $editForm .= '
-          <input type="hidden" name="edit" form="editForm' . $this->ticket_index . '" value="1" />
-        </form>';
-      $editButton = '
-          <button type="submit" class="editForm" form="editForm' . $this->ticket_index . '">Edit</button>';
+      $editForm .= "
+          <input type=\"hidden\" name=\"edit\" form=\"editForm{$this->ticket_index}\" value=\"1\" />
+        </form>";
+      $editButton = "
+          <button type=\"submit\" class=\"editForm\" form=\"editForm{$this->ticket_index}\">Edit</button>";
 
       // Generate a ticket number if one wasn't provided
       if ($this->TicketNumber == NULL) {
-        $tempTicketNumber = ($this->BillTo === 0) ? date('m') . "00" : $this->BillTo . date('m') . "00";
+        $tempTicketNumber = ($this->BillTo === 0) ? date('m') . '00' : $this->BillTo . date('m') . '00';
         // This ticket number will be tested for uniqueness in the processing function
         $this->TicketNumber = (int)$tempTicketNumber;
       }
-      $output = "";
+      $output = '';
       switch ($this->Charge) {
         case 0:
           $chargeAnswer = '<p class="center rollUp" title="Canceled">Canceled</p>';
@@ -2767,44 +2767,44 @@
       // Define the display for signature request
       $sigReqTemp = array();
       if ($this->pSigReq === 1) {
-        $sigReqTemp[] = "On Pick Up";
+        $sigReqTemp[] = 'On Pick Up';
       }
       if ($this->dSigReq === 1) {
-        $sigReqTemp[] = "On Delivery";
+        $sigReqTemp[] = 'On Delivery';
       }
       if ($this->d2SigReq === 1) {
-        $sigReqTemp[] = "On Return";
+        $sigReqTemp[] = 'On Return';
       }
       if ($this->pSigReq === 0 && $this->dSigReq === 0 && $this->d2SigReq === 0) {
-        $sigReqTemp[] = "None";
+        $sigReqTemp[] = 'None';
       }
       $sigReq = self::arrayToList($sigReqTemp);
       // Generate the hidden form
       // Add the values that we just solved for
-      $newTicketInput = ($this->ticket_index === NULL) ? '<input type="hidden" name="newTicket" value="1" form="submitTicket' . $this->ticket_index . '" />' : '<input type="hidden" name="ticket_index" value="' . $this->ticket_index . '" form="submitTicket' . $this->ticket_index . '" />';
-      $transfersFormValue = ($this->Transfers == NULL) ? "" : htmlentities(json_encode($this->Transfers), ENT_QUOTES);
-      $submitForm = '
-            <form id="submitTicket' . $this->ticket_index . '" action="' . esc_url($_SERVER["REQUEST_URI"]) . '" method="post">
-              <input type="hidden" name="formKey" id="formKey" value="' . $this->formKey . '" />
-              ' . $newTicketInput . '
-              <input type="hidden" name="edit" value="0" form="submitTicket' . $this->ticket_index . '" />
-              <input type="hidden" name="ticketNumber" value="' . $this->TicketNumber . '" form="submitTicket' . $this->ticket_index . '" />
-              <input type="hidden" name="billTo" value="' . $this->BillTo . '" form="submitTicket' . $this->ticket_index . '" />
-              <input type="hidden" name="diPrice" value="' . $this->diPrice . '" form="submitTicket' . $this->ticket_index . '" />
-              <input type="hidden" name="ticketBase" value="' . $this->TicketBase . '" form="submitTicket' . $this->ticket_index . '" />
-              <input type="hidden" name="contract" value="' . $this->Contract . '" form="submitTicket' . $this->ticket_index . '" />
-              <input type="hidden" name="runNumber" value="' . $this->RunNumber . '" form="submitTicket' . $this->ticket_index . '" />
-              <input type="hidden" name="multiplier" value="1" form="submitTicket' . $this->ticket_index . '" />
-              <input type="hidden" name="runPrice" value="' . $this->RunPrice . '" form="submitTicket' . $this->ticket_index . '" />
-              <input type="hidden" name="ticketPrice" value="' . $this->TicketPrice . '" form="submitTicket' . $this->ticket_index . '" />
-              <input type="hidden" name="dispatchedTo" value="' . $this->DispatchedTo . '" form="submitTicket' . $this->ticket_index . '" />
-              <input type="hidden" name="transfers" value="' . $transfersFormValue . '" form="submitTicket' . $this->ticket_index . '" />';
+      $newTicketInput = ($this->ticket_index === NULL) ? "<input type=\"hidden\" name=\"newTicket\" value=\"1\" form=\"submitTicket{$this->ticket_index}\" />" : "<input type=\"hidden\" name=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"submitTicket{$this->ticket_index}\" />";
+      $transfersFormValue = ($this->Transfers == NULL) ? '' : htmlentities(json_encode($this->Transfers), ENT_QUOTES);
+      $submitForm = "
+            <form id=\"submitTicket{$this->ticket_index}\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
+              <input type=\"hidden\" name=\"formKey\" id=\"formKey\" value=\"{$this->formKey}\" />
+              {$newTicketInput}
+              <input type=\"hidden\" name=\"edit\" value=\"0\" form=\"submitTicket{$this->ticket_index}\" />
+              <input type=\"hidden\" name=\"ticketNumber\" value=\"{$this->TicketNumber}\" form=\"submitTicket{$this->ticket_index}\" />
+              <input type=\"hidden\" name=\"billTo\" value=\"{$this->BillTo}\" form=\"submitTicket{$this->ticket_index}\" />
+              <input type=\"hidden\" name=\"diPrice\" value=\"{$this->diPrice}\" form=\"submitTicket{$this->ticket_index}\" />
+              <input type=\"hidden\" name=\"ticketBase\" value=\"{$this->TicketBase}\" form=\"submitTicket{$this->ticket_index}\" />
+              <input type=\"hidden\" name=\"contract\" value=\"{$this->Contract}\" form=\"submitTicket{$this->ticket_index}\" />
+              <input type=\"hidden\" name=\"runNumber\" value=\"{$this->RunNumber}\" form=\"submitTicket{$this->ticket_index}\" />
+              <input type=\"hidden\" name=\"multiplier\" value=\"1\" form=\"submitTicket{$this->ticket_index}\" />
+              <input type=\"hidden\" name=\"runPrice\" value=\"{$this->RunPrice}\" form=\"submitTicket{$this->ticket_index}\" />
+              <input type=\"hidden\" name=\"ticketPrice\" value=\"{$this->TicketPrice}\" form=\"submitTicket{$this->ticket_index}\" />
+              <input type=\"hidden\" name=\"dispatchedTo\" value=\"{$this->DispatchedTo}\" form=\"submitTicket{$this->ticket_index}\" />
+              <input type=\"hidden\" name=\"transfers\" value=\"{$transfersFormValue}\" form=\"submitTicket{$this->ticket_index}\" />";
       // Set the form name to  submitTicket
-      $this->formName = "submitTicket" . $this->ticket_index;
+      $this->formName = "submitTicket{$this->ticket_index}";
       // Add values in the $postableKeys array
       $submitForm .= self::hiddenInputs();
       $submitForm .= '</form>';
-      $submitTicketButton = '<button type="submit" class="confirmed" id="submit' . $this->ticket_index . '" form ="submitTicket' . $this->ticket_index . '">Confirm</button>';
+      $submitTicketButton = "<button type=\"submit\" class=\"confirmed\" id=\"submit{$this->ticket_index}\" form =\"submitTicket{$this->ticket_index}\">Confirm</button>";
       // pRangeTest and dRangeTest are set in solveTicketPrice()
       if ($this->pRangeTest > $this->maxRange) {
         // if ($this->userType === "client") $submitTicketButton = '';
@@ -2826,12 +2826,12 @@
         $totalPriceDisplay = '';
       } else {
         if ($this->Charge !== 7) {
-          $ticketPriceDisplay = '<span class="bold">Delivery: </span><span class="currencySymbol">' . $_SESSION['config']['CurrencySymbol'] . '</span>' . self::number_format_drop_zero_decimals($this->RunPrice, 2);
-          $iceChargeDisplay = '<span class="bold">Charge: </span><span class="currencySymbol">' . $_SESSION['config']['CurrencySymbol'] . '</span>' . self::number_format_drop_zero_decimals($this->diPrice, 2);
-          $totalPriceDisplay = '<span class="bold">Total: </span><span class="currencySymbol">' . $_SESSION['config']['CurrencySymbol'] . '</span>' . self::number_format_drop_zero_decimals($this->TicketPrice, 2);
+          $ticketPriceDisplay = "<span class=\"bold\">Delivery: </span><span class=\"currencySymbol\">{$_SESSION['config']['CurrencySymbol']}</span>{$this->number_format_drop_zero_decimals($this->RunPrice, 2)}";
+          $iceChargeDisplay = "<span class=\"bold\">Charge: </span><span class=\"currencySymbol\">{$_SESSION['config']['CurrencySymbol']}</span>{$this->number_format_drop_zero_decimals($this->diPrice, 2)}";
+          $totalPriceDisplay = "<span class=\"bold\">Total: </span><span class=\"currencySymbol\">{$_SESSION['config']['CurrencySymbol']}</span>{$this->number_format_drop_zero_decimals($this->TicketPrice, 2);
         } else {
-          $ticketPriceDisplay = $totalPriceDisplay = '<span class="bold">Total: </span>Pending ';
-          $iceChargeDisplay = '<span class="bold">Charge: </span><span class="currencySymbol">' . $_SESSION['config']['CurrencySymbol'] . '</span>' . self::number_format_drop_zero_decimals($this->diPrice, 2);
+          $ticketPriceDisplay = $totalPriceDisplay = '<span class=\"bold\">Total: </span>Pending ';
+          $iceChargeDisplay = '<span class=\"bold\">Charge: </span><span class=\"currencySymbol\">' . $_SESSION['config']['CurrencySymbol'] . '</span>' . self::number_format_drop_zero_decimals($this->diPrice, 2);
         }
       }
       // Generate the confirmation display
