@@ -2828,143 +2828,146 @@
         if ($this->Charge !== 7) {
           $ticketPriceDisplay = "<span class=\"bold\">Delivery: </span><span class=\"currencySymbol\">{$_SESSION['config']['CurrencySymbol']}</span>{$this->number_format_drop_zero_decimals($this->RunPrice, 2)}";
           $iceChargeDisplay = "<span class=\"bold\">Charge: </span><span class=\"currencySymbol\">{$_SESSION['config']['CurrencySymbol']}</span>{$this->number_format_drop_zero_decimals($this->diPrice, 2)}";
-          $totalPriceDisplay = "<span class=\"bold\">Total: </span><span class=\"currencySymbol\">{$_SESSION['config']['CurrencySymbol']}</span>{$this->number_format_drop_zero_decimals($this->TicketPrice, 2);
+          $totalPriceDisplay = "<span class=\"bold\">Total: </span><span class=\"currencySymbol\">{$_SESSION['config']['CurrencySymbol']}</span>{$this->number_format_drop_zero_decimals($this->TicketPrice, 2)}";
         } else {
           $ticketPriceDisplay = $totalPriceDisplay = '<span class=\"bold\">Total: </span>Pending ';
-          $iceChargeDisplay = '<span class=\"bold\">Charge: </span><span class=\"currencySymbol\">' . $_SESSION['config']['CurrencySymbol'] . '</span>' . self::number_format_drop_zero_decimals($this->diPrice, 2);
+          $iceChargeDisplay = "<span class=\"bold\">Charge: </span><span class=\"currencySymbol\">{$_SESSION['config']['CurrencySymbol']}</span>{$this->number_format_drop_zero_decimals($this->diPrice, 2)}";
         }
       }
+      $json_decode = 'json_decode';
+      $htmlentities = 'htmlentities';
       // Generate the confirmation display
-      $output .= '
-        <table class="ticketContainer">
+      $jsVar = 'coords1=' . json_encode($this->loc1) . ',address1="' . htmlentities($this->pAddress1 . ' ' . $this->pAddress2, ENT_QUOTES) . '", coords2=' . json_encode($this->loc2) . ',address2="' . htmlentities($this->dAddress1 . ' ' . $this->dAddress2, ENT_QUOTES) . '",center="' . json_encode($this->center) . ';';
+      $output .= "
+        <table class=\"ticketContainer\">
           <thead>
             <tr>
-              <td colspan="2"><span class="bold">Dry Ice:</span> ' . $this->diWeight . $this->weightMarker . ' ' . $iceChargeDisplay . '</td>
+              <td colspan=\"2\"><span class=\"bold\">Dry Ice:</span>{$this->diWeight}{$this->weightMarker} {$iceChargeDisplay}</td>
             </tr>
             <tr>
-              <td colspan="2"><span class="bold">Requested By:</span> ' . $this->RequestedBy . '</td>
+              <td colspan=\"2\"><span class=\"bold\">Requested By:</span>{$this->RequestedBy}</td>
             </tr>
             <tr>
-              <td colspan="2"><span class="bold">Email Address:</span> ' . $this->EmailAddress . '</td>
+              <td colspan=\"2\"><span class=\"bold\">Email Address:</span>{$this->EmailAddress}</td>
             </tr>
             <tr>
-              <td colspan="2"><span class="bold">Email Confirmation: </span>' . $emailAnswer . '</td>
+              <td colspan=\"2\"><span class=\"bold\">Email Confirmation: </span>{$emailAnswer}</td>
             <tr>
-              <td colspan="2"><span class="bold">Signature Request: </span>' . $sigReq . '</td>
+              <td colspan=\"2\"><span class=\"bold\">Signature Request: </span>{$sigReq}</td>
             </tr>
             <tr>
-              <td colspan="2">' . $ticketPriceDisplay . ' ' . $totalPriceDisplay . '</td>
+              <td colspan=\"2\">{$ticketPriceDisplay} {$totalPriceDisplay}</td>
             </tr>
             <tr>
-              <td colspan="2"><span class="bold">Notes: </span>' . $this->Notes . '</td>
+              <td colspan=\"2\"><span class=\"bold\">Notes: </span>{$this->Notes}</td>
             </tr>
           </thead>
           <tfoot>
             <tr>
-              <td>' . $submitTicketButton . '</td>
-              <td>' . $editButton . '</td>
+              <td>{$submitTicketButton}</td>
+              <td>{$editButton}</td>
             </tr>
             <tr>
-              <td colspan="2" class="ticketError"></td>
+              <td colspan=\"2\" class=\"ticketError\"></td>
             </tr>
           </tfoot>
           <tbody>
-            <tr class="confirmAddress">
-              <td colspan="2">' . $chargeAnswer . '</td>
+            <tr class=\"confirmAddress\">
+              <td colspan=\"2\">{$chargeAnswer}</td>
             </tr>
-            <tr class="confirmAddress">
-              <td colspan="2"><hr></td>
+            <tr class=\"confirmAddress\">
+              <td colspan=\"2\"><hr></td>
             </tr>
-            <tr class="confirmAddress">
+            <tr class=\"confirmAddress\">
               <td>
-                <table class="wide">
+                <table class=\"wide\">
                   <thead>
                     <tr>
-                      <th colspan="2">Pick Up</th>
+                      <th colspan=\"2\">Pick Up</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <td class="ticketSpace"></td>
-                      <td>' . $this->pClient . '</td>
+                      <td class=\"ticketSpace\"></td>
+                      <td>{$this->pClient}</td>
                     </tr>
                     <tr>
-                      <td class="ticketSpace"></td>
-                      <td>' . $this->pDepartment . '</td>
+                      <td class=\"ticketSpace\"></td>
+                      <td>{$this->pDepartment}</td>
                     </tr>
                     <tr>
-                      <td class="ticketSpace"></td>
-                      <td>' . $this->pAddress1 . '</td>
+                      <td class=\"ticketSpace\"></td>
+                      <td>{$this->pAddress1}</td>
                     </tr>
                     <tr>
-                      <td class="ticketSpace"></td>
-                      <td>' . $this->pAddress2 . '</td>
+                      <td class=\"ticketSpace\"></td>
+                      <td>{$this->pAddress2}</td>
                     </tr>
-                    <tr class="' . $this->countryClass . '">
-                      <td class="ticketSpace"></td>
-                      <td>' . $this->pCountry . '</td>
-                    </tr>
-                    <tr>
-                      <td class="ticketSpace"></td>
-                      <td><span class="bold">Contact:</span> ' . $this->pContact . '</td>
+                    <tr class=\"{$this->countryClass}\">
+                      <td class=\"ticketSpace\"></td>
+                      <td>{$this->pCountry}</td>
                     </tr>
                     <tr>
-                      <td class="ticketSpace"></td>
-                      <td><span class="bold">Telephone:</span> ' . $this->pTelephone . '</td>
+                      <td class=\"ticketSpace\"></td>
+                      <td><span class=\"bold\">Contact</span>: {$this->pContact}</td>
+                    </tr>
+                    <tr>
+                      <td class=\"ticketSpace\"></td>
+                      <td><span class=\"bold\">Telephone</span>: {$this->pTelephone}</td>
                     </tr>
                   </tbody>
                 </table>
               </td>
               <td>
-                <table class="wide">
+                <table class=\"wide\">
                   <thead>
                     <tr>
-                      <th colspan="2">Deliver</th>
+                      <th colspan=\"2\">Deliver</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <td class="ticketSpace"></td>
-                      <td>' . $this->dClient . '</td>
+                      <td class=\"ticketSpace\"></td>
+                      <td>{$this->dClient}</td>
                     </tr>
                     <tr>
-                      <td class="ticketSpace"></td>
-                      <td>' . $this->dDepartment . '</td>
+                      <td class=\"ticketSpace\"></td>
+                      <td>{$this->dDepartment}</td>
                     </tr>
                     <tr>
-                      <td class="ticketSpace"></td>
-                      <td>' . $this->dAddress1 . '</td>
+                      <td class=\"ticketSpace\"></td>
+                      <td>{$this->dAddress1}</td>
                     </tr>
                     <tr>
-                      <td class="ticketSpace"></td>
-                      <td>' . $this->dAddress2 . '</td>
+                      <td class=\"ticketSpace\"></td>
+                      <td>{$this->dAddress2}</td>
                     </tr>
-                    <tr class="' . $this->countryClass . '">
-                      <td class="ticketSpace"></td>
-                      <td>' . $this->dCountry . '</td>
-                    </tr>
-                    <tr>
-                      <td class="ticketSpace"></td>
-                      <td><span class="bold">Contact:</span> ' . $this->dContact . '</td>
+                    <tr class=\"{$this->countryClass}\">
+                      <td class=\"ticketSpace\"></td>
+                      <td>{$this->dCountry}</td>
                     </tr>
                     <tr>
-                      <td class="ticketSpace"></td>
-                      <td><span class="bold">Telephone:</span> ' . $this->dTelephone . '</td>
+                      <td class=\"ticketSpace\"></td>
+                      <td><span class=\"bold\">Contact</span>: {$this->dContact}</td>
+                    </tr>
+                    <tr>
+                      <td class=\"ticketSpace\"></td>
+                      <td><span class=\"bold\">Telephone</span>: {$this->dTelephone}</td>
                     </tr>
                   </tbody>
                 </table>
               </td>
             </tr>
-            <tr class="confirmAddress">
-              <td colspan="2"><hr></td>
+            <tr class=\"confirmAddress\">
+              <td colspan=\"2\"><hr></td>
             </tr>
             <tr>
-              <td colspan="2">' . $this->pRangeError . $this->dRangeError . '</td>
+              <td colspan=\"2\">{$this->pRangeError}  {$this->dRangeError}</td>
             </tr>
           </tbody>
         </table>
-        <script>coords1=' . json_encode($this->loc1) . ',address1="' . htmlentities($this->pAddress1 . " " . $this->pAddress2, ENT_QUOTES) . '",coords2=' . json_encode($this->loc2) . ',address2="' . htmlentities($this->dAddress1 .  " " . $this->dAddress2, ENT_QUOTES) . '",center=' . json_encode($this->center) . ';</script>
-      </div>';
+        <script>{$jsVar}</script>
+      </div>";
       return $output;
     }
 
@@ -2984,7 +2987,7 @@
         $payload = array();
         foreach ($this as $key => $value) {
           if (in_array($key, $this->updateTicketDatabaseKeys)) {
-            if ($key === "Transfers") {
+            if ($key === 'Transfers') {
               $tempArray = json_decode(html_entity_decode($value));
               $target = array();
               for ($i=0;$i<count($tempArray); $i++) {
@@ -3031,7 +3034,7 @@
           $this->ticketEditor = TRUE;
           self::regenTicket();
         } else {
-          echo "remove";
+          echo 'remove';
         }
         return FALSE;
       }
@@ -3049,12 +3052,12 @@
         echo $this->error;
         return FALSE;
       }
-      $this->ReceivedDate = ($this->ReceivedDate === NULL || $this->ReceivedDate === "") ? $this->now->format('Y-m-d H:i:s') : $this->ReceivedDate;
+      $this->ReceivedDate = ($this->ReceivedDate === NULL || $this->ReceivedDate === '') ? $this->now->format('Y-m-d H:i:s') : $this->ReceivedDate;
       if ($this->DispatchedTo != 0) {
-        $this->DispatchTimeStamp = ($this->DispatchTimeStamp === NULL || $this->DispatchTimeStamp === "") ? $this->ReceivedDate : $this->DispatchTimeStamp;
+        $this->DispatchTimeStamp = ($this->DispatchTimeStamp === NULL || $this->DispatchTimeStamp === '') ? $this->ReceivedDate : $this->DispatchTimeStamp;
         $micro_date = microtime();
         $date_array = explode(" ",$micro_date);
-        $this->DispatchMicroTime = ($this->DispatchMicroTime === NULL || $this->DispatchMicroTime === "") ? substr($date_array[0], 1, 7) : $this->DispatchMicroTime;
+        $this->DispatchMicroTime = ($this->DispatchMicroTime === NULL || $this->DispatchMicroTime === '') ? substr($date_array[0], 1, 7) : $this->DispatchMicroTime;
       }
       // Create a new query object to post the new ticket
       $postTicketData = [];
@@ -3082,11 +3085,11 @@
         echo $this->error;
         return FALSE;
       }
-      echo '
-        <div id="deliveryRequestComplete">
+      echo "
+        <div id=\"deliveryRequestComplete\">
           <h1>request submitted</h1>
-          <p class="center">Your request has been received.<br>The ticket number for this delivery is ' . $this->TicketNumber . '.</p>
-        </div>';
+          <p class=\"center\">Your request has been received.<br>The ticket number for this delivery is {$this->TicketNumber}.</p>
+        </div>";
       return FALSE;
     }
 
@@ -3112,7 +3115,7 @@
         }
         $newObj = new \stdClass();
         foreach ($this as $key => $value) {
-          if ($key === "crun_index") $crun_index_list[] = $value;
+          if ($key === 'crun_index') $crun_index_list[] = $value;
           if (($key === 'pCountry' || $key === 'dCountry') && strlen($value) != 2) {
             $temp = self::countryFromAbbr($value);
             $value = $temp;
@@ -3162,7 +3165,7 @@
       $updateLastCompletedDateData['payload'] = array();
       for ($i = 0; $i < count($crun_index_list); $i++) {
         $newObj = new \stdClass();
-        $newObj->LastCompleted = $this->now->format("Y-m-d");
+        $newObj->LastCompleted = $this->now->format('Y-m-d');
         $updateLastCompletedDateData['payload'][] = $newObj;
       }
       if (!$updateLastCompletedDate = self::createQuery($updateLastCompletedDateData)) {
@@ -3194,7 +3197,7 @@
         $tempIndex = array();
         for ($i = 0; $i < count($this->multiTicket); $i++) {
           foreach ($this->multiTicket[$i] as $key => $value) {
-            if ($key === "ticket_index") $tempIndex[] = (int)$value;
+            if ($key === 'ticket_index') $tempIndex[] = (int)$value;
           }
         }
         $this->ticket_index = implode(',', $tempIndex);
@@ -3221,13 +3224,13 @@
               $ticketUpdateData['payload']['pSigPrint'] =  $this->printName;
               $ticketUpdateData['payload']['pSigReq'] = 1;
             }
-            if ($this->sigImage !== NULL && $this->sigImage !== "") {
+            if ($this->sigImage !== NULL && $this->sigImage !== '') {
               $dataPieces = explode(',', $this->sigImage);
               $ticketUpdateData['payload']['pSigType'] = self::between('/',';',$dataPieces[0]);
               $ticketUpdateData['payload']['pSig'] = base64_encode($dataPieces[1]);
               $ticketUpdateData['payload']['pSigReq'] = 1;
             }
-            $this->stepMarker = "Picked Up";
+            $this->stepMarker = 'Picked Up';
           break;
           case 'delivered':
             $ticketUpdateData['payload']['Notes'] = $this->Notes;
@@ -3236,13 +3239,13 @@
               $ticketUpdateData['payload']['dSigPrint'] = $this->printName;
               $ticketUpdateData['payload']['dSigReq'] = 1;
             }
-            if ($this->sigImage != NULL && $this->sigImage !== "") {
+            if ($this->sigImage != NULL && $this->sigImage !== '') {
               $dataPieces = explode(',', $this->sigImage);
               $ticketUpdateData['payload']['dSigType'] = self::between('/',';',$dataPieces[0]);
               $ticketUpdateData['payload']['dSig'] = base64_encode($dataPieces[1]);
               $ticketUpdateData['payload']['dSigReq'] = 1;
             }
-            $this->stepMarker = "Delivered";
+            $this->stepMarker = 'Delivered';
           break;
           case 'returned':
             $ticketUpdateData['payload']['d2TimeStamp'] = $this->now->format('Y-m-d H:i:s');
@@ -3256,14 +3259,14 @@
               $ticketUpdateData['payload']['d2Sig'] = base64_encode($dataPieces[1]);
               $ticketUpdateData['payload']['d2SigReq'] = 1;
             }
-            $this->stepMarker = "Returned";
+            $this->stepMarker = 'Returned';
           break;
           case 'dispatched':
             $this->DispatchTimeStamp = $this->now->format('Y-m-d H:i:s');
             $micro_date = microtime();
             $date_array = explode(" ",$micro_date);
             $this->DispatchMicroTime = substr($date_array[0], 1, 7);
-            $ticketUpdateData['payload'] = array('DispatchTimeStamp'=>$this->DispatchTimeStamp,'DispatchMicroTime'=>$this->DispatchMicroTime,'DispatchedTo'=>$this->DispatchedTo,'DispatchedBy'=>$this->DispatchedBy);
+            $ticketUpdateData['payload'] = [ 'DispatchTimeStamp'=>$this->DispatchTimeStamp, 'DispatchMicroTime'=>$this->DispatchMicroTime, 'DispatchedTo'=>$this->DispatchedTo, 'DispatchedBy'=>$this->DispatchedBy ];
             $this->stepMarker = "Dispatched";
           break;
           default:
@@ -3275,16 +3278,16 @@
       } else {
         for ($i = 0; $i < count($this->multiTicket); $i++) {
           $tempObj = new \stdClass();
-          switch ($this->multiTicket[$i]["step"]) {
-            case "pickedUp":
-              $tempObj->Notes = $this->multiTicket[$i]["notes"];
+          switch ($this->multiTicket[$i]['step']) {
+            case 'pickedUp':
+              $tempObj->Notes = $this->multiTicket[$i]['notes'];
               $tempObj->pTimeStamp = $this->now->format('Y-m-d H:i:s');
               if ($this->printName !== NULL && $this->printName !== '') {
                 $tempObj->pSigPrint = $this->printName;
                 $tempObj->pSigReq = 1;
               }
-              if ($this->sigImage !== NULL && $this->sigImage !== "") {
-                $dataPieces = explode(",", $this->sigImage);
+              if ($this->sigImage !== NULL && $this->sigImage !== '') {
+                $dataPieces = explode(',', $this->sigImage);
                 $tempObj->pSigType = self::between('/',';',$dataPieces[0]);
                 $tempObj->pSig = base64_encode($dataPieces[1]);
                 $tempObj->pSigReq = 1;
@@ -3292,15 +3295,15 @@
               if ($this->printName !== NULL && $this->printName !== '') $tempObj->pSigReq = 1;
               $ticketUpdateData['payload'][] = $tempObj;
             break;
-            case "delivered":
-              $tempObj->Notes = $this->multiTicket[$i]["notes"];
+            case 'delivered':
+              $tempObj->Notes = $this->multiTicket[$i]['notes'];
               $tempObj->dTimeStamp = $this->now->format('Y-m-d H:i:s');
               if ($this->printName !== NULL && $this->printName !== '') {
                 $tempObj->dSigPrint = $this->printName;
                 $tempObj->dSigReq = 1;
               }
-              if ($this->sigImage !== NULL && $this->sigImage !== "") {
-                $dataPieces = explode(",", $this->sigImage);
+              if ($this->sigImage !== NULL && $this->sigImage !== '') {
+                $dataPieces = explode(',', $this->sigImage);
                 $tempObj->dSigType = self::between('/',';',$dataPieces[0]);
                 $tempObj->dSig = base64_encode($dataPieces[1]);
                 $tempObj->dSigReq = 1;
@@ -3308,15 +3311,15 @@
               if ($this->printName !== NULL && $this->printName !== '') $tempObj->dSigReq = 1;
               $ticketUpdateData['payload'][] = $tempObj;
             break;
-            case "returned":
-              $tempObj->Notes = $this->multiTicket[$i]["notes"];
+            case 'returned':
+              $tempObj->Notes = $this->multiTicket[$i]['notes'];
               $tempObj->d2TimeStamp = $this->now->format('Y-m-d H:i:s');
               if ($this->printName !== NULL && $this->printName !== '') {
                 $tempObj->d2SigPrint = $this->printName;
                 $tempObj->d2SigReq = 1;
               }
-              if ($this->sigImage !== NULL && $this->sigImage !== "") {
-                $dataPieces = explode(",", $this->sigImage);
+              if ($this->sigImage !== NULL && $this->sigImage !== '') {
+                $dataPieces = explode(',', $this->sigImage);
                 $tempObj->d2SigType = self::between('/',';',$dataPieces[0]);
                 $tempObj->d2Sig = base64_encode($dataPieces[1]);
                 $tempObj->d2SigReq = 1;
@@ -3324,10 +3327,10 @@
               if ($this->printName !== NULL && $this->printName !== '') $tempObj->d2SigReq = 1;
               $ticketUpdateData['payload'][] = $tempObj;
             break;
-            case "dispatched":
+            case 'dispatched':
               $this->DispatchTimeStamp = $this->now->format('Y-m-d H:i:s');
               $micro_date = microtime();
-              $date_array = explode(" ",$micro_date);
+              $date_array = explode(' ',$micro_date);
               $this->DispatchMicroTime = substr($date_array[0], 1, 7);
               $tempObj->DispatchMicroTime = $this->DispatchTimeStamp;
               $tempObj->DispatchMicroTime = $this->DispatchMicroTime;
@@ -3359,7 +3362,7 @@
         return FALSE;
       }
       if ($this->multiTicket === NULL) {
-        $marker = $this->TicketNumber . " " . $this->stepMarker;
+        $marker = "{$this->TicketNumber} {$this->stepMarker}";
         if ($this->Charge === 7) {
           self::solveDedicatedRunPrice();
         }
@@ -3367,7 +3370,7 @@
           self::processEmail();
         }
       } else {
-        $marker = "group updated";
+        $marker = 'group updated';
         $lower = [ 'ticket_index', 'step' ];
         for ($i = 0; $i < count($this->multiTicket); $i++) {
           foreach ($this->multiTicket[$i] as $key => $value) {
@@ -3390,17 +3393,16 @@
           }
         }
       }
-      return '<p class="center">Ticket ' . $marker . '.</p>';
-      return TRUE;
+      return "<p class=\"center\">Ticket {$marker}.</p>";
     }
 
     public function cancelTicket() {
       if ($this->multiTicket !== NULL) {
-        $tempIndex = array();
+        $tempIndex = [];
         for ($i = 0; $i < count($this->multiTicket); $i++) {
           foreach ($this->multiTicket[$i] as $key => $value) {
-            if ($key === "ticket_index") $tempIndex[] = (int)$value;
-            if ($key === "action") $this->action = $value;
+            if ($key === 'ticket_index') $tempIndex[] = (int)$value;
+            if ($key === 'action') $this->action = $value;
           }
         }
         $this->ticket_index = implode(',', $tempIndex);
@@ -3412,15 +3414,15 @@
       $ticketUpdateData['queryParams'] = [];
       $ticketUpdateData['primaryKey'] = $this->ticket_index;
       switch ($this->action) {
-        case "delete":
+        case 'delete':
           $ticketUpdateData['method'] = 'DELETE';
-          $answer = "deleted";
+          $answer = 'deleted';
         break;
-        case "cancel":
+        case 'cancel':
           if ($this->multiTicket === NULL) {
-            $ticketUpdateData['payload'] = array('Charge'=>'0', 'TicketPrice'=>'0', 'pTimeStamp'=>$this->today->format('Y-m-d H:i:s'), 'Notes'=>$this->Notes);
+            $ticketUpdateData['payload'] = [ 'Charge'=>'0', 'TicketPrice'=>'0', 'pTimeStamp'=>$this->today->format('Y-m-d H:i:s'), 'Notes'=>$this->Notes ];
           } else {
-            $ticketUpdateData['payload'] = array();
+            $ticketUpdateData['payload'] = [];
             for ($i = 0; $i < count($this->multiTicket); $i++) {
               $tempObj = new \stdClass();
               $tempObj->Charge = 0;
@@ -3430,18 +3432,18 @@
               $ticketUpdateData['payload'][] = $tempObj;
             }
           }
-          $answer = "cancelled";
+          $answer = 'cancelled';
         break;
-        case "deadRun":
+        case 'deadRun':
           if ($this->multiTicket === NULL) {
             $newPrice = self::number_format_drop_zero_decimals($this->TicketBase * $this->config['DeadRun'], 2);
             $ticketUpdateData['payload'] = array('Charge'=>'8', 'pTimeStamp'=>$this->today->format('Y-m-d H:i:s'), 'RunPrice'=>$newPrice, 'TicketPrice'=>$newPrice, 'Notes'=>$this->Notes);
           } else {
-            $ticketUpdateData['payload'] = array();
+            $ticketUpdateData['payload'] = [];
             for ($i = 0; $i < count($this->multiTicket); $i++) {
               $tempObj = new \stdClass();
-              $multiTicketIndex = self::recursive_array_search($this->multiTicket[$i]["ticket_index"], $this->sanitized);
-              $newPrice = self::number_format_drop_zero_decimals($this->sanitized[$multiTicketIndex]["TicketBase"] * $this->config['DeadRun'], 2);
+              $multiTicketIndex = self::recursive_array_search($this->multiTicket[$i]['ticket_index'], $this->sanitized);
+              $newPrice = self::number_format_drop_zero_decimals($this->sanitized[$multiTicketIndex]['TicketBase'] * $this->config['DeadRun'], 2);
               $tempObj->Charge = 8;
               $tempObj->TicketPrice = $newPrice;
               $tempObj->RunPrice = $newPrice;
@@ -3450,9 +3452,9 @@
               $ticketUpdateData['payload'][] = $tempObj;
             }
           }
-          $answer = "marked as Dead Run";
+          $answer = 'marked as Dead Run';
         break;
-        case "declined":
+        case 'declined':
           if ($this->multiTicket === NULL) {
             switch ($this->Charge) {
               case 1:
@@ -3461,35 +3463,35 @@
               case 4:
               case 5:
                 $newPrice = self::number_format_drop_zero_decimals(($this->TicketBase * 2), 2);
-                $ticketUpdateData['payload'] = array('dryIce'=>0, 'diPrice'=>0, 'Charge'=>6, 'dTimeStamp'=>$this->today->format('Y-m-d H:i:s'), 'RunPrice'=>$newPrice, 'TicketPrice'=>$newPrice, 'Notes'=>"Delivery declined.\n" . $this->Notes);
+                $ticketUpdateData['payload'] = [ 'dryIce'=>0, 'diPrice'=>0, 'Charge'=>6, 'dTimeStamp'=>$this->today->format('Y-m-d H:i:s'), 'RunPrice'=>$newPrice, 'TicketPrice'=>$newPrice, 'Notes'=>"Delivery declined.\n" . $this->Notes ];
               break;
             }
           } else {
-            $ticketUpdateData['payload'] = array();
+            $ticketUpdateData['payload'] = [];
             for ($i = 0; $i < count($this->multiTicket); $i++) {
               $tempObj = new \stdClass();
-              $multiTicketIndex = self::recursive_array_search($this->multiTicket[$i]["ticket_index"], $this->sanitized);
-              switch ($this->sanitized[$multiTicketIndex]["Charge"]) {
+              $multiTicketIndex = self::recursive_array_search($this->multiTicket[$i]['ticket_index'], $this->sanitized);
+              switch ($this->sanitized[$multiTicketIndex]['Charge']) {
                 case 1:
                 case 2:
                 case 3:
                 case 4:
                 case 5:
-                  $newPrice = self::number_format_drop_zero_decimals(($this->sanitized[$multiTicketIndex]["TicketBase"] * 2), 2);
+                  $newPrice = self::number_format_drop_zero_decimals(($this->sanitized[$multiTicketIndex]['TicketBase'] * 2), 2);
                   $tempObj->dryIce = 0;
                   $tempObj->diPrice = 0;
                   $tempObj->Charge = 6;
-                  $tempObj->dTimeStamp = $this->today->format("Y-m-d H:i:s");
+                  $tempObj->dTimeStamp = $this->today->format('Y-m-d H:i:s');
                   $tempObj->RunPrice = $newPrice;
                   $tempObj->TicketPrice = $newPrice;
-                  $tempObj->Notes = "Delivery declined.\n" . $this->sanitized[$multiTicketIndex]["Notes"];
+                  $tempObj->Notes = $this->sanitized[$multiTicketIndex]['Notes'];
               }
               $ticketUpdateData['payload'][] = $tempObj;
             }
           }
-          $answer = "marked for Return";
+          $answer = 'marked for Return';
         break;
-        case "transfer":
+        case 'transfer':
           switch ($this->TransferState) {
             /* TransferState will be bool to and from the API
              * Here it is used to indicate how to process a transfer
@@ -3500,93 +3502,93 @@
             */
             case 1:
               if ($this->multiTicket === NULL) {
-                $ticketUpdateData['payload'] = array('TransferState'=>(int)$this->TransferState, 'PendingReceiver'=>(int)$this->PendingReceiver, 'Notes'=>$this->Notes);
+                $ticketUpdateData['payload'] = [ 'TransferState'=>(int)$this->TransferState, 'PendingReceiver'=>(int)$this->PendingReceiver, 'Notes'=>$this->Notes ];
               } else {
-                $ticketUpdateData['payload'] = array();
+                $ticketUpdateData['payload'] = [];
                 for ($i = 0; $i < count($this->multiTicket); $i++) {
-                  $this->receiverName = self::test_input(self::before_last(';', $this->multiTicket[$i]["pendingReceiver"]));
+                  $this->receiverName = self::test_input(self::before_last(';', $this->multiTicket[$i]['pendingReceiver']));
                   $tempObj = new \stdClass();
-                  $tempObj->TransferState = (int)$this->multiTicket[$i]["transferState"];
-                  $tempObj->PendingReceiver = self::test_int(self::after_last(';', $this->multiTicket[$i]["pendingReceiver"]));
-                  $tempObj->Notes = $this->multiTicket[$i]["notes"];
+                  $tempObj->TransferState = (int)$this->multiTicket[$i]['transferState'];
+                  $tempObj->PendingReceiver = self::test_int(self::after_last(';', $this->multiTicket[$i]['pendingReceiver']));
+                  $tempObj->Notes = $this->multiTicket[$i]['notes'];
                   $ticketUpdateData['payload'][] = $tempObj;
                 }
               }
-              $answer = "transferred to " . $this->receiverName;
+              $answer = "transferred to {$this->receiverName}";
             break;
             case 2:
               if ($this->multiTicket === NULL) {
-                $ticketUpdateData['payload'] = array('TransferState'=>0, 'PendingReceiver'=>(int)$this->PendingReceiver, 'Notes'=>$this->Notes, 'DispatchedTo'=>$this->DispatchedTo);
+                $ticketUpdateData['payload'] = [ 'TransferState'=>0, 'PendingReceiver'=>(int)$this->PendingReceiver, 'Notes'=>$this->Notes, 'DispatchedTo'=>$this->DispatchedTo ];
               } else {
-                $ticketUpdateData['payload'] = array();
+                $ticketUpdateData['payload'] = [];
                 for ($i = 0; $i < count($this->multiTicket); $i++) {
-                  $multiTicketIndex = self::recursive_array_search($this->multiTicket[$i]["ticket_index"], $this->sanitized);
+                  $multiTicketIndex = self::recursive_array_search($this->multiTicket[$i]['ticket_index'], $this->sanitized);
                   $tempObj = new \stdClass();
                   $tempObj->TransferState = 0;
-                  $tempObj->PendingReceiver =self::test_int(self::after_last(';', $this->multiTicket[$i]["pendingReceiver"]));
-                  $tempObj->Notes = $this->multiTicket[$i]["notes"];
+                  $tempObj->PendingReceiver =self::test_int(self::after_last(';', $this->multiTicket[$i]['pendingReceiver']));
+                  $tempObj->Notes = $this->multiTicket[$i]['notes'];
                   $ticketUpdateData['payload'][] = $tempObj;
                 }
               }
-              $answer = "transfer cancelled";
+              $answer = 'transfer cancelled';
             break;
             case 3:
               if ($this->multiTicket === NULL) {
-                $ticketUpdateData['payload'] = array('TransferState'=>0, 'PendingReceiver'=>(int)$this->driverID, 'Notes'=>$this->Notes, 'DispatchedTo'=>$this->DispatchedTo);
+                $ticketUpdateData['payload'] = [ 'TransferState'=>0, 'PendingReceiver'=>(int)$this->driverID, 'Notes'=>$this->Notes, 'DispatchedTo'=>$this->DispatchedTo ];
               } else {
-                $ticketUpdateData['payload'] = array();
+                $ticketUpdateData['payload'] = [];
                 for ($i = 0; $i < count($this->multiTicket); $i++) {
-                  $multiTicketIndex = self::recursive_array_search($this->multiTicket[$i]["ticket_index"], $this->sanitized);
+                  $multiTicketIndex = self::recursive_array_search($this->multiTicket[$i]['ticket_index'], $this->sanitized);
                   $tempObj = new \stdClass();
                   $tempObj->TransferState = 0;
                   $tempObj->PendingReceiver = (int)$this->driverID;
-                  $tempObj->Notes = $this->multiTicket[$i]["notes"];
-                  $tempObj->DispatchedTo = $this->sanitized[$multiTicketIndex]["DispatchedTo"];
+                  $tempObj->Notes = $this->multiTicket[$i]['notes'];
+                  $tempObj->DispatchedTo = $this->sanitized[$multiTicketIndex]['DispatchedTo'];
                   $ticketUpdateData['payload'][] = $tempObj;
                 }
               }
-              $answer = "transfer declined";
+              $answer = 'transfer declined';
             break;
             case 4:
               if ($this->multiTicket === NULL) {
                 $tempTransfer = new \stdClass();
                 $tempTransfer->holder = (int)$this->DispatchedTo;
                 $tempTransfer->receiver = (int)$this->driverID;
-                $tempTransfer->transferredBy = "2." . $this->DispatchedTo;
+                $tempTransfer->transferredBy = "2.{$this->DispatchedTo}";
                 $tempTransfer->timestamp = time();
-                if ($this->Transfers === NULL || $this->Transfers === "") {
+                if ($this->Transfers === NULL || $this->Transfers === '') {
                   $this->Transfers = [ $tempTransfer ];
                 } else {
                   $tempArray = json_decode($this->Transfers);
                   $tempArray[] = $tempTransfer;
                   $this->Transfers = $tempArray;
                 }
-                $ticketUpdateData['payload'] = array('TransferState'=>0, 'PendingReceiver'=>0, 'Notes'=>$this->Notes, 'DispatchedTo'=>$this->driverID, "Transfers"=>$this->Transfers);
+                $ticketUpdateData['payload'] = [ 'TransferState'=>0, 'PendingReceiver'=>0, 'Notes'=>$this->Notes, 'DispatchedTo'=>$this->driverID, "Transfers"=>$this->Transfers ];
               } else {
-                $ticketUpdateData['payload'] = array();
+                $ticketUpdateData['payload'] = [];
                 for ($i = 0; $i < count($this->multiTicket); $i++) {
-                  $multiTicketIndex = self::recursive_array_search($this->multiTicket[$i]["ticket_index"], $this->sanitized);
+                  $multiTicketIndex = self::recursive_array_search($this->multiTicket[$i]['ticket_index'], $this->sanitized);
                   $tempObj = new \stdClass();
                   $tempTransfer = new \stdClass();
-                  $tempTransfer->holder = (int)$this->sanitized[$multiTicketIndex]["DispatchedTo"];
+                  $tempTransfer->holder = (int)$this->sanitized[$multiTicketIndex]['DispatchedTo'];
                   $tempTransfer->receiver = (int)$this->driverID;
-                  $tempTransfer->transferredBy = "2." . $this->sanitized[$multiTicketIndex]["DispatchedTo"];
+                  $tempTransfer->transferredBy = "2.{$this->sanitized[$multiTicketIndex]['DispatchedTo']}";
                   $tempTransfer->timestamp = time();
-                  if ($this->sanitized[$multiTicketIndex]["Transfers"] === NULL || $this->sanitized[$multiTicketIndex]["Transfers"] === "") {
+                  if ($this->sanitized[$multiTicketIndex]['Transfers'] === NULL || $this->sanitized[$multiTicketIndex]['Transfers'] === '') {
                     $tempObj->Transfers = [ $tempTransfer ];
                   } else {
-                    $tempArray = json_decode($this->sanitized[$multiTicketIndex]["Transfers"]);
+                    $tempArray = json_decode($this->sanitized[$multiTicketIndex]['Transfers']);
                     $tempArray[] = $tempTransfer;
                     $tempObj->Transfers = $tempArray;
                   }
                   $tempObj->TransferState = 0;
                   $tempObj->PendingReceiver = 0;
-                  $tempObj->Notes = $this->multiTicket[$i]["notes"];
+                  $tempObj->Notes = $this->multiTicket[$i]['notes'];
                   $tempObj->DispatchedTo = $this->driverID;
                   $ticketUpdateData['payload'][] = $tempObj;
                 }
               }
-              $answer = "transfer accepted";
+              $answer = 'transfer accepted';
             break;
             default:
               $this->error = __function__ . ' Invalid Transfer State Line ' . __line__ . ': ' . $this->TransferState;
@@ -3617,8 +3619,8 @@
         echo $this->error;
         return FALSE;
       }
-      $marker = ($this->multiTicket === NULL) ? $this->TicketNumber : "group";
-      echo "Ticket $marker $answer.";
+      $marker = ($this->multiTicket === NULL) ? $this->TicketNumber : 'group';
+      echo "Ticket {$marker} {$answer}.";
       return FALSE;
     }
   }
