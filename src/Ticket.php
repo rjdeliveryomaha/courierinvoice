@@ -1934,14 +1934,14 @@
 
     private function javascriptVars() {
       $returnData = '';
-      $keyList = array('ShippingAddress1', 'ShippingAddress2', 'ClientName', 'Department');
+      $keyList = ['ShippingAddress1', 'ShippingAddress2', 'ClientName', 'Department'];
       foreach($_SESSION as $key => $value) {
         if (in_array($key, $this->javascriptKeys)) {
           if (array_key_exists($value, $this->clientNameExceptions)) {
             $value = $this->clientNameExceptions[$value];
           }
-          $returnData .= '
-            <script>var ' . $key . ' = "' . self::decode($value) . '"</script>';
+          $returnData .= "
+            <script>var {$key} = \"{$this->decode($value)}\"</script>";
         }
       }
       return $returnData;
@@ -1949,15 +1949,15 @@
 
     protected function hiddenInputs() {
       $returnData = '';
+      $htmlentities = 'htmlentities';
       foreach ($this as $key => $value) {
         // Don't include values ending with 'List' in the form to add a new ticket
-        if (substr($this->formName, 0, 12) === "submitTicket" && substr($key, -4) === "List") {
+        if (substr($this->formName, 0, 12) === 'submitTicket' && substr($key, -4) === 'List') {
           break;
         }
         if (in_array($key, $this->postableKeys)) {
-          $returnData .= '
-            <input type="hidden" name="' . $key . '" value="' . htmlentities($value) . '" form="' . $this->formName . '" />
-          ';
+          $returnData .= "
+            <input type=\"hidden\" name=\"{$key}\" value=\"{$htmlentities($value)}\" form=\"{$this->formName}\" />";
         }
       }
       return $returnData;
@@ -1965,7 +1965,7 @@
 
     public function ticketsToDispatch() {
       $returnData = '';
-      $ticketQueryResult = array();
+      $ticketQueryResult = [];
       $this->forDisatch = TRUE;
       // Pull tickets that have not been dispatched
       $ticketQueryData['endPoint'] = 'tickets';
@@ -1973,21 +1973,21 @@
       $ticketQueryData['formKey'] = $this->formKey;
       $ticketQueryData['queryParams'] = [];
       if ($this->ticket_index === NULL) {
-        $ticketQueryData['queryParams']['filter'] = array(array('Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>'-'),array('Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>$this->Contract));
+        $ticketQueryData['queryParams']['filter'] = [ ['Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>'-'], ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>$this->Contract] ];
       } else {
-        $ticketQueryData['queryParams']['filter'] = array(array('Resource'=>'ticket_index', 'Filter'=>'eq', 'Value'=>$this->ticket_index));
+        $ticketQueryData['queryParams']['filter'] = [ ['Resource'=>'ticket_index', 'Filter'=>'eq', 'Value'=>$this->ticket_index] ];
       }
       if ($this->ticketEditor === FALSE) {
         $this->driverID = 0;
-        $ticketQueryData['queryParams']['filter'][] = array('Resource'=>'DispatchTimeStamp', 'Filter'=>'is');
+        $ticketQueryData['queryParams']['filter'][] = ['Resource'=>'DispatchTimeStamp', 'Filter'=>'is'];
       } else {
         if ($this->ticket_index === NULL) {
           $this->dateObject = clone $this->today;
           $this->backstop = $this->dateObject->modify('- 7 days')->format('Y-m-d');
-          $ticketQueryData['queryParams']['filter'][] = array('Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>$this->backstop . ' 00:00:00,' . $this->today->format('Y-m-d') . ' 23:59:59');
+          $ticketQueryData['queryParams']['filter'][] = ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>"{$this->backstop} 00:00:00,{$this->today->format('Y-m-d')} 23:59:59"];
         }
       }
-      if ($this->ticket_index === NULL) $ticketQueryData['queryParams']['filter'][] = array('Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->DispatchedTo);
+      if ($this->ticket_index === NULL) $ticketQueryData['queryParams']['filter'][] = ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->DispatchedTo];
 
       if (!$ticketQuery = self::createQuery($ticketQueryData)) {
         $temp = $this->error;
@@ -2052,7 +2052,7 @@
     public function ticketForm() {
       $returnData = '';
       $this->action = self::esc_url($_SERVER['REQUEST_URI']);
-      if ($_SERVER['REQUEST_METHOD'] === "POST") {
+      if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($this->newTicket !== FALSE || ($this->ticket_index !== NULL && $this->updateTicket !== FALSE)) return self::processTicket();
         if ($this->edit === '0') return self::confirmRequest();
       }
@@ -2075,13 +2075,13 @@
         if ($this->RepeatClient === 1) {
           foreach (json_decode(urldecode($this->clientList), TRUE) as $client) {
             if ($client['ClientID'] === (int)$this->BillTo) {
-              $this->BillTo = ($client['Department'] == NULL) ? $client['ClientName'] . '; ' . $client['ClientID'] : $client['ClientName'] . ', ' . $client['Department'] . '; ' . $client['ClientID'];
+              $this->BillTo = ($client['Department'] == NULL) ? "{$client['ClientName']}; {$client['ClientID']}" : "{$client['ClientName']}, {$client['Department']}; {$client['ClientID']}";
             }
           }
         } else {
           foreach (json_decode(urldecode($this->tClientList), TRUE) as $client) {
             if ($client['ClientID'] === (int)$this->BillTo) {
-              $this->BillTo = ($client['Department'] == NULL) ? $client['ClientName'] . '; ' . $client['ClientID'] : $client['ClientName'] . ', ' . $client['Department'] . '; ' . $client['ClientID'];
+              $this->BillTo = ($client['Department'] == NULL) ? "{$client['ClientName']}; {$client['ClientID']}" : "{$client['ClientName']}, {$client['Department']}; {$client['ClientID']}";
             }
           }
         }
@@ -2149,39 +2149,37 @@
         } else {
           $dispatchInputValue = ($this->CanDispatch === 1) ? $this->config['driverName'] . '; ' . $_SESSION['ClientID'] : '';
         }
-        $dispatchedBy = ($this->ticketEditor === FALSE) ? '
-          <input type="hidden" name="dispatchedBy" class="dispatchedBy" value="' . $this->DispatchedBy . '" />
-        ' : '';
+        $dispatchedBy = ($this->ticketEditor === FALSE) ? "
+          <input type=\"hidden\" name=\"dispatchedBy\" class=\"dispatchedBy\" value=\"{$this->DispatchedBy}\" />" : '';
         $hideDispatch = ($this->CanDispatch >= 1) ? '' : 'class="hide"';
         $billToType = ($this->RepeatClient == 0) ? 'list="t_clients"' : 'list="clients"';
         $nonRepeatChecked = ($this->RepeatClient == 0) ? 'checked' : '';
         $billToValue = $this->BillTo;
         $billToRequired = 'required';
-        $repeatOption = '<input type="checkbox" name="repeatClient" class="repeat" id="repeatClient' . $this->ticket_index . '" value="0" form="request' . $this->ticket_index . '" />';
+        $repeatOption = "<input type=\"checkbox\" name=\"repeatClient\" class=\"repeat\" id=\"repeatClient{$this->ticket_index}\" value=\"0\" form=\"request{$this->ticket_index}\" />";
         $hideFromDriver = 'class="hide"';
         $transfersValue = ($this->Transfers === NULL) ? '' : htmlentities(json_encode($this->Transfers));
-        $transferredBy = ($this->ticketEditor === TRUE) ? '<input type="hidden" name="transferredBy" class="transferredBy" value="' . $this->transferredBy . '" form="request' . $this->ticket_index . '" />
-        <input type="hidden" name="holder" class="holder" value="' . $this->DispatchedTo . '" form="request' . $this->ticket_index . '" />
-        <input type="hidden" name="transfers" class="transfers" value="' . $transfersValue . '" form="request' . $this->ticket_index . '" />' : '';
+        $transferredBy = ($this->ticketEditor === TRUE) ? "<input type=\"hidden\" name=\"transferredBy\" class=\"transferredBy\" value=\"{$this->transferredBy}\" form=\"request{$this->ticket_index}\" />
+        <input type=\"hidden\" name=\"holder\" class=\"holder\" value=\"{$this->DispatchedTo}\" form=\"request{$this->ticket_index}\" />
+        <input type=\"hidden\" name=\"transfers\" class=\"transfers\" value=\"{$transfersValue}\" form=\"request{$this->ticket_index}\" />" : '';
         $cancelTicketEditor = ($this->ticketEditor === TRUE) ? '<button type="button" class="cancelTicketEditor floatRight">Cancel</button>' : '';
       }
       // Display the ticket form
-      $indexInput = ($this->ticket_index == NULL) ? '' : '<input type="hidden" name="ticket_index" value="' . $this->ticket_index . '" form="request' . $this->ticket_index . '" />
-      ';
-      $ticketNumberInput = ($this->TicketNumber !== NULL) ? '
-        <input type="hidden" name="ticketNumber" class="ticketNumber" value="' . $this->TicketNumber . '" form="request' . $this->ticket_index . '" />
-        ' : "";
-        $dispatchCharges = ($this->ticketEditor === TRUE) ? '
-                          <option value="7" ' . $dedicatedSelected . '>Dedicated Run</option>
-                          <option value="8" ' . $deadRunSelected . '>Dead Run</option>
-                          <option value="0" ' . $cancelledSelected . '>Canceled</option>
-                          ' : "";
-      $timing = ($this->ticketEditor === TRUE) ? '
+      $indexInput = ($this->ticket_index == NULL) ? '' : "<input type=\"hidden\" name=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"request{$this->ticket_index}\" />
+      ";
+      $ticketNumberInput = ($this->TicketNumber !== NULL) ? "
+        <input type=\"hidden\" name=\"ticketNumber\" class=\"ticketNumber\" value=\"{$this->TicketNumber}\" form=\"request{$this->ticket_index}\" />
+        " : '';
+        $dispatchCharges = ($this->ticketEditor === TRUE) ? "<option value=\"7\" {$dedicatedSelected}>Dedicated Run</option>
+                          <option value=\"8\" {$deadRunSelected}>Dead Run</option>
+                          <option value=\"0\" {$cancelledSelected}>Canceled</option>
+                          " : '';
+      $timing = ($this->ticketEditor === TRUE) ? "
         <tr>
-          <td colspan="2">
-            <fieldset form="request' . $this->ticket_index . '" id="timing' . $this->ticket_index . '">
+          <td colspan=\"2\">
+            <fieldset form=\"request{$this->ticket_index}\" id=\"timing{$this->ticket_index}\">
               <legend>Timing</legend>
-              <table class="centerDiv">
+              <table class=\"centerDiv\">
                 <tr>
                   <td></td>
                   <td></td>
@@ -2198,160 +2196,161 @@
             </fieldset>
           </td>
         </tr>
-      ' : '';
-      $returnData .= '
-      <div id="deliveryRequest' . $this->ticket_index . '" class="removableByEditor">
-        <form id="request' . $this->ticket_index . '" action="' . $this->action . '" method="post">
-          <input type="hidden" name="formKey" value="' . $this->formKey . '" form="request' . $this->ticket_index . '" />'
-          . $indexInput . $dispatchedBy .  $transferredBy . $ticketNumberInput . '
-          <input type="hidden" name="runNumber" value="' . $this->RunNumber . '" form="request' . $this->ticket_index . '" />
-          <input type="hidden" name="contract" value="' . $this->Contract . '" form="request' . $this->ticket_index . '" />
-          <table class="ticketContainer">
+      " : '';
+      $returnData .= "
+      <div id=\"deliveryRequest{$this->ticket_index}\" class=\"removableByEditor\">
+        <form id=\"request{$this->ticket_index}\" action=\"{$this->action}\" method=\"post\">
+          <input type=\"hidden\" name=\"formKey\" value=\"{$this->formKey}\" form=\"request{$this->ticket_index}\" />
+          {$indexInput} {$dispatchedBy} {$transferredBy} {$ticketNumberInput}
+          <input type=\"hidden\" name=\"runNumber\" value=\"'{$this->RunNumber}\" form=\"request{$this->ticket_index}\" />
+          <input type=\"hidden\" name=\"contract\" value=\"{$this->Contract}\" form=\"request{$this->ticket_index}\" />
+          <table class=\"ticketContainer\">
             <tr>
-              <td colspan="2">
-                <fieldset form="request' . $this->ticket_index . '" id="information' . $this->ticket_index . '">
+              <td colspan=\"2\">
+                <fieldset form=\"request{$this->ticket_index}\" id=\"information{$this->ticket_index}\">
                   <legend>General Information</legend>
-                  <table class="centerDiv">
-                    <tr class="' . $billingRowClass . '">
+                  <table class=\"centerDiv\">
+                    <tr class=\"{$billingRowClass}\">
                       <td>
-                        <label for="repeatClient' . $this->ticket_index . '">Non-Repeat:</label>
-                        <input type="hidden" name="repeatClient" value="1" form="request' . $this->ticket_index . '" '. $nonRepeatChecked . ' />
-                        ' . $repeatOption . '
+                        <label for=\"repeatClient{$this->ticket_index}\">Non-Repeat:</label>
+                        <input type=\"hidden\" name=\"repeatClient\" value=\"1\" form=\"request{$this->ticket_index}\" {$nonRepeatChecked} . ' />
+                        {$repeatOption}
                       </td>
                     </tr>
-                    <tr class="' . $billingRowClass . '">
-                      <td><label for="billTo' . $this->ticket_index . '">Bill To: </label><input ' . $billToType . ' name="billTo" id="billTo' . $this->ticket_index . '" class="billTo" value="' . $billToValue . '" title="' . $billToValue . '" form="request' . $this->ticket_index . '" ' . $billToRequired . ' /></td>
-                      <td><label for="dispatchedTo' . $this->ticket_index . '" ' . $hideDispatch . '>Dispatch To: </label><input ' . $dispatchInputType . ' name="dispatchedTo" id="dispatchedTo' . $this->ticket_index . '" class="dispatchedTo" form="request' . $this->ticket_index . '" value="' . $dispatchInputValue . '" ' . $readonlyDispatch . ' ' . $requiredDispatch . ' /></td>
+                    <tr class=\"{$billingRowClass}\">
+                      <td><label for=\"billTo{$this->ticket_index}\">Bill To: </label><input {$billToType} name=\"billTo\" id=\"billTo{$this->ticket_index}\" class=\"billTo\" value=\"{$billToValue}\" title=\"{$billToValue}\" form=\"request{$this->ticket_index}\" {$billToRequired} /></td>
+                      <td><label for=\"dispatchedTo{$this->ticket_index}\" {$hideDispatch}>Dispatch To: </label><input {$dispatchInputType} name=\"dispatchedTo\" id=\"dispatchedTo{$this->ticket_index}\" class=\"dispatchedTo\" form=\"request{$this->ticket_index}\" value=\"{$dispatchInputValue}\" {$readonlyDispatch} {$requiredDispatch} /></td>
                     </tr>
                     <tr>
                       <td>
-                        <label for="charge' . $this->ticket_index . '">Delivery Time:</label>
-                        <select name="charge" id="charge' . $this->ticket_index . '" class="charge" form="request' . $this->ticket_index . '">
-                          <option value="5" ' . $routineSelected . '>Routine</option>
-                          <option value="1" ' . $oneHourSelected . '>Stat</option>
-                          <!-- <option value="2" ' . $twoHourSelected . '>2 Hour</option> -->
-                          <!-- <option value="3" ' . $threeHourSelected . '>3 Hour</option> -->
-                          <!-- <option value="4" ' . $fourHourSelected . '>4 Hour</option> -->
-                          <option value="6" ' . $roundTripSelected . '>Round Trip</option>' . $dispatchCharges . '
+                        <label for=\"charge{$this->ticket_index}\">Delivery Time:</label>
+                        <select name=\"charge\" id=\"charge{$this->ticket_index}\" class=\"charge\" form=\"request{$this->ticket_index}\">
+                          <option value=\"5\" {$routineSelected}>Routine</option>
+                          <option value=\"1\" {$oneHourSelected}>Stat</option>
+                          <!-- <option value=\"2\" {$twoHourSelected}>2 Hour</option> -->
+                          <!-- <option value=\"3\" {$threeHourSelected}>3 Hour</option> -->
+                          <!-- <option value=\"4\" {$fourHourSelected}>4 Hour</option> -->
+                          <option value=\"6\" {$roundTripSelected}>Round Trip</option>
+                          $dispatchCharges
                         </select>
                       </td>
                       <td>
-                        <label class="rtMarker" for="d2SigReq' . $this->ticket_index . '">Request Signature:</label>
-                        <input type="hidden" name="d2SigReq" id="d2SigReqMarker' . $this->ticket_index . '" class="d2SigReqMarker" value="0" form="request' . $this->ticket_index . '" />
-                        <input type="checkbox" class="rtMarker" name="d2SigReq" id="d2SigReq' . $this->ticket_index . '" class="d2SigReq" value="1" ' . $d2SigChecked . ' form="request' . $this->ticket_index . '" />
+                        <label class=\"rtMarker\" for=\"d2SigReq{$this->ticket_index}\">Request Signature:</label>
+                        <input type=\"hidden\" name=\"d2SigReq\" id=\"d2SigReqMarker{$this->ticket_index}\" class=\"d2SigReqMarker\" value=\"0\" form=\"request{$this->ticket_index}\" />
+                        <input type=\"checkbox\" class=\"rtMarker\" name=\"d2SigReq\" id=\"d2SigReq{$this->ticket_index}\" class=\"d2SigReq\" value=\"1\" {$d2SigChecked} form=\"request{$this->ticket_index}\" />
                       </td>
                     </tr>
                     <tr>
                       <td>
-                        <label for="emailAddress' . $this->ticket_index . '">Email Address:</label>
-                        <input type="email" name="emailAddress" id="emailAddress' . $this->ticket_index . '" class="emailAddress" form="request' . $this->ticket_index . '" value="' . $this->EmailAddress . '" />
+                        <label for=\"emailAddress{$this->ticket_index}\">Email Address:</label>
+                        <input type=\"email\" name=\"emailAddress\" id=\"emailAddress{$this->ticket_index}\" class=\"emailAddress\" form=\"request{$this->ticket_index}\" value=\"{$this->EmailAddress}\" />
                       </td>
                       <td>
-                        <label for="emailConfirm' . $this->ticket_index . '">Email <span class="mobileHide">Confirmation</span>:</label>
-                        <select form="request' . $this->ticket_index . '" name="emailConfirm" id="emailConfirm' . $this->ticket_index . '" class="emailConfirm">
-                          <option value="0" ' . $emailConfirm0 . '>None</option>
-                          <option value="1" ' . $emailConfirm1 . '>Picked Up</option>
-                          <option value="2" ' . $emailConfirm2 . '>Delivered</option>
-                          <option value="3" ' . $emailConfirm3 . '>Picked Up & Delivered</option>
-                          <option class="rtMarker" value="4" ' . $emailConfirm4 . '>Returned</option>
-                          <option class="rtMarker" value="5" ' . $emailConfirm5 . '>Picked Up &amp; Returned</option>
-                          <option class="rtMarker" value="6" ' . $emailConfirm6 . '>Delivered &amp; Returned</option>
-                          <option class="rtMarker" value="7" ' . $emailConfirm7 . '>All</option>
+                        <label for=\"emailConfirm{$this->ticket_index}\">Email <span class=\"mobileHide\">Confirmation</span>:</label>
+                        <select form=\"request{$this->ticket_index}\" name=\"emailConfirm\" id=\"emailConfirm{$this->ticket_index}\" class=\"emailConfirm\">
+                          <option value=\"0\" {$emailConfirm0}>None</option>
+                          <option value=\"1\" {$emailConfirm1}>Picked Up</option>
+                          <option value=\"2\" {$emailConfirm2}>Delivered</option>
+                          <option value=\"3\" {$emailConfirm3}>Picked Up & Delivered</option>
+                          <option class=\"rtMarker\" value=\"4\" {$emailConfirm4}>Returned</option>
+                          <option class=\"rtMarker\" value=\"5\" {$emailConfirm5}>Picked Up &amp; Returned</option>
+                          <option class=\"rtMarker\" value=\"6\" {$emailConfirm6}>Delivered &amp; Returned</option>
+                          <option class=\"rtMarker\" value=\"7\" {$emailConfirm7}>All</option>
                         </select>
                       </td>
                     </tr>
                     <tr>
                       <td>
-                        <label for="telephone' . $this->ticket_index . '">Phone <span class="mobileHide">Number</span>:</label>
-                        <input type="tel" name="telephone" id="telephone' . $this->ticket_index . '" class="telephone" form="request' . $this->ticket_index . '" placeholder="555-123-4567x890" value="' . $this->Telephone . '" />
+                        <label for=\"telephone{$this->ticket_index}\">Phone <span class=\"mobileHide\">Number</span>:</label>
+                        <input type=\"tel\" name=\"telephone\" id=\"telephone{$this->ticket_index}\" class=\"telephone\" form=\"request{$this->ticket_index}\" placeholder=\"555-123-4567x890\" value=\"{$this->Telephone}\" />
                       </td>
                       <td>
-                        <label for="requestedBy' . $this->ticket_index . '">Requested By:</label>
-                        <input type="text" name="requestedBy" id="requestedBy' . $this->ticket_index . '" class="requestedBy" value="' . $this->RequestedBy . '" form="request' . $this->ticket_index . '" required />
+                        <label for=\"requestedBy{$this->ticket_index}\">Requested By:</label>
+                        <input type=\"text\" name=\"requestedBy\" id=\"requestedBy{$this->ticket_index}\" class=\"requestedBy\" value=\"{$this->RequestedBy}\" form=\"request{$this->ticket_index}\" required />
                       </td>
                     </tr>
                   </table>
                 </fieldset>
               </td>
             </tr>
-            ' . $timing . '
+            {$timing}
             <tr>
               <td>
-                <fieldset form="request' . $this->ticket_index . '" id="pickupField' . $this->ticket_index . '">
+                <fieldset form=\"request{$this->ticket_index}\" id=\"pickupField{$this->ticket_index}\">
                   <legend>Pick Up</legend>
-                  <table class="centerDiv">
-                    <thead ' . $hideFromDriver . '>
+                  <table class=\"centerDiv\">
+                    <thead {$hideFromDriver}>
                       <tr>
-                        <td><label for="fromMe' . $this->ticket_index . '">From Me:</label>
-                          <input type="hidden" name="fromMe" value="0" form="request' . $this->ticket_index . '" />
-                          <input type="checkbox" id="fromMe' . $this->ticket_index . '" class="me" name="fromMe" value="1" ' . $fromMeCheked . ' form="request' . $this->ticket_index . '" />
+                        <td><label for=\"fromMe{$this->ticket_index}\">From Me:</label>
+                          <input type=\"hidden\" name=\"fromMe\" value=\"0\" form=\"request{$this->ticket_index}\" />
+                          <input type=\"checkbox\" id=\"fromMe{$this->ticket_index}\" class=\"me\" name=\"fromMe\" value=\"1\" {$fromMeCheked} form=\"request{$this->ticket_index}\" />
                         </td>
                         <td>
-                          <label for="onFileP' . $this->ticket_index . '">On File:  </label>
-                          <input type="checkbox" id="onFileP' . $this->ticket_index . '" class="onFile" />
+                          <label for=\"onFileP{$this->ticket_index}\">On File:  </label>
+                          <input type=\"checkbox\" id=\"onFileP{$this->ticket_index}\" class=\"onFile\" />
                         </td>
                       </tr>
                       <tr>
-                        <td colspan="2"><hr></td>
+                        <td colspan=\"2\"><hr></td>
                       </tr>
                     </thead>
                     <tbody>
                       <tr>
-                        <td><label for="pClient' . $this->ticket_index . '">Client<span class="mobileHide"> Name</span>:</label></td>
+                        <td><label for=\"pClient{$this->ticket_index}\">Client<span class=\"mobileHide\"> Name</span>:</label></td>
                         <td>
-                          <input list="clientName" name="pClient" id="pClient' . $this->ticket_index . '" class="clientList" form="request' . $this->ticket_index . '" value="' . self::decode($this->pClient) . '" />';
+                          <input list=\"clientName\" name=\"pClient\" id=\"pClient{$this->ticket_index}\" class=\"clientList\" form=\"request{$this->ticket_index}\" value=\"{$this->decode($this->pClient)}\" />";
                 if ($this->userType === 'client') {
                   $this->selectID = 'pClient'; $returnData .= self::buildSelectElement();
                 }
-                  $returnData .= '</td>
+                  $returnData .= "</td>
                       </tr>
                       <tr>
-                        <td><label for="pDepartment' . $this->ticket_index . '">Department:</label></td>
+                        <td><label for=\"pDepartment{$this->ticket_index}\">Department:</label></td>
                         <td>
-                          <input list="departments" name="pDepartment" id="pDepartment' . $this->ticket_index . '" class="clientList" form="request' . $this->ticket_index . '" value="' . self::decode($this->pDepartment) . '" />';
+                          <input list=\"departments\" name=\"pDepartment\" id=\"pDepartment{$this->ticket_index}\" class=\"clientList\" form=\"request{$this->ticket_index}\" value=\"{$this->decode($this->pDepartment)}\" />";
                 if ($this->userType === 'client') {
                   $this->selectID = 'pDepartment'; $returnData .= self::buildSelectElement();
                 }
-                  $returnData .= '</td>
+                  $returnData .= "</td>
                       </tr>
                       <tr>
-                        <td><label for="pAddress1' . $this->ticket_index . '">Address 1:</label></td>
+                        <td><label for=\"pAddress1{$this->ticket_index}\">Address 1:</label></td>
                         <td>
-                          <input list="addy1" name="pAddress1" id="pAddress1' . $this->ticket_index . '" class="clientList" placeholder="1234 Main St." form="request' . $this->ticket_index . '" value="' . self::decode($this->pAddress1) . '"  />';
+                          <input list=\"addy1\" name=\"pAddress1\" id=\"pAddress1{$this->ticket_index}\" class=\"clientList\" placeholder=\"1234 Main St.\" form=\"request{$this->ticket_index}\" value=\"{$this->decode($this->pAddress1)}\"  />";
                 if ($this->userType === 'client') {
                   $this->selectID = 'pAddress1'; $returnData .= self::buildSelectElement();
                 }
-                  $returnData .= '</td>
+                  $returnData .= "</td>
                       </tr>
                       <tr>
-                        <td><label for="pAddress2' . $this->ticket_index . '">Address 2:</label></td>
+                        <td><label for=\"pAddress2{$this->ticket_index}\">Address 2:</label></td>
                         <td>
-                          <input list="addy2" name="pAddress2" id="pAddress2' . $this->ticket_index . '" class="clientList" placeholder="City, State ZIP" form="request' . $this->ticket_index . '" value="' . self::decode($this->pAddress2) . '"  />';
+                          <input list=\"addy2\" name=\"pAddress2\" id=\"pAddress2{$this->ticket_index}\" class=\"clientList\" placeholder=\"City, State ZIP\" form=\"request{$this->ticket_index}\" value=\"{$this->decode($this->pAddress2)}\"  />";
                 if ($this->userType === 'client') {
                   $this->selectID = 'pAddress2'; $returnData .= self::buildSelectElement();
                 }
-                  $returnData .= '</td>
+                  $returnData .= "</td>
                       </tr>
-                      <tr class="' . $this->countryClass . '">
-                        <td><label for="pCountry' . $this->ticket_index . '">Country:</label></td>
+                      <tr class=\"{$this->countryClass}\">
+                        <td><label for=\"pCountry{$this->ticket_index}\">Country:</label></td>
                         <td>
-                          <input type="hidden" name="pCountry" id="pCountryMarker' . $this->ticket_index . '" value="' . $this->config['ShippingCountry'] . '" form="request' . $this->ticket_index . '" />
-                          <input list="countries" name="pCountry" class="pCountry" id="pCountry' . $this->ticket_index . '" value="' . self::countryFromAbbr($this->pCountry) . '" '. $this->countryInput . ' form="request' . $this->ticket_index . '" />
+                          <input type=\"hidden\" name=\"pCountry\" id=\"pCountryMarker{$this->ticket_index}\" value=\"{$this->config['ShippingCountry']}\" form=\"request{$this->ticket_index}\" />
+                          <input list=\"countries\" name=\"pCountry\" class=\"pCountry\" id=\"pCountry{$this->ticket_index}\" value=\"{$this->countryFromAbbr($this->pCountry)}\" {$this->countryInput} form=\"request{$this->ticket_index}\" />
                         </td>
                       </tr>
                       <tr>
-                        <td><label for="pContact' . $this->ticket_index . '">Contact:</label></td>
-                        <td><input list="contacts" name="pContact" id="pContact' . $this->ticket_index . '" form="request' . $this->ticket_index . '" value="' . self::decode($this->pContact) . '" form="request' . $this->ticket_index . '" /></td>
+                        <td><label for=\"pContact{$this->ticket_index}\">Contact:</label></td>
+                        <td><input list=\"contacts\" name=\"pContact\" id=\"pContact{$this->ticket_index}\" form=\"request{$this->ticket_index}\" value=\"{$this->decode($this->pContact)}\" form=\"request{$this->ticket_index}\" /></td>
                       </tr>
                       <tr>
-                        <td><label for="pTelephone' . $this->ticket_index . '">Telephone:</label></td>
-                        <td><input type="text" name="pTelephone" id="pTelephone' . $this->ticket_index . '" value="' . $this->pTelephone . '" form="request' . $this->ticket_index . '" /></td>
+                        <td><label for=\"pTelephone{$this->ticket_index}\">Telephone:</label></td>
+                        <td><input type=\"text\" name=\"pTelephone\" id=\"pTelephone{$this->ticket_index}\" value=\"{$this->pTelephone}\" form=\"request{$this->ticket_index}\" /></td>
                       </tr>
                       <tr>
-                        <td colspan="2">
-                          <label for="pSigReq' . $this->ticket_index . '">Request Signature:  </label>
-                          <input type="hidden" name="pSigReq" id="pSigReqMarker' . $this->ticket_index . '" value="0" form="request' . $this->ticket_index . '" />
-                          <input type="checkbox" name="pSigReq" id="pSigReq' . $this->ticket_index . '" value="1" ' . $pSigChecked . ' form="request' . $this->ticket_index . '" />
+                        <td colspan=\"2\">
+                          <label for=\"pSigReq{$this->ticket_index}\">Request Signature:  </label>
+                          <input type=\"hidden\" name=\"pSigReq\" id=\"pSigReqMarker{$this->ticket_index}\" value=\"0\" form=\"request{$this->ticket_index}\" />
+                          <input type=\"checkbox\" name=\"pSigReq\" id=\"pSigReq{$this->ticket_index}\" value=\"1\" {$pSigChecked} form=\"request{$this->ticket_index}\" />
                         </td>
                       </tr>
                     </tbody>
@@ -2359,81 +2358,81 @@
 	              </fieldset>
 	            </td>
               <td>
-                <fieldset form="request' . $this->ticket_index . '" id="deliveryField' . $this->ticket_index . '">
+                <fieldset form=\"request{$this->ticket_index}\" id=\"deliveryField{$this->ticket_index}\">
                   <legend>Deliver</legend>
-                  <table class="centerDiv">
-                    <thead ' . $hideFromDriver . '>
+                  <table class=\"centerDiv\">
+                    <thead {$hideFromDriver}>
                       <tr>
-                        <td><label for="toMe' . $this->ticket_index . '">To Me:</label>
-                          <input type="hidden" name="toMe" value="0" form="request' . $this->ticket_index . '" />
-                          <input type="checkbox" id="toMe' . $this->ticket_index . '" class="me" name="toMe" value="1" ' . $toMeChecked . ' form="request' . $this->ticket_index . '" />
+                        <td><label for=\"toMe{$this->ticket_index}\">To Me:</label>
+                          <input type=\"hidden\" name=\"toMe\" value=\"0\" form=\"request{$this->ticket_index}\" />
+                          <input type=\"checkbox\" id=\"toMe{$this->ticket_index}\" class=\"me\" name=\"toMe\" value=\"1\" {$toMeChecked} form=\"request{$this->ticket_index}\" />
                         </td>
                         <td>
-                          <label for="onFileD' . $this->ticket_index . '">On File:</label>
-                          <input type="checkbox" id="onFileD' . $this->ticket_index . '" class="onFile" />
+                          <label for=\"onFileD{$this->ticket_index}\">On File:</label>
+                          <input type=\"checkbox\" id=\"onFileD{$this->ticket_index}\" class=\"onFile\" />
                         </td>
                       </tr>
                       <tr>
-                        <td colspan="2"><hr></td>
+                        <td colspan=\"2\"><hr></td>
                       </tr>
                     </thead>
                     <tbody>
                       <tr>
-                        <td><label for="dClient' . $this->ticket_index . '">Client<span class="mobileHide"> Name</span>:</label></td>
+                        <td><label for=\"dClient{$this->ticket_index}\">Client<span class=\"mobileHide\"> Name</span>:</label></td>
                         <td>
-                          <input list="clientName" name="dClient" id="dClient' . $this->ticket_index . '" class="clientList" form="request' . $this->ticket_index . '" value="' . self::decode($this->dClient) . '" />';
+                          <input list=\"clientName\" name=\"dClient\" id=\"dClient{$this->ticket_index}\" class=\"clientList\" form=\"request{$this->ticket_index}\" value=\"{$this->decode($this->dClient)}\" />";
                 if ($this->userType === 'client') {
                   $this->selectID = 'dClient'; $returnData .= self::buildSelectElement();
                 }
-                  $returnData .= '</td>
+                  $returnData .= "</td>
                       </tr>
                       <tr>
-                        <td><label for="dDepartment' . $this->ticket_index . '">Department:</label></td>
+                        <td><label for=\"dDepartment{$this->ticket_index}\">Department:</label></td>
                         <td>
-                          <input list="departments" name="dDepartment" id="dDepartment' . $this->ticket_index . '" class="clientList" form="request' . $this->ticket_index . '" value="' . self::decode($this->dDepartment) . '" />';
+                          <input list=\"departments\" name=\"dDepartment\" id=\"dDepartment{$this->ticket_index}\" class=\"clientList\" form=\"request{$this->ticket_index}\" value=\"{$this->decode($this->dDepartment)}\" />";
                 if ($this->userType === 'client') {
                   $this->selectID = 'dDepartment'; $returnData .= self::buildSelectElement();
                 }
-                  $returnData .= '</td>
+                  $returnData .= "</td>
                       </tr>
                       <tr>
-                        <td><label for="dAddress1' . $this->ticket_index . '">Address 1:</label></td>
+                        <td><label for=\"dAddress1{$this->ticket_index}\">Address 1:</label></td>
                         <td>
-                          <input list="addy1" name="dAddress1" id="dAddress1' . $this->ticket_index . '" class="clientList" placeholder="1234 Main St." form="request' . $this->ticket_index . '" value="' . self::decode($this->dAddress1) . '" />';
+                          <input list=\"addy1\" name=\"dAddress1\" id=\"dAddress1{$this->ticket_index}\" class=\"clientList\" placeholder=\"1234 Main St.\" form=\"request{$this->ticket_index}\" value=\"{$this->decode($this->dAddress1)}\" />";
                 if ($this->userType === 'client') {
                   $this->selectID = 'dAddress1'; $returnData .= self::buildSelectElement();
                 }
-                  $returnData .= '</td>
+                  $returnData .= "</td>
                       </tr>
                       <tr>
-                        <td><label for="dAddress2' . $this->ticket_index . '">Address 2:</label></td>
+                        <td><label for=\"dAddress2{$this->ticket_index}\">Address 2:</label></td>
                         <td>
-                          <input list="addy2" name="dAddress2" id="dAddress2' . $this->ticket_index . '" class="clientList" placeholder="City, State ZIP" form="request' . $this->ticket_index . '" value="' . self::decode($this->dAddress2) . '" />';
+                          <input list=\"addy2\" name=\"dAddress2\" id=\"dAddress2{$this->ticket_index}\" class=\"clientList\" placeholder=\"City, State ZIP\" form=\"request{$this->ticket_index}\" value=\"{$this->decode($this->dAddress2)}\" />";
                 if ($this->userType === 'client') {
                   $this->selectID = 'dAddress2'; $returnData .= self::buildSelectElement();
                 }
-                  $returnData .= '</td>
+                  $returnData .= "</td>
                       </tr>
-                      <tr class="'  . $this->countryClass . '">
-                        <td><label for="dCountry' . $this->ticket_index . '">Country:</label></td>
+                      <tr class=\"{$this->countryClass}\">
+                        <td><label for=\"dCountry{$this->ticket_index}\">Country:</label></td>
                         <td>
-                          <input type="hidden" name="dCountry" id="dCountryMarker' . $this->ticket_index . '" value="' . $this->config['ShippingCountry'] . '" form="request' . $this->ticket_index . '" />
-                          <input list="countries" name="dCountry" class="dCountry" id="dCountry' . $this->ticket_index . '" value="' . self::countryFromAbbr($this->dCountry) . '" ' . $this->countryInput . ' form="request' . $this->ticket_index . '" />
+                          <input type=\"hidden\" name=\"dCountry\" id=\"dCountryMarker{$this->ticket_index}\" value=\"{$this->config['ShippingCountry']}\" form=\"request{$this->ticket_index}\" />
+                          <input list=\"countries\" name=\"dCountry\" class=\"dCountry\" id=\"dCountry{$this->ticket_index}\" value=\"{$this->countryFromAbbr($this->dCountry)}\" {$this->countryInput} form=\"request{$this->ticket_index}\" />
                         </td>
                       </tr>
                       <tr>
-                        <td><label for="dContact' . $this->ticket_index . '">Contact:</label></td>
-                        <td><input list="contacts" name="dContact" id="dContact' . $this->ticket_index . '" form="request' . $this->ticket_index . '" value="' . self::decode($this->dContact) . '" /></td>
+                        <td><label for=\"dContact{$this->ticket_index}\">Contact:</label></td>
+                        <td><input list=\"contacts\" name=\"dContact\" id=\"dContact{$this->ticket_index}\" form=\"request{$this->ticket_index}\" value=\"{$this->decode($this->dContact)}\" /></td>
                       </tr>
                       <tr>
-                        <td><label for="dTelephone' . $this->ticket_index . '">Telephone:</label></td>
-                        <td colspan="2"><input type="text" name="dTelephone" id="dTelephone' . $this->ticket_index . '" value="' . $this->dTelephone . '" form="request' . $this->ticket_index . '" /></td>
+                        <td><label for=\"dTelephone{$this->ticket_index}\">Telephone:</label></td>
+                        <td colspan=\"2\"><input type=\"text\" name=\"dTelephone\" id=\"dTelephone{$this->ticket_index}\" value=\"{$this->dTelephone}\" form=\"request{$this->ticket_index}\" /></td>
                       </tr>
                       <tr>
-                        <td colspan="2">
-                          <label for="dSigReq' . $this->ticket_index . '">Request Signature:  </label>
-                          <input type="hidden" name="dSigReq" id="dSigReqMarker' . $this->ticket_index . '" value="0" form="request' . $this->ticket_index . '" />
-                          <input type="checkbox" name="dSigReq" id="dSigReq' . $this->ticket_index . '" value="1" ' . $dSigChecked . ' form="request' . $this->ticket_index . '" />
+                        <td colspan=\"2\">
+                          <label for=\"dSigReq{$this->ticket_index}\">Request Signature:  </label>
+                          <input type=\"hidden\" name=\"dSigReq\" id=\"dSigReqMarker{$this->ticket_index}\" value=\"0\" form=\"request{$this->ticket_index}\" />
+                          <input type=\"checkbox\" name=\"dSigReq\" id=\"dSigReq{$this->ticket_index}\" value=\"1\" {$dSigChecked} form=\"request{$this->ticket_index}\" />
                         </td>
                       </tr>
                     </tbody>
@@ -2443,66 +2442,66 @@
             </tr>
             <tr>
               <td>
-                <fieldset form="request' . $this->ticket_index . '" id="diField' . $this->ticket_index . '">
+                <fieldset form=\"request{$this->ticket_index}\" id=\"diField{$this->ticket_index}\">
                   <legend>
-                    <label for="dryIce' . $this->ticket_index . '">Dry Ice:  </label>
-                    <input type="hidden" name="dryIce" id="dryIceMarker' . $this->ticket_index . '" value="0" form="request' . $this->ticket_index . '" />
-                    <input type="checkbox" name="dryIce" id="dryIce' . $this->ticket_index . '" class="dryIce" value="1" ' . $dryIceChecked . ' form="request' . $this->ticket_index . '" />
+                    <label for=\"dryIce{$this->ticket_index}\">Dry Ice:  </label>
+                    <input type=\"hidden\" name=\"dryIce\" id=\"dryIceMarker{$this->ticket_index}\" value=\"0\" form=\"request{$this->ticket_index}\" />
+                    <input type=\"checkbox\" name=\"dryIce\" id=\"dryIce{$this->ticket_index}\" class=\"dryIce\" value=\"1\" {$dryIceChecked} form=\"request{$this->ticket_index}\" />
                   </legend>
-                  <table class="centerDiv wide">
+                  <table class=\"centerDiv wide\">
                     <tr>
-                      <td colspan="2">&nbsp;</td>
+                      <td colspan=\"2\">&nbsp;</td>
                     </tr>
                     <tr>
-                      <td class="ticketSpace"></td>
-                      <td title="Increments of 5 please">
-                        <label for="diWeight' . $this->ticket_index . '">Weight:</label>
-                        <input type="hidden" name="diWeight" id="diWeightMarker' . $this->ticket_index . '" class="diWeightMarker" value="0" ' . $diWeightMarkerDisabled . ' form="request' . $this->ticket_index . '" />
-                        <input type="number" name="diWeight" id="diWeight' . $this->ticket_index . '" class="diWeight" form="request' . $this->ticket_index . '" min="0" step="5" value="' . $this->diWeight . '" ' . $diWeightDisabled . ' />' . $this->weightMarker . '
+                      <td class=\"ticketSpace\"></td>
+                      <td title=\"Increments of 5 please\">
+                        <label for=\"diWeight{$this->ticket_index}\">Weight:</label>
+                        <input type=\"hidden\" name=\"diWeight\" id=\"diWeightMarker{$this->ticket_index}\" class=\"diWeightMarker\" value=\"0\" {$diWeightMarkerDisabled} form=\"request{$this->ticket_index}\" />
+                        <input type=\"number\" name=\"diWeight\" id=\"diWeight{$this->ticket_index}\" class=\"diWeight\" form=\"request{$this->ticket_index}\" min=\"0\" step=\"5\" value=\"{$this->diWeight}\" {$diWeightDisabled} />{$this->weightMarker}
                       </td>
                     </tr>
                     <tr>
-                      <td colspan="2">&nbsp;</td>
+                      <td colspan=\"2\">&nbsp;</td>
                     </tr>
                   </table>
 	              </fieldset>
               </td>
               <td>
-                <fieldset form="request' . $this->ticket_index . '">
-                  <legend><label for="notes' . $this->ticket_index . '">Notes:</label></legend>
-                  <textarea rows="4" name="notes" id="notes' . $this->ticket_index . '" class="notes" form="request' . $this->ticket_index . '">' . $this->Notes . '</textarea>
+                <fieldset form=\"request{$this->ticket_index}\">
+                  <legend><label for=\"notes{$this->ticket_index}\">Notes:</label></legend>
+                  <textarea rows=\"4\" name=\"notes\" id=\"notes{$this->ticket_index}\" class=\"notes\" form=\"request{$this->ticket_index}\">{$this->Notes}</textarea>
 	              </fieldset>
               </td>
             </tr>
             <tr>
-              <td colspan="2">
-                <input type="hidden" name="locationList" value="' . $this->locationList . '" form="request' . $this->ticket_index . '" />
-                <input type="hidden" name="driverList" value="' . $this->driverList . '" form="request' . $this->ticket_index . '" />
-                <input type="hidden" name="clientList" value="' . $this->clientList . '" form="request' . $this->ticket_index . '" />
-                <input type="hidden" name="tClientList" value="' . $this->tClientList . '" form="request' . $this->ticket_index . '" />
-                <input type="hidden" name="edit" value="0" />
-	              <button class="submitForm floatLeft" type="submit" form="request' . $this->ticket_index . '">Submit</button> ' . $cancelTicketEditor . '</td>
+              <td colspan=\"2\">
+                <input type=\"hidden\" name=\"locationList\" value=\"{$this->locationList}\" form=\"request{$this->ticket_index}\" />
+                <input type=\"hidden\" name=\"driverList\" value=\"{$this->driverList}\" form=\"request{$this->ticket_index}\" />
+                <input type=\"hidden\" name=\"clientList\" value=\"{$this->clientList}\" form=\"request{$this->ticket_index}\" />
+                <input type=\"hidden\" name=\"tClientList\" value=\"{$this->tClientList}\" form=\"request{$this->ticket_index}\" />
+                <input type=\"hidden\" name=\"edit\" value=\"0\" />
+	              <button class=\"submitForm floatLeft\" type=\"submit\" form=\"request{$this->ticket_index}\">Submit</button> {$cancelTicketEditor}</td>
             </tr>
           </table>
-          <p class="ticketError"></p>';
+          <p class=\"ticketError\"></p>";
   if ($this->ticketEditor === FALSE) {
-    $returnData .= '
-          <p class="sigNote ' . $sigNoteClass . '">Unless a specific request to the contrary is made all deliveries will be completed to the best of our ability even if a signature request is declined.</p>
-          <p class="emailNote ' . $emailNoteClass . '">Please add noreply@rjdeliveryomaha.com to your contacts. This will prevent notifications from being marked as spam.</p>';
+    $returnData .= "
+          <p class=\"sigNote {$sigNoteClass}\">Unless a specific request to the contrary is made all deliveries will be completed to the best of our ability even if a signature request is declined.</p>
+          <p class=\"emailNote {$emailNoteClass}\">Please add noreply@rjdeliveryomaha.com to your contacts. This will prevent notifications from being marked as spam.</p>";
   }
   $returnData .= '
 	      </form>
       </div>';
-  if ($this->edit === NULL && $this->ticketEditor === FALSE) $returnData .= '
-    <div class="subContainer">
-      <div id="terms">
-        <p class="error switch center">*TERMS</p>
-        <p style="display: none;">Responsibility for remittance is implicit when requesting a delivery via this web service. If you do not wish to be held responsible for the payment for services rendered please contact the responsible party and have them request the delivery either on-line or by phone at ' .  $_SESSION['config']['Telephone'] . '.<br><br>
+  if ($this->edit === NULL && $this->ticketEditor === FALSE) $returnData .= "
+    <div class=\"subContainer\">
+      <div id=\"terms\">
+        <p class=\"error switch center\">*TERMS</p>
+        <p style=\"display: none;\">Responsibility for remittance is implicit when requesting a delivery via this web service. If you do not wish to be held responsible for the payment for services rendered please contact the responsible party and have them request the delivery either on-line or by phone at {$this->config['Telephone']}.<br><br>
         Routine or Round Trip deliveries that are canceled within one hour of being requested will not be billed. Canceled stat deliveries, Routine or Round Trip deliveries canceled more than one hour after being requested, and scheduled deliveries canceled less than two hours prior to pick up will be billed at 77.5%.<br><br>
-        Unless a greater value has been placed on a shipment prior to the time that a request for delivery service is made through this web service, it is agreed that in consideration of the rate being charged, the liability of the company for damages is limited to $100.00. If the shipper declares to the company\'s office that the value of the shipment exceeds $100.00, the company can furnish a rate which will provide insurance against damage to, or loss or delay of, the shipment at the higher value so declared by the shipper subject to certain limitations. In any event, we won\'t be liable for any damages whether direct, incidental, special or consequential, in excess of the declared value; including but not limited to loss, of income or profits, whether or not we had knowledge that such damages might be incurred. We will not be liable for your acts or omissions including but not limited to incorrect declaration of cargo, improper or insufficient packing, securing, marking or addressing of your shipment, or for the acts or omissions of the recipient. We will not be liable for loss, damage or delay caused by events we cannot control, including but not limited to acts of God, perils of the air, weather conditions, acts of public enemies, war, strikes, civil commotion or acts or omissions of public authorities including customs and health officials with actual or apparent authority. All complaints regarding damage to, loss or delay of any shipment and any special or consequential damages must be submitted in writing to the company\'s office, within 15 days of delivery of the shipment.</p>
+        Unless a greater value has been placed on a shipment prior to the time that a request for delivery service is made through this web service, it is agreed that in consideration of the rate being charged, the liability of the company for damages is limited to $100.00. If the shipper declares to the company\'s office that the value of the shipment exceeds $100.00, the company can furnish a rate which will provide insurance against damage to, or loss or delay of, the shipment at the higher value so declared by the shipper subject to certain limitations. In any event, we won\'t be liable for any damages whether direct, incidental, special or consequential, in excess of the declared value; including but not limited to loss, of income or profits, whether or not we had knowledge that such damages might be incurred. We will not be liable for your acts or omissions including but not limited to incorrect declaration of cargo, improper or insufficient packing, securing, marking or addressing of your shipment, or for the acts or omissions of the recipient. We will not be liable for loss, damage or delay caused by events we cannot control, including but not limited to acts of God, perils of the air, weather conditions, acts of public enemies, war, strikes, civil commotion or acts or omissions of public authorities including customs and health officials with actual or apparent authority. All complaints regarding damage to, loss or delay of any shipment and any special or consequential damages must be submitted in writing to the company's office, within 15 days of delivery of the shipment.</p>
       </div>
-      <div class="mapContainer" id="map"></div>
-    </div>';
+      <div class=\"mapContainer\" id=\"map\"></div>
+    </div>";
     return $returnData;
     }
 
