@@ -2511,43 +2511,61 @@
         self::buildLocationList();
         $returnData .= self::buildDatalists();
       }
-      $returnData .= '
-    <div id="priceContainer">
-      <form id="priceCalc">
+      $returnData .= "
+    <div id=\"priceContainer\">
+      <form id=\"priceCalc\">
         <table>
           <tbody>
             <tr>
               <td>
-                <fieldset id="pickUp" class="po">
+                <fieldset id=\"pickUp\" class=\"po\">
                   <legend>Pick Up</legend>
                   <table>
                     <tbody>
                       <tr>
-                        <td>Address 1: <input list="addy1" name="pAddress1" id="pAddress1Calc" class="address1" placeholder="4535 Leavenworth St." form="priceCalc"  required /></td>
+                        <td>
+                          <label for=\"pAddress1Calc\">Address 1</label>:
+                          <input list=\"addy1\" name=\"pAddress1\" id=\"pAddress1Calc\" class=\"address1\" placeholder=\"4535 Leavenworth St.\" form=\"priceCalc\" required />
+                        </td>
                       </tr>
                       <tr>
-                        <td>Address 2: <input list="addy2" name="pAddress2" id="pAddress2Calc" class="address2" placeholder="Omaha, NE 68106" form="priceCalc"  required /></td>
+                        <td>
+                          <label for=\"pAddress2Calc\">Address 2</label>:
+                          <input list=\"addy2\" name=\"pAddress2\" id=\"pAddress2Calc\" class=\"address2\" placeholder=\"Omaha, NE 68106\" form=\"priceCalc\" required />
+                        </td>
                       </tr>
-                      <tr class="' . $this->countryClass . '">
-                        <td>Country: <input type="hidden" name="pCountry" id="pCountryMarkerCalc" value="' . self::countryFromAbbr($this->shippingCountry) . '" form="request" /><input list="countries" name="pCountry" class="pCountry" id="pCountryCalc" value="' . self::countryFromAbbr($this->pCountry) . '" '. $this->countryInput . ' form="request" ' . $this->requireCountry . ' /></td>
+                      <tr class=\"{$this->countryClass}\">
+                        <td>
+                          <label for=\"pCountryCalc\">Country</label>:
+                          <input type=\"hidden\" name=\"pCountry\" id=\"pCountryMarkerCalc\" value=\"{$this->countryFromAbbr($this->shippingCountry)}\" form=\"request\" />
+                          <input list=\"countries\" name=\"pCountry\" class=\"pCountry\" id=\"pCountryCalc\" value=\"{$this->countryFromAbbr($this->pCountry)}\" {$this->countryInput} form=\"request{$this->requireCountry}\" /></td>
                       </tr>
                     </tbody>
                   </table>
                 </fieldset>
               </td>
               <td>
-                <fieldset id="dropOff" class="do">
+                <fieldset id=\"dropOff\" class=\"do\">
                   <legend>Drop Off</legend>
                   <table>
                     <tbody>
                       <tr>
-                        <td>Address 1: <input list="addy1" name="dAddress1" id="dAddress1Calc" class="address1" placeholder="4535 Leavenworth St." form="priceCalc"  required /></td>
+                        <td>
+                          <label for=\"dAddress1Calc\">Address 1</label>:
+                          <input list=\"addy1\" name=\"dAddress1\" id=\"dAddress1Calc\" class=\"address1\" placeholder=\"4535 Leavenworth St.\" form=\"priceCalc\" required />
+                        </td>
                       </tr>
                       <tr>
-                        <td>Address 2: <input list="addy2" name="dAddress2" id="dAddress2Calc" class="address2" placeholder="Omaha NE, 68106" form="priceCalc" required /></td>
+                        <td>
+                          <label for=\"dAddress2Calc\">Address 2</label>:
+                          <input list=\"addy2\" name=\"dAddress2\" id=\"dAddress2Calc\" class=\"address2\" placeholder=\"Omaha NE, 68106\" form=\"priceCalc\" required />
+                        </td>
                       </tr>
-                      <tr class="' . $this->countryClass . '">
-                        <td>Country: <input type="hidden" name="dCountry" id="dCountryMarkerCalc" value="' . self::countryFromAbbr($this->shippingCountry) . '" form="request" /><input list="countries" name="dCountry" class="dCountry" id="dCountryCalc" value="' . self::countryFromAbbr($this->dCountry) . '" '. $this->countryInput . ' form="request" ' . $this->requireCountry . ' /></td>
+                      <tr class=\"{$this->countryClass}\">
+                        <td>
+                          <label for=\"dCountryCalc\">Country</label>:
+                          <input type=\"hidden\" name=\"dCountry\" id=\"dCountryMarkerCalc\" value=\"{$this->countryFromAbbr($this->shippingCountry)}\" form=\"request\" />
+                          <input list=\"countries\" name=\"dCountry\" class=\"dCountry\" id=\"dCountryCalc\" value=\"{$this->countryFromAbbr($this->dCountry)}\" {$this->countryInput} form=\"request\" {$this->requireCountry} /></td>
                       </tr>
                     </tbody>
                   </table>
@@ -2557,49 +2575,49 @@
           </tbody>
           <tfoot>
             <tr>
-              <td colspan="2">
-              <span class="floatLeft">
-                <label for="CalcCharge">Charge:  </label>
-                <select name="charge" id="CalcCharge" form="priceCalc">
-                  <option value="5">Routine</option>
-                  <option value="2">2 Hour</option>
-                  <option value="1">1 Hour</option>
-                  <option value="6">Round Trip</option>
-                </select>
-              </span>
-              <span class="floatRight">
-                <label for="CalcDryIce">Dry Ice:  </label>
-                <input name="dryIce" id="CalcDryIce" type="checkbox" class="dryIce" value="1" form="priceCalc" />
-                <input type="number" class="diWeight diRow" name="diWeight" id="CalcWeight" value="0" min="0" step="5" title="Increments of 5" form="priceCalc" disabled />' . $this->weightMarker . '
-              </span>
+              <td colspan=\"2\">
+                <span class=\"floatLeft\">
+                  <label for=\"CalcCharge\">Charge:</label>
+                  <select name=\"charge\" id=\"CalcCharge\" form=\"priceCalc\">
+                    <option value=\"5\">Routine</option>
+                    <option value=\"2\">2 Hour</option>
+                    <option value=\"1\">1 Hour</option>
+                    <option value=\"6\">Round Trip</option>
+                  </select>
+                </span>
+                <span class=\"floatRight\">
+                  <label for=\"CalcDryIce\">Dry Ice:</label>
+                  <input name=\"dryIce\" id=\"CalcDryIce\" type=\"checkbox\" class=\"dryIce\" value=\"1\" form=\"priceCalc\" />
+                  <input type=\"number\" class=\"diWeight diRow\" name=\"diWeight\" id=\"CalcWeight\" value=\"0\" min=\"0\" step=\"5\" title=\"Increments of 5\" form=\"priceCalc\" disabled />{$this->weightMarker}
+                </span>
               </td>
             </tr>
             <tr>
-              <td colspan="2">
-                <button type="submit" class="submitPriceQuery floatLeft" form="priceCalc">Enter Run</button>
-                <button type="reset" class="clear floatRight" form="priceCalc">Clear Form</button>
+              <td colspan=\"2\">
+                <button type=\"submit\" class=\"submitPriceQuery floatLeft\" form=\"priceCalc\">Enter Run</button>
+                <button type=\"reset\" class=\"clear floatRight\" form=\"priceCalc\">Clear Form</button>
               </td>
             </tr>
           </tfoot>
         </table>
-      <div id="priceResult">
-        <p class="hide">Range: <span id="rangeResult"></span></p>
-        <p>Dry Ice: <span id="diWeightResult"></span><span style="display:none;" class="weightMarker">' . $this->weightMarker . '</span></p>
-        <p>Run Price: <span style="display:none;" class="currencySymbol">' . $this->config["CurrencySymbol"] . '</span><span id="runPriceResult"></span></p>
-        <p>Dry Ice Price: <span style="display:none;" class="currencySymbol">' . $this->config["CurrencySymbol"] . '</span><span style="min-width:3em;" id="diPriceResult">&nbsp;</span></p>
-        <p>Total: <span style="display:none;" class="currencySymbol">' . $this->config["CurrencySymbol"] . '</span><span id="ticketPriceResult"></span></p>
+      <div id=\"priceResult\">
+        <p class=\"hide\">Range: <span id=\"rangeResult\"></span></p>
+        <p>Dry Ice: <span id=\"diWeightResult\"></span><span style=\"display:none;\" class=\"weightMarker\">{$this->weightMarker}</span></p>
+        <p>Run Price:<span style=\"display:none;\" class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span><span id=\"runPriceResult\"></span></p>
+        <p>Dry Ice Price: <span style=\"display:none;\" class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span><span style=\"min-width:3em;\" id=\"diPriceResult\">&nbsp;</span></p>
+        <p>Total: <span style=\"display:none;\" class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span><span id=\"ticketPriceResult\"></span></p>
       </div>
       </form>
-      <div id="priceContainerFoot">
+      <div id=\"priceContainerFoot\">
         <div>
-          <p id="pNotice"></p>
-          <p id="dNotice"></p>
-          <p id="CalcError"></p>
+          <p id=\"pNotice\"></p>
+          <p id=\"dNotice\"></p>
+          <p id=\"CalcError\"></p>
         </div>
-        <p id="mapInfo"><span class="standard medium" title="Blue: Standard Delivery Range">Standard Delivery Range</span>&nbsp;&nbsp;<span class="error medium" title="Red: Extended Delivery Range">Extended Delivery Range</span></p>
-        <div class="mapContainer" id="map2"></div>
+        <p id=\"mapInfo\"><span class=\"standard medium\" title=\"Blue: Standard Delivery Range\">Standard Delivery Range</span>&nbsp;&nbsp;<span class=\"error medium\" title=\"Red: Extended Delivery Range\">Extended Delivery Range</span></p>
+        <div class=\"mapContainer\" id=\"map2\"></div>
       </div>
-    </div>';
+    </div>";
       if ($this->organizationFlag === TRUE) {
         $returnData .= self::buildDatalists();
       }
