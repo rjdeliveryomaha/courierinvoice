@@ -371,39 +371,39 @@
       for ($i = 0; $i < count($this->tableLabelGroups); $i++) {
         $this->headerSpan = count($this->tableLabelGroups[$i]) + 2;
         $this->nestedTableColspan = $this->headerSpan - 1;
-        $this->tableOutput .= '
-  <table class="member centerDiv">
+        $this->tableOutput .= "
+  <table class=\"member centerDiv\">
     <thead>
       <tr>
-        <th class="displayHeader" colspan="' . $this->headerSpan . '">' . $this->tableHead . '</th>
+        <th class=\"displayHeader\" colspan=\"{$this->headerSpan}\">{$this->tableHead}</th>
       </tr>
     </thead>
-    <tbody>';
+    <tbody>";
         for ($j = 0; $j < count($this->monthKeys); $j++) {
           $this->tableOutput .= '
       <tr>
         <th>Month</th>
         <th>Member</th>';
         for ($k = 0; $k < count($this->tableLabelGroups[$i]); $k++) {
-          $this->tableOutput .= '
-        <th>' . self::arrayValueToChartLabel($this->tableLabelGroups[$i][$k]) . '</th>';
+          $this->tableOutput .= "
+        <th>{$this->arrayValueToChartLabel($this->tableLabelGroups[$i][$k])}</th>";
           if ($k === count($this->tableLabelGroups[$i]) - 1) {
             $this->tableOutput .= '</tr>';
           }
         }
-          $this->tableOutput .= '
+          $this->tableOutput .= "
       <tr>
-        <td class="center">' . $this->monthKeys[$j] . '</td>
-        <td colspan="' . $this->nestedTableColspan . '">';
+        <td class=\"center\">{$this->monthKeys[$j]}</td>
+        <td colspan=\"{$this->nestedTableColspan}\">";
           for ($x = 0; $x < count($this->memberList); $x++) {
-            $this->tableOutput .= '
-          <table class="wide">
-            <tr class="highlight">
-              <td class="bar' . $x . 'Label center">' . self::clientListBy($this->memberList[$x]) . '</td>';
+            $this->tableOutput .= "
+          <table class=\"wide\">
+            <tr class=\"highlight\">
+              <td class=\"bar{$x}Label center\">{$this->clientListBy($this->memberList[$x])}</td>";
               for ($y = 0; $y < count($this->tableLabelGroups[$i]); $y++) {
-                $this->tableOutput .= '
-              <td class="center highlight2">' . $this->orderedData[$this->monthKeys[$j]][$this->memberList[$x]][$this->tableLabelGroups[$i][$y]] . '<br>' . self::displayPercentage($this->orderedData[$this->monthKeys[$j]][$this->memberList[$x]][$this->tableLabelGroups[$i][$y]], $this->totals[$this->tableLabelGroups[$i][$y]]) . '&#37;</td>
-                ';
+                $this->tableOutput .= "
+              <td class=\"center highlight2\">{$this->orderedData[$this->monthKeys[$j]][$this->memberList[$x]][$this->tableLabelGroups[$i][$y]]}<br>{$this->displayPercentage($this->orderedData[$this->monthKeys[$j]][$this->memberList[$x]][$this->tableLabelGroups[$i][$y]], $this->totals[$this->tableLabelGroups[$i][$y]])}&#37;</td>
+                ";
               }
               $this->tableOutput .= '
             </tr>
@@ -416,9 +416,9 @@
         <td></td>
         <th>Month Total:</th>';
           for ($y = 0; $y < count($this->tableLabelGroups[$i]); $y++) {
-            $this->tableOutput .= '
-        <td class="center highlight2 error">' . $this->totals[$this->monthKeys[$j]][$this->tableLabelGroups[$i][$y]] . '<br>' . self::displayPercentage($this->totals[$this->monthKeys[$j]][$this->tableLabelGroups[$i][$y]], $this->totals[$this->tableLabelGroups[$i][$y]]) . '&#37;</td>
-                ';
+            $this->tableOutput .= "
+        <td class=\"center highlight2 red\">{$this->totals[$this->monthKeys[$j]][$this->tableLabelGroups[$i][$y]]}<br>{$this->displayPercentage($this->totals[$this->monthKeys[$j]][$this->tableLabelGroups[$i][$y]], $this->totals[$this->tableLabelGroups[$i][$y]])}&#37;</td>
+                ";
               }
           $this->tableOutput .= '
       </tr>
@@ -426,9 +426,9 @@
         <td></td>
         <th>Query Total:</th>';
           for ($y = 0; $y < count($this->tableLabelGroups[$i]); $y++) {
-            $this->tableOutput .= '
-        <td class="center highlight2">' . self::number_format_drop_zero_decimals($this->totals[$this->tableLabelGroups[$i][$y]], 2) . '</td>
-                ';
+            $this->tableOutput .= "
+        <td class=\"center highlight2\">{$this->number_format_drop_zero_decimals($this->totals[$this->tableLabelGroups[$i][$y]], 2)}</td>
+                ";
               }
           $this->tableOutput .= '
       </tr>';
