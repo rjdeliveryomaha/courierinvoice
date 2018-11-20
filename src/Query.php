@@ -171,12 +171,12 @@
         $this->queryURI = $this->baseURI . $this->endPoint;
       } else {
         // make sure that the 'resources' key preceeds the 'filter' key
-        $temp = self::orderParams($this->queryParams);
-        $this->queryParams = $temp;
+        $ordered = self::orderParams($this->queryParams);
+        $this->queryParams = $ordered;
         foreach ($this->queryParams as $key => $value) {
           if ($key === 'resources') {
             $this->query['include'] = implode(',', $this->queryParams['resources']);
-          } elseif ($key === 'filter' || $key === 'order') {
+          } elseif ($key === 'filter') {
             if (!isset($value[0][0])) {
               for ($i = 0; $i < count($value); $i++) {
                 $this->query[$key][] = implode(',', array_values($value[$i]));
@@ -189,14 +189,25 @@
                 }
               }
             }
-          } else {
-            $this->query[$key] = $value;
           }
         }
-        $temp2 = http_build_query($this->query,NULL,'&',PHP_QUERY_RFC3986);
+        $encodedQuery = http_build_query($this->query,NULL,'&',PHP_QUERY_RFC3986);
         // http://php.net/manual/en/function.http-build-query.php#111819
-        $temp2 = preg_replace('/%5B[0-9]+%5D/simU', '', $temp2);
-        $this->queryURI = "{$this->baseURI}{$this->endPoint}?$temp2";
+        $encodedQuery = preg_replace('/%5B[0-9]+%5D/simU', '', $encodedQuery);
+        if (isset($this->queryParams['order'])) {
+          for ($i = 0; $i < count($this->queryParams['order']); $i++) {
+            $encodedQuery .= "&order={$this->queryParams['order'][$i]}";
+          }
+          if (isset($this->queryParams['page'])) {
+            $paramTest = FALSE;
+            if (strpos(',', $this->queryParams['page']) !== FALSE) {
+              $testVal = explode(',', $this->queryParams['page']);
+              $paramTest = count($testVal) === 2 && is_numeric($testVal[0]) && is_numeric($testVal[1]);
+            }
+            if (is_numeric($this->queryParams['page']) || $paramTest === TRUE) $encodedQuery .= "&page={$this->queryParams['page']}";
+          }
+        }
+        $this->queryURI = "{$this->baseURI}{$this->endPoint}?$encodedQuery";
       }
       return $this;
     }
