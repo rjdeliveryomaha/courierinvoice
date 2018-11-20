@@ -444,31 +444,31 @@
       if ($this->error != NULL) return FALSE;
       $this->tableHeadPrefix = ($this->compare === TRUE) ? 'Comparing Tickets Between ' : 'Tickets for the period between ';
       if ($this->organizationFlag === TRUE) {
-        $this->tableHead .= '<br><span class="medium">' . self::clientListBy($this->clientID) . '</span>';
+        $this->tableHead .= "<br><span class=\"medium\">{$this->clientListBy($this->clientID)}</span>";
       }
-      $this->tableOutput = '
-      <div class="break ticketTable">
-      <table class="center">
+      $count = 'count';
+      $this->tableOutput = "
+      <div class=\"break ticketTable\">
+      <table class=\"center\">
         <thead>
-          <th class="displayHeader" colspan="' . count($this->tableLabelGroups[0]) . '">' . $this->tableHeadPrefix . $this->tableHead . '</th>
+          <th class=\"displayHeader\" colspan=\"{$count($this->tableLabelGroups[0])}\">{$this->tableHeadPrefix}{$this->tableHead}</th>
         </thead>
-        <tbody>';
+        <tbody>";
       for ($i = 0; $i < count($this->tableLabelGroups); $i++) {
         for ($j = 0; $j < count($this->tableLabelGroups[$i]); $j++) {
           if ($j === 0) $this->tableOutput .= '
           <tr>';
           $code = $j + $this->colorCode;
-          $this->tableOutput .= '
-            <th class="bar' . $code . 'Label">' . self::arrayValueToChartLabel($this->tableLabelGroups[$i][$j]) . '
-            </th>';
+          $this->tableOutput .= "
+            <th class=\"bar{$code}Label\">{$this->arrayValueToChartLabel($this->tableLabelGroups[$i][$j])}</th>";
           if ($j === count($this->tableLabelGroups[$i]) - 1) $this->tableOutput .= '
           </tr>';
         }
         for ($x = 0; $x < count($this->tableLabelGroups[$i]); $x++) {
           if ($x === 0) $this->tableOutput .= '
           <tr>';
-          $this->tableOutput .= '
-            <td class="center">' . self::displayGroupTotals($this->tableLabelGroups[$i][$x]) . '</td>';
+          $this->tableOutput .= "
+            <td class=\"center\">{$this->displayGroupTotals($this->tableLabelGroups[$i][$x])}</td>";
           if ($x === count($this->tableLabelGroups[$i]) - 1) $this->tableOutput .= '
           </tr>';
         }
