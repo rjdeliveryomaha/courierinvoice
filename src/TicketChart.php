@@ -1,6 +1,6 @@
 <?php
   namespace RJDeliveryOmaha\CourierInvoice;
-  
+
   use RJDeliveryOmaha\CourierInvoice\CommonFunctions;
   /***
   * throws Exception
@@ -14,12 +14,12 @@
     protected $ListBy;
     protected $organizationFlag = FALSE;
     protected $ticketChartRowLimit = 5;
-    protected $orgClients = array();
-    private $memberList = array();
-    private $totals = array();
-    private $monthKeys = array();
+    protected $orgClients = [];
+    private $memberList = [];
+    private $totals = [];
+    private $monthKeys = [];
     // Define the order for the keys in $dataSet
-    private $properOrder = array('monthTotal', 'contract', 'onCall', 'credit', 'withIce', 'withoutIce', 'cancelled', 'deadRun', 'oneHour', 'twoHour', 'threeHour', 'fourHour', 'routine', 'roundTrip', 'dedicated');
+    private $properOrder = [ 'monthTotal', 'contract', 'onCall', 'credit', 'withIce', 'withoutIce', 'cancelled', 'deadRun', 'oneHour', 'twoHour', 'threeHour', 'fourHour', 'routine', 'roundTrip', 'dedicated' ];
     private $graph_height = 12.5;
     private $bar_width = 0.35;  //width of bar in em
     private $bar_gap = 0.35;  //gap between adjacent bars
@@ -27,21 +27,21 @@
     private $interval_border = 0.125; //border-width of bar container
     // $ratio will be used to make sure that bars never go beyond graph height
     private $ratio;
-    private $testMax = array();
+    private $testMax = [];
     private $max;
     private $heights;
     private $margins;
     private $counts;
     private $split;
-    private $labels = array();
-    private $tableLabelGroups = array();
+    private $labels = [];
+    private $tableLabelGroups = [];
     private $tableHead;
     private $tableHeadPrefix;
-    private $nonZeroIgnore = array("billTo", "startDate", "endDate");
-    protected $nonZero = array();
+    private $nonZeroIgnore = [ 'billTo', 'startDate', 'endDate' ];
+    protected $nonZero = [];
     private $orderedData;
     private $nonAssocData;
-    private $groupLabels = array();
+    private $groupLabels = [];
     private $groups;
     private $total_bars;
     private $interval_width;
@@ -55,7 +55,7 @@
     protected $secondChart;
     protected $currentChart;
     private $nestedTableColspan;
-    
+
     public function __construct($options, $data) {
       try {
         parent::__construct($options, $data);
@@ -68,7 +68,7 @@
         }
       }
     }
-    
+
     public function displayChart() {
       foreach ($this->dataSet as $key => $value) {
         $this->monthKeys[] = $key;
@@ -134,28 +134,28 @@
         self::displayBarGraph();
       }
     }
-    
+
     private function arrayValueToChartLabel($arrayValue) {
       switch ($arrayValue) {
-        case "monthTotal": return "Total";
-        case "contract": return "Contract";
-        case "credit": return "Credit";
-        case "onCall": return "On Call";
-        case "withIce": return "With Ice";
-        case "withoutIce": return "W/O Ice";
-        case "cancelled": return "Cancelled";
-        case "deadRun": return "Dead Run";
-        case "oneHour": return "1 Hour";
-        case "twoHour": return "2 Hour";
-        case "threeHour": return "3 Hour";
-        case "fourHour": return "4 Hour";
-        case "routine": return "Routine";
-        case "roundTrip": return "Round Trip";
-        case "dedicatedRun": return "Dedicated Run";
-        default: return "Label Error";
+        case 'monthTotal': return 'Total';
+        case 'contract': return 'Contract';
+        case 'credit': return 'Credit';
+        case 'onCall': return 'On Call';
+        case 'withIce': return 'With Ice';
+        case 'withoutIce': return 'W/O Ice';
+        case 'cancelled': return 'Cancelled';
+        case 'deadRun': return 'Dead Run';
+        case 'oneHour': return '1 Hour';
+        case 'twoHour': return '2 Hour';
+        case 'threeHour': return '3 Hour';
+        case 'fourHour': return '4 Hour';
+        case 'routine': return 'Routine';
+        case 'roundTrip': return 'Round Trip';
+        case 'dedicatedRun': return 'Dedicated Run';
+        default: return 'Label Error';
       }
     }
-    
+
     private function displayGroupTotals($pointer) {
       foreach ($this->totals as $key => $value) {
         if ($pointer === $key) {
@@ -165,7 +165,7 @@
       }
       return $returnData;
     }
-    
+
     private function sortData() {
       if (count($this->dataSet) < 1) {
         $this->error = 'Chart Data Empty';
@@ -173,7 +173,7 @@
         return FALSE;
       } else {
         // Reset properties to empty arrays to prevent data overlap when working with multiple organization members
-        $this->totals = $this->testMax = $this->nonZero = $this->labels = $this->orderedData = $this->groupLabels = $this->nonAssocData = $this->heights = $this->margins = $this->counts = array();
+        $this->totals = $this->testMax = $this->nonZero = $this->labels = $this->orderedData = $this->groupLabels = $this->nonAssocData = $this->heights = $this->margins = $this->counts = [];
         $this->colorCode = 0;
         // Process the data set for the given member
         foreach ($this->dataSet as $test) {
@@ -195,22 +195,22 @@
                 $this->orderedData[$key][$k] = $v;
                 $this->totals[$k][] = $v;
               } elseif ($k === 'startDate') {
-                $t = ($temp['monthTotal'] == 1) ? "Ticket" : "Tickets";
-                $this->groupLabels[] = $key . '<br>
-                <form action="' . self::esc_url($_SERVER["REQUEST_URI"]) . '" method="post">
-                  <input type="hidden" name="formKey" value="'. $this->formKey . '" />
-                  <input type="hidden" name="method" value="GET" />
-                  <input type="hidden" name="endPoint" value="tickets" />
-                  <input type="hidden" name="startDate" value="' . $v . '" />
-                  <input type="hidden" name="endDate" value="' . $temp["endDate"] . '" />
-                  <input type="hidden" name="clientID" value="' . $temp["billTo"] . '" />
-                  <input type="hidden" name="allTime" value="N" />
-                  <input type="hidden" name="compare" value="0" />
-                  <input type="hidden" name="charge" value="10" />
-                  <input type="hidden" name="type" value="2" />
-                  <input type="hidden" name="display" value="tickets" />
-                  <button type="submit" class="submitTicketQuery">' . $temp["monthTotal"] . ' ' . $t . '</button>
-                </form>';
+                $t = ($temp['monthTotal'] == 1) ? 'Ticket' : 'Tickets';
+                $this->groupLabels[] = "{$key}<br>
+                <form action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
+                  <input type=\"hidden\" name=\"formKey\" value=\"{$this->formKey}\" />
+                  <input type=\"hidden\" name=\"method\" value=\"GET\" />
+                  <input type=\"hidden\" name=\"endPoint\" value=\"tickets\" />
+                  <input type=\"hidden\" name=\"startDate\" value=\"{$v}\" />
+                  <input type=\"hidden\" name=\"endDate\" value=\"{$temp['endDate']}\" />
+                  <input type=\"hidden\" name=\"clientID\" value=\"{$temp['billTo']}\" />
+                  <input type=\"hidden\" name=\"allTime\" value=\"N\" />
+                  <input type=\"hidden\" name=\"compare\" value=\"0\" />
+                  <input type=\"hidden\" name=\"charge\" value=\"10\" />
+                  <input type=\"hidden\" name=\"type\" value=\"2\" />
+                  <input type=\"hidden\" name=\"display\" value=\"tickets\" />
+                  <button type=\"submit\" class=\"submitTicketQuery\">{$temp['monthTotal']} {$t}</button>
+                </form>";
               }
             }
           }
@@ -221,9 +221,9 @@
         foreach ($this->orderedData as $key => $value) {
           $this->nonAssocData[] = array_values($value);
           foreach ($value as $k => $v) {
-            $this->heights[$k . '_height'][] = $v * $this->ratio;
-            $this->margins[$k . '_margin'][] = $this->graph_height - ($v * $this->ratio);
-            $this->counts[$k . '_counts'][] = self::number_format_drop_zero_decimals($v, 2);
+            $this->heights["{$k}_height"][] = $v * $this->ratio;
+            $this->margins["{$k}_margin"][] = $this->graph_height - ($v * $this->ratio);
+            $this->counts["{$k}_counts"][] = self::number_format_drop_zero_decimals($v, 2);
           }
         }
         $this->tableHead = $this->monthKeys[0] . ' and ' . $this->monthKeys[count($this->monthKeys) - 1];
@@ -238,7 +238,7 @@
         $this->nonZero = array_keys($this->orderedData[$this->monthKeys[$monthKeyIndex]]);
       }
     }
-    
+
     private function sortDataForMemberCompare() {
       if (count($this->dataSet) < 1) {
         $this->error = 'Chart Data Empty Line';
@@ -318,7 +318,7 @@
         }
       }
     }
-    
+
     private function resortData() {
       $temp = array();
       for ($i = 0; $i < count($this->properOrder); $i++) {
@@ -349,9 +349,9 @@
         foreach ($value as $k => $v) {
           $this->totals[$k] = $v;
           foreach ($v as $k1 => $v1) {
-            $this->heights[$k1 . '_height'][] = $v1 * $this->ratio;
-            $this->margins[$k1 . '_margin'][] = $this->graph_height - ($v1 * $this->ratio);
-            $this->counts[$k1 . '_counts'][] = self::number_format_drop_zero_decimals($v1, 2);
+            $this->heights["{$k1}_height"][] = $v1 * $this->ratio;
+            $this->margins["{$k1}_margin"][] = $this->graph_height - ($v1 * $this->ratio);
+            $this->counts["{$k1}_counts"][] = self::number_format_drop_zero_decimals($v1, 2);
           }
         }
       }
@@ -366,7 +366,7 @@
       }
       $this->monthKeys = $this->memberList;
     }
-    
+
     private function displayCompareTable() {
       for ($i = 0; $i < count($this->tableLabelGroups); $i++) {
         $this->headerSpan = count($this->tableLabelGroups[$i]) + 2;
@@ -439,7 +439,7 @@
       }
       echo $this->tableOutput;
     }
-  
+
     private function displayTable() {
       if ($this->error != NULL) return FALSE;
       $this->tableHeadPrefix = ($this->compare === TRUE) ? 'Comparing Tickets Between ' : 'Tickets for the period between ';
@@ -480,7 +480,7 @@
       </div>';
       echo $this->tableOutput;
     }
-  
+
     private function displayBarGraph() {
       if ($this->error != NULL) return FALSE;
       $this->graphOutput = '
@@ -518,7 +518,7 @@
       ';
       echo $this->graphOutput;
     }
-    
+
     private function displayCompareGraph() {
       if ($this->error != NULL) return FALSE;
       $this->currentChart = self::chartIndexToProperty();
