@@ -783,7 +783,7 @@
       $queryData['endPoint'] = 'invoices';
       $queryData['queryParams']['resources'] = ['InvoiceNumber', 'Closed'];
       $queryData['queryParams']['filter'] = [ ['Resource'=>'ClientID','Filter'=>'eq','Value'=>$search], ['Resource'=>'InvoiceNumber','Filter'=>'ncs','Value'=>'t'] ];
-      $queryData['queryParams']['order'] = array('InvoiceNumber', 'desc');
+      $queryData['queryParams']['order'] = ['InvoiceNumber,desc'];
       if (!$query = self::createQuery($queryData)) {
         return $this->error;
       }
