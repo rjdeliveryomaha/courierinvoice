@@ -513,7 +513,7 @@
 
     protected function decode($data) {
       if (preg_match('/(&#\d+;)/', $data)) {
-        $data = preg_replace_callback("/(&#[0-9]+;)/", function($m) { return mb_convert_encoding($m[1], 'UTF-8', '"HTML-ENTITIES'); }, $data);
+        $data = preg_replace_callback("/(&#[0-9]+;)/", function($m) { return mb_convert_encoding($m[1], 'UTF-8', 'HTML-ENTITIES'); }, $data);
       }
       if (preg_match('/(&\w+;)/', $data)) {
         $data = html_entity_decode($data);
