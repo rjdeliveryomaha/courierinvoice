@@ -163,7 +163,7 @@
     // bool flag indicating if a map will be displayed for price calculation
     private $mapAvailable = TRUE;
     // list of providers supported by php/Geocoder
-    private $providers = [ 'AlgoliaPlaces', 'ArcGISOnline', 'BingMaps', 'FreeGeoIp', 'GeoIP2', 'GeoIPs', 'GeoPlugin', 'Geonames', 'GoogleMaps', 'Here', 'HostIp', 'IpInfo', 'IpInfoDb', 'Ipstack', 'LocationIQ', 'MapQuest', 'MapBox', 'Mapzen', 'MaxMind', 'MaxMindBinary', 'Nominatim', 'OpenCage', 'PickPoint', 'TomTom', 'Yandex' ];
+    private $providers = [ 'AlgoliaPlaces', 'ArcGISOnline', 'BingMaps', 'FreeGeoIp', 'GeoIP', 'GeoIP2', 'GeoIPs', 'GeoPlugin', 'Geonames', 'GoogleMaps', 'Here', 'HostIp', 'IpInfo', 'IpInfoDb', 'Ipstack', 'LocationIQ', 'MapQuest', 'MapBox', 'Mapzen', 'MaxMind', 'MaxMindBinary', 'Nominatim', 'OpenCage', 'PickPoint', 'TomTom', 'Yandex' ];
     private $ticketBaseRetries = 0;
     /**
     *  int flag indicating what range to solve for
@@ -432,7 +432,7 @@
       $this->adapter  = new GuzzleAdapter($this->guzzle);
       $this->dumper = new \Geocoder\Dumper\GeoJson();
       $geoProviders = json_decode($this->config['Geocoders']);
-      if (json_last_error !== JSON_ERROR_NONE) {
+      if (json_last_error() !== JSON_ERROR_NONE) {
         if ($this->enableLogging === TRUE) {
           $this->error = 'getTicketBase failure line ' . __line__ . '. ' . json_last_error_msg();
           $this->writeLoop();
@@ -441,18 +441,51 @@
       }
       // Don't test for providers that require a map if none is available
       $exclude = ($this->mapAvailable === TRUE) ? [] : ['GoogleMaps'];
-      if ($this->mapAvailable === TRUE) {
-        $this->chain = new \Geocoder\Provider\Chain\Chain([
-          new \Geocoder\Provider\MapQuest\MapQuest($this->adapter, $this->config['MapQuestAPIKey']),
-          new \Geocoder\Provider\GoogleMaps\GoogleMaps($this->adapter, $this->config['GoogleAPIKey']),
-          new \Geocoder\Provider\OpenCage\OpenCage($this->adapter, $this->config['OpenCageAPIKey'])
-        ]);
-      } else {
-        $this->chain = new \Geocoder\Provider\Chain\Chain([
-          new \Geocoder\Provider\MapQuest\MapQuest($this->adapter, $this->config['MapQuestAPIKey']),
-          new \Geocoder\Provider\OpenCage\OpenCage($this->adapter, $this->config['OpenCageAPIKey'])
-        ]);
+      $chainProviders = [];
+      foreach ($geoProviders as $key => $value) {
+        $providerIndex = $newProvider = NULL;
+        for ($i = 0; $i < count($this->providers); $i++) {
+          if (strtolower($this->providers[$i]) === strtolower(preg_replace('/\s+/', '', $key)) && !in_array($this->providers[$i], $exclude)) {
+            $providerIndex = $i;
+          }
+        }
+        if ($providerIndex !== NULL) {
+          $testClass = "\Geocoder\Provider\\{$this->providers[$providerIndex]}\\{$this->providers[$providerIndex]}";
+          if (class_exists($testClass)) {
+            if (count($value) > 1) {
+              try {
+                $newProvider = new $testClass($this->adapter, $value[1], $value[0]);
+              } catch(Exception $e) {
+                if ($this->enableLogging !== FALSE) {
+                  $this->error = "Geocoder Error {$e->getMessage()}\n";
+                  self::writeLoop();
+                }
+                $newProvider = NULL;
+              }
+              if ($newProvider !== NULL) $chainProviders[] = $newProvider;
+            } else {
+              try {
+                $newProvider = new $testClass($this->adapter, $value[0]);
+              } catch(Exception $e) {
+                if ($this->enableLogging !== FALSE) {
+                  $this->error = "Geocoder Error {$e->getMessage()}";
+                  self::writeLoop();
+                }
+                $newProvider = NULL;
+              }
+            }
+            if ($newProvider !== NULL) $chainProviders[] = $newProvider;
+          }
+        }
       }
+      if (empty($chainProviders)) {
+        if ($this->enableLogging !== FALSE) {
+          $this->error = 'No geocoder providers available';
+          self::writeLoop();
+        }
+        return $this->TicketBase = 0;
+      }
+      $this->chain = new \Geocoder\Provider\Chain\Chain($chainProviders);
 
       $this->geocoder->registerProvider($this->chain);
       // Use GeoCode to get the coordinates of the two addresses
@@ -462,23 +495,40 @@
       } catch(Exception $e) {
         $this->error = $e->getMessage();
         if ($this->enableLogging !== FALSE) self::writeLoop();
-        return $this->solveTicketPrice();
+        if ($this->ticketBaseRetries < 5) {
+          $this->ticketBaseRetries++;
+          return self::getTicketBase();
+        }
+        return $this->TicketBase = 0;
       }
       if (!$this->result1obj = $this->geocoder->geocodeQuery(GeocodeQuery::create($addy1))->first()) {
-        return $this->solveTicketPrice();
+        if ($this->ticketBaseRetries < 5) {
+          $this->ticketBaseRetries++;
+          return self::getTicketBase();
+        } else {
+          $this->error = 'No address1 result from geocoder';
+          if ($this->enableLogging !== FALSE) self::writeLoop();
+          return $this->TicketBase = 0;
+        }
       }
       try {
         $this->geocoder->geocodeQuery(GeocodeQuery::create($addy2));
       } catch(Exception $e) {
         $this->error = $e->getMessage();
         if ($this->enableLogging !== FALSE) self::writeLoop();
-        return $this->solveTicketPrice();
+        if ($this->ticketBaseRetries < 5) {
+          $this->ticketBaseRetries++;
+          return self::getTicketBase();
+        }
+        return $this->TicketBase = 0;
       }
       if (!$this->result2obj = $this->geocoder->geocodeQuery(GeocodeQuery::create($addy2))->first()) {
-        if ($this->$ticketBaseRetries < 5) {
-          $this->$ticketBaseRetries++;
-          return $this->getTicketBase();
+        if ($this->ticketBaseRetries < 5) {
+          $this->ticketBaseRetries++;
+          return self::getTicketBase();
         } else {
+          $this->error = 'No address2 result from geocoder';
+          if ($this->enableLogging !== FALSE) self::writeLoop();
           return $this->TicketBase = 0;
         }
       }
@@ -515,6 +565,7 @@
       if ($this->TicketBase > $this->maxFee) {
         $this->TicketBase = $this->maxFee;
       }
+      return TRUE;
     }
 
     public function solveDedicatedRunPrice() {
