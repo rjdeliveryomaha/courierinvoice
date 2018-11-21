@@ -162,6 +162,9 @@
     private $processingRoute = FALSE;
     // bool flag indicating if a map will be displayed for price calculation
     private $mapAvailable = TRUE;
+    // list of providers supported by php/Geocoder
+    private $providers = [ 'AlgoliaPlaces', 'ArcGISOnline', 'BingMaps', 'FreeGeoIp', 'GeoIP2', 'GeoIPs', 'GeoPlugin', 'Geonames', 'GoogleMaps', 'Here', 'HostIp', 'IpInfo', 'IpInfoDb', 'Ipstack', 'LocationIQ', 'MapQuest', 'MapBox', 'Mapzen', 'MaxMind', 'MaxMindBinary', 'Nominatim', 'OpenCage', 'PickPoint', 'TomTom', 'Yandex' ];
+    private $ticketBaseRetries = 0;
     /**
     *  int flag indicating what range to solve for
     *    0: range. distance between location 1 and location 2
@@ -369,88 +372,7 @@
       }
 
       if ($this->PriceOverride !== 1) {
-        if (strlen($this->pCountry) === 2) {
-          $this->pCountry = self::countryFromAbbr($this->pCountry);
-        }
-        if (strlen($this->dCountry) === 2) {
-          $this->dCountry = self::countryFromAbbr($this->dCountry);
-        }
-        $addy1 = $this->pAddress1 . " " . $this->pAddress2 . ", " . $this->pCountry;
-        $addy2 = $this->dAddress1 . " " . $this->dAddress2 . ", " . $this->dCountry;
-        // Load the Geocoder
-        $this->geocoder = new \Geocoder\ProviderAggregator();
-        $this->guzzle = new GuzzleClient($this->guzzleConfig);
-        $this->adapter  = new GuzzleAdapter($this->guzzle);
-        $this->dumper = new \Geocoder\Dumper\GeoJson();
-        if ($this->mapAvailable === TRUE) {
-          $this->chain = new \Geocoder\Provider\Chain\Chain([
-            new \Geocoder\Provider\MapQuest\MapQuest($this->adapter, $this->config['MapQuestAPIKey']),
-            new \Geocoder\Provider\GoogleMaps\GoogleMaps($this->adapter, $this->config['GoogleAPIKey']),
-            new \Geocoder\Provider\OpenCage\OpenCage($this->adapter, $this->config['OpenCageAPIKey'])
-          ]);
-        } else {
-          $this->chain = new \Geocoder\Provider\Chain\Chain([
-            new \Geocoder\Provider\MapQuest\MapQuest($this->adapter, $this->config['MapQuestAPIKey']),
-            new \Geocoder\Provider\OpenCage\OpenCage($this->adapter, $this->config['OpenCageAPIKey'])
-          ]);
-        }
-
-        $this->geocoder->registerProvider($this->chain);
-        // Use GeoCode to get the coordinates of the two addresses
-        // get the geocoded objects
-        try {
-          $this->geocoder->geocodeQuery(GeocodeQuery::create($addy1));
-        } catch(Exception $e) {
-          $this->error = $e->getMessage();
-          if ($this->enableLogging !== FALSE) self::writeLoop();
-          return $this->solveTicketPrice();
-        }
-        if (!$this->result1obj = $this->geocoder->geocodeQuery(GeocodeQuery::create($addy1))->first()) {
-          return $this->solveTicketPrice();
-        }
-        try {
-          $this->geocoder->geocodeQuery(GeocodeQuery::create($addy2));
-        } catch(Exception $e) {
-          $this->error = $e->getMessage();
-          if ($this->enableLogging !== FALSE) self::writeLoop();
-          return $this->solveTicketPrice();
-        }
-        if (!$this->result2obj = $this->geocoder->geocodeQuery(GeocodeQuery::create($addy2))->first()) {
-          return $this->solveTicketPrice();
-        }
-        // dump the objects as json strings and encode them as array
-        $this->result1 = json_decode($this->dumper->dump($this->result1obj));
-        $this->result2 = json_decode($this->dumper->dump($this->result2obj));
-
-        $this->loc1['lat'] = $this->result1->geometry->coordinates[1];
-        $this->loc1['lng'] = $this->result1->geometry->coordinates[0];
-        $this->loc2['lat'] = $this->result2->geometry->coordinates[1];
-        $this->loc2['lng'] = $this->result2->geometry->coordinates[0];
-        $this->center['lat'] = ($this->loc1['lat'] + $this->loc2['lat']) / 2;
-        $this->center['lng'] = ($this->loc1['lng'] + $this->loc2['lng']) / 2;
-        // Find the distance between the two addresses
-        // Test that pick up and delivery are within the defined distance of the home location
-        for ($i = 0; $i < 3; $i++) {
-          $this->rangeFlag = $i;
-          self::rangeTest();
-        }
-        // Distance in miles
-        if ($this->config['WeightsMeasures'] == 0) {
-          $this->rangeVal = round($this->rangeVal * 0.621371192, 2);
-          $this->pRangeTest = round($this->pRangeTest * 0.621371192, 2);
-          $this->dRangeTest = round($this->dRangeTest * 0.621371192, 2);
-        }
-        $this->billingCode = round($this->rangeVal / $this->config['RangeIncrement'], 0, PHP_ROUND_HALF_UP);
-        $this->TicketBase = round($this->config['BaseTicketFee'] * pow($this->config['PriceIncrement'], $this->billingCode), 2, PHP_ROUND_HALF_DOWN);
-        // Solve for ticketPrice
-        if ($this->Contract == 0 && $this->BillTo !== NULL) {
-          $this->TicketBase = round(($this->TicketBase * $this->config['GeneralDiscount'][$this->BillTo]), 2, PHP_ROUND_HALF_DOWN);
-        } elseif ($this->Contract == 1 && $this->BillTo !== NULL) {
-          $this->TicketBase = round(($this->TicketBase * $this->config['ContractDiscount'][$this->BillTo]), 2, PHP_ROUND_HALF_DOWN);
-        }
-        if ($this->TicketBase > $this->maxFee) {
-          $this->TicketBase = $this->maxFee;
-        }
+        self::getTicketBase();
       }
       switch ($this->Charge) {
         case 1:
@@ -493,6 +415,106 @@
         $this->TicketPrice = $this->RunPrice;
       }
       return TRUE;
+    }
+
+    private function getTicketBase() {
+      if (strlen($this->pCountry) === 2) {
+        $this->pCountry = self::countryFromAbbr($this->pCountry);
+      }
+      if (strlen($this->dCountry) === 2) {
+        $this->dCountry = self::countryFromAbbr($this->dCountry);
+      }
+      $addy1 = "{$this->pAddress1} {$this->pAddress2}, {$this->pCountry}";
+      $addy2 = "{$this->dAddress1} {$this->dAddress2}, {$this->dCountry}";
+      // Load the Geocoder
+      $this->geocoder = new \Geocoder\ProviderAggregator();
+      $this->guzzle = new GuzzleClient($this->guzzleConfig);
+      $this->adapter  = new GuzzleAdapter($this->guzzle);
+      $this->dumper = new \Geocoder\Dumper\GeoJson();
+      $geoProviders = json_decode($this->config['Geocoders']);
+      if (json_last_error !== JSON_ERROR_NONE) {
+        if ($this->enableLogging === TRUE) {
+          $this->error = 'getTicketBase failure line ' . __line__ . '. ' . json_last_error_msg();
+          $this->writeLoop();
+        }
+        return $this->TicketBase = 0;
+      }
+      // Don't test for providers that require a map if none is available
+      $exclude = ($this->mapAvailable === TRUE) ? [] : ['GoogleMaps'];
+      if ($this->mapAvailable === TRUE) {
+        $this->chain = new \Geocoder\Provider\Chain\Chain([
+          new \Geocoder\Provider\MapQuest\MapQuest($this->adapter, $this->config['MapQuestAPIKey']),
+          new \Geocoder\Provider\GoogleMaps\GoogleMaps($this->adapter, $this->config['GoogleAPIKey']),
+          new \Geocoder\Provider\OpenCage\OpenCage($this->adapter, $this->config['OpenCageAPIKey'])
+        ]);
+      } else {
+        $this->chain = new \Geocoder\Provider\Chain\Chain([
+          new \Geocoder\Provider\MapQuest\MapQuest($this->adapter, $this->config['MapQuestAPIKey']),
+          new \Geocoder\Provider\OpenCage\OpenCage($this->adapter, $this->config['OpenCageAPIKey'])
+        ]);
+      }
+
+      $this->geocoder->registerProvider($this->chain);
+      // Use GeoCode to get the coordinates of the two addresses
+      // get the geocoded objects
+      try {
+        $this->geocoder->geocodeQuery(GeocodeQuery::create($addy1));
+      } catch(Exception $e) {
+        $this->error = $e->getMessage();
+        if ($this->enableLogging !== FALSE) self::writeLoop();
+        return $this->solveTicketPrice();
+      }
+      if (!$this->result1obj = $this->geocoder->geocodeQuery(GeocodeQuery::create($addy1))->first()) {
+        return $this->solveTicketPrice();
+      }
+      try {
+        $this->geocoder->geocodeQuery(GeocodeQuery::create($addy2));
+      } catch(Exception $e) {
+        $this->error = $e->getMessage();
+        if ($this->enableLogging !== FALSE) self::writeLoop();
+        return $this->solveTicketPrice();
+      }
+      if (!$this->result2obj = $this->geocoder->geocodeQuery(GeocodeQuery::create($addy2))->first()) {
+        if ($this->$ticketBaseRetries < 5) {
+          $this->$ticketBaseRetries++;
+          return $this->getTicketBase();
+        } else {
+          return $this->TicketBase = 0;
+        }
+      }
+      // dump the objects as json strings and encode them as array
+      $this->result1 = json_decode($this->dumper->dump($this->result1obj));
+      $this->result2 = json_decode($this->dumper->dump($this->result2obj));
+
+      $this->loc1['lat'] = $this->result1->geometry->coordinates[1];
+      $this->loc1['lng'] = $this->result1->geometry->coordinates[0];
+      $this->loc2['lat'] = $this->result2->geometry->coordinates[1];
+      $this->loc2['lng'] = $this->result2->geometry->coordinates[0];
+      $this->center['lat'] = ($this->loc1['lat'] + $this->loc2['lat']) / 2;
+      $this->center['lng'] = ($this->loc1['lng'] + $this->loc2['lng']) / 2;
+      // Find the distance between the two addresses
+      // Test that pick up and delivery are within the defined distance of the home location
+      for ($i = 0; $i < 3; $i++) {
+        $this->rangeFlag = $i;
+        self::rangeTest();
+      }
+      // Distance in miles
+      if ($this->config['WeightsMeasures'] == 0) {
+        $this->rangeVal = round($this->rangeVal * 0.621371192, 2);
+        $this->pRangeTest = round($this->pRangeTest * 0.621371192, 2);
+        $this->dRangeTest = round($this->dRangeTest * 0.621371192, 2);
+      }
+      $this->billingCode = round($this->rangeVal / $this->config['RangeIncrement'], 0, PHP_ROUND_HALF_UP);
+      $this->TicketBase = round($this->config['BaseTicketFee'] * pow($this->config['PriceIncrement'], $this->billingCode), 2, PHP_ROUND_HALF_DOWN);
+      // Solve for ticketPrice
+      if ($this->Contract == 0 && $this->BillTo !== NULL) {
+        $this->TicketBase = round(($this->TicketBase * $this->config['GeneralDiscount'][$this->BillTo]), 2, PHP_ROUND_HALF_DOWN);
+      } elseif ($this->Contract == 1 && $this->BillTo !== NULL) {
+        $this->TicketBase = round(($this->TicketBase * $this->config['ContractDiscount'][$this->BillTo]), 2, PHP_ROUND_HALF_DOWN);
+      }
+      if ($this->TicketBase > $this->maxFee) {
+        $this->TicketBase = $this->maxFee;
+      }
     }
 
     public function solveDedicatedRunPrice() {
