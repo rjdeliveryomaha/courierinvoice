@@ -1491,11 +1491,9 @@
     public function displaySingleTicket() {
       $singleTicket = '';
       if ($this->Contract === 0) {
-        //Test for fault in query. There should be no dispatch times here equal to 0000-00-00 00:00:00.
+        // Test for fault in query. There should be no NULL dispatch times here
         if ($this->DispatchTimeStamp === $this->tTest) {
-          $this->error = '<p class="center"><span class="error">Processing Error</span>:  Ticket Number ' . $this->TicketNumber . ' has no dispatch time stamp.</p>';
-          if ($this->enableLogging !== FALSE) self::writeLoop();
-          return $this->error;
+          return FALSE;
         }
         // Set the completion deadline based on the dispatch time stamp and charge
         switch ($this->Charge) {
