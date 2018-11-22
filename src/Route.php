@@ -185,11 +185,8 @@
           if ($this->enableLogging !== FALSE) self::writeLoop();
           return "<p class=\"center\"><span class=\"error\>Error</span>: {$this->error}</p>";
         }
-        if (count($tempTicketSet) > 0) {
-          return "<p class=\"center\">{$this->dateObject->format('d M Y')} Route Complete.</p>";
-        } else {
-          return "<p class=\"center\">{$this->dateObject->format('d M Y')} Route Empty.</p>";
-        }
+        $state = (count($tempTicketSet) > 0) ? 'Complete' : 'Empty';
+        return "<p class=\"center\">{$this->dateObject->format('d M Y')} Route {$state}.</p>";
       } else {
         self::prepTickets();
         if (!empty($this->singleLocation)) {
