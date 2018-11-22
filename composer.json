@@ -1,5 +1,5 @@
 {
-  "name": "RJDeliveryOmaha/CourierInvoice",
+  "name": "rj-delivery-omaha/courier-invoice",
   "version": "1.0",
   "type": "library",
   "keywords": [ "courier invoice" ],
@@ -37,7 +37,7 @@
   },
   "autoload": {
     "psr-4": {
-      "RJDeliveryOmaha\\CourierInvoice\\": "src/"
+      "rj-delivery-omaha\\courier-invoice\\": "src/"
     }
   }
 }
