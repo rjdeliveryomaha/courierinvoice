@@ -473,7 +473,7 @@
       if (empty($this->rescheduledRuns)) return FALSE;
       // Use month and day to determine if today has an event and process the ticket
       foreach ($this->rescheduledRuns as $event) {
-        if (date('n-j', strtotime($this->today)) >= date('n-j', strtotime($event['StartDate'])) && date('n-j', strtotime($this->today)) <= date('n-j', strtotime($event['EndDate']))) {
+        if (date('n-j-Y', strtotime($this->today)) >= date('n-j-Y', strtotime($event['StartDate'])) && date('n-j-Y', strtotime($this->today)) <= date('n-j-Y', strtotime($event['EndDate']))) {
           // Pull the ticket info
           $runQueryData['endPoint'] = 'contract_runs';
           $runQueryData['method'] = 'GET';
@@ -793,7 +793,7 @@
       // Use month and day to determine if today has an event
       $match = FALSE;
       for ($i = 0; $i < count($this->cancelations); $i++) {
-        if (date('n-j', strtotime($this->today)) >= date('n-j', strtotime($this->cancelations[$i]['StartDate'])) && date('n-j', strtotime($this->today)) <= date('n-j', strtotime($this->cancelations[$i]['EndDate']))) {
+        if (date('n-j-Y', strtotime($this->today)) >= date('n-j-Y', strtotime($this->cancelations[$i]['StartDate'])) && date('n-j-Y', strtotime($this->today)) <= date('n-j-Y', strtotime($this->cancelations[$i]['EndDate']))) {
           if ((int)$this->cancelations[$i]['Cancel'] <= 2 || $this->cancelations[$i]['RunNumber'] === $runNumber) {
             $match = TRUE;
             break;
