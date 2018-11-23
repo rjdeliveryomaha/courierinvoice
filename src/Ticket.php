@@ -1020,7 +1020,7 @@
         $mail->isSMTP(); // Set mailer to use SMTP
         $mail->Host = $this->emailConfig['smtpHost'];  // Specify main and backup SMTP servers
         $mail->SMTPAuth = TRUE; // Enable SMTP authentication
-        $mail->Username = $this->emailConfig['emailAddress']; // SMTP username
+        $mail->Username = $this->emailConfig['fromAddress']; // SMTP username
         $mail->Password = $this->emailConfig['password']; // SMTP password
         $mail->SMTPSecure = 'tls'; // Enable TLS encryption, `ssl` also accepted
         $mail->Port = $this->emailConfig['port']; // TCP port to connect to
