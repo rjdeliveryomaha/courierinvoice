@@ -1,8 +1,8 @@
 <?php
-  namespace RJDeliveryOmaha\CourierInvoice;
+  namespace rjdeliveryomaha\courierinvoice;
 
-  use RJDeliveryOmaha\CourierInvoice\CommonFunctions;
-  use RJDeliveryOmaha\CourierInvoice\Query;
+  use rjdeliveryomaha\courierinvoice\CommonFunctions;
+  use rjdeliveryomaha\courierinvoice\Query;
   /***
   * throws Exception
   *

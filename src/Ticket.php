@@ -1,7 +1,7 @@
 <?php
-  namespace RJDeliveryOmaha\CourierInvoice;
+  namespace rjdeliveryomaha\courierinvoice;
 
-  use RJDeliveryOmaha\CourierInvoice\CommonFunctions;
+  use rjdeliveryomaha\courierinvoice\CommonFunctions;
   use Geocoder\Query\GeocodeQuery;
   use GuzzleHttp\Client as GuzzleClient;
   use Http\Adapter\Guzzle6\Client as GuzzleAdapter;
