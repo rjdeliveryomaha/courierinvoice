@@ -37,7 +37,7 @@
   },
   "autoload": {
     "psr-4": {
-      "rj-delivery-omaha\\courier-invoice\\": "src/"
+      "rjdeliveryomaha\\courierinvoice\\": "src/"
     }
   }
 }
