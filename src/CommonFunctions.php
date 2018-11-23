@@ -1,12 +1,12 @@
 <?php
-  namespace RJDeliveryOmaha\CourierInvoice;
+  namespace rjdeliveryomaha\courierinvoice;
 
-  use RJDeliveryOmaha\CourierInvoice\Query;
-  use RJDeliveryOmaha\CourierInvoice\Ticket;
-  use RJDeliveryOmaha\CourierInvoice\Invoice;
-  use RJDeliveryOmaha\CourierInvoice\Client;
-  use RJDeliveryOmaha\CourierInvoice\TicketChart;
-  use RJDeliveryOmaha\CourierInvoice\InvoiceChart;
+  use rjdeliveryomaha\courierinvoice\Query;
+  use rjdeliveryomaha\courierinvoice\Ticket;
+  use rjdeliveryomaha\courierinvoice\Invoice;
+  use rjdeliveryomaha\courierinvoice\Client;
+  use rjdeliveryomaha\courierinvoice\TicketChart;
+  use rjdeliveryomaha\courierinvoice\InvoiceChart;
 
   /**
   * throws Exception
