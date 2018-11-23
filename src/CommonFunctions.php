@@ -8,41 +8,6 @@
   use rjdeliveryomaha\courierinvoice\TicketChart;
   use rjdeliveryomaha\courierinvoice\InvoiceChart;
 
-  /**
-  * throws Exception
-  *
-  * @param $options = [
-  *  // required
-  *  'username' => '';
-  *  'publicKey' => '';
-  *  'privateKey' => '';
-  *  // optional
-  *  // bool: logging is disabled by default
-  *  'enableLogging' => false,
-  *  // string: if logging is enabled a target file /must/ be defined
-  *  'targetFile' => './APILog',
-  *  // Cancelled tickets are not displayed on invoices by default
-  *  // numeric array of integers: client IDs to exempt from this rule
-  *  'showCancelledTicketsOnInvoiceExceptions' => [],
-  *  // Contract tickets are consolidated by run number on invoices by default
-  *  // numeric array of integers: client IDs to exempt from this rule
-  *  'consolidateContractTicketsOnInvoiceExceptions' => [],
-  *  // associative array: client names that should be changed, for example, to abbreviate
-  *  'clientNameExceptions' => [ 'Long Name fetched from API' => 'abbr' ],
-  *  // numeric array: addresses that should be ignored, for example, due to change of address
-  *  'clientAddressExceptions' => [ 'ClientName, Addresses1' ],
-  *  // numeric array: Values that should not be included on ticket entry datalists. Values should be all lower case.
-  *  'ignoreValues' => [],
-  *  // associative array: Setting to use with PHPMailer.
-  *  'emailConfig' => [ 'emailAddress' => 'noreply@test.com', 'password'=> 'password', 'smtpHost' => 'test.com', 'port' => '587', 'secureType' => 'tls', 'fromName' => 'Test', 'BCCAddress' => 'optional@test.com' ],
-  *  // number: maximum number of months to display on a chart. Default is 6
-  *  'allTimeChartLimit' => 6,
-  *  // string: login name for courier invoice user as an alternative to using ClientID 0 (zero)
-  *  'userLogin' => 'MyLoginName'
-  * ];
-  *
-  **/
-
   class CommonFunctions {
     protected $username;
     protected $publicKey;
