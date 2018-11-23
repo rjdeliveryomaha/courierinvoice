@@ -7,10 +7,6 @@
   use Http\Adapter\Guzzle6\Client as GuzzleAdapter;
   use PHPMailer\PHPMailer\PHPMailer;
   use PHPMailer\PHPMailer\Exception;
-  /***
-  * throws Exception
-  *
-  ***/
 
   class Ticket extends CommonFunctions {
     protected $startDate;
@@ -322,7 +318,7 @@
         $data['endPoint'] = 'tickets';
         $data['formKey'] = $this->formKey;
         $data['queryParams'] = [];
-        $data['queryParams']['filter'] = array(array('Resource'=>'ticket_index', 'Filter'=>'eq', 'Value'=>$this->ticket_index));
+        $data['queryParams']['filter'] = [ ['Resource'=>'ticket_index', 'Filter'=>'eq', 'Value'=>$this->ticket_index] ];
         if (!$ticketQuery = self::createQuery($data)) {
           $temp = $this->error;
           $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -341,7 +337,7 @@
           $contractRunQueryData['method'] = 'GET';
           $contractRunQueryData['formKey'] = $this->formKey;
           $contractRunQueryData['queryParams'] = [];
-          $contractRunQueryData['queryParams']['filter'] = array(array('Resource'=>'RunNumber', 'Filter'=>'eq', 'Value'=>$testTicket[0]['RunNumber']));
+          $contractRunQueryData['queryParams']['filter'] = [ ['Resource'=>'RunNumber', 'Filter'=>'eq', 'Value'=>$testTicket[0]['RunNumber']] ];
           if (!$contractRunQuery = self::createQuery($contractRunQueryData)) {
             $temp = $this->error;
             $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -366,9 +362,9 @@
         // If the neither address has changed set flag to prevent recalculating the price
         if ($this->pAddress1 . $this->pAddress2 . $this->pCountry === $originalTicket['pAddress1'] . $originalTicket['pAddress2'] . $originalTicket['pCountry'] && $this->dAddress1 . $this->dAddress2 . $this->dCountry === $originalTicket['dAddress1'] . $originalTicket['dAddress2'] . $originalTicket['dCountry']) {
           $this->PriceOverride = 1;
-          $this->TicketBase = $originalTicket["TicketBase"];
+          $this->TicketBase = $originalTicket['TicketBase'];
         }
-        $this->Contract = $originalTicket["Contract"];
+        $this->Contract = $originalTicket['Contract'];
       }
 
       if ($this->PriceOverride !== 1) {
@@ -457,7 +453,7 @@
                 $newProvider = new $testClass($this->adapter, $value[1], $value[0]);
               } catch(Exception $e) {
                 if ($this->enableLogging !== FALSE) {
-                  $this->error = "Geocoder Error {$e->getMessage()}\n";
+                  $this->error = "Geocoder Error {$e->getMessage()}";
                   self::writeLoop();
                 }
                 $newProvider = NULL;
