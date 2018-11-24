@@ -4,11 +4,11 @@
     composer --dev require "rjdeliveryomaha/courierinvoice"
   Or add "rjdeliveryomaha/courierinvoice":"dev-master" to composer.json
 # Files
-  > CommonFunctions
+  CommonFunctions
   Ticket
 
 # CommonFunctions
-  >  Utility class extended by all other classes
+  Utility class extended by all other classes
   Throws exception on error
   Usage: <code>$functions = new CommonFunctions($config, $data);</code>
   $config and $data should both be array
@@ -34,7 +34,7 @@ Generates unique session value for validating POST data. returns a hidden input.
 Generates unique session value for validating POST data. returns the value.
 
 # Ticket
-> Handles display and update of ticket data
+  Handles display and update of ticket data
   Returns string on error.
   Usage: $ticket = new Ticket($config, $data)
   $config and $data should both be array.
