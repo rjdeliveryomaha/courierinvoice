@@ -3,61 +3,6 @@
 
   use rjdeliveryomaha\courierinvoice\CommonFunctions;
 
-  /***
-  * throws Exception
-  *
-  * @param $endPoint string: must be in $validTables
-  *
-  * @param $method string: 'POST', 'PUT', 'GET', 'DELETE'
-  *
-  * @param $queryParams: assoc array keys = resources, filter, order, page
-  *
-  *  $queryParams['resources'] = array('res1', 'res2', 'res3', ...);
-  *
-  *  If $queryParams['resources'] is omitted all resources for entries matching the filter will be returned
-  *
-  *  $queryParams['filter'] = array(array('Resource'=>'resName', 'Filter'=>'filter', 'Value'=>'val'))
-  *  The above describes a simple query. The structure of an 'AND' statement simply adds elements to the primary arry. EX:
-  *  $queryParams['filter'] = array(array('Resource'=>'resName', 'Filter'=>'filter', 'Value'=>'val'), array('Resource'=>'resName', 'Filter'=>'filter', 'Value'=>'val'))
-  *  An 'OR' statement requires an array of simple or 'AND' statements. Ex:
-  *  $queryParams['filter'] = array(array(array('Resource'=>'resName', 'Filter'=>'filter', 'Value'=>'val'), array('Resource'=>'resName', 'Filter'=>'filter', 'Value'=>'val')), array('Resource'=>'resName', 'Filter'=>'filter', 'Value'=>'val'))
-  * The available filters:
-  *  cs: contain string (string contains value)
-  *  sw: start with (string starts with value)
-  *  ew: end with (string end with value)
-  *  eq: equal (string or number matches exactly)
-  *  lt: lower than (number is lower than value)
-  *  le: lower or equal (number is lower than or equal to value)
-  *  ge: greater or equal (number is higher than or equal to value)
-  *  gt: greater than (number is higher than value)
-  *  bt: between (number is between two comma separated values)
-  *  in: in (number is in comma separated list of values)
-  *  is: is null (field contains "NULL" value)
-  *  You can negate all filters by prepending a 'n' character, so that 'eq' becomes 'neq'.
-  *
-  *  If $queryParams['filter'] is omitted all entries will return the requested resources
-  *
-  *  With the "order" parameter you can sort. By default the sort is in ascending order, but by specifying "desc" this can be reversed
-  *  $queryParams['order'] = array(array('resource'=>'TicketNumber','dir'=>'desc'));
-  *
-  *  You may sort on multiple fields by using multiple "order" parameters
-  *  $queryParams['order'] = array(array('resource'=>'TicketNumber', 'dir'=>'desc'),array('resource'=>'Contract'));
-  *
-  *
-  * The "page" parameter holds the requested page. The default page size is 20, but can be adjusted (e.g. to 50)
-  * $queryParams['page'] = '1'; or $queryParams['page'] = '1,50';
-  *
-  * Pages that are not ordered cannot be paginated
-  *
-  *  When using this function to update a resource (PUT):
-  *    $queryParams should be an empty array
-  *    The function call should have a string appended:
-  *    This string should contain a forward slash followed by the PRIMARY KEY value of the resource to be modified
-  *    An example using the call function defined above:
-  *      call('PUT', buildURI($endPoint, array()) . '/' . $varHoldingPK, $payload);
-  *    See the table above for the PRIMARY KEY resources to be used for these calls
-  ***/
-
   class Query extends CommonFunctions {
     protected $method;
     protected $endPoint;
