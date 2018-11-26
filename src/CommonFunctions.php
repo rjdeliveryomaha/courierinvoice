@@ -684,14 +684,14 @@
       if ($type === 'month') {
         $format = 'Y-m';
         $when = 'DateIssued';
-        $queryData['queryParams']['resources'] = ['DateIssued'];
+        $queryData['queryParams']['include'] = ['DateIssued'];
         $queryData['queryParams']['filter'] = [ ['Resource'=>'InvoiceNumber', 'Filter'=>'ncs', 'Value'=>'t'] ];
         $who = 'ClientID';
         $placeholder = 'JAN 2000';
       } elseif ($type === 'date') {
         $format = 'Y-m-d';
         $when = 'ReceivedDate';
-        $queryData['queryParams']['resources'] = ['ReceivedDate'];
+        $queryData['queryParams']['include'] = ['ReceivedDate'];
         $queryData['queryParams']['filter'] = [ ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1] ];
         $who = 'BillTo';
         $placeholder = '';
@@ -736,7 +736,7 @@
       $queryData['formKey'] = $this->formKey;
       $queryData['method'] = 'GET';
       $queryData['endPoint'] = 'invoices';
-      $queryData['queryParams']['resources'] = ['InvoiceNumber', 'Closed'];
+      $queryData['queryParams']['include'] = ['InvoiceNumber', 'Closed'];
       $queryData['queryParams']['filter'] = [ ['Resource'=>'ClientID','Filter'=>'eq','Value'=>$search], ['Resource'=>'InvoiceNumber','Filter'=>'ncs','Value'=>'t'] ];
       $queryData['queryParams']['order'] = ['InvoiceNumber,desc'];
       if (!$query = self::createQuery($queryData)) {
@@ -763,7 +763,7 @@
       $data['formKey'] = $this->formKey;
       $data['method'] = 'GET';
       $data['endPoint'] = 'invoices';
-      $data['queryParams']['resources'] = ['Balance', 'DatePaid'];
+      $data['queryParams']['include'] = ['Balance', 'DatePaid'];
       $data['queryParams']['filter'] = [ ['Resource'=>'ClientID', 'Filter'=>'eq', 'Value'=>$_SESSION['ClientID']], ['Resource'=>'Closed', 'Filter'=>'eq', 'Value'=>1] ];
       if (!$query = self::createQuery($data)) {
         return $this->error;
@@ -781,7 +781,7 @@
         }
       }
       $data['endPoint'] = 'tickets';
-      $data['queryParams']['resources'] = ['TicketPrice'];
+      $data['queryParams']['include'] = ['TicketPrice'];
       $data['queryParams']['filter'] = [ ['Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=>$_SESSION['ClientID']], ['Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>'-'], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>9] ];
       if (!$query = self::createQuery($data)) {
         return $this->error;

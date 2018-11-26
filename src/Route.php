@@ -411,7 +411,7 @@
       $driverQueryData['method'] = 'GET';
       $driverQueryData['endPoint'] = 'drivers';
       $driverQueryData['formKey'] = $this->formKey;
-      $driverQueryData['queryParams']['resources'] = ['DriverID', 'FirstName', 'LastName'];
+      $driverQueryData['queryParams']['include'] = ['DriverID', 'FirstName', 'LastName'];
       $driverQueryData['queryParams']['filter'] = [ ['Resource'=>'Deleted', 'Filter'=>'neq', 'Value'=>1] ];
       if (!$driverQuery = self::createQuery($driverQueryData)) {
         $temp = $this->error . "\n";
@@ -437,7 +437,7 @@
       $runListQueryData['endPoint'] = 'contract_runs';
       $runListQueryData['method'] = 'GET';
       $runListQueryData['formKey'] = $this->formKey;
-      $runListQueryData['queryParams']['resources'] = ['crun_index', 'RunNumber', 'BillTo', 'PickUp', 'DropOff', 'RoundTrip', 'pTime', 'dTime', 'd2Time', 'Schedule', 'StartDate', 'LastCompleted', 'Notes', 'DryIce', 'diWeight', 'PriceOverride', 'TicketPrice'];
+      $runListQueryData['queryParams']['include'] = ['crun_index', 'RunNumber', 'BillTo', 'PickUp', 'DropOff', 'RoundTrip', 'pTime', 'dTime', 'd2Time', 'Schedule', 'StartDate', 'LastCompleted', 'Notes', 'DryIce', 'diWeight', 'PriceOverride', 'TicketPrice'];
       $runListQueryData['queryParams']['filter'] = [ ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID] ];
       if (!$runListQuery = self::createQuery($runListQueryData)) {
         $temp = $this->error . "\n";
@@ -453,7 +453,7 @@
       $rescheduledQueryData['endPoint'] = 'schedule_override';
       $rescheduledQueryData['method'] = 'GET';
       $rescheduledQueryData['formKey'] = $this->formKey;
-      $rescheduledQueryData['queryParams']['resources'] = ['ID','StartDate','EndDate','RunNumber','pTime','dTime','d2Time'];
+      $rescheduledQueryData['queryParams']['include'] = ['ID','StartDate','EndDate','RunNumber','pTime','dTime','d2Time'];
       $rescheduledQueryData['queryParams']['filter'] = [ ['Resource'=>'Cancel', 'Filter'=>'eq', 'Value'=>5], ['Resource'=>'DriverID', 'Filter'=>'eq', 'Value'=>$this->driverID] ];
       if (!$rescheduledQuery = self::createQuery($rescheduledQueryData)) {
         $temp = $this->error . "\n";
@@ -478,7 +478,7 @@
           $runQueryData['endPoint'] = 'contract_runs';
           $runQueryData['method'] = 'GET';
           $runQueryData['formKey'] = $this->formKey;
-          $runQueryData['queryParams']['resources'] = ['crun_index', 'RunNumber', 'BillTo', 'PickUp', 'DropOff', 'Notes', 'DryIce', 'diWeight', 'PriceOverride', 'TicketPrice'];
+          $runQueryData['queryParams']['include'] = ['crun_index', 'RunNumber', 'BillTo', 'PickUp', 'DropOff', 'Notes', 'DryIce', 'diWeight', 'PriceOverride', 'TicketPrice'];
           $runQueryData['queryParams']['filter'] = [ ['Resource'=>'RunNumber', 'Filter'=>'eq', 'Value'=>$event['RunNumber']] ];
           if (!$runQuery = self::createQuery($runQueryData)) {
             $temp = $this->error . "\n";
@@ -516,7 +516,7 @@
       $contractLocationQueryData['endPoint'] = 'contract_locations';
       $contractLocationQueryData['method'] = 'GET';
       $contractLocationQueryData['formKey'] = $this->formKey;
-      $contractLocationQueryData['queryParams']['resources'] = ['ID','ClientName','Department', 'Contact', 'Telephone', 'Address1', 'Address2', 'Country'];
+      $contractLocationQueryData['queryParams']['include'] = ['ID','ClientName','Department', 'Contact', 'Telephone', 'Address1', 'Address2', 'Country'];
       if (!$contractLocationQuery = self::createQuery($contractLocationQueryData)) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -542,7 +542,7 @@
       $cancelationQueryData['endPoint'] = 'schedule_override';
       $cancelationQueryData['method'] = 'GET';
       $cancelationQueryData['formKey'] = $this->formKey;
-      $cancelationQueryData['queryParams']['resources'] = ['Cancel', 'RunNumber', 'StartDate', 'EndDate'];
+      $cancelationQueryData['queryParams']['include'] = ['Cancel', 'RunNumber', 'StartDate', 'EndDate'];
       $cancelationQueryData['queryParams']['filter'] = [ ['Resource'=>'Cancel', 'Filter'=>'le', 'Value'=>4] ];
       if (!$cancelationQuery = self::createQuery($cancelationQueryData)) {
         $temp = $this->error . "\n";

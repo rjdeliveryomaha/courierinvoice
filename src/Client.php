@@ -91,21 +91,21 @@
         $this->testAgainst = 'Password';
         $this->primaryKey = 'client_index';
         $this->queryData['endPoint'] = 'clients';
-        $this->queryData['queryParams']['resources'] = ['AdminPassword', 'Password', 'client_index'];
+        $this->queryData['queryParams']['include'] = ['AdminPassword', 'Password', 'client_index'];
         $this->queryData['queryParams']['filter'] = [ ['Resource'=>'ClientID', 'Filter'=>'eq', 'Value'=>$client], ['Resource'=>'RepeatClient', 'Filter'=>'eq','Value'=>$this->RepeatClient] ];
       } elseif ($this->flag === 'daily') {
         $this->resourceName = 'Password';
         $this->testAgainst = 'AdminPassword';
         $this->primaryKey = 'client_index';
         $this->queryData['endPoint'] = 'clients';
-        $this->queryData['queryParams']['resources'] = ['AdminPassword', 'Password', 'client_index'];
+        $this->queryData['queryParams']['include'] = ['AdminPassword', 'Password', 'client_index'];
         $this->queryData['queryParams']['filter'] = [ ['Resource'=>'ClientID', 'Filter'=>'eq', 'Value'=>$client], ['Resource'=>'RepeatClient', 'Filter'=>'eq','Value'=>$this->RepeatClient] ];
       } elseif ($this->flag === 'org') {
         $this->resourceName = 'Password';
         $this->secondTest = FALSE;
         $this->primaryKey = 'o_client_index';
         $this->queryData['endPoint'] = 'o_clients';
-        $this->queryData['queryParams']['resources'] = ['Password', 'o_client_index'];
+        $this->queryData['queryParams']['include'] = ['Password', 'o_client_index'];
         $this->queryData['queryParams']['filter'] = [ ['Resource'=>'ID', 'Filter'=>'eq', 'Value'=>$client] ];
       } else {
         return '<span class="error">Invalid Flag</span>';

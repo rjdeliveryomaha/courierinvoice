@@ -308,7 +308,7 @@
       if ($this->loginType === 'driver' || $this->loginType === 'dispatch') {
         // pause for one quater (1/4 (0.25)) of a second between API calls
         time_nanosleep(0, 250000000);
-        $this->queryData['queryParams']['resources'] = [ 'ClientID', 'ContractDiscount', 'GeneralDiscount' ];
+        $this->queryData['queryParams']['include'] = [ 'ClientID', 'ContractDiscount', 'GeneralDiscount' ];
         $this->queryData['queryParams']['filter'] = [ ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0] ];
         $this->query = self::createQuery($this->queryData);
         if ($this->query === FALSE) {

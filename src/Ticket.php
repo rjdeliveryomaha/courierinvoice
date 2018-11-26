@@ -639,7 +639,7 @@
     private function buildLocationList() {
       if ($this->organizationFlag === TRUE) $this->ClientID = implode(',', array_keys($this->members));
       $tempClients = $uniqueTest = array();
-      $locationQueryData['queryParams']['resources'] = ['pClient', 'dClient', 'pAddress1', 'pAddress2', 'pCountry', 'dAddress1', 'dAddress2', 'dCountry', 'pDepartment', 'dDepartment', 'pContact', 'dContact'];
+      $locationQueryData['queryParams']['include'] = ['pClient', 'dClient', 'pAddress1', 'pAddress2', 'pCountry', 'dAddress1', 'dAddress2', 'dCountry', 'pDepartment', 'dDepartment', 'pContact', 'dContact'];
       $locationQueryData['queryParams']['filter'] = ($this->ulevel === 'dispatch' || $this->ulevel === 'driver') ? [] : [ ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>$this->ClientID] ];
       $locationQueryData['method'] = 'GET';
       $locationQueryData['endPoint'] = 'tickets';
@@ -690,7 +690,7 @@
       $tempDriver = [];
       // Pull the data to make the datalists
       $driverQueryData['queryParams'] = [];
-      $driverQueryData['queryParams']['resources'] = ['DriverID', 'FirstName', 'LastName'];
+      $driverQueryData['queryParams']['include'] = ['DriverID', 'FirstName', 'LastName'];
       $driverQueryData['queryParams']['filter'] = [ ['Resource'=>'Deleted', 'Filter'=>'neq', 'Value'=>1] ];
       $driverQueryData['method'] = 'GET';
       $driverQueryData['endPoint'] = 'drivers';
@@ -719,7 +719,7 @@
     private function fetchClients() {
       $tempClients = $repeatList = $nrList = [];
       $clientQueryData['queryParams'] = [];
-      $clientQueryData['queryParams']['resources'] = ['ClientID', 'ClientName', 'Department', 'RepeatClient'];
+      $clientQueryData['queryParams']['include'] = ['ClientID', 'ClientName', 'Department', 'RepeatClient'];
       $clientQueryData['queryParams']['filter'] = [ ['Resource'=>'Deleted', 'Filter'=>'neq', 'Value'=>1] ];
       $clientQueryData['method'] = 'GET';
       $clientQueryData['endPoint'] = 'clients';
@@ -924,7 +924,7 @@
       $ticketNumberQueryData['method'] = 'GET';
       $ticketNumberQueryData['endPoint'] = 'tickets';
       $ticketNumberQueryData['formKey'] = $this->formKey;
-      $ticketNumberQueryData['queryParams']['resources'] = ['TicketNumber'];
+      $ticketNumberQueryData['queryParams']['include'] = ['TicketNumber'];
       if (!$ticketNumberQuery = self::createQuery($ticketNumberQueryData)) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -2730,7 +2730,7 @@
       $this->queryData['method'] = 'GET';
       $this->queryData['endPoint'] = 'tickets';
       $this->queryData['formKey'] = $this->formKey;
-      $this->queryData['queryParams']['resources'] = [ 'ticket_index', 'TicketNumber', 'RunNumber', 'BillTo', 'RequestedBy', 'ReceivedDate', 'pClient', 'pDepartment', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'dClient', 'dDepartment', 'dAddress1', 'dAddress2', 'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'TicketBase', 'Charge', 'Contract', 'Multiplier', 'RunPrice', 'TicketPrice', 'EmailConfirm', 'EmailAddress', 'Notes', 'DispatchTimeStamp', 'DispatchedTo', 'DispatchedBy', 'Transfers', 'TransferState', 'PendingReceiver', 'pTimeStamp', 'dTimeStamp', 'd2TimeStamp', 'pTime', 'dTime', 'd2Time', 'pSigReq', 'dSigReq', 'd2SigReq', 'pSigPrint', 'dSigPrint', 'd2SigPrint', 'pSig', 'dSig', 'd2Sig', 'pSigType', 'dSigType', 'd2SigType', 'RepeatClient', 'InvoiceNumber' ];
+      $this->queryData['queryParams']['include'] = [ 'ticket_index', 'TicketNumber', 'RunNumber', 'BillTo', 'RequestedBy', 'ReceivedDate', 'pClient', 'pDepartment', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'dClient', 'dDepartment', 'dAddress1', 'dAddress2', 'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'TicketBase', 'Charge', 'Contract', 'Multiplier', 'RunPrice', 'TicketPrice', 'EmailConfirm', 'EmailAddress', 'Notes', 'DispatchTimeStamp', 'DispatchedTo', 'DispatchedBy', 'Transfers', 'TransferState', 'PendingReceiver', 'pTimeStamp', 'dTimeStamp', 'd2TimeStamp', 'pTime', 'dTime', 'd2Time', 'pSigReq', 'dSigReq', 'd2SigReq', 'pSigPrint', 'dSigPrint', 'd2SigPrint', 'pSig', 'dSig', 'd2Sig', 'pSigType', 'dSigType', 'd2SigType', 'RepeatClient', 'InvoiceNumber' ];
       $this->queryData['queryParams']['filter'] = [  [ 'Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=>(int)$_SESSION['ClientID'] ], [ 'Resource'=>'ReceivedDate', 'Filter'=>'sw', 'Value'=>$this->today->format('Y-m-d') ]  ];
       if (!$this->query = self::createQuery($this->queryData)) {
         $temp = $this->error;
