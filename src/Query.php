@@ -80,8 +80,11 @@
 
     private function orderParams($params) {
       $paramList = [];
-      if (isset($params['resources'])) {
-        $paramList[] = 'resources';
+      if (isset($params['include'])) {
+        $paramList[] = 'include';
+      }
+      if (isset($params['exclude'])) {
+        $paramList[] = 'exclude';
       }
       if (isset($params['filter'])) {
         $paramList[] = 'filter';
@@ -115,12 +118,15 @@
       if (!is_array($this->queryParams) || empty($this->queryParams)) {
         $this->queryURI = $this->baseURI . $this->endPoint;
       } else {
-        // make sure that the 'resources' key preceeds the 'filter' key
+        // make sure that the 'include' or 'exclude' key preceeds the 'filter' key
         $ordered = self::orderParams($this->queryParams);
         $this->queryParams = $ordered;
         foreach ($this->queryParams as $key => $value) {
-          if ($key === 'resources') {
-            $this->query['include'] = implode(',', $this->queryParams['resources']);
+          if ($key === 'exclude' && (!isset($this->queryParams['include']) || empty($this->queryParams['include']))) {
+            $this->query['exclude'] = implode(',', $this->queryParams['exclude']);
+          }
+          if ($key === 'include') {
+            $this->query['include'] = implode(',', $this->queryParams['include']);
           } elseif ($key === 'filter') {
             if (!isset($value[0][0])) {
               for ($i = 0; $i < count($value); $i++) {
