@@ -304,16 +304,6 @@
       // Store the key as a session variable
       $_SESSION['formKey'] = $this->formKey;
       //Output the form key
-      return '<input type="hidden" name="formKey" class="formKey" id="formKey" value="' . $this->formKey . '" />';
-    }
-
-    //Public function to output a key for use in multi-form pages
-    public function outputMultiKey() {
-      //Generate the key and store it in the class
-      $this->formKey = self::generateKey();
-      //Store the key as a session variable
-      $_SESSION['formKey'] = $this->formKey;
-
       return $this->formKey;
     }
 
