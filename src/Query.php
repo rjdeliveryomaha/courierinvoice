@@ -58,7 +58,7 @@
           $this->error = "<span class=\"error\">Server Error</span>: {$this->result}.\n";
         break;
       }
-      if ($this->enableLogging !== FALSE) self::writeLoop();
+      if ($this->enableLogging !== false) self::writeLoop();
     }
 
     private function testResponse() {
@@ -74,53 +74,51 @@
         // Expects a json encoded object or array of objects
         case 'GET': return (substr($this->result,0,1) === '{' || substr($this->result,0,1) === '[');
 
-        default: return FALSE;
+        default: return false;
       }
     }
 
-    private function orderParams($params) {
+    private function orderParams() {
       $paramList = [];
-      if (isset($params['include'])) {
-        $paramList[] = 'include';
-      }
-      if (isset($params['exclude'])) {
+      if (isset($this->queryParams['exclude'])) {
         $paramList[] = 'exclude';
       }
-      if (isset($params['filter'])) {
+      if (isset($this->queryParams['include'])) {
+        $paramList[] = 'include';
+      }
+      if (isset($this->queryParams['filter'])) {
         $paramList[] = 'filter';
       }
-      if (isset($params['order'])) {
+      if (isset($this->queryParams['order'])) {
         $paramList[] = 'order';
       }
-      if (isset($params['page'])) {
+      if (isset($this->queryParams['page'])) {
         $paramList[] = 'page';
       }
-      $temp = array_merge(array_flip($paramList), $params);
-      return $temp;
+      $this->queryParams = array_merge(array_flip($paramList), $params);
     }
 
     public function buildURI() {
       if (!in_array($this->endPoint, $this->validTables)) {
         $this->error = "Invalid End Point\n";
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         throw new \Exception($this->error);
       }
       if ($this->primaryKey === NULL && (strtoupper($this->method) === 'PUT' || strtoupper($this->method) === 'DELETE')) {
         $this->error = "Primary Key Not Set For End Point {$this->endPoint}\n";
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         throw new \Exception($this->error);
       }
       if ((strtoupper($this->method) === 'POST' || strtoupper($this->method) === 'PUT') && ($this->payload === NULL || (is_array($this->payload) && empty($this->payload)))) {
         $this->error = "No Payload Provided\n";
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         throw new \Exception($this->error);
       }
       if (!is_array($this->queryParams) || empty($this->queryParams)) {
         $this->queryURI = $this->baseURI . $this->endPoint;
       } else {
         // make sure that the 'include' or 'exclude' key preceeds the 'filter' key
-        $ordered = self::orderParams($this->queryParams);
-        $this->queryParams = $ordered;
+        self::orderParams();
         foreach ($this->queryParams as $key => $value) {
           if ($key === 'exclude' && (!isset($this->queryParams['include']) || empty($this->queryParams['include']))) {
             $this->query['exclude'] = implode(',', $this->queryParams['exclude']);
@@ -150,12 +148,12 @@
             $encodedQuery .= "&order={$this->queryParams['order'][$i]}";
           }
           if (isset($this->queryParams['page'])) {
-            $paramTest = FALSE;
-            if (strpos(',', $this->queryParams['page']) !== FALSE) {
+            $paramTest = false;
+            if (strpos(',', $this->queryParams['page']) !== false) {
               $testVal = explode(',', $this->queryParams['page']);
               $paramTest = count($testVal) === 2 && is_numeric($testVal[0]) && is_numeric($testVal[1]);
             }
-            if (is_numeric($this->queryParams['page']) || $paramTest === TRUE) $encodedQuery .= "&page={$this->queryParams['page']}";
+            if (is_numeric($this->queryParams['page']) || $paramTest === true) $encodedQuery .= "&page={$this->queryParams['page']}";
           }
         }
         $this->queryURI = "{$this->baseURI}{$this->endPoint}?$encodedQuery";
@@ -172,21 +170,33 @@
       // Use api key to generate security token
       $this->timeVal = time();
       // Generate the security key using the REQUEST_URI
-      $stringSearchVal = (strpos($this->baseURI, 'testing') === FALSE) ? '.com' : '.net';
+      $stringSearchVal = (strpos($this->baseURI, 'testing') === false) ? '.com' : '.net';
       $this->token = hash_hmac('sha256', substr($this->queryURI, strpos($this->queryURI, $stringSearchVal) + 4) . $this->timeVal, $this->privateKey);
       $this->ch = curl_init();
       curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, strtoupper($this->method));
       curl_setopt($this->ch, CURLOPT_URL, $this->queryURI);
-      curl_setopt($this->ch, CURLOPT_FAILONERROR, TRUE);
-      //CURLOPT_SSL_VERIFYPEER set to FALSE for testing only
-      curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, false);
-      // CURLOPT_SSL_VERIFYHOST disabled for testing only
-      curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, 0);
-      /**
-      ** How to create and store cacert.pem:
-      ** http://unitstep.net/blog/2009/05/05/using-curl-in-php-to-access-https-ssltls-protected-sites/
-      **/
-      // curl_setopt($this->ch, CURLOPT_CAINFO, __DIR__ . DIRECTORY_SEPARATOR . "cacert.pem");
+      curl_setopt($this->ch, CURLOPT_FAILONERROR, true);
+      if (strpos($this->baseURI, 'testing') !== false) {
+        //CURLOPT_SSL_VERIFYPEER set to false for testing only
+        curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, false);
+        // CURLOPT_SSL_VERIFYHOST disabled for testing only
+        curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, 0);
+        /**
+        ** How to create and store cacert.pem:
+        ** http://unitstep.net/blog/2009/05/05/using-curl-in-php-to-access-https-ssltls-protected-sites/
+        **/
+        // curl_setopt($this->ch, CURLOPT_CAINFO, __DIR__ . DIRECTORY_SEPARATOR . "cacert.pem");
+      } else {
+        //CURLOPT_SSL_VERIFYPEER set to false for testing only
+        curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, true);
+        // CURLOPT_SSL_VERIFYHOST disabled for testing only
+        curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, 2);
+        /**
+        ** How to create and store cacert.pem:
+        ** http://unitstep.net/blog/2009/05/05/using-curl-in-php-to-access-https-ssltls-protected-sites/
+        **/
+        curl_setopt($this->ch, CURLOPT_CAINFO, __DIR__ . DIRECTORY_SEPARATOR . "cacert.pem");
+      }
       // Set the authorization headers");
       $this->headers[] = 'Authorization: Basic ' . base64_encode("{$this->username}:{$this->publicKey}");
       $this->headers[] = "auth: {$this->token}";
@@ -198,7 +208,7 @@
         $this->headers[] = 'Content-Length: ' . strlen($this->jsonData);
       }
       curl_setopt($this->ch, CURLOPT_HTTPHEADER, $this->headers);
-      curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, TRUE);
+      curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, true);
       $this->result = curl_exec($this->ch);
       if (!$this->result) {
         // TODO Implement retry with backoff here
