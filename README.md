@@ -9,10 +9,10 @@ composer --dev require "rjdeliveryomaha/courierinvoice"
 ```
  Or add "rjdeliveryomaha/courierinvoice":"dev-master" to composer.json
 # Classes
-  - CommonFunctions
-  - Query
-  - LoginHandler
-  - Ticket
+  - [CommonFunctions](https://github.com/rjdeliveryomaha/courierinvoice#commonfunctions)
+  - [Query](https://github.com/rjdeliveryomaha/courierinvoice#query)
+  - [LoginHandler](https://github.com/rjdeliveryomaha/courierinvoice#loginhandler)
+  - [Ticket](https://github.com/rjdeliveryomaha/courierinvoice#ticket)
   - Route
   - Invoice
   - SearchHandler
@@ -295,3 +295,27 @@ try {
 A full list of properties can be found in the [API Documentation](https://www.rjdeliveryomaha.com/courierinvoice/apidoc#tickets)
 
 ## Public Methods:
+
+```php
+echo $ticket->regenTicket();
+```
+
+Display single ticket for client review or for dispatch.
+
+```php
+echo $ticket->displaySingleTicket();
+```
+
+Display single ticket for drivers.
+
+```php
+echo $ticket->displayMultiTicket();
+```
+
+Display groups of tickets with common pick up or drop off location and time.
+
+```php
+$ticket->ticketsToDispatch();
+```
+
+Check databse for tickets that have not been dispatched.
