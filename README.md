@@ -33,37 +33,53 @@ $config and $data should both be array. There is a sample config in the extras d
 This class expects that a session exists unless the property 'noSession' is set in $data.
 
 ## Public Methods:
-  - ```php $functions->getProperty($property); ```
+```php
+$functions->getProperty($property);
+```
 
-    Returns a value if the property exists. False is it does not.
+Returns a value if the property exists. False is it does not.
 
-  - ```php $functions->updateProperty($property, $value); ```
+```php
+$functions->updateProperty($property, $value);
+```
 
-    Sets property to new value. Returns true. False is property does not exist.
+Sets property to new value. Returns true. False is property does not exist.
 
-  - ```php $functions->addToProperty($property, $value); ```
+```php
+$functions->addToProperty($property, $value);
+```
 
-    Adds value to property. Returns false if property does not exists or is not numeric.
+Adds value to property. Returns false if property does not exists or is not numeric.
 
-  - ```php $functions->substractFromProperty($property, $value); ```
+```php
+$functions->substractFromProperty($property, $value);
+```
 
-    Subtract value from property. Returns false if property does not exists or is not numeric.
+Subtract value from property. Returns false if property does not exists or is not numeric.
 
-  - ```php $functions->compareProperties($obj1, $obj2, $property, $strict=FALSE); ```
+```php
+$functions->compareProperties($obj1, $obj2, $property, $strict=FALSE);
+```
 
-    Returns false if property does not exist in both objects. $strict compares type as well as value.
+Returns false if property does not exist in both objects. $strict compares type as well as value.
 
-  - ```php $functions->debug(); ```
+```php
+$functions->debug();
+```
 
-    Pretty print properties and values.
+Pretty print properties and values.
 
-  - ```php $functions->getError(); ```
+```php
+$functions->getError();
+```
 
-    Return the last error.
+Return the last error.
 
-  - ```php $functions->outputKey(); ```
+```php
+$functions->outputKey();
+```
 
-    Generates unique session value for validating POST data. Returns the value.
+Generates unique session value for validating POST data. Returns the value.
 
 # Query
 Throws exception on error.
