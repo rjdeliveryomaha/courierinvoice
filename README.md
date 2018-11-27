@@ -1,6 +1,9 @@
 # CourierInvoice
+
 A set of classes for the Courier Invoice API
+
 # Instalation
+
 ```
 composer --dev require "rjdeliveryomaha/courierinvoice"
 ```
@@ -16,6 +19,9 @@ composer --dev require "rjdeliveryomaha/courierinvoice"
   - TicketChart
   - InvoiceChart
   - Client
+  - InvoiceCron\*
+
+\*Not yet implemented
 
 # CommonFunctions
 
@@ -24,6 +30,7 @@ Utility class extended by all other classes
 Throws exception on error
 
 ## Usage:
+
 ```php
 try {
   $functions = new CommonFunctions($config, $data);
@@ -37,6 +44,7 @@ $config and $data should both be array. There is a sample config in the extras d
 This class expects that a session exists unless the property 'noSession' is set in $data.
 
 ## Public Methods:
+
 ```php
 $functions->getProperty($property);
 ```
@@ -195,6 +203,7 @@ $config and $data should both be array. There is a sample config in the extras d
           * string
 
           * The "page" parameter holds the requested page. The default page size is 20, but can be adjusted (e.g. to 50). Pages that are not ordered cannot be paginated. EX:
+
           ```php
           $data['queryParams']['page'] = '1';
           ```
@@ -203,6 +212,7 @@ $config and $data should both be array. There is a sample config in the extras d
           $data['queryParams']['page'] = '1,50';
           ```
 ## Public Methods
+
 ```php
 $query->buildURI();
 ```
@@ -222,6 +232,7 @@ try {
 ```
 
 # LoginHandler
+
 Processes login credentials.
 
 Populates ``` $_SESSION ``` with user data.
@@ -240,6 +251,7 @@ try {
 }
 ```
 ## Properties settable in $data:
+
 - clientID
 
   Users login name.
@@ -253,6 +265,7 @@ try {
   Users password.
 
 ## Public Methods
+
 ```php
 try {
   $type = $handler->login();
@@ -263,3 +276,22 @@ try {
 echo $type;
 return false;
 ```
+# Ticket
+
+Processes and displays tickets individually or batched
+
+## Usage:
+
+```php
+try {
+  $ticket = new Ticket($config, $data);
+} catch(Exception $e) {
+  return $e->getMessage();
+}
+```
+
+## Properties settable in $data:
+
+A full list of properties can be found in the [API Documentation](https://www.rjdeliveryomaha.com/courierinvoice/apidoc#tickets)
+
+## Public Methods:
