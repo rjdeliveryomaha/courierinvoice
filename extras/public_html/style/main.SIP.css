@@ -1,0 +1,1241 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+a:link {
+  text-decoration: none;
+  color: black;
+}
+
+a:visited {
+  text-decoration: none;
+  color: black;
+}
+
+a:hover {
+  text-decoration: underline;
+  color: black;
+  cursor: pointer;
+}
+
+a:active {
+  text-decoration: none;
+  color: black;
+}
+
+input[name=clientID]::-webkit-outer-spin-button, input[name=clientID]::-webkit-inner-spin-button, #ticketNumber::-webkit-inner-spin-button, #ticketNumber::-webkit-outer-spin-button, input[type=month]::-webkit-inner-spin-button, input[type=month]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  display: none;
+  margin: 0;
+}
+input[type=month]::-webkit-calendar-picker-indicator {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  margin: 0 auto;
+  background-color: #dcdcdc;
+}
+
+h1 {
+  text-transform: uppercase;
+  text-align: center;
+}
+
+header {
+  display: flex;
+  justify-content: center;
+}
+
+section {
+  display: flex;
+  margin-top: 1.2em;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+#login:hover, .switch:hover, .rollUp:hover {
+  cursor: pointer;
+}
+
+#confirmLogin p {
+  margin: 0.5em auto;
+}
+
+#confirmLogin #confirm {
+  float: left;
+}
+
+#confirmLogin #cancel {
+  float: right;
+}
+
+.bold, #deliveryQuery label {
+  font-weight: bold;
+}
+
+.error, .currentDay {
+  color: red;
+}
+
+.affirmative {
+  color: green;
+}
+
+.red, .elementError, .red:disabled, .elementError:disabled {
+  background-color: red;
+}
+
+button.red {
+  /* IE10 Consumer Preview */ 
+  background-image: -ms-linear-gradient(top left, #FF0000 -50%, #FCFCFC 110.00000000000001%);
+  /* Mozilla Firefox */ 
+  background-image: -moz-linear-gradient(top left, #FF0000 -50%, #FCFCFC 110.00000000000001%);
+  /* Opera */ 
+  background-image: -o-linear-gradient(top left, #FF0000 -50%, #FCFCFC 110.00000000000001%);
+  /* Webkit (Safari/Chrome 10) */ 
+  background-image: -webkit-gradient(linear, left top, right bottom, color-stop(-.5, #FF0000), color-stop(1.1, #FCFCFC));
+  /* Webkit (Chrome 11+) */ 
+  background-image: -webkit-linear-gradient(top left, #FF0000 -50%, #FCFCFC 110.00000000000001%);
+  /* W3C Markup, IE10 Release Preview */ 
+  background-image: linear-gradient(to bottom right, #FF0000 -50%, #FCFCFC 110.00000000000001%);
+}
+
+.green {
+  background-color: green;
+}
+
+button.green {
+  /* IE10 Consumer Preview */ 
+  background-image: -ms-linear-gradient(top left, #00FF00 -50%, #FCFCFC 110.00000000000001%);
+  /* Mozilla Firefox */ 
+  background-image: -moz-linear-gradient(top left, #00FF00 -50%, #FCFCFC 110.00000000000001%);
+  /* Opera */ 
+  background-image: -o-linear-gradient(top left, #00FF00 -50%, #FCFCFC 110.00000000000001%);
+  /* Webkit (Safari/Chrome 10) */ 
+  background-image: -webkit-gradient(linear, left top, right bottom, color-stop(-.5, #00FF00), color-stop(1.1, #FCFCFC));
+  /* Webkit (Chrome 11+) */ 
+  background-image: -webkit-linear-gradient(top left, #00FF00 -50%, #FCFCFC 110.00000000000001%);
+  /* W3C Markup, IE10 Release Preview */ 
+  background-image: linear-gradient(to bottom right, #00FF00 -50%, #FCFCFC 110.00000000000001%);
+}
+
+.blue {
+  background-color: blue;
+}
+
+button.blue {
+  /* IE10 Consumer Preview */ 
+  background-image: -ms-linear-gradient(top left, #4F8EFA -50%, #FCFCFC 110.00000000000001%);
+  /* Mozilla Firefox */ 
+  background-image: -moz-linear-gradient(top left, #4F8EFA -50%, #FCFCFC 110.00000000000001%);
+  /* Opera */ 
+  background-image: -o-linear-gradient(top left, #4F8EFA -50%, #FCFCFC 110.00000000000001%);
+  /* Webkit (Safari/Chrome 10) */ 
+  background-image: -webkit-gradient(linear, left top, right bottom, color-stop(-.5, #4F8EFA), color-stop(1.1, #FCFCFC));
+  /* Webkit (Chrome 11+) */ 
+  background-image: -webkit-linear-gradient(top left, #4F8EFA -50%, #FCFCFC 110.00000000000001%);
+  /* W3C Markup, IE10 Release Preview */ 
+  background-image: linear-gradient(to bottom right, #4F8EFA -50%, #FCFCFC 110.00000000000001%);
+}
+
+.medium {
+  font-family: Garamond, serif;
+  font-size: 0.75em;
+}
+
+.standard {
+  margin-left: 10%;
+  color: blue;
+}
+
+#helpContainer {
+  width: 90%;
+}
+
+#helpContainer .question {
+  cursor: help;
+}
+
+#helpContainer .answer {
+  display: none;
+}
+
+#helpContainer p {
+  margin: 1.5em 0;
+}
+
+#helpContainer img {
+  max-width: 100%;
+}
+
+#helpContainer object {
+  width: 100%;
+  height: 100%;
+}
+
+#helpContainer li {
+  margin: 0.25em 0;
+}
+
+#helpContainer ul {
+  list-style: none;
+}
+
+#helpContainer > ol {
+  list-style: decimal inside;
+  padding-left: 0em;
+}
+
+#helpContainer li > ol {
+  padding-left: 1.2em;
+}
+
+#helpContainer ol ol {
+  list-style: upper-alpha inside;
+}
+
+#helpContainer ol ol ol {
+  list-style: upper-roman inside;
+}
+
+#helpContainer ol ol ol ol {
+  list-style: lower-alpha inside;
+}
+
+#helpContainer ol ol ol ol ol {
+  list-style: lower-roman inside;
+}
+
+.paren {
+  color: red;
+  font-weight: bold;
+}
+
+.confirmRun {
+  width: 80%;
+  margin: 0 auto;
+  border: solid;
+  border-width: .1em 0 .1em 0;
+  white-space: normal;
+}
+
+.confirmRun > tbody > tr > td, .confirmRun > thead > tr > th {
+  width: 50%;
+  border: solid;
+  border-width: 0 0.1em 0 0.1em;
+}
+
+.confirmRun > tfoot > tr {
+  border: solid;
+  border-width: 0 0.1em 0 0.1em;
+}
+
+.confirmRun > tfoot > tr > td {
+  padding-left: 1.5em;
+}
+
+.confirmRun .rollUp {
+  margin: 0;
+}
+
+.dedicatedNote {
+  display: none;
+}
+
+#clientInfo {
+  position: relative;
+  float: left;
+  width: 25%;
+}
+
+#clientInfo p {
+  margin: 0;
+  padding:0;
+}
+
+#headerLogo {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  margin: 0 auto;
+  width: 60%;
+}
+
+#acntError {
+  position: relative;
+  float: right;
+  width: 25%;
+  margin-right: 2%;
+  padding:0;
+}
+
+#acntError p {
+  margin: 0;
+  padding:0;
+}
+
+#tickets, .tickets {
+  width: 80%;
+  margin: 0 auto;
+  margin-bottom: 1em;
+}
+
+#tickets > table, .tickets > table {
+  table-layout: fixed;
+  margin: 0 auto;
+  border: 0.1em solid black;
+  border-collapse: separate;
+  width: 90%;
+}
+
+.tickets > table table {
+  border: none;
+}
+
+.billing td:nth-child(odd) {
+  text-align: right;
+}
+
+.billing td:nth-child(even) {
+  padding-left: 2%;
+}
+
+#tickets fieldset, .tickets fieldset {
+  padding: 0;
+}
+
+#tickets input[type=text], #tickets input[type=number], #tickets input[type=datetime-local], #tickets input[list] {
+  /* width: 90%; */
+}
+
+#ticketNumber {
+  width: 10em;
+  -moz-appearance: textfield;
+}
+
+#diWeight, .diWeight {
+  width: 3.5em;
+}
+
+.alert, #newUpdate {
+  font-style: italic;
+}
+
+.routeStop, .regenBilling, .wide {
+  width: 100%;
+}
+
+.regenBilling td {
+  padding-left: 20%;
+}
+
+.ticketContainer {
+  margin: 0 auto;
+}
+
+.regenBilling form {
+  display: inline-block;
+}
+
+#deliveryRequest, #clientUpdateForm  {
+  display: block;
+  height: 100%;
+  width: 80%;
+  margin: 0 auto;
+}
+
+#ticketQueryOptions {
+  display: flex;
+}
+
+#options {
+  
+}
+
+#ticketQueryOptions, #options, #queryForms {
+  margin-bottom: 1em;
+}
+
+#queryForms {
+  width: 70%;
+}
+
+#queryForms #clientList .listMember {
+  white-space: nowrap;
+  float: left;
+}
+
+#queryForms table {
+  margin: 0 auto;
+  white-space: nowrap;
+}
+
+#ticketQueryOptions form, #options form {
+  margin: 0 auto;
+}
+
+#ticketQueryOptions table, #options table {
+  border-spacing: 0.1em 0.25em;
+}
+
+.ticketTable {
+  /* overflow-x: scroll; */
+}
+
+.ticketTable table {
+  margin: 0 auto;
+}
+
+.ticketTable table td {
+  padding: 0 1%;
+}
+
+.ticketTable th {
+  padding: 0.25em;
+}
+
+.ticketHeadAddress {
+  display: inline-block;
+  text-align: center;
+}
+
+#floatRight, .floatRight {
+  display: inline-block;
+  position: relative;
+  float: right;
+}
+
+#floatLeft, .floatLeft {
+  display: inline-block;
+  position: relative;
+  float: left;
+  margin: 0 0.25em;
+}
+
+#invoiceLabel2 {
+  color: #8c8c89;
+  font-family: Garamond, serif;
+  font-size: 3em;
+  text-transform: uppercase;
+  padding-right: 1em;
+}
+
+#paid {
+  z-index: 1;
+  color: red;
+  font: bold 1.5em sans-serif;
+  text-align: center;
+  border-radius: 1em;
+  -webkit-transform: rotate(345deg);
+  -moz-transform: rotate(345deg);
+  -o-transform: rotate(345deg);
+  -ms-transform: rotate(345deg);
+  transform: rotate(345deg);
+}
+
+#paid > p {
+  margin: 0;
+  padding: 0;
+}
+
+#invoice {
+  background-color: white;
+  width: 99%;
+  margin: 0 auto;
+}
+
+#invoiceBody, .invoiceBody {
+  margin: 0 auto;
+}
+
+#invoiceBody table {
+  border-collapse: collapse;
+}
+
+#invoiceBody th, #invoiceBody td {
+  font-family: Garamond, serif;
+}
+
+#invoiceBody th {
+  background-color: #d1d1cf;
+  margin: 0;
+  padding: 0;
+}
+
+#invoiceBody td {
+  margin: 0;
+  padding: 0;
+  border-style: solid;
+  border-color: black;
+  border-width: 0.1em 0.1em 0.125em 0.1em;
+  text-align: center;
+}
+
+.cID {
+  display: none;
+}
+
+.invoiceBody td hr {
+  margin: 0;
+  padding: 0;
+}
+
+.invoiceBody th, .invoiceBody td {
+  font-family: Garamond, serif;
+  font-size: 0.95em;
+}
+
+.invoiceBody th {
+  background-color: #d1d1cf;
+  margin: 0;
+  padding: 0.13em;
+}
+
+.invoiceBody td {
+  margin: 0;
+  padding: 0.063em 0.313em;
+  border-style: solid;
+  border-color: black;
+  border-width: 0.1em 0.1em 0.12em 0.1em;
+  text-align: center;
+}
+
+.invoiceBody td hr {
+  margin: 0 0.1em;
+  padding: 0;
+}
+
+.tableSpace {
+  height: 4em;
+}
+
+.smallTableSpace {
+  height: 2em;
+}
+
+#confirmDelivery {
+  height: 100%;
+  width: 100%;
+  padding-bottom: 2em;
+}
+
+#map, #map2 {
+  /* height: 25em; */
+  width: 80%;
+  margin: 0 auto;
+}
+
+#newRun {
+  margin: 0 auto;
+  width: 75%;
+}
+
+#newRun table {
+  border-collapse: collapse;
+  margin: 0 auto;
+}
+
+#priceContainer {
+  width: 80%;
+  margin: 0 auto;
+}
+
+#priceCalc {
+  margin: 0 auto;
+  border: 0.1em solid black;
+  width: 85%;
+}
+
+#priceCalc table {
+  display: inline-block;
+  margin: 0;
+}
+
+#priceResult {
+  vertical-align: top;
+  display: inline-block;
+  white-space: nowrap;
+  margin-top: 0.5em;
+  text-align: left;
+}
+
+#priceResult > p {
+  min-width: 8.5em;
+}
+
+/** Fix display of Rupee **/
+#currencySymbol, .currencySymbol {
+  font-family: DejaVu Sans;
+}
+
+.reschedulingTableCell {
+  margin: 0 auto;
+  width: 90%;
+}
+
+.sigImage {
+  display: none;
+}
+
+.sigPrint {
+  cursor: pointer;
+}
+
+.highlight:hover {
+  background-color: #8CFC86;
+}
+
+.highlight2:hover {
+  background-color: #990000;
+  color: white;
+}
+
+.pullLeft {
+  text-align: left;
+}
+
+.pullRight {
+  text-align: right;
+}
+
+.center {
+  text-align: center;
+}
+
+.centerDiv {
+  margin: 0 auto;
+}
+
+.formtext {
+  vertical-align: middle;
+}
+
+.address {
+  display: inline;
+  padding: 0.1em;
+  margin: 0;
+}
+
+.big {
+  font-family: Garamond, serif;
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+.displayHeader {
+  font-family: Garamond, serif;
+  font-size: 1.75em;
+  font-weight: bold;
+}
+
+.bar0 {
+  background-color: #fe0000;
+  float: left;
+}
+
+.bar0Label {
+  color: #fe0000;
+}
+
+.bar1 {
+  background-color: #0071bd;
+  float: left;
+}
+
+.bar1Label {
+  color: #0071bd;
+}
+
+.bar2 {
+  background-color: #cf5300;
+  float: left;
+}
+
+.bar2Label {
+  color: #cf5300;
+}
+
+.bar3 {
+  background-color: #ba9907;
+  float: left;
+}
+
+.bar3Label {
+  color: #ba9907;
+}
+
+.bar4 {
+  background-color: #02066f;
+  float: left;
+}
+
+.bar4Label {
+  color: #02066f;
+}
+
+.bar5 {
+  background-color: #004c00;
+  float: left;
+}
+
+.bar5Label {
+  color: #004c00;
+}
+
+.bar6 {
+  background-color: #009345;
+  float: left;
+}
+
+.bar6Label {
+  color: #009345;
+}
+
+.bar7 {
+  background-color: #92278f;
+  float: left;
+}
+
+.bar7Label {
+  color: #92278f;
+}
+
+.bar8 {
+  background-color: #ff00fe;
+  float: left;
+}
+
+.bar8Label {
+  color: #ff00fe;
+}
+
+.bar9 {
+  background-color: #990033;
+  float: left;
+}
+
+.bar9Label {
+  color: #990033;
+}
+
+.bar10 {
+  background-color: #442299;
+  float: left;
+}
+
+.bar10Label {
+  color: #442299;
+}
+
+.bar11 {
+  background-color: #aacc22;
+  float: left;
+}
+
+.bar11Label {
+  color: #aacc22;
+}
+
+.bar12 {
+  background-color: #11aabb;
+  float: left;
+}
+
+.bar12Label {
+  color: #11aabb;
+}
+
+.bar13 {
+  background-color: #feae2d;
+  float: left;
+}
+
+.bar13Label {
+  color: #feae2d;
+}
+
+.bar14 {
+  background-color: #69d025;
+  float: left;
+}
+
+.bar14Label {
+  color: #69d025;
+}
+
+.gap{
+  float: left;
+}
+
+.space{
+  float: left;
+}
+
+.spacer {
+  width: 100%;
+  height: 1.5em;
+  clear: both;
+}
+
+.barContainer {
+  display: inline-flex;
+  justify-content: center;
+  float: left;
+}
+
+.chartLabels {
+  text-align: center;
+  float: left;
+  font-family: Verdana, Geneva, sans-serif;
+}
+
+.small {
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: .5em;
+}
+
+.rollUp {
+  font-size: large;
+  font-weight: bold;
+}
+
+.upsidedown {
+  -ms-transform: rotate(180deg); /* IE 9 */
+  -webkit-transform: rotate(180deg); /* Chrome, Safari, Opera */
+  transform: rotate(180deg);
+}
+
+.notes {
+  width: 95%;
+  margin: 0 auto;
+}
+
+.tFieldRight {
+  position: relative;
+  float: right;
+  width:50%;
+  clear: right;
+}
+
+.tFieldLeft {
+  position: relative;
+  float: left;
+  width:50%;
+  clear: left;
+}
+
+.ticketSpace {
+  width: 25%;
+}
+
+#pickupField, #deliveryField {
+  white-space: nowrap;
+}
+
+#pickupField > table > tbody > tr > td:nth-child(even), #deliveryField > table > tbody > tr > td:nth-child(even) {
+  height: 1.35em;
+}
+
+.countryRow, .hideCountry, .hideSig, .sigField, .hide, .rtMarker {
+  display: none;
+}
+
+.loading .maskedCircle {
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: 0.9em;
+  border: 0.125em solid black;
+}
+
+.member {
+  margin-top: 1em;
+  width: 95%;
+  border: .1em solid black;
+}
+
+.member {
+  table-layout: fixed;
+  margin-top: 1em;
+}
+
+.member th {
+  width: 14%;
+}
+
+.member td {
+  width: 14%;
+}
+
+.member tr td table:nth-child(even) {
+  background: #CCC;
+}
+.sumRow td {
+  background: #BBC;
+}
+
+.pageBreak {
+  /* display:none; */
+}
+
+@media all {
+  .printOnly, .printOnlyRow {
+    display: none;
+  }
+}
+
+@media print {
+  body {
+    background-color: white;
+  }
+  .pageBreak, .break  {
+    display: block;
+    page-break-before: always;
+  }
+  .pageBreak {
+    height: 0;
+  }
+  #paidMarker {
+    padding-top: 25%;
+  }
+  .noPrint {
+    display: none;
+  }
+  .printOnly {
+    display: inline;
+  }
+  .printOnlyRow {
+    display: table-row;
+  }
+  .member td {
+    page-break-inside: avoid;
+  }
+  .member tr {
+    page-break-inside: auto;
+  }
+
+  .highlight:hover {
+    background-color: inherit;
+  }
+
+  .highlight2:hover {
+    background-color: inherit;
+    color: inherit;
+  }
+}
+
+.timeCard td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.timeCard td, .timeCard th {
+  padding: 0.25em 0;
+}
+
+.timeCard .priceTotal {
+  white-space: nowrap;
+}
+
+#driverSelect th, #driverSelect td {
+  width:33%;
+}
+
+.cc {
+  opacity: .3;
+}
+
+#payContainer {
+  width: 80%;
+  margin: 0 auto;
+}
+
+#byCard table, #byCheck table {
+  margin: 0 auto;
+}
+
+#byCheck {
+  display: none;
+}
+
+/** New spinner **/
+/** http://codepen.io/collection/HtAne/  **/
+
+.loader {
+  position: relative;
+  margin: 0 auto;
+  padding-top: 25%;
+  width: 25%;
+}
+.loader:before {
+  content: '';
+  display: block;
+  padding-top: 100%;
+}
+
+.circular {
+  -webkit-animation: rotate 2s linear infinite;
+          animation: rotate 2s linear infinite;
+  height: 100%;
+  -webkit-transform-origin: center center;
+      -ms-transform-origin: center center;
+          transform-origin: center center;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+}
+
+.path {
+  stroke-dasharray: 1,200;
+  stroke-dashoffset: 0;
+  -webkit-animation: dash 1.5s ease-in-out infinite, color 6s ease-in-out infinite;
+          animation: dash 1.5s ease-in-out infinite, color 6s ease-in-out infinite;
+  stroke-linecap: round;
+}
+
+@-webkit-keyframes rotate {
+  100% {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
+}
+
+@keyframes rotate {
+  100% {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
+}
+@-webkit-keyframes dash {
+  0% {
+    stroke-dasharray: 1,200;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 89,200;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 89,200;
+    stroke-dashoffset: -124;
+  }
+}
+@keyframes dash {
+  0% {
+    stroke-dasharray: 1,200;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 89,200;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 89,200;
+    stroke-dashoffset: -124;
+  }
+}
+@-webkit-keyframes color {
+  100%, 0% {
+    stroke: #d62d20;
+  }
+  40% {
+    stroke: #0057e7;
+  }
+  66% {
+    stroke: #008744;
+  }
+  80%, 90% {
+    stroke: #ffa700;
+  }
+}
+@keyframes color {
+  100%, 0% {
+    stroke: #d62d20;
+  }
+  40% {
+    stroke: #0057e7;
+  }
+  66% {
+    stroke: #008744;
+  }
+  80%, 90% {
+    stroke: #ffa700;
+  }
+}
+
+/** End New Spinner **/
+
+/** Pulsing color change **/
+@-webkit-keyframes pulsing {
+  0% {background-color: white; color:black;}
+  50% {background-color: red; color:white;}
+  100% {background-color: white; color:black;}
+}
+@keyframes pulsing {
+  0% {background-color: white; color:black;}
+  50% {background-color: red; color:white;}
+  100% {background-color: white; color:black;}
+}
+.pulse {
+  background-color: white;
+  animation-name: pulsing;
+  animation-duration: 4s;
+  animation-iteration-count: infinite;
+}
+/** Pulsing color change 2 **/
+@-webkit-keyframes pulsing2 {
+  0% {color: white;}
+  50% {color: red;}
+  100% {color: white;}
+}
+@keyframes pulsing2 {
+  0% {color: white;}
+  50% {color: red;}
+  100% {color: white;}
+}
+.pulse2 {
+  color: white;
+  animation-name: pulsing2;
+  animation-duration: 4s;
+  animation-iteration-count: infinite;
+}
+
+.PWcontainer {
+  display: flex;
+  justify-content: center;
+}
+
+#terms {
+  margin-bottom: 0.25em;
+  /* border: solid grey .1em; */
+}
+
+.PWform {
+  display: inline-block;
+  margin-right: 1em;
+  width: 30%;
+}
+
+.criteria {
+  display: inline-block;
+  margin-left: 1em;
+}
+
+#deliveryQuery p, #dateRange p {
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+#deliveryQuery div, #dateRange div {
+  position: relative;
+  float: left;
+}
+
+#dateRange div:last-of-type {
+  height: 1.2em;
+}
+
+.submitOrgTickets {
+  display: block;
+  clear: both;
+}
+
+.subContainer {
+  width: 80%;
+  margin: 0 auto;
+}
+
+#priceContainerFoot {
+  margin: 0 auto;
+}
+
+#priceContainerFoot > div:first-of-type {
+  width:60%;
+  margin:0 auto;
+}
+
+.dispatchCount, .ticketCount, .transferCount {
+  padding-left: 0.5em;
+}
+
+@media screen and (max-width: 720px) {
+  #invoiceQueryResults > div {
+    /* overflow-x: scroll; */
+  }
+  .ticketContainer > tbody > tr > td {
+    display: block;
+  }
+  .mobileHide {
+    display: none;
+  }
+  .subContainer, #map, #map2, #priceContainer, #priceContainerFoot, #priceContainerFoot > div:first-of-type, #deliveryRequest, .PWcontainer, .tickets:not(.sortable) {
+    width: 100%;
+  }
+  #terms {
+    width: 100%;
+    margin: 0;
+  }
+  #billTo, #dispatchedTo, #telephone, #requestedBy, #emailAddress {
+    width: 10em;
+  }
+  header, #acntError, #clientInfo, #headerLogo {
+    width: 100%;
+    text-align: center;
+    display: block;
+    margin: 0;
+    float: none;
+  }
+  .PWcontainer, #priceResult, #priceContainer {
+    display: block;
+  }
+  #priceCalc {
+    width: 100%;
+    border: none;
+  }
+  #priceCalc table {
+    display: table;
+  }
+  .PWform table, #priceContainer, #priceCalc {
+    margin: 0 auto;
+  }
+  .criteria ul li ul {
+    display: inline;
+  }
+  #deliveryRequest legend {
+    margin-left: 1em;
+  }
+  #deliveryRequest > select[name^=p], #deliveryRequest > select[name^=d] {
+    width: 99%;
+  }
+  #deliveryConfirmation .ticketSpace {
+    width: 15%;
+  }
+  #information > table > tbody > tr > td, .criteria, .PWform, #clientUpdate, #clientUpdate td, #queryForms td, #dropOff td, #pickUp td, #mapInfo span {
+    padding: 0;
+    margin: 0;
+    display: block;
+    width: 100%;
+  }
+  .tickets:not(.sortable) > table > tbody > tr:nth-child(even) > td, #priceCalc table:first-of-type tbody td {
+    display: block;
+    width: 100%;
+    text-align: center;
+  }
+  #priceCalc table {
+    margin: 0 auto;
+  }
+  .regenBilling td {
+    padding: 0;
+  }
+}
