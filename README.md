@@ -241,6 +241,7 @@ try {
 ```
 ## Properties settable in $data:
 - clientID
+
   Users login name.
   * Repeat clients: integer
   * Non-repeat clients: string ``` t1 ```
@@ -248,6 +249,7 @@ try {
   * Drivers: string; ``` driver1 ```
   * Dispatchers: string; ``` dispatch1 ```
 - upw
+
   Users password.
 
 ## Public Methods
