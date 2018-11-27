@@ -96,7 +96,7 @@ Properties set by $data:
 
      * Should not be set unless using PUT or DELETE.
 
-     * An Exception will be thrown if the PUT of DELETE method are used with this property being not set.
+     * An Exception will be thrown if the PUT or DELETE method are used with this property being not set.
 
    - endPoint
      * String
@@ -122,11 +122,11 @@ Properties set by $data:
 
          Return only ticket number, billed client, and ticket price.
          ```php
-         $queryParams['include'] = [ 'TicketNumber', 'BillTo', 'TicketPrice' ];
+         $data['queryParams']['include'] = [ 'TicketNumber', 'BillTo', 'TicketPrice' ];
          ```
          Return all resources __except__ pick up country.
          ```php
-         $queryParams['exclude'] = [ 'pCountry' ];
+         $data['queryParams']['exclude'] = [ 'pCountry' ];
          ```
        - filter:
           * simple "and" query:
@@ -135,11 +135,11 @@ Properties set by $data:
 
             Select tickets with charge equal to 5 and billed to clients other than client 1.
             ```php
-            $queryParams['filter'] = [];
+            $data['queryParams']['filter'] = [];
 
-            $queryParams['filter'][] = ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>5];
+            $data['queryParams']['filter'][] = ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>5];
 
-            $queryParams['filter'][] = ['Resource'=>'BillTo', 'Filter'=>'neq', 1];
+            $data['queryParams']['filter'][] = ['Resource'=>'BillTo', 'Filter'=>'neq', 'Value'=>1];
             ```
           * complex "and" & "or" query:
 
@@ -155,7 +155,7 @@ Properties set by $data:
 
             $filter2 = [ ['Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=>2] ];
 
-            $queryParams['filter'] = [$filter1, $filter2];
+            $data['queryParams']['filter'] = [$filter1, $filter2];
             ```
           * available filters:
 
@@ -176,9 +176,11 @@ Properties set by $data:
 
          Indexed array of ordering parameters. With the "order" parameter you can sort. By default the sort is in ascending order, but by specifying "desc" this can be reversed. Ex:
          ```php
-         $queryParams['order'] = ['DispatchTimeStamp,desc'];
-
-         $queryParams['order'] = ['BillTo', 'DispatchTimeStamp,desc'];
+         $data['queryParams']['order'] = ['DispatchTimeStamp,desc'];
+         ```
+         or
+         ```php
+         $data['queryParams']['order'] = ['BillTo', 'DispatchTimeStamp,desc'];
          ```
        - page
 
@@ -186,15 +188,23 @@ Properties set by $data:
 
           * The "page" parameter holds the requested page. The default page size is 20, but can be adjusted (e.g. to 50). Pages that are not ordered cannot be paginated. EX:
           ```php
-          $queryParams['page'] = '1';
-
-          $queryParams['page'] = '1,50';
+          $data['queryParams']['page'] = '1';
+          ```
+          or
+          ```php
+          $data['queryParams']['page'] = '1,50';
           ```
 ## Public Methods
 ```php
 $query->buildURI();
 ```
-Processes the queryParams property into a query string then returns itself so that it can be chained with the call method. Ex:
+Processes the queryParams property into a query string then returns itself so that it can be chained with the call method.
+
+```php
+$query->call();
+```
+Uses the cURL library to execute the query string. Returns the result of the query or throws Exception on error. Ex:
+
 ```php
 try {
   $query->buildURI()->call();
@@ -202,8 +212,3 @@ try {
   return $e->getMessage();
 }
 ```
-
-```php
-$query->call();
-```
-Uses the cURL library to execute the query string. Returns the result of the query or throws Exception on error.
