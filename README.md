@@ -1,7 +1,9 @@
 # CourierInvoice
 A set of classes for the Courier Invoice API
 # Instalation
-    composer --dev require "rjdeliveryomaha/courierinvoice"
+```
+composer --dev require "rjdeliveryomaha/courierinvoice"
+```
  Or add "rjdeliveryomaha/courierinvoice":"dev-master" to composer.json
 # Classes
   - CommonFunctions
@@ -22,43 +24,44 @@ Utility class extended by all other classes
 Throws exception on error
 
 Usage:
-
-    $functions = new CommonFunctions($config, $data);
+```php
+$functions = new CommonFunctions($config, $data);
+```
 
 $config and $data should both be array. There is a sample config in the extras directory.
 
 This class expects that a session exists unless the property 'noSession' is set in $data.
 
-Public Methods:
-  - $functions-\>getProperty($property)
+## Public Methods:
+  - ```php $functions->getProperty($property); ```
 
     Returns a value if the property exists. False is it does not.
 
-  - $functions-\>updateProperty($property, $value)
+  - ```php $functions->updateProperty($property, $value); ```
 
     Sets property to new value. Returns true. False is property does not exist.
 
-  - $functions-\>addToProperty($property, $value)
+  - ```php $functions->addToProperty($property, $value); ```
 
     Adds value to property. Returns false if property does not exists or is not numeric.
 
-  - $functions-\>substractFromProperty($property, $value)
+  - ```php $functions->substractFromProperty($property, $value); ```
 
     Subtract value from property. Returns false if property does not exists or is not numeric.
 
-  - $functions-\>compareProperties($obj1, $obj2, $property, $strict=FALSE)
+  - ```php $functions->compareProperties($obj1, $obj2, $property, $strict=FALSE); ```
 
     Returns false if property does not exist in both objects. $strict compares type as well as value.
 
-  - $functions-\>debug()
+  - ```php $functions->debug(); ```
 
     Pretty print properties and values.
 
-  - $functions-\>getError()
+  - ```php $functions->getError(); ```
 
     Return the last error.
 
-  - $functions-\>outputKey()
+  - ```php $functions->outputKey(); ```
 
     Generates unique session value for validating POST data. Returns the value.
 
@@ -66,9 +69,9 @@ Public Methods:
 Throws exception on error.
 
 Usage:
-
-    $query = new Query($config, $data);
-
+```php
+$query = new Query($config, $data);
+```
 $config and $data should both be array. There is a sample config in the extras directory.
 
 Properties set by $data:
@@ -102,42 +105,42 @@ Properties set by $data:
          Indexed array of resources to retrieve / ignore from the end point. Include will be favored if both are provided. If omitted all resources are returned. Ex:
 
          Return only ticket number, billed client, and ticket price.
-
-             $queryParams['include'] = [ 'TicketNumber', 'BillTo', 'TicketPrice' ];
-
+         ```php
+         $queryParams['include'] = [ 'TicketNumber', 'BillTo', 'TicketPrice' ];
+         ```
          Return all resources __except__ pick up country.
-
-             $queryParams['exclude'] = [ 'pCountry' ];
-
+         ```php
+         $queryParams['exclude'] = [ 'pCountry' ];
+         ```
        - filter:
           * simple "and" query:
 
             Indexed array of associative arrays. Ex:
 
             Select tickets with charge equal to 5 and billed to clients other than client 1.
+            ```php
+            $queryParams['filter'] = [];
 
-                $queryParams['filter'] = [];
+            $queryParams['filter'][] = ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>5];
 
-                $queryParams['filter'][] = ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>5];
-
-                $queryParams['filter'][] = ['Resource'=>'BillTo', 'Filter'=>'neq', 1];
-
+            $queryParams['filter'][] = ['Resource'=>'BillTo', 'Filter'=>'neq', 1];
+            ```
           * complex "and" & "or" query:
 
             Indexed array of simple "and" queries. Ex:
 
             Select tickets with charge between 1 and 5 and billed to client 1 or tickets billed to client 2.
+            ```php
+            $filter1 = [];
 
-                $filter1 = [];
+            $filter1[] = ['Resource'=>'Charge', 'Filter'=>'bt', 'Value'=>'1,5'];
 
-                $filter1[] = ['Resource'=>'Charge', 'Filter'=>'bt', 'Value'=>'1,5'];
+            $filter1[] = ['Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=> 1];
 
-                $filter1[] = ['Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=> 1];
+            $filter2 = [ ['Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=>2] ];
 
-                $filter2 = [ ['Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=>2] ];
-
-                $queryParams['filter'] = [$filter1, $filter2];
-
+            $queryParams['filter'] = [$filter1, $filter2];
+            ```
           * available filters:
 
             + cs: contain string (string contains value)
@@ -156,17 +159,35 @@ Properties set by $data:
        - order
 
          Indexed array of ordering parameters. With the "order" parameter you can sort. By default the sort is in ascending order, but by specifying "desc" this can be reversed. Ex:
+         ```php
+         $queryParams['order'] = ['DispatchTimeStamp,desc'];
 
-             $queryParams['order'] = ['DispatchTimeStamp,desc'];
-
-             $queryParams['order'] = ['BillTo', 'DispatchTimeStamp,desc'];
-
+         $queryParams['order'] = ['BillTo', 'DispatchTimeStamp,desc'];
+         ```
        - page
 
           * string
 
           * The "page" parameter holds the requested page. The default page size is 20, but can be adjusted (e.g. to 50). Pages that are not ordered cannot be paginated. EX:
+          ```php
+          $queryParams['page'] = '1';
 
-                $queryParams['page'] = '1';
+          $queryParams['page'] = '1,50';
+          ```
+## Public Methods
+```php
+$query->buildURI();
+```
+Processes the queryParams property into a query string then returns itself so that it can be chained with the call method. Ex:
+```php
+try {
+  $query->buildURI()->call();
+} catch (Exception $e) {
+  return $e->getMessage();
+}
+```
 
-                $queryParams['page'] = '1,50';
+```php
+$query->call();
+```
+Uses the cURL library to execute the query string. Returns the result of the query or throws Exception on error.
