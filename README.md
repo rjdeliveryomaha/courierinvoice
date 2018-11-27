@@ -23,9 +23,13 @@ Utility class extended by all other classes
 
 Throws exception on error
 
-Usage:
+## Usage:
 ```php
-$functions = new CommonFunctions($config, $data);
+try {
+  $functions = new CommonFunctions($config, $data);
+} catch(Exception $e) {
+  return $e->getMessage();
+}
 ```
 
 $config and $data should both be array. There is a sample config in the extras directory.
@@ -84,13 +88,17 @@ Generates unique session value for validating POST data. Returns the value.
 # Query
 Throws exception on error.
 
-Usage:
+## Usage:
 ```php
-$query = new Query($config, $data);
+try {
+  $query = new Query($config, $data);
+} catch(Exception $e) {
+  return $e->getMessage();
+}
 ```
 $config and $data should both be array. There is a sample config in the extras directory.
 
-Properties set by $data:
+## Properties settable in $data:
    - primaryKey
      * Integer
 
@@ -211,4 +219,45 @@ try {
 } catch (Exception $e) {
   return $e->getMessage();
 }
+```
+
+# LoginHandler
+Processes login credentials.
+
+Populates ``` $_SESSION ``` with user data.
+
+Returns string; either '/clients' or '/drivers'.
+
+Throws exception on error.
+
+## Usage
+
+```php
+try {
+  $handler = new LoginHandler($config, $data);
+} catch(Exception $e) {
+  return $e->getMessage();
+}
+```
+## Properties settable in $data:
+- clientID
+  Users login name.
+  * Repeat clients: integer
+  * Non-repeat clients: string ``` t1 ```
+  * Organizations: string ``` orgLogin ```
+  * Drivers: string; ``` driver1 ```
+  * Dispatchers: string; ``` dispatch1 ```
+- upw
+  Users password.
+
+## Public Methods
+```php
+try {
+  $type = $handler->login();
+} catch(Exception $e) {
+  echo $e->getMessage();
+  return false;
+}
+echo $type;
+return false;
 ```
