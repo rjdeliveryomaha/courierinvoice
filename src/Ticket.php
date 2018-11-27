@@ -564,7 +564,7 @@
       return TRUE;
     }
 
-    public function solveDedicatedRunPrice() {
+    private function solveDedicatedRunPrice() {
       // Define the start and end times based on return signature request
       if ($this->d2SigReq === 1) {
         if ($this->d2TimeStamp !== $this->tTest) {
