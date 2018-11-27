@@ -3,7 +3,7 @@ A set of classes for the Courier Invoice API
 # Instalation
     composer --dev require "rjdeliveryomaha/courierinvoice"
  Or add "rjdeliveryomaha/courierinvoice":"dev-master" to composer.json
-# Files
+# Classes
   - CommonFunctions
   - Query
   - LoginHandler
@@ -16,32 +16,157 @@ A set of classes for the Courier Invoice API
   - Client
 
 # CommonFunctions
+
 Utility class extended by all other classes
 
 Throws exception on error
 
-Usage:      $functions = new CommonFunctions($config, $data);
+Usage:
 
-$config and $data should both be array
+    $functions = new CommonFunctions($config, $data);
+
+$config and $data should both be array. There is a sample config in the extras directory.
 
 This class expects that a session exists unless the property 'noSession' is set in $data.
 
 Public Methods:
   - $functions-\>getProperty($property)
-     * Returns a value if the property exists. False is it does not.
+
+    Returns a value if the property exists. False is it does not.
+
   - $functions-\>updateProperty($property, $value)
-     * Sets property to new value. Returns true. False is property does not exist.
+
+    Sets property to new value. Returns true. False is property does not exist.
+
   - $functions-\>addToProperty($property, $value)
-     * Adds value to property. Returns false if property does not exists or is not numeric.
+
+    Adds value to property. Returns false if property does not exists or is not numeric.
+
   - $functions-\>substractFromProperty($property, $value)
-    * Subtract value from property. Returns false if property does not exists or is not numeric.
+
+    Subtract value from property. Returns false if property does not exists or is not numeric.
+
   - $functions-\>compareProperties($obj1, $obj2, $property, $strict=FALSE)
-    * Returns false if property does not exist in both objects. $strict compares type as well as value.
+
+    Returns false if property does not exist in both objects. $strict compares type as well as value.
+
   - $functions-\>debug()
-    * Pretty print properties and values
+
+    Pretty print properties and values.
+
   - $functions-\>getError()
-    * Return the last error.
+
+    Return the last error.
+
   - $functions-\>outputKey()
-    * Generates unique session value for validating POST data. returns a hidden input.
-  - $functions-\>outputMultiKey()
-    * Generates unique session value for validating POST data. returns the value.
+
+    Generates unique session value for validating POST data. Returns the value.
+
+# Query
+Throws exception on error.
+
+Usage:
+
+    $query = new Query($config, $data);
+
+$config and $data should both be array. There is a sample config in the extras directory.
+
+Properties set by $data:
+   - primaryKey
+     * Integer
+
+     * Should not be set unless using PUT or DELETE.
+
+     * An Exception will be thrown if the PUT of DELETE method are used with this property being not set.
+
+   - endPoint
+     * String
+
+     * Valid end points:
+
+       config, tickets, invoices, clients, o_clients, contract_locations, contract_runs, schedule_override, drivers, dispatchers
+
+   - method
+     * String
+
+     * Valid values:
+
+       POST, PUT, GET, DELETE
+
+   - queryParams
+     * Associative array
+
+     * keys:
+       - include / exclude:
+
+         Indexed array of resources to retrieve / ignore from the end point. Include will be favored if both are provided. If omitted all resources are returned. Ex:
+
+         Return only ticket number, billed client, and ticket price.
+
+             $queryParams['include'] = [ 'TicketNumber', 'BillTo', 'TicketPrice' ];
+
+         Return all resources __except__ pick up country.
+
+             $queryParams['exclude'] = [ 'pCountry' ];
+
+       - filter:
+          * simple "and" query:
+
+            Indexed array of associative arrays. Ex:
+
+            Select tickets with charge equal to 5 and billed to clients other than client 1.
+
+                $queryParams['filter'] = [];
+
+                $queryParams['filter'][] = ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>5];
+
+                $queryParams['filter'][] = ['Resource'=>'BillTo', 'Filter'=>'neq', 1];
+
+          * complex "and" & "or" query:
+
+            Indexed array of simple "and" queries. Ex:
+
+            Select tickets with charge between 1 and 5 and billed to client 1 or tickets billed to client 2.
+
+                $filter1 = [];
+
+                $filter1[] = ['Resource'=>'Charge', 'Filter'=>'bt', 'Value'=>'1,5'];
+
+                $filter1[] = ['Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=> 1];
+
+                $filter2 = [ ['Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=>2] ];
+
+                $queryParams['filter'] = [$filter1, $filter2];
+
+          * available filters:
+
+            + cs: contain string (string contains value)
+            + sw: start with (string starts with value)
+            + ew: end with (string end with value)
+            + eq: equal (string or number matches exactly)
+            + lt: lower than (number is lower than value)
+            + le: lower or equal (number is lower than or equal to value)
+            + ge: greater or equal (number is higher than or equal to value)
+            + gt: greater than (number is higher than value)
+            + bt: between (number is between two comma separated values)
+            + in: in (number is in comma separated list of values)
+            + is: is null (field contains "NULL" value)
+            + You can negate all filters by prepending a 'n' character, so that 'eq' becomes 'neq'.
+
+       - order
+
+         Indexed array of ordering parameters. With the "order" parameter you can sort. By default the sort is in ascending order, but by specifying "desc" this can be reversed. Ex:
+
+             $queryParams['order'] = ['DispatchTimeStamp,desc'];
+
+             $queryParams['order'] = ['BillTo', 'DispatchTimeStamp,desc'];
+
+       - page
+
+          * string
+
+          * The "page" parameter holds the requested page. The default page size is 20, but can be adjusted (e.g. to 50). Pages that are not ordered cannot be paginated. EX:
+
+                $queryParams['page'] = '1';
+
+                $queryParams['page'] = '1,50';
