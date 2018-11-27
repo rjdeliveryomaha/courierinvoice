@@ -3,11 +3,6 @@
 
   use rjdeliveryomaha\courierinvoice\CommonFunctions;
   use rjdeliveryomaha\courierinvoice\Query;
-  /***
-  * throws Exception
-  *
-  * handles login useing (int)clientID, 'driver'+(int)driverID, 'dispatch'+(int)dispatchID, 'userLogin'
-  ***/
 
   class LoginHandler extends CommonFunctions {
     protected $clientID;
