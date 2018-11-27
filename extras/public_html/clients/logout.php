@@ -1,5 +1,5 @@
 <?php
-  require_once "../../includes/user_functions.php";
+  require_once '../../includes/user_functions.php';
   sec_session_start();
   //Set a flag to indicate where to redrict after the session is destroyed
   $mobile =  (isset($_POST['mobile']) && $_POST['mobile'] === '1');

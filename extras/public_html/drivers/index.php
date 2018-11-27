@@ -5,13 +5,13 @@
   // header("Pragma: no-cache"); //HTTP 1.0
   // header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
   // Include functions
-  require_once "../../includes/user_functions.php";
-  
+  require_once '../../includes/user_functions.php';
+
   if (!is_sec_session_started()) sec_session_start();
-  
+
   require_once '../../includes/APIToolsConfig.php';
   require_once '../../vendor/autoload.php';
-  
+
   use rjdeliveryomaha\courierinvoice\CommonFunctions;
 ?>
 <!DOCTYPE html>

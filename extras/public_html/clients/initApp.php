@@ -2,13 +2,13 @@
   if ($_SERVER['REQUEST_METHOD'] !== 'POST') return FALSE;
   if (!isset($_POST['functions'])) return FALSE;
   // Include functions
-  require_once "../../includes/user_functions.php";
-  
+  require_once '../../includes/user_functions.php';
+
   if (!is_sec_session_started()) sec_session_start();
-  
+
   require_once '../../includes/APIToolsConfig.php';
   require_once '../../vendor/autoload.php';
-  
+
   use rjdeliveryomaha\courierinvoice\Ticket;
   use rjdeliveryomaha\courierinvoice\Route;
   $returnData = [];
@@ -26,7 +26,7 @@
     echo "<span data-value=\"error\">{$e->getMessage()}</span>";
     return FALSE;
   }
-  
+
   for ($i = 0; $i < count($functions); $i++) {
     if (method_exists($ticket, $functions[$i])) {
       try {
@@ -40,6 +40,6 @@
       $returnData[] = FALSE;
     }
   }
-  
+
   echo json_encode($returnData, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
   return FALSE;
