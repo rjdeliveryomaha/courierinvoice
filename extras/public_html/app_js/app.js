@@ -114,7 +114,7 @@ function debug(val) {
   //`TouchMove` event to determine user touch movement
   document.body.addEventListener('touchmove', function(event) {
     touchMovePoint = event.touches[0].pageX;
-    if (touchStartPoint < 10 && touchMovePoint > 30) {          
+    if (touchStartPoint < 10 && touchMovePoint > 30) {
       menuElement.style.transform = "translateX(0)";
     }
   }, false);
@@ -123,7 +123,7 @@ function debug(val) {
     if (touchStartPoint < 10) {
       menuElement.style.transform = "translateX(0)";
       menuOverlayElement.classList.add('menu__overlay--show');
-      menuElement.removeEventListener('transitionend', onTransitionEnd, false); 
+      menuElement.removeEventListener('transitionend', onTransitionEnd, false);
     }
   } */
 })();
@@ -138,15 +138,15 @@ function debug(val) {
     if (!msg) return;
 
     let toastContainer = document.querySelector('.toast__container');
-    
+
     options = options || {};
-    
+
     options.title = options.title || "";
 
     options.time = options.time || 4000;
-    
+
     options.eleClass = options.eleClass || 'toast__msg';
-    
+
     options.datatime = options.datatime || new Date().getTime();
 
     let toastMsg = document.createElement('div');
@@ -175,11 +175,11 @@ function debug(val) {
     setTimeout(() => {
       if (toastMsg.classList.contains("toast__msg")) toastMsg.classList.add('toast__msg--hide');
     }, options.time);
-    
+
     // add onclick event to remove toastMsg
     // this will be handled in app.js with jQuery
     // toastMsg.onclick = function() { this.parentNode.removeChild(this); };
-    
+
     //Remove the element after hiding
     // Wait one second longer than the passed value and loop over all of the children.
     setTimeout(() => {
@@ -263,7 +263,7 @@ function assignLinkValues() {
   function updateNetworkStatus() {
     if (navigator.onLine) {
       header.classList.remove('app__offline');
-      menuHeader.style.background = '#1E88E5'; 
+      menuHeader.style.background = '#1E88E5';
     }
     else {
       toast('You are now offline..');
@@ -289,7 +289,7 @@ function disableButtonsInvoices() {
   });
   $("#compareMembers").prop("disabled", howMany < 2);
   if ($("#compareMembers").is(":disabled")) $("#compareMembers").prop("checked", false);
-  
+
   if (howMany === 0) {
     $("#range, #submitSingle").prop("disabled", true).prop("title", "Select a member to continue");
     $("#orgInvoices").find(".noticeRow").show();
@@ -585,9 +585,9 @@ function populatePage() {
     if ($("#dispatch").length > 0) countInitDispatch();
     if ($("#transfers").length > 0) countInitTransfers();
     if ($("#map").length !== 0) {
-      $("body").append('<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCA3eWNJANuoLXUrov6sfxaokxp16GTLHQ&callback=initMap" async defer><\/script>');
+      $("body").append('<script src="https://maps.googleapis.com/maps/api/js?key=&callback=initMap" async defer><\/script>');
     } else if ($(".orgMember").lenth !== 0 && $("#map2").length !== 0) {
-      $("body").append('<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCA3eWNJANuoLXUrov6sfxaokxp16GTLHQ&callback=initPriceMap" async defer><\/script>');
+      $("body").append('<script src="https://maps.googleapis.com/maps/api/js?key=&callback=initPriceMap" async defer><\/script>');
     }
     resetPushUI();
   })
@@ -605,26 +605,26 @@ function enableApp() {
   });
 }
 // map display
-function drawCircle(point, radius, dir, bounds) { 
-  let d2r = Math.PI / 180,   // degrees to radians 
-      r2d = 180 / Math.PI,   // radians to degrees 
+function drawCircle(point, radius, dir, bounds) {
+  let d2r = Math.PI / 180,   // degrees to radians
+      r2d = 180 / Math.PI,   // radians to degrees
       earthsradius = 3963, // 3963 is the radius of the earth in miles
       points = 32,
       start,
       end,
-  // find the radius in lat/lon 
+  // find the radius in lat/lon
       rlat = (radius / earthsradius) * r2d,
       rlng = rlat / Math.cos(point.lat() * d2r),
-      extp = new Array(); 
+      extp = new Array();
   if (dir==1)   {start=0; end=points+1} // one extra here makes sure we connect the ends
   else {start=points+1; end=0}
-  for (let i=start; (dir==1 ? i < end : i > end); i=i+dir) { 
+  for (let i=start; (dir==1 ? i < end : i > end); i=i+dir) {
     let theta = Math.PI * (i / (points/2)),
-        ey = point.lng() + (rlng * Math.cos(theta)), // center a + radius x * cos(theta) 
-        ex = point.lat() + (rlat * Math.sin(theta)); // center b + radius y * sin(theta) 
-    extp.push(new google.maps.LatLng(ex, ey)); 
+        ey = point.lng() + (rlng * Math.cos(theta)), // center a + radius x * cos(theta)
+        ex = point.lat() + (rlat * Math.sin(theta)); // center b + radius y * sin(theta)
+    extp.push(new google.maps.LatLng(ex, ey));
     bounds.extend(extp[extp.length-1]);
-  } 
+  }
   return extp;
 }
 function initMap(mapDivID="map", coords1, address1, coords2, address2, center) {
@@ -841,7 +841,7 @@ $(document).ready(function() {
   assignLinkValues();
   // only run this function if the login confirmation form is present indicating a client or driver is loged in
   if ($("#confirmLogin").length > 0) populatePage();
-  
+
   $("a.nav").click(function() {
     mySwipe.slide($(this).attr("data-value"), 300);
   });
@@ -849,25 +849,25 @@ $(document).ready(function() {
   $(document).on("click", ".header__icon", function() {
     if ($("#sig").is(":visible")) return false;
   });
-  
+
   $(document).on("click", ".refresh", function(){
     reloadPage();
   });
-  
+
   $(document).on("keydown", "input[type='number']", function() {
     if ($(this).val() === "0") $(this).val("");
   });
-  
+
   $(document).on("click", "button", function() {
     let $temp = $(this).addClass("red");
     setTimeout(() => { $temp.removeClass("red"); }, 3000);
   });
-  
+
   $(document).on("click", "#refreshRoute, #refreshOnCall, #refreshDispatch, #refreshTransfers", function(e) {
     e.preventDefault();
     window[$(this).prop("id")]();
   });
-  
+
   $("#confirm").click(function( e ) {
     e.preventDefault();
     let breakFunction = false;
@@ -941,7 +941,7 @@ $(document).ready(function() {
         return false;
     });
   });
-  
+
   $("#cancel").click(function() {
     window.location = "./logout";
   });
@@ -978,7 +978,7 @@ $(document).ready(function() {
       signaturePad.penColor = "red";
       signaturePad.backgroundColor = "black";
     };
-    
+
     function resizeCanvas() {
       // When zoomed out to less than 100%, for some very strange reason,
       // some browsers report devicePixelRatio as less than 1
@@ -1001,32 +1001,32 @@ $(document).ready(function() {
       } else {
         $(this).parents(".sortable").find("input[name='sigImage']").val(signaturePad.toDataURL());
       }
-      
+
       requiredState = (printName.parents(".sortable").find("input[name='sigImage']").val() !== "" && typeof(printName.parents(".sortable").find("input[name='sigImage']").val()) !== undefined && printName.parents(".sortable").find("input[name='sigImage']").val() !== null) || printName.hasClass("pulse");
-      
+
       target.removeClass("field").addClass("sigField").html('').attr("id", "");
       target.parents("body").find("input, button, textarea").prop("disabled", false);
       printName.prop("required", requiredState);
     });
-    
+
     clearButton.addEventListener("click", function(event) {
       signaturePad.clear();
     });
     // The canvas is holding the page background color. Calling the clear function fixes this.
     signaturePad.clear();
   });
-  
+
   $(document).on("touchstart", "#sig", function() {
     disable_scroll();
     mySwipe.disable();
   });
-  
+
   $(document).on("touchend", "#sig", function() {
     enable_scroll();
     mySwipe.enable();
   });
   // active tickets
-  
+
   $("#ticketEditorSubmit").click(function(e) {
     e.preventDefault();
     $("#ticketEditor .container").html("<span class=\"ellipsis\">.</span>");
@@ -1059,12 +1059,12 @@ $(document).ready(function() {
       setTimeout(() => { $("#ticketEditor").find(".ajaxError").remove(); }, 4000);
     });
   });
-  
+
   $(document).on("click", ".cancelTicketEditor", function() {
     $(this).parents(".tickets").find("table:first, button.ticketEditor").show();
     $(this).parents(".removableByEditor").remove();
   });
-  
+
   $(document).on("click", ".ticketEditor", function() {
     let attempt = ajax_template("POST", "./enterTicket.php", "html", { ticket_index: $(this).attr("data-index"), ticketEditor: 1, formKey: $("#formKey").val() })
     .done((result) => {
@@ -1076,7 +1076,7 @@ $(document).ready(function() {
       $(this).parent(".tickets").html('<p class="center">' + error + '</p>');
     });
   });
-  
+
   $(document).on("click", "#ticketEditor .submitForm", function(e) {
     e.preventDefault();
     $(this).prop("disable", true);
@@ -1142,7 +1142,7 @@ $(document).ready(function() {
       $(this).parents(".tickets").find(".ticketError").html('<span class="center">' + error + '</span>');
     });
   });
-  
+
   $(document).on("click", "#ticketEditor .editForm, #ticketEditor .confirmed", function(e) {
     e.preventDefault();
     let button = $(this);
@@ -1198,7 +1198,7 @@ $(document).ready(function() {
       return false;
     }
   });
-  
+
   $(document).on("click", "#clearTicketEditorResults", function() {
     $("#ticketEditor .container").html('<p class="center">Select Driver &amp; Ticket Type</p>');
   });
@@ -1305,24 +1305,24 @@ $(document).ready(function() {
   $(document).on("touchstart", ".invoiceGraphContainer, .invoiceTable", function() {
     mySwipe.disable();
   });
-  
+
   $(document).on("touchend", ".invoiceGraphContainer, .invoiceTable", function() {
     mySwipe.enable();
   });
-  
+
   if ($("#invoices input[type='month']").length === 0) {
     noData = true;
     $("#useInvoice").prop("disabled", true);
   }
-  
+
   if ($("#orgInvoices .orgMember").length > 0) {
     $("#orgInvoices .orgMember:first").parents("tfoot").append('<tr class="noticeRow"><td colspan="2">Select member to query</td></tr>')
   }
-  
+
   $(document).on("click", "#single, #multi", function() {
     return ($(this).is(":checked"));
   });
-  
+
   $(document).on("change", "#single, #multi", function() {
     disableButtonsInvoices();
     let recheck = [];
@@ -1336,7 +1336,7 @@ $(document).ready(function() {
     }
     if (recheck.length > 0) recheck[0].prop("checked", true).trigger("change");
   }).change();
-  
+
   $(document).on("change", "#orgInvoices .orgMember", function() {
     disableButtonsInvoices();
     let testVal = $(this).attr("data-value");
@@ -1352,15 +1352,15 @@ $(document).ready(function() {
       $("#queryForms").find("input.removable[value='" + testVal + "']").remove();
     }
   }).change();
-  
+
   $(document).on("change", "#useInvoice", function(){
     $(this).parents("#singleInvoiceQuery").find("#invoiceNumber").prop("disabled", !$(this).is(":checked")).end().find(".dateIssuedMonth").prop("disabled", $(this).is(":checked")).prop("required", !$(this).is(":checked")).val("");
   }).change();
-  
+
   $(document).on("change", "#compareInvoices", function(){
     ($(this).is(":checked") || $(this).val() === "1") ? $(this).parent("td").attr("title", "") : $(this).parent("td").attr("title", "Range limited to 6 months");
   }).change();
-  
+
   $(document).on("click", "#singleInvoice, #rangeInvoice, #submitSingle, #range", function( e ) {
     e.preventDefault();
     let breakFunction = false;
@@ -1445,7 +1445,7 @@ $(document).ready(function() {
       workspace.find("#invoiceQueryResults").html('<p class="center">' + error + '</p>');
     });
   });
-  
+
   $(document).on("click", "button.invoiceQuery", function( e ) {
     e.preventDefault();
     let postData = {};
@@ -1486,7 +1486,7 @@ $(document).ready(function() {
       $("#invoiceQueryResults").html('<p class="center">' + error + '</p>');
     });
   });
-  
+
   $(document).on("click", "#mulitInvoiceButton", function( e ) {
     e.preventDefault();
     let postData = {};
@@ -1522,19 +1522,19 @@ $(document).ready(function() {
   if ($("#options").find(".ticketDate:first").text() === "No Data On File") {
     $("#options").find("input[type='submit']").prop("disabled", true);
   }
-  
+
   if ($("#orgTickets .orgMember").length > 0) {
     $("#ticketQueryResults").before('<p class="center noticeRow">Select member or ticket number to query</p>')
   }
-  
+
   $(document).on("touchstart", ".ticketGraphContainer", function() {
     mySwipe.disable();
   });
-  
+
   $(document).on("touchend", ".ticketGraphContainer", function() {
     mySwipe.enable();
   });
-  
+
   $(document).on("change", "#display", function() {
     switch ($(this).val()) {
       case "tickets":
@@ -1564,7 +1564,7 @@ $(document).ready(function() {
     }
     $("#orgTickets .orgMember").each(function() { $(this).prop("checked", false); } );
   });
-  
+
   $(document).on("change", "#orgTickets .orgMember", function() {
     disableButtonsTickets();
     if ($(this).is(":checked")) {
@@ -1573,7 +1573,7 @@ $(document).ready(function() {
       $("#orgTickets #ticketNumber").prop("readonly", ($("#display").val() === "chart"));
     }
   }).change();
-  
+
   $(document).on("change", "#compareBox", function(){
     if($(this).is(":checked")) {
       $(this).parents("fieldset").find("#allTime").each(function() { if ($(this).is(":checked")) { $(this).prop("checked", false).trigger("change"); } }).end().find(".chartDate").attr("title", "");
@@ -1581,7 +1581,7 @@ $(document).ready(function() {
       $(this).parents("fieldset").find(".chartDate").attr("title", "Query Range Limited To 6 Month Periods");
     }
   }).change();
-  
+
   $(document).on("change", ".allTime3", function() {
     if($(this).is(":checked")){
       $(this).parents("fieldset").find("#startDateMonth, #endDateMonth").prop("disabled", true).end().find(".startDateMarker, .endDateMarker").prop("disabled", false).end().find("#compareBox").prop("checked", false);
@@ -1597,7 +1597,7 @@ $(document).ready(function() {
       $(this).parents("fieldset").find(".startDateDate, .endDateDate").prop("disabled", false).end().find(".startDateMarker, .endDateMarker").prop("disabled", true);
     }
   }).change();
-  
+
   $(document).on("change", "#allTime", function(){
     if($(this).is(":checked")){
       $(this).parents("form").find(".startDateDate, .endDateDate").prop("disabled", true).end().find("#ticketNumber").val("").prop("readonly", true);
@@ -1607,7 +1607,7 @@ $(document).ready(function() {
       $(this).parents("form").find(".startDateMarker, .endDateMarker, .ticketNumberMarker").prop("disabled", true);
     }
   }).change();
-  
+
   $(document).on("change", "#deliveryQuery #ticketNumber", function(){
     if($(this).val() !== "") {
       if ($("#orgTickets .noticeRow").length > 0) {
@@ -1634,17 +1634,17 @@ $(document).ready(function() {
       }
     }
   }).change();
-  
+
   $(document).on("change", "#deliveryQuery #startDate, #deliveryQuery #endDate", function() {
     let testVal = ($("#deliveryQuery #endDate").val() === '') && ($("#deliveryQuery #startDate").val() === '');
     $(this).parents("fieldset").find("#ticketNumber").prop("readonly", !testVal);
     if (!testVal) $(this).parents("fieldset").find("#ticketNumber").val("");
   }).change();
-  
+
   $(document).on("click", ".sigPrint", function(){
     $(this).next("tr.sigImage").toggle(900);
   });
-  
+
   $(document).on("click", ".submitTicketQuery", function( e ) {
     e.preventDefault();
     $(this).prop("disabled", true);
@@ -1703,18 +1703,18 @@ $(document).ready(function() {
       workspace.find("#ticketQueryResults").html('<p class="center">' + error + '</p>');
     });
   });
-  
+
   $(document).on("click", ".resetTicketQuery", function() {
     $("#display").val("tickets").trigger("change");
     $(this).parents("#deliveryQuery").find(".elementError").each(function() {
       $(this).removeClass("elementError");
     });
   });
-  
+
   $(document).on("click", ".clearTicketResults", function() {
     $("#ticketQueryResults").html("");
   });
-  
+
   $(document).on("click", ".submitOrgTickets", function( e ) {
     e.preventDefault();
     let workspace = $(this).closest(".page");
@@ -1797,7 +1797,7 @@ $(document).ready(function() {
       workspace.find("#ticketQueryResults").html('<p class="center">' + error + '</p>');
     });
   });
-  
+
   $(document).on("click", "#ticketQueryResults button.invoiceQuery", function( e ) {
     mySwipe.slide($("a.nav:contains('Invoice')").attr("data-value"), 300);
   });
@@ -1810,7 +1810,7 @@ $(document).ready(function() {
     //Disable other buttons in the ticket form
     $(this).closest(".tickets").find(".transferTicket, .cancelRun, .deadRun, .dTicket, .declined, input[type='text'], .pGetSig, .dGetSig, .d2GetSig").prop("disabled", true);
   });
-  
+
   $(document).on("click", "#onCall .confirmTransfer", function() {
     let button = $(this);
     button.parents(".message2").find("button").prop("disabled", true);
@@ -1860,7 +1860,7 @@ $(document).ready(function() {
       setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
     });
   });
-  
+
   $(document).on("click", "#onCall .declined", function(){
     //Clear all 'message2' containers
     $(this).parents(".tickets").find(".message2").html("");
@@ -1869,7 +1869,7 @@ $(document).ready(function() {
     //Disable other buttons in the ticket form
     $(this).closest(".tickets").find(".transferTicket, .cancelRun, .deadRun, .dTicket, .declined, input[type='text'], .pGetSig, .dGetSig, .d2GetSig").prop("disabled", true);
   })
-  
+
   $(document).on("click", "#onCall .cancelRun", function(){
     //Clear all 'message2' containers
     $(this).parents(".tickets").find(".message2").html("");
@@ -1878,7 +1878,7 @@ $(document).ready(function() {
     //Disable other buttons in the ticket form
     $(this).closest(".tickets").find(".transferTicket, .cancelRun, .deadRun, .dTicket, .declined, input[type='text'], .pGetSig, .dGetSig, .d2GetSig").prop("disabled", true);
   });
-  
+
   $(document).on("click", "#onCall .deadRun", function(){
     //Clear all 'message2' containers
     $(this).parents(".tickets").find(".message2").html("");
@@ -1887,12 +1887,12 @@ $(document).ready(function() {
     //Disable other buttons in the ticket form
     $(this).closest(".tickets").find(".transferTicket, .cancelRun, .deadRun, .dTicket, .declined, input[type='text'], .pGetSig, .dGetSig, .d2GetSig").prop("disabled", true);
   });
-  
+
   $(document).on("click", "#onCall .cancelThis", function(){
     $(this).parents(".tickets").find("button, .dTicket, input[type='text'], textarea").prop("disabled", false);
     $(this).parent("p").html("");
   });
-  
+
   $(document).on("click", "#onCall .confirmCancel", function(){
     //Get the ticket number to be removed from the data base
     let tNum = $(this).parents(".tickets").find(".ticket_index").val();
@@ -1934,7 +1934,7 @@ $(document).ready(function() {
       setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
     });
   });
-  
+
   $(document).on("click", "#onCall .confirmDeadRun", function(){
     // Get the ticket number to be marked as dead run
     let tNum = $(this).parents(".tickets").find(".ticket_index").val();
@@ -1976,7 +1976,7 @@ $(document).ready(function() {
       setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
     });
   });
-  
+
   $(document).on("click", "#onCall .confirmDecline", function(){
     //Get the ticket number to be removed from the data base
     let tNum = $(this).parents(".tickets").find(".ticket_index").val();
@@ -2018,7 +2018,7 @@ $(document).ready(function() {
       setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
     });
   });
-  
+
   $(document).on("click", "#onCall .dTicket", function( e ) {
     e.preventDefault();
     //Clear all 'message2' containers
@@ -2028,7 +2028,7 @@ $(document).ready(function() {
     //Request step confirmation
     $(this).closest(".tickets").find(".message2").html("Confirm " + $(this).text() + ":<br><button type='button' class='stepTicket' form='" + $(this).attr("form") + "'>Confirm</button>  <button type='button' class='cancelThis'>Go Back</button>");
   });
-  
+
   $(document).on("click", "#onCall .stepTicket", function( e ) {
     e.preventDefault();
     let x = $(this);
@@ -2157,11 +2157,11 @@ $(document).ready(function() {
       }
     }
   }).change();
-  
+
   $(document).on("click", ".clearPWform", function() {
     $(this).closest(".PWform").find(".message").html("").end().find(".PWsubmit").prop("disabled", false);
   });
-  
+
   $(document).on("change", ".showText", function() {
     if ($(this).is(":checked")) {
       $(this).parents("form").find("input[type='password']").each(function() {
@@ -2182,7 +2182,7 @@ $(document).ready(function() {
     //Request cancellation confirmation
     $(this).closest(".tickets").find(".message2").html("Confirm Transfer:<br><input list=\"receivers\" class=\"pendingReceiver\" name=\"pendingReceiver\" id=\"pendingReceiver" + $(this).parents(".tickets").find(".tNum").text() + "\" /><br><button type='button' class='confirmTransfer'>Confirm</button>  <button type='button' class='cancelThis'>Go Back</button>");
   });
-  
+
   $(document).on("click", "#route .confirmTransfer", function() {
     $(this).parents(".message2").find("button").prop("disabled", true);
     let pendingReceiver = $(this).closest(".message2").find(".pendingReceiver").val();
@@ -2232,7 +2232,7 @@ $(document).ready(function() {
       setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
     });
   });
-  
+
   $(document).on("click", "#route .declined", function(){
     //Clear all 'message2' containers
     $(this).parents("#route").find(".message2").html("");
@@ -2241,7 +2241,7 @@ $(document).ready(function() {
     //Request cancellation confirmation
     $(this).closest(".tickets").find(".message2").html("Confirm Decline:<br><button type='button' class='confirmDecline'>Confirm</button>  <button type='button' class='cancelThis'>Go Back</button>");
   });
-  
+
   $(document).on("click", "#route .confirmDecline", function(){
     $(this).parents(".message2").find("button").prop("disabled", true);
     // Get the ticket number to be removed from the data base
@@ -2286,7 +2286,7 @@ $(document).ready(function() {
       setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
     });
   });
-  
+
   $(document).on("click", "#route .cancelRun", function(){
     //Clear all 'message2' containers
     $(this).parents("#route").find(".message2").html("");
@@ -2295,7 +2295,7 @@ $(document).ready(function() {
     //Request cancellation confirmation
     $(this).closest(".tickets").find(".message2").html("Confirm Cancellation:<br><button type='button' class='confirmCancel'>Confirm</button>  <button type='button' class='cancelThis'>Go Back</button>");
   });
-  
+
   $(document).on("click", "#route .deadRun", function(){
     //Clear all 'message2' containers
     $(this).parents("#route").find(".message2").html("");
@@ -2304,12 +2304,12 @@ $(document).ready(function() {
     //Request dead run confirmation
     $(this).closest(".tickets").find(".message2").html("Confirm Dead Run:<br><button type='button' class='confirmDeadRun'>Confirm</button>  <button type='button' class='cancelThis'>Go Back</button>");
   });
-  
+
   $(document).on("click", "#route .cancelThis", function(){
     $(this).parents(".tickets").find("button, .notes").prop("disabled", false);
     $(this).parent(".message2").html("");
   });
-  
+
   $(document).on("click", "#route .confirmCancel", function(){
     // Get the ticket number to be removed from the data base
     let tNum = $(this).parents(".tickets").find(".tNum").text();
@@ -2352,7 +2352,7 @@ $(document).ready(function() {
       setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
     });
   });
-  
+
   $(document).on("click", "#route .confirmDeadRun", function(){
     $(this).parents(".message2").find("button").prop("disabled", true);
     // Get the ticket number to be marked as dead run
@@ -2396,7 +2396,7 @@ $(document).ready(function() {
       setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
     });
   });
-  
+
   $(document).on("click", "#route .dTicket", function( e ) {
     e.preventDefault();
     //Clear all 'message2' containers
@@ -2405,9 +2405,9 @@ $(document).ready(function() {
     $(this).closest(".tickets").find("button").prop("disabled", true);
     //Request step confirmation
     $(this).closest(".tickets").find(".message2").html("Confirm " + $(this).text() + ":<br><button type='button' class='stepTicket' form='" + $(this).attr("form") + "'>Confirm</button>  <button type='button' class='cancelThis'>Go Back</button>");
-    
+
   });
-  
+
   $(document).on("click", "#route .stepTicket", function( e ) {
     e.preventDefault();
     let x = $(this);
@@ -2453,7 +2453,7 @@ $(document).ready(function() {
       clearInterval(dots);
       $(".ellipsis").remove();
       if (result.indexOf("Session Error") !== -1) return showLogin();
-      
+
       if(result.indexOf("error") === - 1) {
         $parentElement.html(result);
         setTimeout(refreshRoute, 3000);
@@ -2468,11 +2468,11 @@ $(document).ready(function() {
       setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
     });
   });
-  
+
   $(document).on("click", ".transferGroup", function() {
     $(this).parents(".sortable").find("p.message2").html("Confirm Transfer: <input list=\"receivers\" class=\"pendingReceiver\" name=\"pendingReceiver\" id=\"pendingReceiver\" /> <button type=\"button\" class=\"confirmTransferGroup\">Confirm</button>  <button type=\"button\" class=\"cancelThis\">Go Back</button>");
   });
-  
+
   $(document).on("click", "#route .confirmTransferGroup", function() {
     let x = $(this);
     let multiTicket = [];
@@ -2499,7 +2499,7 @@ $(document).ready(function() {
       x.parents(".sortable").find(".message2").text('Error: ' + error);
     });
   });
-  
+
   $(document).on("click", ".confirmAll", function( e ) {
     e.preventDefault();
     //Clear all 'message2' containers
@@ -2509,7 +2509,7 @@ $(document).ready(function() {
     //Request step confirmation
     $(this).closest(".sortable").find(".message2:last").html("Confirm Group Update: <br><button type='button' class='stepAll'>Confirm</button>  <button type='button' class='cancelThis'>Go Back</button>");
   });
-  
+
   $(document).on("click", "#route .stepAll", function(){
     $(this).parents(".message2").find("button").prop("disabled", true);
     let multiTicket = [];
@@ -2570,7 +2570,7 @@ $(document).ready(function() {
       $(this).parents("form").find(".diWeight").val("0").prop("disabled", true);
     }
   }).change();
-  
+
   $(document).on("change", "#priceCalculator #discountMarker", function(){
     if($(this).is(":checked")){
       $(this).parents("form").find("#discount").val("0").prop("disabled", false).show();
@@ -2579,7 +2579,7 @@ $(document).ready(function() {
       $(this).parents("form").find("#discount").val("0").prop("disabled", true).hide();
     }
   }).change();
-  
+
   $(document).on("change", "#priceCalculator .address1", function(){
     let x = $(this);
     let testVal = x.val();
@@ -2599,7 +2599,7 @@ $(document).ready(function() {
       });
     }
   }).change();
-  
+
   $(document).on("click", "#priceCalculator .submitPriceQuery", function(e){
     e.preventDefault();
     let button = $(this);
@@ -2697,7 +2697,7 @@ $(document).ready(function() {
       setTimeout(() => { $("#CalcError").text(""); }, 4000);
     });
   });
-  
+
   $(document).on("click", "#priceCalculator .clear", function(){
     $(this).parents("form").find(".dryIce").prop("checked", false).trigger("change").end().find("#CalcCharge").val("0");
     $("#pNotice, #dNotice, #rangeResult, #diWeightResult, #diPriceResult, #runPriceResult, #ticketPriceResult").text("");
@@ -2709,7 +2709,7 @@ $(document).ready(function() {
   $(document).on("click", "p.switch", function() {
     $(this).next("p").toggle(900);
   });
-  
+
   $(document).on("change", ".contract", function(){
     if($(this).is(":checked")) {
       $(this).closest("table").find(".multiplier").prop("disabled", false);
@@ -2722,7 +2722,7 @@ $(document).ready(function() {
       $(this).closest("table").find(".repeat").prop("disabled", false);
     }
   }).change();
-  
+
   $(document).on("change", ".repeat", function(){
     if($(this).is(":checked")) {
       $(this).closest("table").find(".billTo").attr("list", "t_clients").val('');
@@ -2746,7 +2746,7 @@ $(document).ready(function() {
       $(this).parents("form").find(".processNewT_client").prop("disabled", true).val("0").end().find("input[name^='t_']").prop("disabled", true).val("").end();
     }
   }).change();
-  
+
   $(document).on("change", ".dryIce", function(){
     if($(this).is(":checked")){
       $(this).parents("fieldset").find(".diWeight").val("0").prop("disabled", false).focus();
@@ -2757,7 +2757,7 @@ $(document).ready(function() {
       $(this).parents("fieldset").find(".diWeight").val("0").prop("disabled", true);
     }
   }).change();
-  
+
   $(document).on("change", ".charge", function(){
     if ($(this).val() === "6") {
       $(this).parents("form").find(".rtMarker").show().end().find(".dedicatedNote").hide().end().find("#pSigReq, #dSigReq").removeClass("stayChecked");
@@ -2769,11 +2769,11 @@ $(document).ready(function() {
       $(this).parents("form").find(".rtMarker, .dedicatedNote").hide().prop("checked", false).end().find("#pSigReq, #dSigReq").prop("checked", false).removeClass("stayChecked");
     }
   }).change();
-  
+
   $(document).on("click", ".stayChecked", function(e) {
     e.preventDefault();
   });
-  
+
   $(document).on("change", ".emailConfirm", function() {
     if ($(this).val() !== "0") {
       $(this).parents("form").find(".emailAddress").prop("required", true);
@@ -2784,7 +2784,7 @@ $(document).ready(function() {
       $(this).parents("form").find(".emailNote").addClass("hide");
     }
   }).change();
-  
+
   $(document).on("blur", "input[name='pAddress1'], input[name='dAddress1']", function(){
     let x = $(this);
     let listIndex = "i";
@@ -2804,7 +2804,7 @@ $(document).ready(function() {
       });
     }
   });
-  
+
   $(document).on("change", "#ticketEntry #pSigReq, #ticketEntry #dSigReq, #ticketEntry #d2SigReq", function(){
     let y = $(this).parents("form").find("#pSigReq").prop("checked");
     let x = $(this).parents("form").find("#dSigReq").prop("checked");
@@ -2818,7 +2818,7 @@ $(document).ready(function() {
       }
     }
   }).change();
-  
+
   $(document).on("click", "#ticketEntry .submitForm", function(e) {
     e.preventDefault();
     let button = $(this);
@@ -2889,7 +2889,7 @@ $(document).ready(function() {
       setTimeout(() => { $parentElement.html(""); }, 3000);
     });
   });
-  
+
   $(document).on("click", "#ticketEntry .editForm, #ticketEntry .confirmed", function(e) {
     e.preventDefault();
     let button = $(this);
@@ -2983,14 +2983,14 @@ $(document).ready(function() {
       $("#" + neighbor + " .me").prop("disabled", false);
     }
   }).change();
-  
+
   $(document).on("click", ".onFile", function() {
     if ($(".clientSelect:first").children().length === 0) {
       $(this).prop("title", "No Locations On File");
       return false;
     }
   });
-  
+
   $(document).on("change", ".clientSelect", function() {
     let listIndex = $(this).children("option").filter(":selected").attr("data-value");
     $(this).parents("fieldset").find(".clientSelect").each(function(){
@@ -3001,7 +3001,7 @@ $(document).ready(function() {
       })
     });
   }).change();
-  
+
   $(document).on("change", ".onFile", function(){
     if ($(this).is(":checked")) {
       $(this).parents("thead").find(".me").prop("checked", false);
@@ -3050,7 +3050,7 @@ $(document).ready(function() {
        workspace.find(".message2").text(error);
     });
   });
-  
+
   $(document).on("click", ".acceptTransferGroup, .declineTransferGroup, .cancelTransferGroup", function() {
     let workspace = $(this).parents(".sortable");
     let formKey = $("#formKey").val();
@@ -3089,7 +3089,7 @@ $(document).ready(function() {
       $(this).parent().next("td").find(".submitInfoUpdate").prop("disabled", true);
     }
   });
-  
+
   $(document).on("change", "#same", function() {
     if ($(this).is(":checked")) {
       $("#billingName, #billingAddress1, #billingAddress2, #billingCountry").val('').prop("disabled", true).prop("required", false).next(".error").hide();
@@ -3097,7 +3097,7 @@ $(document).ready(function() {
       $("#billingName, #billingAddress1, #billingAddress2, #billingCountry").prop("disabled", false).prop("required", true).next(".error").show();
     }
   });
-  
+
   $(document).on("click", "#clientUpdate .submitInfoUpdate", function( e ) {
     e.preventDefault();
     let button = $(this);
