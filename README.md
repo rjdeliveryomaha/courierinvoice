@@ -23,7 +23,7 @@ composer --dev require "rjdeliveryomaha/courierinvoice"
 
 \*Not yet implemented
 
-[extras][https://github.com/rjdeliveryomaha/courierinvoice#extras]
+[extras](https://github.com/rjdeliveryomaha/courierinvoice#extras)
 
 # CommonFunctions
 
