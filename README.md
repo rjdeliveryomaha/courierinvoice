@@ -169,7 +169,7 @@ $config and $data should both be array. There is a sample config in the extras d
 
             $filter1[] = ['Resource'=>'Charge', 'Filter'=>'bt', 'Value'=>'1,5'];
 
-            $filter1[] = ['Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=> 1];
+            $filter1[] = ['Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=>1];
 
             $filter2 = [ ['Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=>2] ];
 
@@ -258,8 +258,8 @@ try {
 
   Users login name.
   * Repeat clients: integer
-  * Non-repeat clients: string ``` t1 ```
-  * Organizations: string ``` orgLogin ```
+  * Non-repeat clients: string; ``` t1 ```
+  * Organizations: string; ``` orgLogin ```
   * Drivers: string; ``` driver1 ```
   * Dispatchers: string; ``` dispatch1 ```
 - upw
@@ -296,9 +296,9 @@ try {
 
 A list of standard properties can be found in the [API Documentation](https://www.rjdeliveryomaha.com/courierinvoice/apidoc#tickets)
 
-The ``` step ``` property is used by ```php $ticket->updateStep() ```.
+The ``` step ``` property is used by ``` $ticket->updateStep() ```.
 
-The ``` action ``` property is used by ```php $ticket->cancelTicket() ```.
+The ``` action ``` property is used by ``` $ticket->cancelTicket() ```.
 
 The special property ``` multiTicket ``` can contain an array of ticket data sets for batch creation or updating. Ex: Update two tickets; one is being delivery the other returned to the same address.
 
@@ -350,7 +350,7 @@ Has 3 states based on $data passed to Ticket.
 
 - initial: Generates an empty ticket entry form.
 
-- edit: Generates a ticket entry form populated with provided $data.
+- edit: Generates a ticket entry form populated with provided ``` $data ```.
 
 - confirmation: Generates a read-only form for validation.
 
@@ -366,7 +366,7 @@ echo $ticket->calculateRunPrice();
 
 Returns a json encoded array with the following properties:
 
-- billTo: ClientID
+- billTo: ClientID.
 - address1: Pick up address.
 - address2: Delivery address.
 - result1: Coordinates of address1.
@@ -461,4 +461,4 @@ This is very much a work in progress. When complete it will provide a working ex
 
 Currently it lacks appropriate configuration for choosing map providers as well as missing modular expansion.
 
-In its current state it is usable, but easily so.
+In its current state it is usable, but not easily so.
