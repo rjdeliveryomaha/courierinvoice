@@ -5,7 +5,7 @@
     'privateKey' => '',
     // bool: logging is disabled by default
     'enableLogging' => false,
-    // string: if logging is enabled a target file /must/ be defined
+    // string: if logging is enabled a target file must be defined
     'targetFile' => './API.log',
     // Canceled tickets are not displayed on invoices by default
     // indexed array of integers: client IDs to exempt from this rule
@@ -16,22 +16,41 @@
     // associative array: client names that should be changed, for example, to abbreviate
     // ex: [ 'some long client name' => 'SLCN']
     'clientNameExceptions' => [],
-    // numeric array: addresses that should be ignored, for example, due to change of address
+    // indexed array: addresses that should be ignored, for example, due to change of address
     'clientAddressExceptions' => [],
     // indexed array: Values that should not be included on ticket entry datalists. Values should be lower case.
     'ignoreValues' => [ 'none', 'test', 'billing correction', '-', 'multiple', 'fuel compensation', 'other charge' ],
     // associative array: Setting to use with PHPMailer.
     'emailConfig' => [ 'fromAddress' => '', 'password'=> '', 'smtpHost' => '', 'port' => '587', 'secureType' => 'tls', 'fromName' => '', 'BCCAddress' => '' ],
-    // number: maximum number of months to display on a chart. Default is 6
+    // integer: maximum number of months to display on a chart. Default is 6
     'allTimeChartLimit' => 6,
-    // number: to be described
+    // integer: to be described
     'ticketChartRowLimit' => 5,
     // string: login name for courier invoice user as an alternative to using ClientID 0 (zero)
     'userLogin' => 'CustomLogin',
     // associative array extend layout and menue with custom pages
-    // The key will be added to the menue.
-    // The value will be looked for as a function in the includes/user_functions.php
-    'extend' => [ 'help' => 'createHelpContent' ]
+    // The top level keys are who to create the custom pages for; all, client, org, driver, dispatcher.
+    // Top level keys will be evaluated by name in the order above.
+    // In the subsequent indexed arrays the value 0 will be added to the menue.
+    // Value 1, if set and not null or an empty string, will be looked for as a function in includes/user_functions.php to populate the page.
+    // This function should return html content.
+    // value 2, if set and not null or an empty string, will be added as the src of a script element.
+    'extend' => [
+      'all' => [
+        ['<a href="mailto:support@yourdomain.com">Contact Support</a>'],
+        ['Help', 'createHelpContent']
+      ],
+      'client' => [
+        ['Notifications: <button type="button" class="fab__push">Off</button>', '', '../js/pushMessaging.js']
+      ],
+      'org' => [],
+      'driver' => [
+        ['Notifications: <button type="button" class="fab__push">Off</button>', '', '../js/pushMessaging.js']
+      ],
+      'dispatcher' => [
+        ['Notifications: <button type="button" class="fab__push">Off</button>', '', '../js/pushMessaging.js']
+      ]
+    ]
   ];
   // config for price calculation without session
   if (!isset($_SESSION['config'])) {
