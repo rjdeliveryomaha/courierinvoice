@@ -117,7 +117,6 @@
   <script>window.jQuery || document.write('<script src="js/jquery-3.3.1.min.js"><\/script>')</script>
   <script src="../app_js/jQuery.ajaxRetry.min.js"></script>
   <script src="../app_js/ajaxTemplate.min.js"></script>
-  <script src="../app_js/timeCard.js"></script>
   <script src="../app_js/pushMessaging.js"></script>
   <script src="../app_js/app.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>

@@ -6,12 +6,12 @@
   // header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
   // Include functions
   require_once '../../includes/user_functions.php';
-  
+
   if (!is_sec_session_started()) sec_session_start();
-  
+
   require_once '../../includes/APIToolsConfig.php';
   require_once '../../vendor/autoload.php';
-  
+
   use rjdeliveryomaha\courierinvoice\CommonFunctions;
 ?>
 <!DOCTYPE html>
@@ -135,7 +135,6 @@
   <script>window.jQuery || document.write('<script src="js/jquery-3.3.1.min.js"><\/script>')</script>
   <script src="../app_js/jQuery.ajaxRetry.min.js"></script>
   <script src="../app_js/ajaxTemplate.min.js"></script>
-  <script src="../app_js/timeCard.js"></script>
   <script src="../app_js/pushMessaging.js"></script>
   <script src="../app_js/app.min.js"></script>
 </body>
