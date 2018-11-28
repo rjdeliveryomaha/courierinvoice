@@ -1,4 +1,4 @@
-const applicationServerKey = "BKbaTbqZgyaBzmMVMzwMXNY3WkRgo49H63naexnqhN7T8Ow8UbTM1430bvAW8CIUdZ1rBIhXgYb6J97qyXCk28I=";
+const applicationServerKey = "";
 function resetPushUI() {
   const pushButton = document.querySelector('.fab__push');
   console.log("test for button...");
