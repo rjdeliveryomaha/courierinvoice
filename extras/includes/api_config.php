@@ -8,17 +8,17 @@
     // string: if logging is enabled a target file /must/ be defined
     'targetFile' => './API.log',
     // Canceled tickets are not displayed on invoices by default
-    // numeric array of integers: client IDs to exempt from this rule
+    // indexed array of integers: client IDs to exempt from this rule
     'showCancelledTicketsOnInvoiceExceptions' => [],
     // Contract tickets are consolidated by run number on invoices by default
-    // numeric array of integers: client IDs to exempt from this rule
+    // indexed array of integers: client IDs to exempt from this rule
     'consolidateContractTicketsOnInvoiceExceptions' => [],
     // associative array: client names that should be changed, for example, to abbreviate
     // ex: [ 'some long client name' => 'SLCN']
     'clientNameExceptions' => [],
     // numeric array: addresses that should be ignored, for example, due to change of address
     'clientAddressExceptions' => [],
-    // numeric array: Values that should not be included on ticket entry datalists. Values should be lower case.
+    // indexed array: Values that should not be included on ticket entry datalists. Values should be lower case.
     'ignoreValues' => [ 'none', 'test', 'billing correction', '-', 'multiple', 'fuel compensation', 'other charge' ],
     // associative array: Setting to use with PHPMailer.
     'emailConfig' => [ 'fromAddress' => '', 'password'=> '', 'smtpHost' => '', 'port' => '587', 'secureType' => 'tls', 'fromName' => '', 'BCCAddress' => '' ],
@@ -27,8 +27,13 @@
     // number: to be described
     'ticketChartRowLimit' => 5,
     // string: login name for courier invoice user as an alternative to using ClientID 0 (zero)
-    'userLogin' => 'RJDelivery'
+    'userLogin' => 'CustomLogin',
+    // associative array extend layout and menue with custom pages
+    // The key will be added to the menue.
+    // The value will be looked for as a function in the includes/user_functions.php
+    'extend' => [ 'help' => 'createHelpContent' ]
   ];
+  // config for price calculation without session
   if (!isset($_SESSION['config'])) {
     $config['config'] = [
       'CurrencySymbol' => '$',
