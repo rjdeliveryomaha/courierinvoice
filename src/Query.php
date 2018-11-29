@@ -28,7 +28,7 @@
         throw $e;
       }
       // username, publicKey, and privateKey will be set in CommonFunctions
-      $this->baseURI = 'https://rjtesting.ddns.net/v2/records/';
+      $this->baseURI = 'https://rjdeliveryomaha.com/v2/records/';
       $this->validTables = [ 'config', 'tickets', 'invoices', 'clients', 'o_clients', 'contract_locations', 'contract_runs', 'schedule_override', 'drivers', 'dispatchers', 'categories' ];
     }
 
