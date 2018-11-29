@@ -35,9 +35,13 @@
     // Value 1, if set and not null or an empty string, will be looked for as a function in includes/user_functions.php to populate the page.
     // This function should return html content.
     // value 2, if set and not null or an empty string, will be added as the src of a script element.
+    // If an entry has a non-null, not empty string vlaue 0 and a null or empty string value 1 it will be moved to the end of the list.
+    // This is done to preserve the indexing of entries to pages.
     'extend' => [
       'all' => [
+        // this will be moved to the end of the next not empty extend property.
         ['<a href="mailto:support@yourdomain.com">Contact Support</a>'],
+        // this will be the first entry after the standard list of links.
         ['Help', 'createHelpContent']
       ],
       'client' => [
