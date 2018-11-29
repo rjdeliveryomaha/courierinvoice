@@ -65,6 +65,9 @@
     // These properties should not be accessible when setting values from the $data argument
     private $protectedProperties = [ 'username', 'publicKey', 'privateKey', 'config', 'weightMarker', 'rangeMarker', 'countryClass', 'countryInput', 'requireCountry', 'shippingCountry', 'headerLogo', 'headerLogo2', 'myInfo', 'clientNameExceptions', 'clientAddressExceptions', 'showCancelledTicketsOnInvoiceExceptions', 'ignoreValues', 'showCancelledTicketsOnInvoice', 'consolidateContractTicketsOnInvoice', 'ints', 'floats', 'bools', 'afterSemicolon', 'jsonStrings', 'noFilter', 'sanitized', 'enableLogging', 'targetFile', 'fileWriteTry', 'loggingError', 'error', 'protectedProperties', 'RangeCenter', 'lat', 'lng', 'maxRange', 'timezone', 'emailConfig', 'allTimeChartLimit' ];
     private $noGetProps = [ 'error', 'loggingError', 'fileWriteTry', 'sanitized' ];
+    private $customMenueItems;
+    private $customPages;
+    private $customScripts;
 
     public function __construct($options, $data=[]) {
       if (!is_array($options) || empty($options)) {
@@ -807,7 +810,96 @@
       return $returnData;
     }
 
+    private function customize() {
+      if (is_numeric($_SESSION['ulevel'])) {
+        $type = ($_SESSION['ulevel'] < 0) ? 'client' : 'org';
+      } else {
+        $type = ($_SESSION['ulevel'] === 'driver') ? 'driver' : 'dispatcher';
+      }
+      if (isset($this->option['extend']['all']) && is_array($this->options['extend']['all']) && !empty($this->options['extend']['all'])) {
+        $withPage = $pages = $noPage = [];
+        for ($i = 0; $i < count($this->options['extend']['all']); $i++) {
+          if (!isset($this->options['extend']['all'][$i][1]) || $this->options['extend']['all'][$i][1] === '') {
+            $noPage[] = $this->options['extend']['all'][$i][0];
+          } else {
+            $withPage[] = $this->options['extend']['all'][$i][0];
+            $pages[] = $this->options['extend']['all'][1];
+          }
+          if (isset($this->options['extend']['all'][$i][2]) && $this->options['extend']['all'][$i][2] !== '') {
+            $this->customScripts .= "
+            <script src=\"{$this->options['extend']['all'][$i][2]}\"";
+          }
+          if (isset($this->options['extend']['all'][$i][3])) {
+            for ($j = 3; $j < count($this->options['extend']['all'][$i]); $j++) {
+              if (isset($this->options['extend']['all'][$i][$j]) && $this->options['extend']['all'][$i][$j] !== '') {
+                $this->customScripts .= " {$this->options['extend']['all'][$i][$j]}";
+              }
+            }
+          }
+          $this->customScripts .= '></script>';
+        }
+        for ($i = 0; $i < count($withPage); $i++) {
+          $this->customMenueItems .= "
+            <li>{$withPage[$i]}</li>";
+        }
+        for ($i = 0; $i < count($pages); $i++) {
+          $this->$customPages .= "
+            <div data-function=\"{$pages[$i]}\" class=\"page\"></div>
+          ";
+        }
+      }
+      // if the current user type has been extended add the menue items without pages to the end of that array.
+      // Otherwise add them to the customMenueItems property.
+      if (isset($this->option['extend'][$type]) && is_array($this->options['extend'][$type]) && !empty($this->options['extend'][$type])) {
+        for ($i = 0; $i < count($noPage); $i++) {
+          $this->options['extend'][$type][] = $noPage[$i];
+        }
+      } else {
+        for ($i = 0; $i < count($noPage); $i++) {
+          $this->customMenueItems .= "
+            <li>{$noPage[$i]}</li>";
+        }
+      }
+      if (isset($this->option['extend'][$type]) && is_array($this->options['extend'][$type]) && !empty($this->options['extend'][$type])) {
+        $withPage = $pages = $noPage = [];
+        for ($i = 0; $i < count($this->options['extend'][$type]); $i++) {
+          if (!isset($this->options['extend'][$type][$i][1]) || $this->options['extend'][$type][$i][1] === '') {
+            $noPage[] = $this->options['extend'][$type][$i][0];
+          } else {
+            $withPage[] = $this->options['extend'][$type][$i][0];
+            $pages[] = $this->options['extend'][$type][1];
+          }
+          if (isset($this->options['extend'][$type][$i][2]) && $this->options['extend'][$type][$i][2] !== '') {
+            $this->customScripts .= "
+            <script src=\"{$this->options['extend'][$type][$i][2]}\"";
+          }
+          if (isset($this->options['extend'][$type][$i][3])) {
+            for ($j = 3; $j < count($this->options['extend'][$type][$i]); $j++) {
+              if (isset($this->options['extend'][$type][$i][$j]) && $this->options['extend'][$type][$i][$j] !== '') {
+                $this->customScripts .= " {$this->options['extend'][$type][$i][$j]}";
+              }
+            }
+          }
+          $this->customScripts .= '></script>';
+        }
+        for ($i = 0; $i < count($withPage); $i++) {
+          $this->customMenueItems .= "
+            <li>{$withPage[$i]}</li>";
+        }
+        for ($i = 0; $i < count($noPage); $i++) {
+          $this->customMenueItems .= "
+            <li>{$noPage[$i]}</li>";
+        }
+        for ($i = 0; $i < count($pages); $i++) {
+          $this->$customPages .= "
+            <div data-function=\"{$pages[$i]}\" class=\"page\"></div>
+          ";
+        }
+      }
+    }
+
     public function createNavMenu() {
+      self::customize();
       $displayClientName = '<span class="error">User Name Error</span>';
       $menuLinks = '
           <span class="error">Link Generation Error</span>';
@@ -823,8 +915,7 @@
             $menuLinks = '
             <li class="menu__list__active"><a data-id="ticketEntry" class="nav">Delivery Request</a></li>
             <li><a data-id="ticketQuery" class="nav">Ticket History</a></li>
-            <li><a data-id="priceCalculator" class="nav"><span class="mobileHide">Run </span>Price Calc<span class="mobileHide">ulator</span></a></li>
-            <li style="color:rgba(0,0,0,0.87);">Notifications: <button type="button" class="fab__push">Off</button></li>';
+            <li><a data-id="priceCalculator" class="nav"><span class="mobileHide">Run </span>Price Calc<span class="mobileHide">ulator</span></a></li>';
           break;
           case 1:
             $pwWarning1 = ($this->pwWarning === 1 || $this->pwWarning === 3) ? '<span class="alert">!</span>' : '';
@@ -837,8 +928,7 @@
             <li><a data-id="changePassword" class="nav"><span class="mobileHide">Change </span>Password' . $pwWarning1 . '</a></li>
             <li><a data-id="changeAdminPassword" class="nav"><span class="mobileHide">Change </span> Admin Password' . $pwWarning2 . '</a></li>
             <li><a data-id="updateInfo" class="nav">Update <span class="mobileHide">Contact </span>Info<span class="mobileHide">rmation</span></a></li>
-            <li><a data-id="priceCalculator" class="nav"><span class="mobileHide">Run </span>Price Calc<span class="mobileHide">ulator</span></a></li>
-          <li style="color:rgba(0,0,0,0.87);">Notifications: <button type="button" class="fab__push">Off</button></li>';
+            <li><a data-id="priceCalculator" class="nav"><span class="mobileHide">Run </span>Price Calc<span class="mobileHide">ulator</span></a></li>';
           break;
           case 0:
             $pwWarning1 = ($this->pwWarning === 4) ? '<span class="alert">!</span>' : '';
@@ -861,19 +951,13 @@
           <li><a data-id="dispatch" class="nav">Dispatch<span class="medium dispatchCount"></span></a></li>
           <li><a data-id="ticketEditor" class="nav">Active Tickets</a></li>' : '';
           $menuLinks .= '
-          <li><a data-id="ticketEntry" class="nav">Ticket Entry</a></li>
-          <li><a data-id="timeCard" class="nav">Time Card</a></li>
-          <li><a data-id="help" class="nav">Help</a></li>
-          <li style="color:rgba(0,0,0,0.87);">Notifications: <button type="button" class="fab__push">Off</button></li>';
+          <li><a data-id="ticketEntry" class="nav">Ticket Entry</a></li>';
         } else {
           $displayClientName .= '<br>Driver';
           $menuLinks = '
           <li class="menu__list__active"><a data-id="route" class="nav">Route</a></li>
           <li><a data-id="onCall" class="nav">On Call<span class="medium ticketCount"></span></a></li>
-          <li><a data-id="transfers" class="nav">Transfers<span class="medium transferCount"></span></a></li>
-          <li><a data-id="timeCard" class="nav">Time Card</a></li>
-          <li><a data-id="help" class="nav">Help</a></li>
-          <li style="color:rgba(0,0,0,0.87);">Notifications: <button type="button" class="fab__push">Off</button></li>';
+          <li><a data-id="transfers" class="nav">Transfers<span class="medium transferCount"></span></a></li>';
         }
       } elseif ($_SESSION['ulevel'] === 'dispatch') {
         $displayClientName .= '<br>Dispatch';
@@ -882,26 +966,24 @@
           <li><a data-id="priceCalculator" class="nav">Price Calculator</a></li>
           <li><a data-id="ticketEditor" class="nav">Active Tickets</a></li>
           <li><a data-id="transfers" class="nav">Transfers<span class="medium transferCount"></span></a></li>
-          <li><a data-id="ticketEntry" class="nav">Ticket Entry</a></li>
-          <li><a data-id="timeCard" class="nav">Time Card</a></li>
-          <li><a data-id="help" class="nav">Help</a></li>
-          <li style="color:rgba(0,0,0,0.87);">Notifications: <button type="button" class="fab__push">Off</button></li>';
+          <li><a data-id="ticketEntry" class="nav">Ticket Entry</a></li>';
       }
       $mobileMarker = (isset($_SESSION['mobile']) && $_SESSION['mobile'] === TRUE) ? 1 : 0;
-      $navMenu = '
-        <div class="menu__header">
-          <p id="menuDriverName">' . $displayClientName . '</p>
-          <div id="logoutRefresh">
-            <button type="button" class="refresh">Refresh</button>
-            <form id="logoutLink" action="logout" method="post">
-              <input type="hidden" name="mobile" value="' . $mobileMarker . '" />
-              <button type="submit" form="logoutLink">Log Out</button>
+      $navMenu = "
+        <div class=\"menu__header\">
+          <p id=\"menuDriverName\">{$displayClientName}</p>
+          <div id=\"logoutRefresh\">
+            <button type=\"button\" class=\"refresh\">Refresh</button>
+            <form id=\"logoutLink\" action=\"logout\" method=\"post\">
+              <input type=\"hidden\" name=\"mobile\" value=\"{$mobileMarker}\" />
+              <button type=\"submit\" form=\"logoutLink\">Log Out</button>
             </form>
           </div>
         </div>
-        <ul class="menu__list">
-        ' . $menuLinks . '
-        </ul>';
+        <ul class=\"menu__list\">
+        {$menuLinks}
+        {$this->customMenueItems}
+        </ul>";
       return $navMenu;
     }
 
@@ -996,8 +1078,9 @@
             </div>
             <div id="ticketQueryResults"></div>
           </div>
-          <div id="priceCalculator" data-function="runPriceForm" class="page">
-        </div>';
+          <div id="priceCalculator" data-function="runPriceForm" class="page"></div>'
+           . $this->$customPages .
+       '</div>';
           break;
           case 1:
             $showPWwarning1 = ($this->pwWarning === 1 || $this->pwWarning === 3) ? '' : 'hide';
@@ -1418,8 +1501,9 @@
 	            </form>
             </div>
           </div>
-          <div id="priceCalculator" data-function="runPriceForm" class="page">
-          </div>
+          <div id="priceCalculator" data-function="runPriceForm" class="page"></div>'
+           . $this->$customPages .
+        '
         </div>';
           break;
           case 0:
@@ -1660,7 +1744,9 @@
                 </ul>
               </div>
             </div>
-          </div>
+          </div>'
+           . $this->$customPages .
+        '
         </div>
         ';
           break;
@@ -1714,14 +1800,13 @@
             <span class="container"><p class="center">Select Driver &amp; Ticket Type</p></span>
           </div>' : '';
         $appLayout .=  ($_SESSION['CanDispatch'] > 0) ? '
-          <div id="ticketEntry" data-function="ticketForm" class="page">
-          </div>' : '';
+          <div id="ticketEntry" data-function="ticketForm" class="page"></div>' : '';
         $appLayout .= '
-          <div id="timeCard" data-function="timeCard" class="page">
-          </div>
-          <div id="help" data-function="createHelpContent" class="page">
-          </div>
-      </div>';
+          <div id="timeCard" data-function="timeCard" class="page"></div>
+          <div id="help" data-function="createHelpContent" class="page"></div>'
+           . $this->$customPages .
+        '
+        </div>';
       }
       if ($_SESSION['ulevel'] === 'dispatch') {
         $appLayout = '
@@ -1765,15 +1850,23 @@
             <span class="message"></span>
             <span class="container"><p class="center">Select Driver &amp; Ticket Type</p></span>
           </div>
-          <div id="transfers" data-function="transferredTickets" class="page">
-          </div>
-          <div id="ticketEntry" data-function="ticketForm" class="page">
-          </div>
-          <div id="timeCard" data-function="timeCard" class="page">
-          </div>
-          <div id="help" data-function="createHelpContent" class="page">
-          </div>';
+          <div id="transfers" data-function="transferredTickets" class="page"></div>
+          <div id="ticketEntry" data-function="ticketForm" class="page"></div>
+          <div id="timeCard" data-function="timeCard" class="page"></div>
+          <div id="help" data-function="createHelpContent" class="page"></div>'
+           . $this->$customPages .
+       '</div>';
       }
+      $appLayout .= "
+      <script>
+        var myInfo = [\"{$_SESSION['config']['ClientName']}\",\"{$_SESSION['config']['EmailAddress']}\",\"{$_SESSION['config']['Telephone']}\"]
+      </script>
+      <script src=\"https://code.jquery.com/jquery-3.3.1.min.js\"></script>
+      <script>window.jQuery || document.write('<script src=\"../app_js/jquery-3.3.1.min.js\"><\/script>')</script>
+      <script src=\"../app_js/jQuery.ajaxRetry.min.js\"></script>
+      <script src=\"../app_js/ajaxTemplate.min.js\"></script>
+      {$this->$customScripts}
+      <script src=\"../app_js/app.min.js\"></script>";
       return $appLayout;
     }
 

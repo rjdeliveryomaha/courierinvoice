@@ -37,17 +37,23 @@
     // value 2, if set and not null or an empty string, will be added as the src of a script element.
     // If an entry has a non-null, not empty string vlaue 0 and a null or empty string value 1 it will be moved to the end of the list.
     // This is done to preserve the indexing of entries to pages.
+    // If both value 0 and value 1 are null or empty string value 2 will be added as the src of  a script element.
+    // Any values past 2 wll be interpreted as properties to be applied to the script ex: defer or async.
+    // The will be applied in the order that they appear.
     'extend' => [
       'all' => [
         // this will be moved to the end of the next not empty extend property.
         ['<a href="mailto:support@yourdomain.com">Contact Support</a>'],
         // this will be the first entry after the standard list of links.
-        ['Help', 'createHelpContent']
+        ['Help', 'createHelpContent'],
+        [ null, null, '../js/maps.js']
       ],
       'client' => [
         ['Notifications: <button type="button" class="fab__push">Off</button>', '', '../js/pushMessaging.js']
       ],
-      'org' => [],
+      'org' => [
+        [null, null, 'https://address_of_defered_script', 'async', 'defer']
+      ],
       'driver' => [
         ['Notifications: <button type="button" class="fab__push">Off</button>', '', '../js/pushMessaging.js']
       ],
