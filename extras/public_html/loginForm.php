@@ -13,7 +13,6 @@
   } catch(Exception $e) {
     $key = $e->getMessage();
   }
-  echo $key;
 ?>
   <table>
     <tfoot>
