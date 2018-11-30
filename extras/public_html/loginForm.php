@@ -6,12 +6,15 @@
 <form id="loginForm" class="fright" style="display:none;">
   <input type="hidden" class="mobile" value="0" />
 <?php
-  $key = '';
   try {
     $functions = new CommonFunctions($config, ['noSession'=>true]);
     $key = $functions->outputKey();
+    $formKey = "<input type=\"hidden\" name=\"formKey\" class=\"formKey\" value=\"$key\" />";
+    $disabled = '';
   } catch(Exception $e) {
     $key = $e->getMessage();
+    $formKey = $key;
+    $disabled = 'disabled';
   }
 ?>
   <table>
@@ -27,6 +30,9 @@
       </tr>
     </tfoot>
     <tbody>
+      <tr>
+        <td colspan="3"><?php echo $formKey; ?></td>
+      <tr>
       <tr>
         <td><input type="text" class="clientID" autocomplete="off" placeholder="ID Number*" /></td>
         <td><input type="password" class="upw" placeholder="password" /></td>
