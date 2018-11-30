@@ -39,7 +39,7 @@
     header('refresh:5;url=../mobileLogin');
     exit;
   }
-  echo "input type=\"hidden\" name=\"formKey\" class=\"formKey\" id=\"formKey\" value=\"{$functions->outputKey()}\" />";
+  echo "<input type=\"hidden\" name=\"formKey\" class=\"formKey\" id=\"formKey\" value=\"{$functions->outputKey()}\" />";
   try {
     $timezone = new dateTimeZone($_SESSION['config']['TimeZone']);
   } catch (Exception $e) {
