@@ -817,13 +817,13 @@
         $type = ($_SESSION['ulevel'] === 'driver') ? 'driver' : 'dispatcher';
       }
       $withPage = $pages = $noPage = [];
-      if (isset($this->option['extend']['all']) && is_array($this->options['extend']['all']) && !empty($this->options['extend']['all'])) {
+      if (isset($this->options['extend']['all']) && is_array($this->options['extend']['all']) && !empty($this->options['extend']['all'])) {
         for ($i = 0; $i < count($this->options['extend']['all']); $i++) {
           if (!isset($this->options['extend']['all'][$i][1]) || $this->options['extend']['all'][$i][1] === '') {
             $noPage[] = $this->options['extend']['all'][$i][0];
           } else {
             $withPage[] = $this->options['extend']['all'][$i][0];
-            $pages[] = $this->options['extend']['all'][1];
+            $pages[] = $this->options['extend']['all'][$i][1];
           }
           if (isset($this->options['extend']['all'][$i][2]) && $this->options['extend']['all'][$i][2] !== '') {
             $this->customScripts .= "
@@ -839,18 +839,17 @@
           $this->customScripts .= '></script>';
         }
         for ($i = 0; $i < count($withPage); $i++) {
+          $id = lcfirst(preg_replace('/\s+/', '', $withPage[$i]));
           $this->customMenueItems .= "
-            <li>{$withPage[$i]}</li>";
-        }
-        for ($i = 0; $i < count($pages); $i++) {
+            <li><a data-id=\"{$id}\" class=\"nav\">{$withPage[$i]}</a></li>";
           $this->customPages .= "
-            <div data-function=\"{$pages[$i]}\" class=\"page\"></div>
+            <div id=\"{$id}\" data-function=\"{$pages[$i]}\" class=\"page\"></div>
           ";
         }
       }
       // if the current user type has been extended add the menue items without pages to the end of that array.
       // Otherwise add them to the customMenueItems property.
-      if (isset($this->option['extend'][$type]) && is_array($this->options['extend'][$type]) && !empty($this->options['extend'][$type])) {
+      if (isset($this->options['extend'][$type]) && is_array($this->options['extend'][$type]) && !empty($this->options['extend'][$type])) {
         for ($i = 0; $i < count($noPage); $i++) {
           $this->options['extend'][$type][] = $noPage[$i];
         }
@@ -860,14 +859,14 @@
             <li>{$noPage[$i]}</li>";
         }
       }
-      if (isset($this->option['extend'][$type]) && is_array($this->options['extend'][$type]) && !empty($this->options['extend'][$type])) {
+      if (isset($this->options['extend'][$type]) && is_array($this->options['extend'][$type]) && !empty($this->options['extend'][$type])) {
         $withPage = $pages = $noPage = [];
         for ($i = 0; $i < count($this->options['extend'][$type]); $i++) {
           if (!isset($this->options['extend'][$type][$i][1]) || $this->options['extend'][$type][$i][1] === '') {
             $noPage[] = $this->options['extend'][$type][$i][0];
           } else {
             $withPage[] = $this->options['extend'][$type][$i][0];
-            $pages[] = $this->options['extend'][$type][1];
+            $pages[] = $this->options['extend'][$type][$i][1];
           }
           if (isset($this->options['extend'][$type][$i][2]) && $this->options['extend'][$type][$i][2] !== '') {
             $this->customScripts .= "
@@ -883,17 +882,16 @@
           $this->customScripts .= '></script>';
         }
         for ($i = 0; $i < count($withPage); $i++) {
+          $id = lcfirst(preg_replace('/\s+/', '', $withPage[$i]));
           $this->customMenueItems .= "
-            <li>{$withPage[$i]}</li>";
+            <li><a data-id=\"{$id}\" class=\"nav\">{$withPage[$i]}</a></li>";
+          $this->customPages .= "
+            <div id=\"{$id}\" data-function=\"{$pages[$i]}\" class=\"page\"></div>
+          ";
         }
         for ($i = 0; $i < count($noPage); $i++) {
           $this->customMenueItems .= "
             <li>{$noPage[$i]}</li>";
-        }
-        for ($i = 0; $i < count($pages); $i++) {
-          $this->customPages .= "
-            <div data-function=\"{$pages[$i]}\" class=\"page\"></div>
-          ";
         }
       }
     }
@@ -1801,12 +1799,8 @@
           </div>' : '';
         $appLayout .=  ($_SESSION['CanDispatch'] > 0) ? '
           <div id="ticketEntry" data-function="ticketForm" class="page"></div>' : '';
-        $appLayout .= '
-          <div id="timeCard" data-function="timeCard" class="page"></div>
-          <div id="help" data-function="createHelpContent" class="page"></div>'
-           . $this->customPages .
-        '
-        </div>';
+        $appLayout .= $this->customPages .
+        '</div>';
       }
       if ($_SESSION['ulevel'] === 'dispatch') {
         $appLayout = '
@@ -1851,9 +1845,7 @@
             <span class="container"><p class="center">Select Driver &amp; Ticket Type</p></span>
           </div>
           <div id="transfers" data-function="transferredTickets" class="page"></div>
-          <div id="ticketEntry" data-function="ticketForm" class="page"></div>
-          <div id="timeCard" data-function="timeCard" class="page"></div>
-          <div id="help" data-function="createHelpContent" class="page"></div>'
+          <div id="ticketEntry" data-function="ticketForm" class="page"></div>'
            . $this->customPages .
        '</div>';
       }
@@ -1866,7 +1858,7 @@
       <script src=\"../app_js/jQuery.ajaxRetry.min.js\"></script>
       <script src=\"../app_js/ajaxTemplate.min.js\"></script>
       {$this->customScripts}
-      <script src=\"../app_js/app.min.js\"></script>";
+      <script src=\"../app_js/app.js\"></script>";
       return $appLayout;
     }
 
