@@ -300,7 +300,7 @@ The ``` step ``` property is used by ``` $ticket->updateStep() ```.
 
 The ``` action ``` property is used by ``` $ticket->cancelTicket() ```.
 
-The special property ``` multiTicket ``` can contain an array of ticket data sets for batch creation or updating. Ex: Update two tickets; one is being delivery the other returned to the same address.
+The special property ``` multiTicket ``` can contain an array of ticket data sets for batch creation or updating. Ex: Update two tickets; one is being delivered the other returned to the same address.
 
 ```php
 $data['multiTicket'] = [
@@ -330,11 +330,15 @@ echo $ticket->displaySingleTicket();
 
 Display single ticket for drivers.
 
+Preconfigured to use [Signature Pad v2.3.2](https://github.com/szimek/signature_pad) to collect signatures.
+
 ```php
 echo $ticket->displayMultiTicket();
 ```
 
 Display groups of tickets with common pick up or drop off location and time.
+
+Preconfigured to use [Signature Pad v2.3.2](https://github.com/szimek/signature_pad) to collect signatures.
 
 ```php
 echo $ticket->ticketsToDispatch();
@@ -350,7 +354,7 @@ Has 3 states based on $data passed to Ticket.
 
 - initial: Generates an empty ticket entry form.
 
-  This form is followed by a div with class "mapContainer" and id "map" for use with a javascript api.
+  This form is followed by ``` <div class="mapContainer" id="map"></div> ``` for use with a javascript api.
 
   This div is only generated on this step.
 
@@ -372,7 +376,7 @@ Generates a simplified ticket form that only accepts 2 addresses, charge, and dr
 
 The data from this form should be passed to ``` $ticket->calculateRunPrice() ```.
 
-This form is followed by a div with class "mapContainer" and id "map2" for use with a javascript api.
+This form is followed by ``` <div class="mapContainer" id="map2"></div> ``` for use with a javascript api.
 
 ```php
 echo $ticket->calculateRunPrice();
@@ -432,23 +436,35 @@ Processes and submits a change of charge from 5 to 6.
 echo $ticket->stepTicket();
 ```
 
-Sets the time stamp and submits that and any notes for the given ``` step ``` for a single ticket or multiTicket array.
+Sets the time stamp and submits that, notes and other values for the given ``` step ``` for a single ticket or multiTicket array.
+
+Sends confirmation email if indicated.
+
+Returns a string.
 
 Valid values:
 
 - 'pickedUp'
 
+  Checks for ``` $ticket->sigImage ``` and submits pSigPrint, pSig, and pSigType.
+
 - 'delivered'
+
+  Checks for ``` $ticket->sigImage ``` and submits dSigPrint, dSig, and dSigType.
+
+  Solves for TicketPrice is Charge is 7 and d2SigReq is 0.
 
 - 'returned'
 
+  Checks for ``` $ticket->sigImage ``` and submits d2SigPrint, d2Sig, and d2SigType.
+
+  Solves for TicketPrice if Charge is 7 and d2SigReq is 1.
+
 - 'dispatched'
 
-Updates TicketPrice for charge 7.
+  Sets DispatchTimeStamp and DispatchMicroTime.
 
-Sends confirmation email if indicated.
-
-Returns a string.
+  Updates TicketPrice for charge 7.
 
 ```php
 echo $ticket->cancelTicket();
@@ -471,10 +487,6 @@ Valid values:
 
 # extras
 
-This is very much a work in progress. When complete it will provide a working example of an implementation of the above classes.
+This is working example and extendable drop-in implementation of this set of classes.
 
-~~Currently it lacks appropriate configuration for choosing map providers as well as missing modular expansion.
-
-In its current state it is usable, but not easily so.~~
-
-Options have been added to the configuration process that allow for custom pages, menu items (with or without matching pages), and javascript files. An example config file is located in [extras/includes](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes).
+Options are available that allow for custom pages, menu items (with or without matching pages), and javascript files. An example config file is located in [extras/includes](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes).

@@ -47,20 +47,17 @@
         ['<a href="mailto:support@yourdomain.com">Contact Support</a>'],
         // this will be the first entry after the standard list of links.
         ['Help', 'createHelpContent'],
-        [ null, null, '../js/maps.js']
-      ],
-      'client' => [
+        [ null, null, '../js/maps.js'],
+        [null, null, 'https://address_of_defered_script', 'async', 'defer'],
         ['Notifications: <button type="button" class="fab__push">Off</button>', '', '../js/pushMessaging.js']
       ],
-      'org' => [
-        [null, null, 'https://address_of_defered_script', 'async', 'defer']
-      ],
+      'client' => [],
+      'org' => [],
       'driver' => [
-        ['Notifications: <button type="button" class="fab__push">Off</button>', '', '../js/pushMessaging.js']
+        [null, null, 'https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js'],
+        [null, null, '../../app_js/sigPad.js']
       ],
-      'dispatcher' => [
-        ['Notifications: <button type="button" class="fab__push">Off</button>', '', '../js/pushMessaging.js']
-      ]
+      'dispatcher' => []
     ]
   ];
   // config for price calculation without session
