@@ -80,6 +80,7 @@
 
     private function orderParams() {
       $paramList = [];
+      $params = $this->queryParams;
       if (isset($this->queryParams['exclude'])) {
         $paramList[] = 'exclude';
       }
