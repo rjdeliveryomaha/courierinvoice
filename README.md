@@ -477,4 +477,4 @@ This is very much a work in progress. When complete it will provide a working ex
 
 In its current state it is usable, but not easily so.~~
 
-Options have been added to the configuration process that allow for custom pages, menu items (with or without matching pages), and javascript files. An example config file is located in [extras/includes](https://github.com/rjdeliveryomaha/courierinvoice/extras/includes).
+Options have been added to the configuration process that allow for custom pages, menu items (with or without matching pages), and javascript files. An example config file is located in [extras/includes](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes).
