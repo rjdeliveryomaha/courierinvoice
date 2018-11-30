@@ -30,16 +30,17 @@
     'userLogin' => 'CustomLogin',
     // associative array extend layout and menue with custom pages
     // The top level keys are who to create the custom pages for; all, client, org, driver, dispatcher.
-    // Top level keys will be evaluated by name in the order above.
-    // In the subsequent indexed arrays the value 0 will be added to the menue.
-    // Value 1, if set and not null or an empty string, will be looked for as a function in includes/user_functions.php to populate the page.
+    // The structure of subsequent indexed arrays:
+    // [ 'Menue Entry', 'functionName', '../path/to/script.js', 'scriptAttribute1', 'scriptAttribute2', ... ... ]
+    // Index 0, if not null or an empty string, will be added to the menue.
+    // Index 1, if set and not null or an empty string, will be looked for as a function in includes/user_functions.php to populate the page.
     // This function should return html content.
-    // value 2, if set and not null or an empty string, will be added as the src of a script element.
-    // If an entry has a non-null, not empty string vlaue 0 and a null or empty string value 1 it will be moved to the end of the list.
+    // Index 2, if set and not null or an empty string, will be added as the src of a script element.
+    // If an entry has a non-null, not empty string at index 0 and a null or empty string at index 1 it will be moved to the end of the list.
     // This is done to preserve the indexing of entries to pages.
-    // If both value 0 and value 1 are null or empty string value 2 will be added as the src of  a script element.
-    // Any values past 2 wll be interpreted as properties to be applied to the script ex: defer or async.
-    // The will be applied in the order that they appear.
+    // If both index 0 and index 1 are null or empty string index 2 will be added as the src of  a script element.
+    // Any indices past 2 wll be interpreted as attributes to be applied to the script ex: defer or async.
+    // They will be applied in the order that they appear.
     'extend' => [
       'all' => [
         // this will be moved to the end of the next not empty extend property.
