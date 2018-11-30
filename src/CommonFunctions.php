@@ -816,8 +816,8 @@
       } else {
         $type = ($_SESSION['ulevel'] === 'driver') ? 'driver' : 'dispatcher';
       }
+      $withPage = $pages = $noPage = [];
       if (isset($this->option['extend']['all']) && is_array($this->options['extend']['all']) && !empty($this->options['extend']['all'])) {
-        $withPage = $pages = $noPage = [];
         for ($i = 0; $i < count($this->options['extend']['all']); $i++) {
           if (!isset($this->options['extend']['all'][$i][1]) || $this->options['extend']['all'][$i][1] === '') {
             $noPage[] = $this->options['extend']['all'][$i][0];
@@ -843,7 +843,7 @@
             <li>{$withPage[$i]}</li>";
         }
         for ($i = 0; $i < count($pages); $i++) {
-          $this->$customPages .= "
+          $this->customPages .= "
             <div data-function=\"{$pages[$i]}\" class=\"page\"></div>
           ";
         }
@@ -891,7 +891,7 @@
             <li>{$noPage[$i]}</li>";
         }
         for ($i = 0; $i < count($pages); $i++) {
-          $this->$customPages .= "
+          $this->customPages .= "
             <div data-function=\"{$pages[$i]}\" class=\"page\"></div>
           ";
         }
@@ -1079,7 +1079,7 @@
             <div id="ticketQueryResults"></div>
           </div>
           <div id="priceCalculator" data-function="runPriceForm" class="page"></div>'
-           . $this->$customPages .
+           . $this->customPages .
        '</div>';
           break;
           case 1:
@@ -1502,7 +1502,7 @@
             </div>
           </div>
           <div id="priceCalculator" data-function="runPriceForm" class="page"></div>'
-           . $this->$customPages .
+           . $this->customPages .
         '
         </div>';
           break;
@@ -1745,7 +1745,7 @@
               </div>
             </div>
           </div>'
-           . $this->$customPages .
+           . $this->customPages .
         '
         </div>
         ';
@@ -1804,7 +1804,7 @@
         $appLayout .= '
           <div id="timeCard" data-function="timeCard" class="page"></div>
           <div id="help" data-function="createHelpContent" class="page"></div>'
-           . $this->$customPages .
+           . $this->customPages .
         '
         </div>';
       }
@@ -1854,7 +1854,7 @@
           <div id="ticketEntry" data-function="ticketForm" class="page"></div>
           <div id="timeCard" data-function="timeCard" class="page"></div>
           <div id="help" data-function="createHelpContent" class="page"></div>'
-           . $this->$customPages .
+           . $this->customPages .
        '</div>';
       }
       $appLayout .= "
@@ -1865,7 +1865,7 @@
       <script>window.jQuery || document.write('<script src=\"../app_js/jquery-3.3.1.min.js\"><\/script>')</script>
       <script src=\"../app_js/jQuery.ajaxRetry.min.js\"></script>
       <script src=\"../app_js/ajaxTemplate.min.js\"></script>
-      {$this->$customScripts}
+      {$this->customScripts}
       <script src=\"../app_js/app.min.js\"></script>";
       return $appLayout;
     }
