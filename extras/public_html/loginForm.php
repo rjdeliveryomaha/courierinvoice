@@ -32,7 +32,7 @@
     <tbody>
       <tr>
         <td colspan="3"><?php echo $formKey; ?></td>
-      <tr>
+      </tr>
       <tr>
         <td><input type="text" class="clientID" autocomplete="off" placeholder="ID Number*" /></td>
         <td><input type="password" class="upw" placeholder="password" /></td>
