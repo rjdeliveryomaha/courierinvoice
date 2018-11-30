@@ -350,6 +350,10 @@ Has 3 states based on $data passed to Ticket.
 
 - initial: Generates an empty ticket entry form.
 
+  This form is followed by a div with class "mapContainer" and id "map" for use with a javascript api.
+
+  This div is only generated on this step.
+
 - edit: Generates a ticket entry form populated with provided ``` $data ```.
 
 - confirmation: Generates a read-only form for validation.
@@ -359,6 +363,16 @@ Has 3 states based on $data passed to Ticket.
 - process: Submit ticket to the server.
 
   TicketNumber is set here.
+
+```php
+echo $ticket->runPriceForm();
+```
+
+Generates a simplified ticket form that only accepts 2 addresses, charge, and dry ice weight.
+
+The data from this form should be passed to ``` $ticket->calculateRunPrice() ```.
+
+This form is followed by a div with class "mapContainer" and id "map2" for use with a javascript api.
 
 ```php
 echo $ticket->calculateRunPrice();
@@ -459,6 +473,8 @@ Valid values:
 
 This is very much a work in progress. When complete it will provide a working example of an implementation of the above classes.
 
-Currently it lacks appropriate configuration for choosing map providers as well as missing modular expansion.
+~~Currently it lacks appropriate configuration for choosing map providers as well as missing modular expansion.
 
-In its current state it is usable, but not easily so.
+In its current state it is usable, but not easily so.~~
+
+Options have been added to the configuration process that allow for custom pages, menu items (with or without matching pages), and javascript files. An example config file is located in [extras/includes](https://github.com/rjdeliveryomaha/courierinvoice/extras/includes).
