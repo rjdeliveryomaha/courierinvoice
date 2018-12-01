@@ -47,13 +47,17 @@
         ['<a href="mailto:support@yourdomain.com">Contact Support</a>'],
         // this will be the first entry after the standard list of links.
         ['Help', 'createHelpContent'],
+        // this add the element <script src="../js/maps.js"></script> to the page
         [ null, null, '../js/maps.js'],
+        // this adds the element <script src="https://address_of_defered_script" async defer></script> to the page
         [null, null, 'https://address_of_defered_script', 'async', 'defer'],
+        // this adds an element to the menue and a script to the page
         ['Notifications: <button type="button" class="fab__push">Off</button>', '', '../js/pushMessaging.js']
       ],
       'client' => [],
       'org' => [],
       'driver' => [
+        // these are default configurations for collecting signatures
         [null, null, 'https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js'],
         [null, null, '../../app_js/sigPad.js']
       ],
