@@ -487,6 +487,60 @@ Valid values:
 
 # extras
 
-This is working example and extendable drop-in implementation of this set of classes.
+This is working example and extendable drop-in implementation of this set of classes using jQuery v3.3.1.
+
+### Features
+
+- Drivers
+
+  * Generates daily route.
+
+  * Displays on call and transfer tickets.
+
+  * Ticket entry form and dispatch page for drivers with dispatch privileges.
+
+  * Ticket query and update page for drivers with dispatch privileges.
+
+- Dispatchers
+
+  * Ticket entry form and dispatch page.
+
+  * Ticket query and update page.
+
+  * Price Calculator
+
+- Clients
+
+  * Daily User
+
+    + Delivery request form
+
+    + Ticket History query form
+
+    + Price Calculator
+
+  * Admin User
+
+    + Delivery request form
+
+    + Ticket History query form
+
+    + Invoice History query form
+
+    + Password management
+
+    + Contact information  management
+
+    + Price Calculator
+
+- Organizations
+
+  + Price Calculator
+
+  + Invoice History query form
+
+  + Ticket History query form
+
+  + Password management
 
 Options are available that allow for custom pages, menu items (with or without matching pages), and javascript files. An example config file is located in [extras/includes](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes).
