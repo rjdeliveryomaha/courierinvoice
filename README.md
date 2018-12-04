@@ -487,7 +487,27 @@ Valid values:
 
 # extras
 
-This is working example and extendable drop-in implementation of this set of classes using jQuery v3.3.1.
+This is an extendable drop-in implementation of this set of classes using jQuery v3.3.1.
+
+[jQuery.ajaxRetry](https://github.com/dcherman/jQuery.ajaxRetry) is used to implement a simple backoff.
+
+A templet for ajax calls with this backoff built in is also included. This will retry a failed call indefinitely waiting ``` n * 250 ``` milliseconds between calls where n is the retry count.
+
+```javascript
+  ajax_template(callMethod, url, returnType, postData=false)
+```
+
+Usage:
+
+```javascript
+  let attempt = ajax_template("post", "../ajax/doSomething.php", "html")
+  .done((result)=>{
+    // do something with the returned html
+  })
+  .fail((jqXHR, status, error)=>{
+    // display error
+  });
+```
 
 ### Features
 

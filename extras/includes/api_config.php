@@ -52,7 +52,10 @@
         // this adds the element <script src="https://address_of_defered_script" async defer></script> to the page
         [null, null, 'https://address_of_defered_script', 'async', 'defer'],
         // this adds an element to the menue and a script to the page
-        ['Notifications: <button type="button" class="fab__push">Off</button>', '', '../js/pushMessaging.js']
+        ['Notifications: <button type="button" class="fab__push">Off</button>', '', '../js/pushMessaging.js'],
+        // these files are used by default.
+        [null, null, '../app_js/jQuery.ajaxRetry.min.js'],
+        [null, null, '../app_js/ajaxTemplate.js']
       ],
       'client' => [],
       'org' => [],
