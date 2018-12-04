@@ -28,6 +28,22 @@
     'ticketChartRowLimit' => 5,
     // string: login name for courier invoice user as an alternative to using ClientID 0 (zero)
     'userLogin' => 'CustomLogin',
+    // By default all charges except Canceled (0) and Dead Run (8) are included on ticket __entry__ forms for drivers and dispatchers
+    // By default Credit (9) is also excluded from ticket __entry__ forms for clients
+    // By default all charges are included on ticket __query__ forms
+    // The following four settings remove charges based on the user type
+    // 2 dimentional indexed array of charges to exclude for drivers
+    // index 0 driver can dispatch to self
+    // index 1 driver can dispatch to all
+    'driverChargesExclude' => [ [ 9 ], [ 9 ] ],
+    // indexed array of charges to exclude for dispatchers
+    'dispatchChargesExclude' => [],
+    // 2 dimentional indexed array of charges to exclude for clients
+    // index 0 = admin clients
+    // index 1 = dayly clients
+    'clientChargesExclude' => [ [], [] ],
+    // indexed array of charges to exclude for organizations
+    'orgChargesExclude' => [],
     // associative array extend layout and menue with custom pages
     // The top level keys are who to create the custom pages for; all, client, org, driver, dispatcher.
     // The structure of subsequent indexed arrays:

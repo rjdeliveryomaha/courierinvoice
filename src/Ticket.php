@@ -131,6 +131,8 @@
     private $result;
     // Default dateTime value in the database
     private $tTest;
+    // Define the type of form to create charge options for
+    private $formType;
     private $newTicketDatabaseKeys = ['Contract', 'RunNumber', 'TicketNumber', 'TicketBase', 'BillTo', 'RequestedBy', 'pClient', 'dClient', 'pDepartment', 'dDepartment', 'pAddress1', 'dAddress1', 'pAddress2', 'dAddress2', 'pCountry', 'dCountry', 'pContact', 'dContact', 'pTelephone', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'Charge', 'RunPrice', 'TicketPrice', 'EmailConfirm', 'EmailAddress', 'Telephone', 'pTime', 'dTime', 'd2Time', 'pSigReq', 'dSigReq', 'd2SigReq', 'DispatchedTo', 'Transfers', 'ReceivedDate', 'DispatchTimeStamp', 'DispatchMicroTime', 'DispatchedBy', 'Notes'];
     private $updateTicketDatabaseKeys = ['BillTo', 'Charge', 'EmailAddress', 'EmailConfirm', 'Telephone', 'RequestedBy', 'pClient', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'dClient', 'dAddress1', 'dAddress2', 'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'DispatchedTo', 'Transfers', 'TicketBase', 'RunPrice', 'TicketPrice', 'Notes', 'pSigReq', 'dSigReq', 'd2SigReq'];
     private $postableKeys = ['repeatClient', 'fromMe', 'pClient', 'pDepartment', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'pSigReq', 'toMe', 'dClient', 'dDepartment', 'dAddress1', 'dAddress2', 'dCountry', 'dContact', 'dTelephone', 'dSigReq', 'dryIce', 'diWeight', 'Notes', 'Charge', 'DispatchedTo', 'd2SigReq', 'EmailAddress', 'EmailConfirm', 'Telephone', 'RequestedBy', 'locationList', 'clientList', 'tClientList', 'driverList'];
@@ -219,7 +221,7 @@
             $this->transferredBy = $this->DispatchedBy;
           }
         } else {
-          $this->userType = 'client';
+          $this->userType  = ($this->ulevel < 0) ? 'client' : 'org';
           $this->DispatchedBy = '1.1';
           $this->transferredBy = 'error';
         }
@@ -2113,6 +2115,23 @@
           $returnData .= self::regenTicket();
         }
         return $returnData;
+      }
+    }
+
+    private function createChargeSelectOptions() {
+      $returnData = '';
+      if ($this->userType === 'client') {
+        $excludes = (isset($this->options['clientChargesExclude'][$this->ulevel - 1])) ? $this->options['clientChargesExclude'][$this->ulevel - 1] : [];
+        if ($this->formType === 'entry') $excludes[] = 9;
+      } elseif ($this->userType === 'driver') {
+        $excludes = (isset($this->options['driverChargesExclude'][$this->CanDispatch - 1])) ? $this->options['driverChargesExclude'][$this->CanDispatch - 1] : [];
+      } else {
+        $excludes = (isset($this->options["{$this->userType}ChargesExclude"])) ? $this->options["{$this->userType}ChargesExclude"] : [];
+        if ($this->formType === 'entry' && $this->userType === 'org') $excludes[] = 9;
+      }
+      if ($this->formType === 'entry') {
+        $excludes[] = 0;
+        $excludes[] = 8;
       }
     }
 
