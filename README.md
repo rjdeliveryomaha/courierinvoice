@@ -428,9 +428,7 @@ Returns true on success, false, and optionally logs an error, on failure.
 $ticket->processReturnTicket();
 ```
 
-__Note__: This does not display a map when calculating TicketPrice. Consult [geocoder providers](https://github.com/geocoder-php/Geocoder#providers) for limitations.
-
-Processes and submits a change of charge from 5 to 6.
+Processes and submits a change of charge from 5 to 6 using the values stored in TicketBase.
 
 ```php
 echo $ticket->stepTicket();
@@ -491,7 +489,7 @@ This is an extendable drop-in implementation of this set of classes using jQuery
 
 [jQuery.ajaxRetry](https://github.com/dcherman/jQuery.ajaxRetry) is used to implement a simple backoff.
 
-A templet for ajax calls with this backoff built in is also included. This will retry a failed call indefinitely waiting ``` n * 250 ``` milliseconds between calls where n is the retry count.
+A templet for ajax calls with this backoff built in is also included. This will retry a failed call indefinitely waiting ``` n * 250 ``` milliseconds between calls where n is the retry count. The function returns the jQuery ajax object.
 
 ```javascript
   ajax_template(callMethod, url, returnType, postData=false)
@@ -500,7 +498,8 @@ A templet for ajax calls with this backoff built in is also included. This will 
 Usage:
 
 ```javascript
-  let attempt = ajax_template("post", "../ajax/doSomething.php", "html")
+  let postData =  { "formKey": $("#formKey").val(), "ticket_index": $(".ticket_index").val() }
+  let attempt = ajax_template("post", "../ajax/doSomething.php", "html", postData)
   .done((result)=>{
     // do something with the returned html
   })
@@ -509,25 +508,115 @@ Usage:
   });
 ```
 
+The function ``` toast(msg, options) ``` is exported to the global scope. It creates and deletes a toast-like div to show messages to the user.
+
+Usage:
+
+```javascript
+  let options = {},
+      msg = "Test Message";
+  options.title = "sample div title"; // title attribute of toast div. default ""
+  options.time = 3000; // milliseconds to show toast div. div will be removed 1 second after it is hidden. default 4000
+  options.eleClass = "ticketOncallReceived"; // custom class for the toast div. The function will display only the newest of a custom class, removing previous messages. All default class divs will be displayed for the configured time. default "toast__msg"
+  options.datatime = 1512574797926; // unix time stamp to parse for display with message. default new Date().getTime();
+  toast(msg, options);
+```
+
 ### Features
+
+Single page design navigated by wither swipe or menu. Offers unique features based upon user type.
 
 - Drivers
 
-  * Generates daily route.
+  * Route
 
-  * Displays on call and transfer tickets.
+    + Uses Route class to create or fetch contract tickets for a given driver.
 
-  * Ticket entry form and dispatch page for drivers with dispatch privileges.
+    + Groups tickets with matching location and time.
 
-  * Ticket query and update page for drivers with dispatch privileges.
+    + Displays single and grouped tickets with ability to:
+
+      - collect signatures
+
+      - update step
+
+      - update notes
+
+      - cancel
+
+      - mark as dead run
+
+      - transfer.
+
+    + Can be independently refreshed.
+
+  * On Call
+
+    + Uses Route class to fetch on call tickets for a given driver.
+
+    + Displays single tickets with ability to:
+
+      - collect signatures
+
+      - update step
+
+      - update notes
+
+      - cancel
+
+      - mark as dead run
+
+      - transfer.
+
+    + Can be independently refreshed.
+
+  * Transfers
+
+    + Uses Route class to fetch tickets either transferred by or transferred to a given driver.
+
+    + Groups contract tickets with matching location and time.
+
+    + Displays single and grouped tickets with ability to:
+
+      - accept transfer
+
+      - decline transfer
+
+      - cancel transfer
+
+    + Can be independently refreshed.
+
+  * Ticket Entry and Dispatch page for drivers with dispatch privileges. Described below.
+
+  * Active Tickets page for drivers with dispatch privileges. Described below.
 
 - Dispatchers
 
-  * Ticket entry form and dispatch page.
+  * Dispatch
 
-  * Ticket query and update page.
+    + Uses Ticket class to check for tickets that have not been dispatched.
+
+    + Displays single tickets with ability to dispatch.
 
   * Price Calculator
+
+    + Compact ticket form
+
+    + Accepts only pick up address, delivery address, charge, and dry ice information
+
+    + Uses Ticket class to compute the price of a ticket
+
+    + ``` <div class="mapContainer" id="map2"></div> ``` available to display a map
+
+  * Active Tickets
+
+    + Query contract or on call tickets for a given driver
+
+    + Displays single tickets with ability to edit
+
+  * Transfers
+
+  * Ticket Entry
 
 - Clients
 
