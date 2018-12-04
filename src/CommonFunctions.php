@@ -819,11 +819,13 @@
       $withPage = $pages = $noPage = [];
       if (isset($this->options['extend']['all']) && is_array($this->options['extend']['all']) && !empty($this->options['extend']['all'])) {
         for ($i = 0; $i < count($this->options['extend']['all']); $i++) {
-          if (!isset($this->options['extend']['all'][$i][1]) || $this->options['extend']['all'][$i][1] === '') {
-            $noPage[] = $this->options['extend']['all'][$i][0];
-          } else {
-            $withPage[] = $this->options['extend']['all'][$i][0];
-            $pages[] = $this->options['extend']['all'][$i][1];
+          if (isset($this->options['extend']['all'][$i][0]) && $this->options['extend']['all'][$i][0] !== '') {
+            if (!isset($this->options['extend']['all'][$i][1]) || $this->options['extend']['all'][$i][1] === '') {
+              $noPage[] = $this->options['extend']['all'][$i][0];
+            } else {
+              $withPage[] = $this->options['extend']['all'][$i][0];
+              $pages[] = $this->options['extend']['all'][$i][1];
+            }
           }
           if (isset($this->options['extend']['all'][$i][2]) && $this->options['extend']['all'][$i][2] !== '') {
             $this->customScripts .= "
@@ -862,11 +864,13 @@
       if (isset($this->options['extend'][$type]) && is_array($this->options['extend'][$type]) && !empty($this->options['extend'][$type])) {
         $withPage = $pages = $noPage = [];
         for ($i = 0; $i < count($this->options['extend'][$type]); $i++) {
-          if (!isset($this->options['extend'][$type][$i][1]) || $this->options['extend'][$type][$i][1] === '') {
-            $noPage[] = $this->options['extend'][$type][$i][0];
-          } else {
-            $withPage[] = $this->options['extend'][$type][$i][0];
-            $pages[] = $this->options['extend'][$type][$i][1];
+          if (isset($this->options['extend'][$type][$i][0]) && $this->options['extend'][$type][$i][0] !== '') {
+            if (!isset($this->options['extend'][$type][$i][1]) || $this->options['extend'][$type][$i][1] === '') {
+              $noPage[] = $this->options['extend'][$type][$i][0];
+            } else {
+              $withPage[] = $this->options['extend'][$type][$i][0];
+              $pages[] = $this->options['extend'][$type][$i][1];
+            }
           }
           if (isset($this->options['extend'][$type][$i][2]) && $this->options['extend'][$type][$i][2] !== '') {
             $this->customScripts .= "
