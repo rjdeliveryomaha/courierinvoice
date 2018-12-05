@@ -1,5 +1,5 @@
 <?php
-  include_once '../includes/APIToolsConfig.php';
+  include_once '../includes/api_config.php';
   include_once '../vendor/autoload.php';
   include_once '../includes/user_functions.php';
   

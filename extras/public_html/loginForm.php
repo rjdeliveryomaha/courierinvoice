@@ -1,5 +1,5 @@
 <?php
-  require_once '../includes/APIToolsConfig.php';
+  require_once '../includes/api_config.php';
   require_once '../vendor/autoload.php';
   use rjdeliveryomaha\courierinvoice\CommonFunctions;
 ?>

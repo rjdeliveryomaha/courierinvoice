@@ -6,7 +6,7 @@
   
   if (!is_sec_session_started()) sec_session_start();
   
-  require_once '../../includes/APIToolsConfig.php';
+  require_once '../../includes/api_config.php';
   require_once '../../vendor/autoload.php';
   
   use rjdeliveryomaha\courierinvoice\Ticket;
