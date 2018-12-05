@@ -1053,12 +1053,12 @@
     }
 
     //Ticket Charge values
-    protected function ticketCharge() {
-      switch ($this->Charge) {
+    protected function ticketCharge($charge) {
+      switch ($charge) {
         case 0:
           return 'Canceled';
         case 1:
-          return 'Stat';
+          return '1 Hour';
         case 2:
           return '2 Hour';
         case 3:
@@ -1940,7 +1940,7 @@
                   <input type=\"hidden\" name=\"pendingReceiver\" class=\"pendingReceiver\" value=\"{$this->multiTicket[$i]->PendingReceiver}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                   <input type=\"hidden\" name=\"step\" class=\"step\" value=\"{$this->multiTicket[$i]->step}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                 </form>
-                <h3 class=\"floatLeft\">{$this->multiTicket[$i]->TicketNumber}</h3>{$label}<h3 class=\"floatRight error\">{$this->ticketCharge()}</h3>
+                <h3 class=\"floatLeft\">{$this->multiTicket[$i]->TicketNumber}</h3>{$label}<h3 class=\"floatRight error\">{$this->ticketCharge($this->Charge)}</h3>
               </td>
             </tr>
             <tr>
@@ -2127,12 +2127,27 @@
         $excludes = (isset($this->options['driverChargesExclude'][$this->CanDispatch - 1])) ? $this->options['driverChargesExclude'][$this->CanDispatch - 1] : [];
       } else {
         $excludes = (isset($this->options["{$this->userType}ChargesExclude"])) ? $this->options["{$this->userType}ChargesExclude"] : [];
-        if ($this->formType === 'entry' && $this->userType === 'org') $excludes[] = 9;
       }
       if ($this->formType === 'entry') {
         $excludes[] = 0;
         $excludes[] = 8;
       }
+      if ($this->userType === 'client' && $this->ClientID === 0) {
+        $excludes = (isset($this->options['client0ChargesExclude'])) ? $this->options['client0ChargesExclude'] : [];
+      }
+      for ($i=0; $i < 10; $i++) {
+        if (!in_array($i, $excludes, true)) {
+          $selected = ($this->Charge === $i) ?: 'selected';
+          $returnData .= "
+          <option value=\"{$i}\" {$selected}>{$this->ticketCharge($i)}</option>";
+        }
+      }
+      if ($this->formType === 'query' && (is_numeric($this->ulevel) && ($this->ulevel < 2 || $this->ClientID === 0))) {
+        $temp = $returnData;
+        $returnData = "
+          <option value=\"10\">All</option>" . $temp;
+      }
+      return $returnData;
     }
 
     public function ticketForm() {

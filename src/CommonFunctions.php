@@ -1048,7 +1048,6 @@
                   <div>
                     <p>
                       <label for="chargeHistory" class="switchable">Charge:</label>
-                      <input type="hidden" name="charge" id="chargeMarker" value="10" />
                       <select name="charge" id="chargeHistory" class="switchable">
                         <option value="5">Routine</option>
                         <!-- <option value="2">ASAP</option> -->
@@ -1179,7 +1178,7 @@
                       <input type="hidden" name="display" value="tickets" />
                       <select name="display" id="display">
                          <option value="tickets">Tickets</option>
-                        <option value="chart">Chart*</option>
+                        <option value="chart">Chart</option>
                       </select>
                     </p>
                     <p>
@@ -1194,7 +1193,6 @@
                 <button type="submit" class="submitTicketQuery">Query</button>
                 <button type="reset" class="resetTicketQuery" form="deliveryQuery">Reset</button>
                 <button type="button" class="clearTicketResults">Clear Results</button>
-                <span class="floatRight"><span id="chartNotice" style="display:none;">*The chart option returns all Charge and Type.</span></span>
               </form>
             </div>
             <div id="ticketQueryResults"></div>
@@ -1645,7 +1643,7 @@
                   </div>
                   <div>
                     <p>
-                      <label for="charge">Charge:  </label>
+                      <label for="charge">Charge:</label>
                       <input type="hidden" name="charge" id="chargeMarker" value="10" />
                       <select name="charge" id="charge">
                         <option value="10">All</option>
@@ -1674,7 +1672,7 @@
                       <input type="hidden" name="display" id="displayMarker" value="tickets" />
                       <select name="display" id="display">
                         <option value="tickets">Tickets</option>
-                        <option value="chart">Chart*</option>
+                        <option value="chart">Chart</option>
                       </select>
                     </p>
                   </div>
@@ -1692,7 +1690,6 @@
                 </fieldset>
                 <p class="centerDiv">' . self::listOrgMembers('ticket') . '</p>
                 <button type="submit" class="submitOrgTickets" title="Select a member or&#10enter a ticket number to continue">Query</button>
-                <span id="chartNotice" style="float:right;display:none;">*The chart option returns all Charge and Type.</span>
               </form>
               <div id="ticketQueryResults"></div>
             </div>
@@ -1859,8 +1856,7 @@
       </script>
       <script src=\"https://code.jquery.com/jquery-3.3.1.min.js\"></script>
       <script>window.jQuery || document.write('<script src=\"../app_js/jquery-3.3.1.min.js\"><\/script>')</script>
-      {$this->customScripts}
-      <script src=\"../app_js/app.js\"></script>";
+      {$this->customScripts}";
       return $appLayout;
     }
 
