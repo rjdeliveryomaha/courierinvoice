@@ -221,7 +221,7 @@
             $this->transferredBy = $this->DispatchedBy;
           }
         } else {
-          $this->userType  = ($this->ulevel < 0) ? 'client' : 'org';
+          $this->userType  = ($this->ulevel > 0) ? 'client' : 'org';
           $this->DispatchedBy = '1.1';
           $this->transferredBy = 'error';
         }
@@ -2118,31 +2118,264 @@
       }
     }
 
+    public function ticketQueryForm() {
+      $this->formType = 'Query';
+      if ($this->userType === 'client' && $this->ulevel === 2) {
+        $returnData = "
+            <div id=\"ticketQueryOptions\">
+              <form id=\"deliveryQuery\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
+                <input type=\"hidden\" name=\"billTo\" value=\"{$_SESSION['ClientID']}\" />
+                <input type=\"hidden\" name=\"endPoint\" class=\"endPoint\" value=\"tickets\" />
+                <input type=\"hidden\" name=\"method\" class=\"method\" value=\"GET\" />
+                <fieldset form=\"deliveryQuery\" name=\"dateRange\">
+                  <legend>Search Parameters</legend>
+                  <div>
+                    <p>
+                      <label for=\"allTime\">All Time:</label>
+                      <input type=\"hidden\" name=\"allTime\" value=\"N\" />
+                      <input type=\"checkbox\" name=\"allTime\" id=\"allTime\" class=\"allTime2\" value=\"Y\" />
+                    </p>
+                    <p>
+                      <label for=\"ticketNumber\" class=\"switchable\">Ticket<span class=\"mobileHide\"> Number</span>:</label>
+                      <input type=\"number\" min=\"0\" name=\"ticketNumber\" id=\"ticketNumber\" class=\"switchable\" />
+                    </p>
+                  </div>
+                  <div>
+                    <p>
+                      <label for=\"startDate\">Start Date:</label>
+                      <input type=\"hidden\" name=\"startDate\" class=\"startDateMarker\" disabled />
+                      <span style=\"display:none;\" class=\"chartDate\" title=\"Query Range Limited To 6 Month Periods\">{$this->createLimitedMonthInput($_SESSION['ClientID'], 'startDate', TRUE)}</span>
+                      <span class=\"ticketDate\">{$this->createLimitedMonthInput($_SESSION['ClientID'], 'startDate', FALSE, 'date', 'tickets')}</span>
+                    </p>
+                    <p>
+                      <label for=\"endDate\">End Date:</label>
+                      <input type=\"hidden\" name=\"endDate\" class=\"endDateMarker\" disabled />
+                      <span style=\"display:none;\" class=\"chartDate\" title=\"Query Range Limited To 6 Month Periods\">{$this->createLimitedMonthInput($_SESSION['ClientID'], 'endDate', TRUE)}</span>
+                      <span class=\"ticketDate\">{$this->createLimitedMonthInput($_SESSION['ClientID'], 'endDate', FALSE, 'date', 'tickets')}</span>
+                    </p>
+                  </div>
+                  <div>
+                    <p>
+                      <label for=\"chargeHistory\" class=\"switchable\">Charge:</label>
+                      <select name=\"charge\" id=\"chargeHistory\" class=\"switchable\">
+                      {$this->createChargeSelectOptions()}
+                      </select>
+                    </p>
+                    <p>
+                      <input type=\"hidden\" name=\"type\" id=\"typeMarker\" value=\"2\" />
+                      <label for=\"type\" class=\"switchable\">Type:</label>
+                      <select name=\"type\" id=\"type\" class=\"switchable\">
+                        <option value=\"2\">All</option>
+                        <option value=\"1\">Contract</option>
+                        <option value=\"0\">On Call</option>
+                      </select>
+                    </p>
+                  </div>
+                  <div>
+                    <input type=\"hidden\" name=\"display\" value=\"tickets\" />
+                    <input type=\"hidden\" name=\"compare\" id=\"compare\" value=\"0\" />
+                  </div>
+                </fieldset>
+                <button type=\"submit\" class=\"submitTicketQuery\">Query</button>
+                <button type=\"reset\" class=\"resetTicketQuery\" form=\"deliveryQuery\">Reset</button>
+                <button type=\"button\" class=\"clearTicketResults\">Clear Results</button>
+                <span class=\"floatRight\"></span>
+              </form>
+            </div>
+            <div id=\"ticketQueryResults\">
+              {$this->fetchTodaysTickets()}
+            </div>";
+      } elseif ($this->userType === 'client' && $this->ulevel === 1) {
+        $returnData = "
+            <div id=\"ticketQueryOptions\">
+              <form id=\"deliveryQuery\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
+                <input type=\"hidden\" name=\"billTo\" value=\"{$_SESSION['ClientID']}\" />
+                <input type=\"hidden\" name=\"endPoint\" class=\"endPoint\" value=\"tickets\" />
+                <input type=\"hidden\" name=\"method\" class=\"method\" value=\"GET\" />
+                <fieldset form=\"deliveryQuery\" name=\"dateRange\">
+                  <legend>Search Parameters</legend>
+                  <div>
+                    <p>
+                      <label for=\"allTime\">All Time:</label>
+                      <input type=\"hidden\" name=\"allTime\" value=\"N\" />
+                      <input type=\"checkbox\" name=\"allTime\" id=\"allTime\" class=\"allTime\" value=\"Y\" />
+                    </p>
+                    <p>
+                      <label for=\"ticketNumber\" class=\"switchable\">Ticket<span class=\"mobileHide\"> Number</span>:</label>
+                      <input type=\"number\" min=\"0\" name=\"ticketNumber\" id=\"ticketNumber\" class=\"switchable\" />
+                    </p>
+                  </div>
+                  <div>
+                    <p>
+                      <label for=\"startDate\">Start Date:</label>
+                      <input type=\"hidden\" name=\"startDate\" class=\"startDateMarker\" disabled />
+                      <span style=\"display:none;\" class=\"chartDate\" title=\"Query Range Limited To 6 Month Periods\">{$this->createLimitedMonthInput($_SESSION['ClientID'], 'startDate', TRUE)}</span>
+                      <span class=\"ticketDate\">{$this->createLimitedMonthInput($_SESSION['ClientID'], 'startDate', FALSE, 'date', 'tickets')}</span>
+                    </p>
+                    <p>
+                      <label for=\"endDate\">End Date:</label>
+                      <input type=\"hidden\" name=\"endDate\" class=\"endDateMarker\" disabled />
+                      <span style=\"display:none;\" class=\"chartDate\" title=\"Query Range Limited To 6 Month Periods\">{$this->createLimitedMonthInput($_SESSION['ClientID'], 'endDate', TRUE)}</span>
+                      <span class=\"ticketDate\">{$this->createLimitedMonthInput($_SESSION['ClientID'], 'endDate', FALSE, 'date', 'tickets')}</span>
+                    </p>
+                  </div>
+                  <div>
+                    <p>
+                      <label for=\"chargeHistory\" class=\"switchable\">Charge:</label>
+                      <input type=\"hidden\" name=\"charge\" id=\"chargeMarker\" value=\"10\" />
+                      <select name=\"charge\" id=\"chargeHistory\" class=\"switchable\">
+                      {$this->createChargeSelectOptions()}
+                      </select>
+                    </p>
+                    <p>
+                      <input type=\"hidden\" name=\"type\" id=\"typeMarker\" value=\"2\" />
+                      <label for=\"type\" class=\"switchable\">Type:</label>
+                      <select name=\"type\" id=\"type\" class=\"switchable\">
+                        <option value=\"2\">All</option>
+                        <option value=\"1\">Contract</option>
+                        <option value=\"0\">On Call</option>
+                      </select>
+                    </p>
+                  </div>
+                  <div>
+                    <p>
+                      <label for=\"display\">Display:</label>
+                      <input type=\"hidden\" name=\"display\" value=\"tickets\" />
+                      <select name=\"display\" id=\"display\">
+                         <option value=\"tickets\">Tickets</option>
+                        <option value=\"chart\">Chart</option>
+                      </select>
+                    </p>
+                    <p>
+                      <span class=\"compare\" style=\"display:none;\">
+                        <label for=\"compare\">Compare Months: </label>
+                        <input type=\"hidden\" name=\"compare\" value=\"0\" />
+                        <input type=\"checkbox\" name=\"compare\" id=\"compareBox\" value=\"1\" disabled />
+                      </span>
+                    </p>
+                  </div>
+                </fieldset>
+                <button type=\"submit\" class=\"submitTicketQuery\">Query</button>
+                <button type=\"reset\" class=\"resetTicketQuery\" form=\"deliveryQuery\">Reset</button>
+                <button type=\"button\" class=\"clearTicketResults\">Clear Results</button>
+              </form>
+            </div>
+            <div id=\"ticketQueryResults\">
+              {$this->fetchTodaysTickets()}
+            </div>";
+      } elseif ($this->userType === 'org') {
+        $array_keys = 'array_keys';
+        $returnData = "
+            <div id=\"options\">
+              <form id=\"queryForms\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
+                <input type=\"hidden\" name=\"endPoint\" value=\"tickets\" />
+                <input type=\"hidden\" name=\"method\" value=\"GET\" />
+                <fieldset form=\"queryForms\" id=\"deliveryQuery\">
+                  <legend>Search Parameters</legend>
+                  <div>
+                    <p>
+                      <label for=\"allTime\">All Time:</label>
+                      <input type=\"hidden\" name=\"allTime\" value=\"N\" />
+                      <input type=\"checkbox\" name=\"allTime\" id=\"allTime\" value=\"Y\" />
+                    </p>
+                    <p>
+                      <label for=\"ticketNumber\" class=\"switchable\">Ticket<span class=\"mobileHide\"> Number</span>:</label>
+                      <input type=\"hidden\" class=\"ticketNumberMarker\" name=\"ticketNumber\" />
+                      <input type=\"number\" min=\"1\" name=\"ticketNumber\" id=\"ticketNumber\" />
+                    </p>
+                  </div>
+                  <div>
+                    <p>
+                      <label for=\"startDate\">Start Date:</label>
+                      <input type=\"hidden\" name=\"startDate\" id=\"startDateMarker\" disabled />
+                      <span class=\"chartDate\" style=\"display:none;\" title=\"Query Range Limited To 6 Month Periods\">
+                        {$this->createLimitedMonthInput($array_keys($_SESSION['members']), 'startDate', TRUE)}
+                      </span>
+                      <span class=\"ticketDate\">
+                        {$this->createLimitedMonthInput($array_keys($_SESSION['members']), 'startDate', FALSE, 'date', 'tickets')}
+                      </span>
+                    </p>
+                    <p>
+                      <label for=\"endDate\">End Date:</label>
+                      <input type=\"hidden\" name=\"endDate\" id=\"endDateMarker\" />
+                      <span class=\"chartDate\" style=\"display:none;\" title=\"Query Range Limited To 6 Month Periods\">
+                        {$this->createLimitedMonthInput($array_keys($_SESSION['members']), 'endDate', TRUE)}
+                      </span>
+                      <span class=\"ticketDate\">
+                        {$this->createLimitedMonthInput($array_keys($_SESSION['members']), 'endDate', FALSE, 'date', 'tickets')}
+                      </span>
+                    </p>
+                  </div>
+                  <div>
+                    <p>
+                      <label for=\"charge\">Charge:</label>
+                      <input type=\"hidden\" name=\"charge\" id=\"chargeMarker\" value=\"10\" />
+                      <select name=\"charge\" id=\"charge\">
+                        {$this->createChargeSelectOptions()}
+                      </select>
+                    </p>
+                    <p>
+                      <label for=\"type\">Type:</label>
+                      <input type=\"hidden\" name=\"type\" id=\"typeMarker\" value=\"2\" />
+                      <select name=\"type\" id=\"type\">
+                        <option value=\"2\">All</option>
+                        <option value=\"1\">Contract</option>
+                        <option value=\"0\">On Call</option>
+                      </select>
+                    </p>
+                  </div>
+                  <div>
+                    <p>
+                      <label for=\"display\">Display:  </label>
+                      <input type=\"hidden\" name=\"display\" id=\"displayMarker\" value=\"tickets\" />
+                      <select name=\"display\" id=\"display\">
+                        <option value=\"tickets\">Tickets</option>
+                        <option value=\"chart\">Chart</option>
+                      </select>
+                    </p>
+                  </div>
+                  <div style=\"clear:both\">
+                    <p>
+                      <span>Compare:</span>
+                      <input type=\"hidden\" name=\"compare\" value=\"0\" />
+                      <input type=\"checkbox\" name=\"compare\" id=\"compareBox\" value=\"1\" disabled />
+                      <label for=\"compareBox\">Months</label>
+                      <input type=\"hidden\" name=\"compareMembers\" value=\"0\" />
+                      <input type=\"checkbox\" name=\"compareMembers\" id=\"compareMembersTickets\" value=\"1\" disabled />
+                      <label for=\"compareMembersTickets\">Members</label>
+                    </p>
+                  </div>
+                </fieldset>
+                <p class=\"centerDiv\">{$this->listOrgMembers('ticket')}</p>
+                <button type=\"submit\" class=\"submitOrgTickets\" title=\"Select a member or&#10enter a ticket number to continue\">Query</button>
+              </form>
+              <div id=\"ticketQueryResults\"></div>
+            </div>";
+      }
+      return $returnData;
+    }
+
     private function createChargeSelectOptions() {
       $returnData = '';
       if ($this->userType === 'client') {
-        $excludes = (isset($this->options['clientChargesExclude'][$this->ulevel - 1])) ? $this->options['clientChargesExclude'][$this->ulevel - 1] : [];
-        if ($this->formType === 'entry') $excludes[] = 9;
+        if ($this->ClientID === 0) {
+          $excludes = (isset($this->options["client0Charges{$this->formType}Exclude"])) ? $this->options["client0Charges{$this->formType}Exclude"] : [];
+        } else {
+          $excludes = (isset($this->options["clientCharges{$this->formType}Exclude"][$this->ulevel - 1])) ? $this->options["clientCharges{$this->formType}Exclude"][$this->ulevel - 1] : [];
+        }
       } elseif ($this->userType === 'driver') {
-        $excludes = (isset($this->options['driverChargesExclude'][$this->CanDispatch - 1])) ? $this->options['driverChargesExclude'][$this->CanDispatch - 1] : [];
+        $excludes = (isset($this->options["driverCharges{$this->formType}Exclude"][$this->CanDispatch - 1])) ? $this->options['driverChargesExclude'][$this->CanDispatch - 1] : [];
       } else {
-        $excludes = (isset($this->options["{$this->userType}ChargesExclude"])) ? $this->options["{$this->userType}ChargesExclude"] : [];
-      }
-      if ($this->formType === 'entry') {
-        $excludes[] = 0;
-        $excludes[] = 8;
-      }
-      if ($this->userType === 'client' && $this->ClientID === 0) {
-        $excludes = (isset($this->options['client0ChargesExclude'])) ? $this->options['client0ChargesExclude'] : [];
+        $excludes = (isset($this->options["{$this->userType}Charges{$this->formType}Exclude"])) ? $this->options["{$this->userType}Charges{$this->formType}Exclude"] : [];
       }
       for ($i=0; $i < 10; $i++) {
         if (!in_array($i, $excludes, true)) {
-          $selected = ($this->Charge === $i) ?: 'selected';
+          $selected = ($this->Charge === $i) ? 'selected' : '';
           $returnData .= "
           <option value=\"{$i}\" {$selected}>{$this->ticketCharge($i)}</option>";
         }
       }
-      if ($this->formType === 'query' && (is_numeric($this->ulevel) && ($this->ulevel < 2 || $this->ClientID === 0))) {
+      if ($this->formType === 'Query' && (is_numeric($this->ulevel) && ($this->ulevel < 2 || $this->ClientID === 0))) {
         $temp = $returnData;
         $returnData = "
           <option value=\"10\">All</option>" . $temp;
@@ -2153,6 +2386,7 @@
     public function ticketForm() {
       $returnData = '';
       $this->action = self::esc_url($_SERVER['REQUEST_URI']);
+      $this->formType = 'Entry';
       if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($this->newTicket !== FALSE || ($this->ticket_index !== NULL && $this->updateTicket !== FALSE)) return self::processTicket();
         if ($this->edit === '0') return self::confirmRequest();
@@ -2207,18 +2441,6 @@
         $diWeightMarkerDisabled = 'disabled';
         $diWeightDisabled = '';
       }
-      $routineSelected = $oneHourSelected = $roundTripSelected = $twoHourSelected = $threeHourSelected = $fourHourSelected = $dedicatedSelected = $cancelledSelected = $deadRunSelected = '';
-      switch ($this->Charge) {
-        case 0: $cancelledSelected = 'selected'; break;
-        case 1: $oneHourSelected = 'selected'; break;
-        case 2: $twoHourSelected = 'selected'; break;
-        case 3: $threeHourSelected = 'selected'; break;
-        case 4: $fourHourSelected = 'selected'; break;
-        case 5: $routineSelected = 'selected'; break;
-        case 6: $roundTripSelected = 'selected'; break;
-        case 7: $dedicatedSelected = 'selected'; break;
-        case 8: $deadRunSelected = 'selected'; break;
-      }
       $emailConfirm0 = $emailConfirm1 = $emailConfirm2 = $emailConfirm3 = $emailConfirm4 = $emailConfirm5 = $emailConfirm6 = $emailConfirm7 = '';
       switch ($this->EmailConfirm) {
         case 0: $emailConfirm0 = 'selected'; break;
@@ -2271,10 +2493,6 @@
       $ticketNumberInput = ($this->TicketNumber !== NULL) ? "
         <input type=\"hidden\" name=\"ticketNumber\" class=\"ticketNumber\" value=\"{$this->TicketNumber}\" form=\"request{$this->ticket_index}\" />
         " : '';
-        $dispatchCharges = ($this->ticketEditor === TRUE) ? "<option value=\"7\" {$dedicatedSelected}>Dedicated Run</option>
-                          <option value=\"8\" {$deadRunSelected}>Dead Run</option>
-                          <option value=\"0\" {$cancelledSelected}>Canceled</option>
-                          " : '';
       $timing = ($this->ticketEditor === TRUE) ? "
         <tr>
           <td colspan=\"2\">
@@ -2326,13 +2544,7 @@
                       <td>
                         <label for=\"charge{$this->ticket_index}\">Delivery Time:</label>
                         <select name=\"charge\" id=\"charge{$this->ticket_index}\" class=\"charge\" form=\"request{$this->ticket_index}\">
-                          <option value=\"5\" {$routineSelected}>Routine</option>
-                          <option value=\"1\" {$oneHourSelected}>Stat</option>
-                          <!-- <option value=\"2\" {$twoHourSelected}>2 Hour</option> -->
-                          <!-- <option value=\"3\" {$threeHourSelected}>3 Hour</option> -->
-                          <!-- <option value=\"4\" {$fourHourSelected}>4 Hour</option> -->
-                          <option value=\"6\" {$roundTripSelected}>Round Trip</option>
-                          $dispatchCharges
+                          {$this->createChargeSelectOptions()}
                         </select>
                       </td>
                       <td>
@@ -2680,10 +2892,7 @@
                 <span class=\"floatLeft\">
                   <label for=\"CalcCharge\">Charge:</label>
                   <select name=\"charge\" id=\"CalcCharge\" form=\"priceCalc\">
-                    <option value=\"5\">Routine</option>
-                    <option value=\"2\">2 Hour</option>
-                    <option value=\"1\">1 Hour</option>
-                    <option value=\"6\">Round Trip</option>
+                    {$this->createChargeSelectOptions()}
                   </select>
                 </span>
                 <span class=\"floatRight\">

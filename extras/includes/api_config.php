@@ -28,25 +28,34 @@
     'ticketChartRowLimit' => 5,
     // string: login name for Courier Invoice user as an alternative to using ClientID 0 (zero)
     'userLogin' => 'CustomLogin',
-    // By default all charges are shown for Courier Invoice user client 0
-    // By default charges Canceled (0) and Dead Run (8) are excluded on ticket __entry__ forms for drivers and dispatchers
-    // By default Credit (9) is also excluded from ticket __entry__ forms for clients
-    // By default all charges are included on ticket __query__ forms
-    // The following five settings remove charges based on the user type
-    // 2 dimentional indexed array of charges to exclude for drivers
+    // By default all charges are included on ticket forms
+    // The following settings remove charges based on the user type and form type
+    // 2 dimentional indexed array of charges to exclude for drivers ticket enrty and update form
     // index 0 driver can dispatch to self
     // index 1 driver can dispatch to all
-    'driverChargesExclude' => [ [ 9 ], [ 9 ] ],
-    // indexed array of charges to exclude for dispatchers
-    'dispatchChargesExclude' => [ 9 ],
-    // 2 dimentional indexed array of charges to exclude for clients
+    'driverChargesEntryExclude' => [ [ 0, 8, 9 ], [ 0, 8, 9 ] ],
+    // 2 dimentional indexed array of charges to exclude for drivers ticket query form
+    // index 0 driver can dispatch to self
+    // index 1 driver can dispatch to all
+    'driverChargesQueryExclude' => [ [ 0, 8, 9 ], [ 0, 8, 9 ] ],
+    // indexed array of charges to exclude for dispatchers ticket entry and update forms
+    'dispatchChargesEntryExclude' => [ 0, 8, 9 ],
+    // indexed array of charges to exclude for dispatchers ticket query forms
+    'dispatchChargesQueryExclude' => [ 9 ],
+    // 2 dimentional indexed array of charges to exclude for clients entry (request) form
     // index 0 = admin clients
     // index 1 = dayly clients
-    'clientChargesExclude' => [ [], [] ],
-    // indexed array of charges to exclude for organizations
-    'orgChargesExclude' => [],
-    // indexed array of charges to exclude for Courier Invoice user client 0
-    'client0ChargesExclude' => [],
+    'clientChargesEntryExclude' => [ [ 0, 8, 9 ], [ 0, 8, 9 ] ],
+    // 2 dimentional indexed array of charges to exclude for clients query form
+    // index 0 = admin clients
+    // index 1 = dayly clients
+    'clientChargesQueryExclude' => [ [], [ 0, 8, 9 ] ],
+    // indexed array of charges to exclude for organizations query from
+    'orgChargesQueryExclude' => [],
+    // indexed array of charges to exclude for Courier Invoice user client 0 entry and update forms
+    'client0ChargesEntryExclude' => [],
+    // indexed array of charges to exclude for Courier Invoice user client 0 query form
+    'client0ChargesQueryExclude' => [],
     // associative array extend layout and menue with custom pages
     // The top level keys are who to create the custom pages for; all, client, org, driver, dispatcher, client0.
     // The structure of subsequent indexed arrays:

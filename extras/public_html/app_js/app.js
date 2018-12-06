@@ -215,7 +215,7 @@ window.mySwipe = new Swipe(document.getElementById('slider'), {
     $(".page").each(function() {
       if ($(this).prop("id") === elem.id) {
         currentPage = elem.id;
-        (currentPage === "timeCard") ? $(window).trigger('timeCardVisible') : scroll(0,0);
+        scroll(0,0);
         let titleText;
         let buttonTitles = [ "Route", "On Call", "Dispatch", "Transfers" ];
         // if the link text has a span in it or links to div#route.page
@@ -566,13 +566,7 @@ function populatePage() {
     if (breakFunction === true) return false;
     for (let i = 0; i < obj.length; i++) {
       $(".page").each(function() {
-        if (Number($(this).attr("data-index")) === i) {
-          if ($(this).prop("id") === "ticketQuery") {
-            $("#ticketQueryResults").append(obj[i]);
-          } else {
-            if (obj[i] !== false) $(this).html(obj[i]);
-          }
-        }
+        if (Number($(this).attr("data-index")) === i) $(this).html(obj[i]);
       });
     }
     scrollTo(0,0);
@@ -584,12 +578,6 @@ function populatePage() {
     if ($(".deadRun").length > 0) fixDeadRunButton();
     if ($("#dispatch").length > 0) countInitDispatch();
     if ($("#transfers").length > 0) countInitTransfers();
-    if ($("#map").length !== 0) {
-      $("body").append('<script src="https://maps.googleapis.com/maps/api/js?key=&callback=initMap" async defer><\/script>');
-    } else if ($(".orgMember").lenth !== 0 && $("#map2").length !== 0) {
-      $("body").append('<script src="https://maps.googleapis.com/maps/api/js?key=&callback=initPriceMap" async defer><\/script>');
-    }
-    resetPushUI();
   })
   .fail((jqXHR, status, error) => {
     $(".page:first").html('<p class="center"><span class="error">Error ' + status + '</span>:' + error + "</p>");
@@ -603,237 +591,6 @@ function enableApp() {
   $("#appContainer").find("button").each(function() {
     $(this).prop("disabled", false);
   });
-}
-// map display
-function drawCircle(point, radius, dir, bounds) {
-  let d2r = Math.PI / 180,   // degrees to radians
-      r2d = 180 / Math.PI,   // radians to degrees
-      earthsradius = 3963, // 3963 is the radius of the earth in miles
-      points = 32,
-      start,
-      end,
-  // find the radius in lat/lon
-      rlat = (radius / earthsradius) * r2d,
-      rlng = rlat / Math.cos(point.lat() * d2r),
-      extp = new Array();
-  if (dir==1)   {start=0; end=points+1} // one extra here makes sure we connect the ends
-  else {start=points+1; end=0}
-  for (let i=start; (dir==1 ? i < end : i > end); i=i+dir) {
-    let theta = Math.PI * (i / (points/2)),
-        ey = point.lng() + (rlng * Math.cos(theta)), // center a + radius x * cos(theta)
-        ex = point.lat() + (rlat * Math.sin(theta)); // center b + radius y * sin(theta)
-    extp.push(new google.maps.LatLng(ex, ey));
-    bounds.extend(extp[extp.length-1]);
-  }
-  return extp;
-}
-function initMap(mapDivID="map", coords1, address1, coords2, address2, center) {
-  let homeCoords = { lat: 41.2522201, lng: -95.9822628 };
-  center = center || homeCoords;
-  let cityCircle,
-      marker,
-      marker1,
-      marker2,
-      markerGroup,
-      outerbounds,
-      populationOptions,
-      largemap,
-      map,
-      citymap,
-      maxRangeOptions,
-      standardRangeOptions,
-      bounds = new google.maps.LatLngBounds(),
-      mapDiv = document.getElementById(mapDivID);
-  largemap = { "home": { center: new google.maps.LatLng(homeCoords) } };
-  mapDiv.style.height = mapDiv.offsetWidth + "px";
-  map = new google.maps.Map(document.getElementById(mapDivID), {
-    center: center,
-    zoom: 10
-  });
-  marker = new google.maps.Marker({
-    position: center,
-    map: map,
-    title: "Home"
-  });
-  if (typeof coords1 !== 'undefined' && typeof coords2 !== 'undefined') {
-    marker.setMap(null);
-    marker1 = new google.maps.Marker({
-      position: coords1,
-      map: map,
-      title: address1,
-      label: "P"
-    });
-    marker2 = new google.maps.Marker({
-      position: coords2,
-      map: map,
-      title: address2,
-      label: "D"
-    });
-    markerGroup = [marker1, marker2];
-    for (let i = 0; i < markerGroup.length; i++) {
-      bounds.extend(markerGroup[i].getPosition());
-    }
-    map.fitBounds(bounds);
-  }
-  // Filter the map outside of the extended delivery radius
-  outerbounds = [ // covers the (mercator projection) world
-    new google.maps.LatLng(85,180),
-    new google.maps.LatLng(85,90),
-    new google.maps.LatLng(85,0),
-    new google.maps.LatLng(85,-90),
-    new google.maps.LatLng(85,-180),
-    new google.maps.LatLng(0,-180),
-    new google.maps.LatLng(-85,-180),
-    new google.maps.LatLng(-85,-90),
-    new google.maps.LatLng(-85,0),
-    new google.maps.LatLng(-85,90),
-    new google.maps.LatLng(-85,180),
-    new google.maps.LatLng(0,180),
-    new google.maps.LatLng(85,180)];
-
-  // options for the polygon
-  populationOptions = {
-    strokeColor: '#696969',
-    strokeOpacity: 0,
-    strokeWeight: 2,
-    fillColor: '#696969',
-    fillOpacity: 0.8,
-    map: map,
-    paths: [outerbounds,drawCircle(largemap['home'].center,20,-1,bounds)]
-  };
-  // Add the circle for this city to the map.
-  cityCircle = new google.maps.Polygon(populationOptions);
-  // map.fitBounds(bounds);
-  // Put range circles on the map
-  // Define the extended and standard delivery ranges
-  citymap = { "maxRange": { center: homeCoords, radius: 32187 }, "standardRange": { center: homeCoords, radius: 25750 } };
-  // Create the maxRange circle and add it to the map
-  maxRangeOptions = {
-    strokeColor: '#FF0000',
-    strokeOpacity: 0.8,
-    strokeWeight: 2,
-    fillOpacity: 0,
-    map: map,
-    center: citymap['maxRange'].center,
-    radius: citymap['maxRange'].radius,
-    draggable: false
-  };
-  standardRangeOptions = {
-    strokeColor: '#0000FF',
-    strokeOpacity: 0.8,
-    strokeWeight: 2,
-    fillOpacity: 0,
-    map: map,
-    center: citymap['standardRange'].center,
-    radius: citymap['standardRange'].radius,
-    draggable: false,
-  };
-  maxRange = new google.maps.Circle(maxRangeOptions);
-  standardRange = new google.maps.Circle(standardRangeOptions);
-  if ($("#map2").length > 0) initPriceMap();
-}
-function initPriceMap(mapDivID="map2", coords1, address1, coords2, address2, center) {
-  let homeCoords = { lat: 41.2522201, lng: -95.9822628 };
-  center = center || homeCoords;
-  let cityCircle,
-      marker,
-      marker1,
-      marker2,
-      markerGroup,
-      outerbounds,
-      populationOptions,
-      largemap,
-      map,
-      citymap,
-      maxRangeOptions,
-      standardRangeOptions,
-      bounds = new google.maps.LatLngBounds(),
-      mapDiv = document.getElementById(mapDivID);
-  largemap = { "home": { center: new google.maps.LatLng(homeCoords) } };
-  mapDiv.style.height = mapDiv.offsetWidth + "px";
-  map = new google.maps.Map(document.getElementById(mapDivID), {
-    center: center,
-    zoom: 10
-  });
-  marker = new google.maps.Marker({
-    position: center,
-    map: map,
-    title: "Home"
-  });
-  if (typeof coords1 !== 'undefined' && typeof coords2 !== 'undefined') {
-    marker.setMap(null);
-    marker1 = new google.maps.Marker({
-      position: coords1,
-      map: map,
-      title: address1,
-      label: "P"
-    });
-    marker2 = new google.maps.Marker({
-      position: coords2,
-      map: map,
-      title: address2,
-      label: "D"
-    });
-    markerGroup = [marker1, marker2];
-    for (let i = 0; i < markerGroup.length; i++) {
-      bounds.extend(markerGroup[i].getPosition());
-    }
-    map.fitBounds(bounds);
-  }
-  // Filter the map outside of the extended delivery radius
-  outerbounds = [ // covers the (mercator projection) world
-    new google.maps.LatLng(85,180),
-    new google.maps.LatLng(85,90),
-    new google.maps.LatLng(85,0),
-    new google.maps.LatLng(85,-90),
-    new google.maps.LatLng(85,-180),
-    new google.maps.LatLng(0,-180),
-    new google.maps.LatLng(-85,-180),
-    new google.maps.LatLng(-85,-90),
-    new google.maps.LatLng(-85,0),
-    new google.maps.LatLng(-85,90),
-    new google.maps.LatLng(-85,180),
-    new google.maps.LatLng(0,180),
-    new google.maps.LatLng(85,180)];
-
-  // options for the polygon
-  populationOptions = {
-    strokeColor: '#696969',
-    strokeOpacity: 0,
-    strokeWeight: 2,
-    fillColor: '#696969',
-    fillOpacity: 0.8,
-    map: map,
-    paths: [outerbounds,drawCircle(largemap['home'].center,20,-1,bounds)]
-  };
-  // Add the circle for this city to the map.
-  cityCircle = new google.maps.Polygon(populationOptions);
-  // map.fitBounds(bounds);
-  // Put range circles on the map
-  citymap = { "maxRange": { center: homeCoords, radius: 32187 }, "standardRange": { center: homeCoords, radius: 25750 } };
-  // Create the maxRange circle and add it to the map
-  maxRangeOptions = {
-    strokeColor: '#FF0000',
-    strokeOpacity: 0.8,
-    strokeWeight: 2,
-    fillOpacity: 0,
-    map: map,
-    center: citymap['maxRange'].center,
-    radius: citymap['maxRange'].radius,
-    draggable: false
-  };
-  standardRangeOptions = {
-    strokeColor: '#0000FF',
-    strokeOpacity: 0.8,
-    strokeWeight: 2,
-    fillOpacity: 0,
-    map: map,
-    center: citymap['standardRange'].center,
-    radius: citymap['standardRange'].radius,
-    draggable: false,
-  };
-  maxRange = new google.maps.Circle(maxRangeOptions);
-  standardRange = new google.maps.Circle(standardRangeOptions);
 }
 $(document).ready(function() {
   let noData = false;
@@ -944,86 +701,6 @@ $(document).ready(function() {
 
   $("#cancel").click(function() {
     window.location = "./logout";
-  });
-  // open signature pad
-  $(document).on("click", ".pGetSig, .dGetSig, .d2GetSig", function() {
-    let target,
-        canvas,
-        canvasWidth,
-        canvasHeight,
-        signaturePad,
-        wrapper,
-        printName,
-        requiredState;
-    //Disable the other buttons in the div
-    $("input, button, textarea").prop("disabled", true);
-    //Close any other open signature pad
-    $(".signature-pad").each(function() {
-      $(this).addClass("sigField").removeClass("field").html("");
-    });
-    target = $(this).parents(".sortable").find(".signature-pad");
-    if (target.hasClass("sigField")) {
-      canvasWidth = $(this).parents(".sortable").innerWidth();
-      canvasHeight = ($(this).closest(".sortable").find(".tickets").length === 0) ? $(this).parents(".sortable").innerHeight() * .65 : $(this).closest(".sortable").find(".tickets").innerHeight();
-      target.removeClass("sigField").addClass("field").attr("id", "signature-pad").html('<canvas id="sig" style="height:' + canvasHeight +'px;width:' + canvasWidth + 'px;"></canvas><button style="float:left;" type="button" data-action="clear">Clear</button><button style="float:right;" type="button" data-action="save">OK</button>');
-      canvas = document.getElementById("sig");
-      signaturePad = new SignaturePad(canvas);
-      wrapper = document.getElementById("signature-pad"),
-      clearButton = wrapper.querySelector("[data-action='clear']"),
-      saveButton = wrapper.querySelector("[data-action='save']"),
-      canvas = wrapper.querySelector("#sig"),
-      signaturePad;
-      signaturePad.minWidth = .5;
-      signaturePad.maxWidth = 2;
-      signaturePad.penColor = "red";
-      signaturePad.backgroundColor = "black";
-    };
-
-    function resizeCanvas() {
-      // When zoomed out to less than 100%, for some very strange reason,
-      // some browsers report devicePixelRatio as less than 1
-      // and only part of the canvas is cleared then.
-      let ratio =  Math.max(window.devicePixelRatio || 1, 1);
-      canvas.width = canvas.offsetWidth * ratio;
-      canvas.height = canvas.offsetHeight * ratio;
-      canvas.getContext("2d").scale(ratio, ratio);
-    }
-    //Resize the canvas so that signature-pad sees the whole area
-    resizeCanvas();
-    // scroll to the sig pad
-    window.scroll(0,findPos(document.getElementById("sig")));
-
-    saveButton.addEventListener("click", function (event) {
-      printName = $(this).parents(".sortable").find(".printName");
-      if (signaturePad.isEmpty()) {
-        $(this).parents(".sortable").find("input[name='sigImage']").val("");
-        toast("Signature Cleared.");
-      } else {
-        $(this).parents(".sortable").find("input[name='sigImage']").val(signaturePad.toDataURL());
-      }
-
-      requiredState = (printName.parents(".sortable").find("input[name='sigImage']").val() !== "" && typeof(printName.parents(".sortable").find("input[name='sigImage']").val()) !== undefined && printName.parents(".sortable").find("input[name='sigImage']").val() !== null) || printName.hasClass("pulse");
-
-      target.removeClass("field").addClass("sigField").html('').attr("id", "");
-      target.parents("body").find("input, button, textarea").prop("disabled", false);
-      printName.prop("required", requiredState);
-    });
-
-    clearButton.addEventListener("click", function(event) {
-      signaturePad.clear();
-    });
-    // The canvas is holding the page background color. Calling the clear function fixes this.
-    signaturePad.clear();
-  });
-
-  $(document).on("touchstart", "#sig", function() {
-    disable_scroll();
-    mySwipe.disable();
-  });
-
-  $(document).on("touchend", "#sig", function() {
-    enable_scroll();
-    mySwipe.enable();
   });
   // active tickets
 
@@ -1296,10 +973,6 @@ $(document).ready(function() {
     .fail((jqXHR, status, error) => {
       workspace.prev(".spacer").text(errorThrown);
     });
-  });
-  // help page
-  $(document).on("click", ".question", function() {
-    $(this).next(".answer").slideToggle();
   });
   // invoice query page
   $(document).on("touchstart", ".invoiceGraphContainer, .invoiceTable", function() {

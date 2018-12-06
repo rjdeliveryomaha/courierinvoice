@@ -672,7 +672,7 @@
       return (strtoupper($query->getProperty('method')) === 'GET') ? $returnData['records'] : $returnData;
     }
 
-    private function createLimitedMonthInput($clientIDs, $inputID, $disabled=FALSE, $type='month', $table='invoices', $required=FALSE) {
+    protected function createLimitedMonthInput($clientIDs, $inputID, $disabled=FALSE, $type='month', $table='invoices', $required=FALSE) {
       $sql = $min = $max = $returnData = '';
       $dates = $data = array();
       $disableInput = ($disabled === FALSE) ? '' : 'disabled';
@@ -799,7 +799,7 @@
       return self::negParenth(self::number_format_drop_zero_decimals($credit['Balance'], 2));
     }
 
-    private function listOrgMembers($identifier) {
+    protected function listOrgMembers($identifier) {
       $returnData = '';
       $x = 0;
       foreach ($_SESSION['members'] as $key => $value) {
@@ -998,8 +998,7 @@
         </div>';
       if (is_numeric($_SESSION['ulevel'])) {
         switch ($_SESSION['ulevel']) {
-          case 2:
-          $search = $_SESSION['ClientID'];
+          case 2:;
           $appLayout = '
         <div class="swipe-wrap">
           <div id="ticketEntry" data-function="ticketForm" class="page">
@@ -1012,73 +1011,7 @@
               </div>
             </div>
           </div>
-          <div id="ticketQuery" data-function="fetchTodaysTickets" class="page">
-            <div id="ticketQueryOptions">
-              <form id="deliveryQuery" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
-                <input type="hidden" name="billTo" value="' . $search . '" />
-                <input type="hidden" name="endPoint" class="endPoint" value="tickets" />
-                <input type="hidden" name="method" class="method" value="GET" />
-                <fieldset form="deliveryQuery" name="dateRange">
-                  <legend>Search Parameters</legend>
-                  <div>
-                    <p>
-                      <label for="allTime">All Time:</label>
-                      <input type="hidden" name="allTime" value="N" />
-                      <input type="checkbox" name="allTime" id="allTime" class="allTime2" value="Y" />
-                    </p>
-                    <p>
-                      <label for="ticketNumber" class="switchable">Ticket<span class="mobileHide"> Number</span>:</label>
-                      <input type="number" min="0" name="ticketNumber" id="ticketNumber" class="switchable" />
-                    </p>
-                  </div>
-                  <div>
-                    <p>
-                      <label for="startDate">Start Date:</label>
-                      <input type="hidden" name="startDate" class="startDateMarker" disabled />
-                      <span style="display:none;" class="chartDate" title="Query Range Limited To 6 Month Periods">' . self::createLimitedMonthInput($search, 'startDate', TRUE) . '</span>
-                      <span class="ticketDate">' . self::createLimitedMonthInput($search, 'startDate', FALSE, 'date', 'tickets') . '</span>
-                    </p>
-                    <p>
-                      <label for="endDate">End Date:</label>
-                      <input type="hidden" name="endDate" class="endDateMarker" disabled />
-                      <span style="display:none;" class="chartDate" title="Query Range Limited To 6 Month Periods">' . self::createLimitedMonthInput($search, 'endDate', TRUE) . '</span>
-                      <span class="ticketDate">' . self::createLimitedMonthInput($search, 'endDate', FALSE, 'date', 'tickets') . '</span>
-                    </p>
-                  </div>
-                  <div>
-                    <p>
-                      <label for="chargeHistory" class="switchable">Charge:</label>
-                      <select name="charge" id="chargeHistory" class="switchable">
-                        <option value="5">Routine</option>
-                        <!-- <option value="2">ASAP</option> -->
-                        <option value="1">Stat</option>
-                        <option value="7">Dedicated Run</option>
-                        <option value="6">Round Trip</option>
-                      </select>
-                    </p>
-                    <p>
-                      <input type="hidden" name="type" id="typeMarker" value="2" />
-                      <label for="type" class="switchable">Type:</label>
-                      <select name="type" id="type" class="switchable">
-                        <option value="2">All</option>
-                        <option value="1">Contract</option>
-                        <option value="0">On Call</option>
-                      </select>
-                    </p>
-                  </div>
-                  <div>
-                    <input type="hidden" name="display" value="tickets" />
-                    <input type="hidden" name="compare" id="compare" value="0" />
-                  </div>
-                </fieldset>
-                <button type="submit" class="submitTicketQuery">Query</button>
-                <button type="reset" class="resetTicketQuery" form="deliveryQuery">Reset</button>
-                <button type="button" class="clearTicketResults">Clear Results</button>
-                <span class="floatRight"></span>
-              </form>
-            </div>
-            <div id="ticketQueryResults"></div>
-          </div>
+          <div id="ticketQuery" data-function="ticketQueryForm" class="page"></div>
           <div id="priceCalculator" data-function="runPriceForm" class="page"></div>'
            . $this->customPages .
        '</div>';
@@ -1113,90 +1046,7 @@
               </div>
             </div>
           </div>
-          <div id="ticketQuery" data-function="fetchTodaysTickets" class="page">
-            <div id="ticketQueryOptions">
-              <form id="deliveryQuery" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
-                <input type="hidden" name="billTo" value="' . $search . '" />
-                <input type="hidden" name="endPoint" class="endPoint" value="tickets" />
-                <input type="hidden" name="method" class="method" value="GET" />
-                <fieldset form="deliveryQuery" name="dateRange">
-                  <legend>Search Parameters</legend>
-                  <div>
-                    <p>
-                      <label for="allTime">All Time:</label>
-                      <input type="hidden" name="allTime" value="N" />
-                      <input type="checkbox" name="allTime" id="allTime" class="allTime" value="Y" />
-                    </p>
-                    <p>
-                      <label for="ticketNumber" class="switchable">Ticket<span class="mobileHide"> Number</span>:</label>
-                      <input type="number" min="0" name="ticketNumber" id="ticketNumber" class="switchable" />
-                    </p>
-                  </div>
-                  <div>
-                    <p>
-                      <label for="startDate">Start Date:</label>
-                      <input type="hidden" name="startDate" class="startDateMarker" disabled />
-                      <span style="display:none;" class="chartDate" title="Query Range Limited To 6 Month Periods">' . self::createLimitedMonthInput($search, 'startDate', TRUE) . '</span>
-                      <span class="ticketDate">' . self::createLimitedMonthInput($search, 'startDate', FALSE, 'date', 'tickets') . '</span>
-                    </p>
-                    <p>
-                      <label for="endDate">End Date:</label>
-                      <input type="hidden" name="endDate" class="endDateMarker" disabled />
-                      <span style="display:none;" class="chartDate" title="Query Range Limited To 6 Month Periods">' . self::createLimitedMonthInput($search, 'endDate', TRUE) . '</span>
-                      <span class="ticketDate">' . self::createLimitedMonthInput($search, 'endDate', FALSE, 'date', 'tickets') . '</span>
-                    </p>
-                  </div>
-                  <div>
-                    <p>
-                      <label for="chargeHistory" class="switchable">Charge:</label>
-                      <input type="hidden" name="charge" id="chargeMarker" value="10" />
-                      <select name="charge" id="chargeHistory" class="switchable">
-                        <option value="10">All</option>
-                        <option value="5">Routine</option>
-                        <!-- <option value="2">ASAP</option> -->
-                        <option value="1">Stat</option>
-                        <option value="6">Round Trip</option>
-                        <option value="8">Dead Run</option>
-			                  <option value="7">Dedicated Run</option>
-			                  <option value="0">Cancelled</option>
-                        <option value="9">Credit</option>
-                      </select>
-                    </p>
-                    <p>
-                      <input type="hidden" name="type" id="typeMarker" value="2" />
-                      <label for="type" class="switchable">Type:</label>
-                      <select name="type" id="type" class="switchable">
-                        <option value="2">All</option>
-                        <option value="1">Contract</option>
-                        <option value="0">On Call</option>
-                      </select>
-                    </p>
-                  </div>
-                  <div>
-                    <p>
-                      <label for="display">Display:</label>
-                      <input type="hidden" name="display" value="tickets" />
-                      <select name="display" id="display">
-                         <option value="tickets">Tickets</option>
-                        <option value="chart">Chart</option>
-                      </select>
-                    </p>
-                    <p>
-                      <span class="compare" style="display:none;">
-                        <label for="compare">Compare Months: </label>
-                        <input type="hidden" name="compare" value="0" />
-                        <input type="checkbox" name="compare" id="compareBox" value="1" disabled />
-                      </span>
-                    </p>
-                  </div>
-                </fieldset>
-                <button type="submit" class="submitTicketQuery">Query</button>
-                <button type="reset" class="resetTicketQuery" form="deliveryQuery">Reset</button>
-                <button type="button" class="clearTicketResults">Clear Results</button>
-              </form>
-            </div>
-            <div id="ticketQueryResults"></div>
-          </div>
+          <div id="ticketQuery" data-function="ticketQueryForm" class="page"></div>
           <div id="invoices" data-function="initInvoiceQueryForm" class="page">
             <table id="queryForms" class="noPrint centerDiv">
               <tr>
@@ -1600,100 +1450,7 @@
             </table>
             <div id="invoiceQueryResults"></div>
           </div>
-          <div id="orgTickets" data-function="initTicketQueryFormOrg" class="page">
-            <div id="options">
-              <form id="queryForms" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
-                <input type="hidden" name="endPoint" value="tickets" />
-                <input type="hidden" name="method" value="GET" />
-                <fieldset form="queryForms" id="deliveryQuery">
-                  <legend>Search Parameters</legend>
-                  <div>
-                    <p>
-                      <label for="allTime">All Time: </label>
-                      <input type="hidden" name="allTime" value="N" />
-                      <input type="checkbox" name="allTime" id="allTime" value="Y" />
-                    </p>
-                    <p>
-                      <label for="ticketNumber" class="switchable">Ticket<span class="mobileHide"> Number</span>:</label>
-                      <input type="hidden" class="ticketNumberMarker" name="ticketNumber" />
-                      <input type="number" min="1" name="ticketNumber" id="ticketNumber" />
-                    </p>
-                  </div>
-                  <div>
-                    <p>
-                      <label for="startDate">Start Date:  </label>
-                      <input type="hidden" name="startDate" id="startDateMarker" disabled />
-                      <span class="chartDate" style="display:none;" title="Query Range Limited To 6 Month Periods">
-                        ' . self::createLimitedMonthInput(array_keys($_SESSION['members']), 'startDate', TRUE) . '
-                      </span>
-                      <span class="ticketDate">
-                        ' . self::createLimitedMonthInput(array_keys($_SESSION['members']), 'startDate', FALSE, 'date', 'tickets') . '
-                      </span>
-                    </p>
-                    <p>
-                      <label for="endDate">End Date: </label>
-                      <input type="hidden" name="endDate" id="endDateMarker" />
-                      <span class="chartDate" style="display:none;" title="Query Range Limited To 6 Month Periods">
-                        ' . self::createLimitedMonthInput(array_keys($_SESSION['members']), 'endDate', TRUE) . '
-                      </span>
-                      <span class="ticketDate">
-                        ' . self::createLimitedMonthInput(array_keys($_SESSION['members']), 'endDate', FALSE, 'date', 'tickets') . '
-                      </span>
-                    </p>
-                  </div>
-                  <div>
-                    <p>
-                      <label for="charge">Charge:</label>
-                      <input type="hidden" name="charge" id="chargeMarker" value="10" />
-                      <select name="charge" id="charge">
-                        <option value="10">All</option>
-                        <option value="5">Routine</option>
-                        <!-- <option value="2">ASAP</option> -->
-                        <option value="1">Stat</option>
-                        <option value="6">Round Trip</option>
-                        <option value="8">Dead Run</option>
-                        <option value="7">Dedicated Run</option>
-                        <option value="0">Cancelled</option>
-                      </select>
-                    </p>
-                    <p>
-                      <label for="type">Type:  </label>
-                      <input type="hidden" name="type" id="typeMarker" value="2" />
-                      <select name="type" id="type">
-                        <option value="2">All</option>
-                        <option value="1">Contract</option>
-                        <option value="0">On Call</option>
-                      </select>
-                    </p>
-                  </div>
-                  <div>
-                    <p>
-                      <label for="display">Display:  </label>
-                      <input type="hidden" name="display" id="displayMarker" value="tickets" />
-                      <select name="display" id="display">
-                        <option value="tickets">Tickets</option>
-                        <option value="chart">Chart</option>
-                      </select>
-                    </p>
-                  </div>
-                  <div style="clear:both">
-                    <p>
-                      <span>Compare:</span>
-                      <input type="hidden" name="compare" value="0" />
-                      <input type="checkbox" name="compare" id="compareBox" value="1" disabled />
-                      <label for="compareBox">Months</label>
-                      <input type="hidden" name="compareMembers" value="0" />
-                      <input type="checkbox" name="compareMembers" id="compareMembersTickets" value="1" disabled />
-                      <label for="compareMembersTickets">Members</label>
-                    </p>
-                  </div>
-                </fieldset>
-                <p class="centerDiv">' . self::listOrgMembers('ticket') . '</p>
-                <button type="submit" class="submitOrgTickets" title="Select a member or&#10enter a ticket number to continue">Query</button>
-              </form>
-              <div id="ticketQueryResults"></div>
-            </div>
-          </div>
+          <div id="orgTickets" data-function="ticketQueryForm" class="page"></div>
           <div id="changeOrgPW" data-function="initChangeOrgPasswordForm" class="page">
             <div class="PWcontainer">
               <div class="PWform">
