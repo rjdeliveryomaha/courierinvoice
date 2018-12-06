@@ -79,4 +79,4 @@ $(document).ready(function() {
     enable_scroll();
     mySwipe.enable();
   });
-}
+});
