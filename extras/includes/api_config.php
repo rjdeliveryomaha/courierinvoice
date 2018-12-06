@@ -91,7 +91,7 @@
       'driver' => [
         // these are default configurations for collecting signatures
         [null, null, 'https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js'],
-        [null, null, '../../app_js/sigPad.js']
+        [null, null, '../app_js/sigPad.js']
       ],
       'dispatcher' => [],
       // This setting is not yet implemented
