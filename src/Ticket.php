@@ -2365,7 +2365,7 @@
           $excludes = (isset($this->options["clientCharges{$this->formType}Exclude"][$this->ulevel - 1])) ? $this->options["clientCharges{$this->formType}Exclude"][$this->ulevel - 1] : [];
         }
       } elseif ($this->userType === 'driver') {
-        $excludes = (isset($this->options["driverCharges{$this->formType}Exclude"][$this->CanDispatch - 1])) ? $this->options['driverChargesExclude'][$this->CanDispatch - 1] : [];
+        $excludes = (isset($this->options["driverCharges{$this->formType}Exclude"][$this->CanDispatch - 1])) ? $this->options["driverCharges{$this->formType}Exclude"][$this->CanDispatch - 1] : [];
       } else {
         $excludes = (isset($this->options["{$this->userType}Charges{$this->formType}Exclude"])) ? $this->options["{$this->userType}Charges{$this->formType}Exclude"] : [];
       }
