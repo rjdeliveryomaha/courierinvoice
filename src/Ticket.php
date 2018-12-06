@@ -2357,6 +2357,7 @@
 
     private function createChargeSelectOptions() {
       $returnData = '';
+      $testCharge = (isset($this->Charge)) ? $this->Charge : (isset($this->options['initialCharge'])) ? $this->options['initialCharge'] : NULL;
       if ($this->userType === 'client') {
         if ($this->ClientID === 0) {
           $excludes = (isset($this->options["client0Charges{$this->formType}Exclude"])) ? $this->options["client0Charges{$this->formType}Exclude"] : [];
@@ -2370,7 +2371,7 @@
       }
       for ($i=0; $i < 10; $i++) {
         if (!in_array($i, $excludes, true)) {
-          $selected = ($this->Charge === $i) ? 'selected' : '';
+          $selected = ($testCharge === $i) ? 'selected' : '';
           $returnData .= "
           <option value=\"{$i}\" {$selected}>{$this->ticketCharge($i)}</option>";
         }

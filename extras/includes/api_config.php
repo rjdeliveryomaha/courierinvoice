@@ -56,6 +56,9 @@
     'client0ChargesEntryExclude' => [],
     // indexed array of charges to exclude for Courier Invoice user client 0 query form
     'client0ChargesQueryExclude' => [],
+    // By default Charge is null when the ticket entry form is initialized
+    // number: Charge to be selected when ticket entry form is initialized
+    'initialCharge' => 5,
     // associative array extend layout and menue with custom pages
     // The top level keys are who to create the custom pages for; all, client, org, driver, dispatcher, client0.
     // The structure of subsequent indexed arrays:
