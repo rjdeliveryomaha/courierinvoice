@@ -2821,6 +2821,7 @@
 
     public function runPriceForm() {
       $returnData = '';
+      $this->formType = 'Entry';
       if ($this->organizationFlag === TRUE) {
         self::buildLocationList();
         $returnData .= self::buildDatalists();
