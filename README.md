@@ -524,7 +524,7 @@ Usage:
 
 ### Features
 
-Single page design navigated by wither swipe or menu. Offers unique features based upon user type.
+Single page design navigated by either swipe or menu. Offers unique features based upon user type.
 
 - Drivers
 
