@@ -1602,7 +1602,6 @@
             <span class="message"></span>
             <span class="container"><p class="center">Select Driver &amp; Ticket Type</p></span>
           </div>
-          <div id="transfers" data-function="transferredTickets" class="page"></div>
           <div id="ticketEntry" data-function="ticketForm" class="page"></div>'
            . $this->customPages .
        '</div>';
