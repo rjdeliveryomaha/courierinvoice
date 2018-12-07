@@ -61,44 +61,91 @@
     'initialCharge' => 5,
     // associative array extend layout and menue with custom pages
     // The top level keys are who to create the custom pages for; all, client, org, driver, dispatcher, client0.
-    // The structure of subsequent indexed arrays:
-    // [ 'Menue Entry', 'functionName', '../path/to/script.js', 'scriptAttribute1', 'scriptAttribute2', ... ... ]
-    // Index 0, if not null or an empty string, will be added to the menue.
-    // Index 1, if set and not null or an empty string and index 0 is not null or an empty string, will be looked for as a function in includes/user_functions.php to populate the page.
+    // all, org, and dispatcher should contain a single indexed array
+    // Index 0 will be added, as is, to the menue. It will be converted to lowercase, spaces replaced with underscore and used as the id attribute of the page.
+    // Index 1, if set and not null or an empty string, will be looked for first as a method in the Ticket, Route, Invoice, and Client classes then as a function in includes/user_functions.php to populate the page.
     // This function should return html content.
     // Index 2, if set and not null or an empty string, will be added as the src of a script element.
     // If an entry has a non-null, not empty string at index 0 and a null or empty string at index 1 it will be moved to the end of the list.
     // This is done to preserve the indexing of entries to pages.
-    // If both index 0 and index 1 are null or empty string index 2 will be added as the src of  a script element.
-    // Any indices past 2 wll be interpreted as attributes to be applied to the script ex: defer or async.
-    // They will be applied in the order that they appear.
+    // If both index 0 and index 1 are null or empty string index 2 will be added as the src of a script element.
+    // Any indices past 2 will be interpreted as properties to be applied to the script ex: defer or async.
+    // The client and driver keys should a multi-dimentional indexed array with elements as described above
+    // 'client' => [ [ ['all clients'] ], [ ['admin clients'] ], [ ['dayly clients'] ] ]
+    // 'drivers' => [ [ ['all drivers'] ], [ ['driver cannot dispatch'] ], [ ['driver can dispatch self'] ], [ ['driver can dispatch any'] ] ]
     'extend' => [
       'all' => [
-        // this will be moved to the end of the next not empty extend property.
-        ['<a href="mailto:support@yourdomain.com">Contact Support</a>'],
-        // this will be the first entry after the standard list of links.
-        ['Help', 'createHelpContent'],
-        // this add the element <script src="../js/maps.js"></script> to the page
-        [ null, null, '../js/maps.js'],
-        // this adds the element <script src="https://address_of_defered_script" async defer></script> to the page
-        [null, null, 'https://address_of_defered_script', 'async', 'defer'],
-        // this adds an element to the menue and a script to the page
-        ['Notifications: <button type="button" class="fab__push">Off</button>', '', '../js/pushMessaging.js'],
-        // these files are used by default.
+//        ['Help', 'createHelpContent', '../js/help.js'], // This item would be moved to the end of the menue
+//        [ null, null, '../js/maps.js'], // This item would be added as the first script on the page
         [null, null, '../app_js/jQuery.ajaxRetry.min.js'],
         [null, null, '../app_js/ajaxTemplate.js'],
         [null, null, '../app_js/app.js']
       ],
-      'client' => [],
-      'org' => [],
-      'driver' => [
-        // these are default configurations for collecting signatures
-        [null, null, 'https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js'],
-        [null, null, '../app_js/sigPad.js']
+      'client' => [
+        [
+          // All clients
+//          [null, null, 'https://remote.script.com/do_something', 'async', 'defer'],
+          ['Ticket Entry', 'ticketForm'],
+          ['Ticket Query', 'ticketQueryForm']
+        ],
+        [
+          // admin clients
+          ['Invoice Query', 'invoiceQueryForm'],
+          ['Price Calculator', 'runPriceForm'],
+          ['Change Password', 'daylyPasswordForm'],
+          ['Change Admin Password', 'adminPasswordForm'],
+          ['Contact Info', 'updateInfoForm']
+        ],
+        [
+          // dayly clients
+          ['Price Calculator', 'runPriceForm']
+        ]
       ],
-      'dispatcher' => [],
-      // This setting is not yet implemented
-      'client0' => []
+      'org' => [
+        [ 'Price Calculator', 'runPriceForm' ],
+        [ 'Invoice Query', 'invoiceQueryForm' ],
+        [ 'Change Password', 'orgPasswordForm']
+      ],
+      'driver' => [
+        [
+          // all drivers
+          ['Route', 'activeTickets'],
+          ['On Call', 'onCallTickets'],
+          ['Transfers', 'transferredTickets'],
+          [null, null, 'https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js'],
+          [null, null, '../app_js/sigPad.js']
+        ],
+        [
+          // can dispatch = 0
+          ['Change Password', 'driverPasswordForm']
+        ],
+        [
+          // can dispatch = 1
+          ['Ticket Entry', 'ticketForm'],
+          ['Change Password', 'driverPasswordForm']
+        ],
+        [
+          // can dispatch = 2
+          ['Dispatch', 'ticketsToDispatch'],
+          ['Active Tickets', 'initTicketEditor'],
+          ['Ticket Entry', 'ticketForm'],
+          ['Change Password', 'driverPasswordForm']
+        ]
+      ],
+      'dispatcher' => [
+        ['Dispatch', 'ticketsToDispatch'],
+        ['Active Tickets', 'initTicketEditor'],
+        ['Ticket Entry', 'ticketForm'],
+        ['Price Calculator', 'runPriceForm'],
+        ['Change Password', 'dispatchPasswordForm']
+      ],
+      'client0' => [
+        ['Price Calculator', 'runPriceForm'],
+        ['Dispatch', 'ticketsToDispatch'],
+        ['Change Password', 'daylyPasswordForm'],
+        ['Change Admin Password', 'adminPasswordForm'],
+        ['Contact Info', 'updateInfoForm']
+      ]
     ]
   ];
   // config for price calculation without session

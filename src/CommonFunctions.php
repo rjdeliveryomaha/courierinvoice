@@ -734,7 +734,7 @@
       return $returnData;
     }
 
-    private function createInvoiceNumberSelect($search) {
+    protected function createInvoiceNumberSelect($search) {
       $queryData = [];
       $queryData['formKey'] = $this->formKey;
       $queryData['method'] = 'GET';
@@ -761,7 +761,7 @@
       return $returnData;
     }
 
-    private function getCredit() {
+    protected function getCredit() {
       $data = [];
       $data['formKey'] = $this->formKey;
       $data['method'] = 'GET';
@@ -811,8 +811,18 @@
     }
 
     private function customize() {
+      $spinner = '
+            <div class="showbox">
+              <!-- New spinner from http://codepen.io/collection/HtAne/ -->
+              <div class="loader">
+                <svg class="circular" viewBox="25 25 50 50">
+                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/>
+                </svg>
+              </div>
+            </div>';
       if (is_numeric($_SESSION['ulevel'])) {
-        $type = ($_SESSION['ulevel'] < 0) ? 'client' : 'org';
+        $type = ($_SESSION['ulevel'] > 0) ? 'client' : 'org';
+        $type .= ($type === 'client' && $this->ClientID === 0) ? '0' : '';
       } else {
         $type = ($_SESSION['ulevel'] === 'driver') ? 'driver' : 'dispatcher';
       }
@@ -838,73 +848,130 @@
               }
             }
           }
-          $this->customScripts .= '></script>';
-        }
-        for ($i = 0; $i < count($withPage); $i++) {
-          $id = lcfirst(preg_replace('/\s+/', '', $withPage[$i]));
-          $this->customMenueItems .= "
-            <li><a data-id=\"{$id}\" class=\"nav\">{$withPage[$i]}</a></li>";
-          $this->customPages .= "
-            <div id=\"{$id}\" data-function=\"{$pages[$i]}\" class=\"page\"></div>
-          ";
+          if (isset($this->options['extend']['all'][$i][2]) && $this->options['extend']['all'][$i][2] !== '') $this->customScripts .= '></script>';
         }
       }
       // if the current user type has been extended add the menue items without pages to the end of that array.
       // Otherwise add them to the customMenueItems property.
-      if (isset($this->options['extend'][$type]) && is_array($this->options['extend'][$type]) && !empty($this->options['extend'][$type])) {
-        for ($i = 0; $i < count($noPage); $i++) {
-          $this->options['extend'][$type][] = $noPage[$i];
-        }
-      } else {
-        for ($i = 0; $i < count($noPage); $i++) {
-          $this->customMenueItems .= "
-            <li>{$noPage[$i]}</li>";
-        }
-      }
-      if (isset($this->options['extend'][$type]) && is_array($this->options['extend'][$type]) && !empty($this->options['extend'][$type])) {
-        $withPage = $pages = $noPage = [];
-        for ($i = 0; $i < count($this->options['extend'][$type]); $i++) {
-          if (isset($this->options['extend'][$type][$i][0]) && $this->options['extend'][$type][$i][0] !== '') {
-            if (!isset($this->options['extend'][$type][$i][1]) || $this->options['extend'][$type][$i][1] === '') {
-              $noPage[] = $this->options['extend'][$type][$i][0];
-            } else {
-              $withPage[] = $this->options['extend'][$type][$i][0];
-              $pages[] = $this->options['extend'][$type][$i][1];
-            }
-          }
-          if (isset($this->options['extend'][$type][$i][2]) && $this->options['extend'][$type][$i][2] !== '') {
-            $this->customScripts .= "
-            <script src=\"{$this->options['extend'][$type][$i][2]}\"";
-          }
-          if (isset($this->options['extend'][$type][$i][3])) {
-            for ($j = 3; $j < count($this->options['extend'][$type][$i]); $j++) {
-              if (isset($this->options['extend'][$type][$i][$j]) && $this->options['extend'][$type][$i][$j] !== '') {
-                $this->customScripts .= " {$this->options['extend'][$type][$i][$j]}";
+      $search_index = false;
+      $moreWithPage = $morePages = $moreNoPage = [];
+      switch($type) {
+        case 'org':
+        case 'dispatcher':
+          if (isset($this->options['extend'][$type]) && is_array($this->options['extend'][$type]) && !empty($this->options['extend'][$type])) {
+            for ($i = 0; $i < count($this->options['extend'][$type]); $i++) {
+              if (isset($this->options['extend'][$type][$i][0]) && $this->options['extend'][$type][$i][0] !== '') {
+                if (!isset($this->options['extend'][$type][$i][1]) || $this->options['extend'][$type][$i][1] === '') {
+                  $moreNoPage[] = $this->options['extend'][$type][$i][0];
+                } else {
+                  $moreWithPage[] = $this->options['extend'][$type][$i][0];
+                  $morePages[] = $this->options['extend'][$type][$i][1];
+                }
               }
+              if (isset($this->options['extend'][$type][$i][2]) && $this->options['extend'][$type][$i][2] !== '') {
+                $this->customScripts .= "
+            <script src=\"{$this->options['extend'][$type][$i][2]}\"";
+              }
+              if (isset($this->options['extend'][$type][$i][3])) {
+                for ($j = 3; $j < count($this->options['extend'][$type][$i]); $j++) {
+                  if (isset($this->options['extend'][$type][$i][$j]) && $this->options['extend'][$type][$i][$j] !== '') {
+                    $this->customScripts .= " {$this->options['extend'][$type][$i][$j]}";
+                  }
+                }
+              }
+              if (isset($this->options['extend'][$type][$i][2]) && $this->options['extend'][$type][$i][2] !== '') $this->customScripts .= '></script>';
             }
           }
-          $this->customScripts .= '></script>';
+        break;
+        case 'client':
+          $search_index = $this->ulevel;
+        case 'driver':
+          if (!$search_index) $search_index = $this->CanDispatch + 1;
+          if (isset($this->options['extend'][$type][0]) && is_array($this->options['extend'][$type][0]) && !empty($this->options['extend'][$type][0])) {
+            for ($i = 0; $i < count($this->options['extend'][$type][0]); $i++) {
+              if (isset($this->options['extend'][$type][0][$i][0]) && $this->options['extend'][$type][0][$i][0] !== '') {
+                if (!isset($this->options['extend'][$type][0][$i][1]) || $this->options['extend'][$type][0][$i][1] === '') {
+                  $moreNoPage[] = $this->options['extend'][$type][0][$i][0];
+                } else {
+                  $moreWithPage[] = $this->options['extend'][$type][0][$i][0];
+                  $morePages[] = $this->options['extend'][$type][0][$i][1];
+                }
+              }
+              if (isset($this->options['extend'][$type][0][$i][2]) && $this->options['extend'][$type][0][$i][2] !== '') {
+                $this->customScripts .= "
+                <script src=\"{$this->options['extend'][$type][0][$i][2]}\"";
+              }
+              if (isset($this->options['extend'][$type][0][$i][3])) {
+                for ($j = 3; $j < count($this->options['extend'][$type][0][$i]); $j++) {
+                  if (isset($this->options['extend'][$type][0][$i][$j]) && $this->options['extend'][$type][0][$i][$j] !== '') {
+                    $this->customScripts .= " {$this->options['extend'][$type][0][$i][$j]}";
+                  }
+                }
+              }
+              if (isset($this->options['extend'][$type][0][$i][2]) && $this->options['extend'][$type][0][$i][2] !== '') $this->customScripts .= '></script>';
+            }
+          }
+          if (isset($this->options['extend'][$type][$search_index]) && is_array($this->options['extend'][$type][$search_index]) && !empty($this->options['extend'][$type][$search_index])) {
+            for ($i = 0; $i < count($this->options['extend'][$type][$search_index]); $i++) {
+              if (isset($this->options['extend'][$type][$search_index][$i][0]) && $this->options['extend'][$type][$search_index][$i][0] !== '') {
+                if (!isset($this->options['extend'][$type][$search_index][$i][1]) || $this->options['extend'][$type][$search_index][$i][1] === '') {
+                  $moreNoPage[] = $this->options['extend'][$type][$search_index][$i][0];
+                } else {
+                  $moreWithPage[] = $this->options['extend'][$type][$search_index][$i][0];
+                  $morePages[] = $this->options['extend'][$type][$search_index][$i][1];
+                }
+              }
+              if (isset($this->options['extend'][$type][$search_index][$i][2]) && $this->options['extend'][$type][$search_index][$i][2] !== '') {
+                $this->customScripts .= "
+                <script src=\"{$this->options['extend'][$type][$search_index][$i][2]}\"";
+              }
+              if (isset($this->options['extend'][$type][$search_index][$i][3])) {
+                for ($j = 3; $j < count($this->options['extend'][$type][$search_index][$i]); $j++) {
+                  if (isset($this->options['extend'][$type][$search_index][$i][$j]) && $this->options['extend'][$type][$search_index][$i][$j] !== '') {
+                    $this->customScripts .= " {$this->options['extend'][$type][$search_index][$i][$j]}";
+                  }
+                }
+              }
+              if (isset($this->options['extend'][$type][$search_index][$i][2]) && $this->options['extend'][$type][$search_index][$i][2] !== '') $this->customScripts .= '></script>';
+            }
+          }
+        break;
+      }
+      $totalWithPage = array_merge($moreWithPage, $withPage);
+      $totalPages = array_merge($morePages, $pages);
+      $totalNoPage = array_merge($moreNoPage, $noPage);
+      for ($i = 0; $i < count($totalWithPage); $i++) {
+        $id = strtolower(preg_replace('/\s+/', '_', $totalWithPage[$i]));
+        $alert = '';
+        if ($id === 'change_password' || $id === 'change_admin_password') {
+          switch($this->ulevel) {
+            case 0:
+              $alert = ($this->pwWarning === 4) ? '<span class="pwalert">!</span>' : '<span class="pwalert"></span>';
+            break;
+            case 1:
+              if ($id === 'change_password') {
+                $alert = ($this->pwWarning === 1 || $this->pwWarning === 3) ? '<span class="alert">!</span>' : '<span class="pwalert"></span>';
+              } elseif ($id === 'change_admin_password') {
+                $alert = ($this->pwWarning === 2 || $this->pwWarning === 3) ? '<span class="alert">!</span>' : '<span class="pwalert"></span>';
+              }
+            break;
+          }
+        } elseif ($id === 'on_call' || $id === 'transfers' || $id === 'dispatch') {
+          $alert = ($id === 'on_call') ? '<span class="ticketCount"></span>' : "<span class=\"{$id}Count\"></span>";
         }
-        for ($i = 0; $i < count($withPage); $i++) {
-          $id = lcfirst(preg_replace('/\s+/', '', $withPage[$i]));
-          $this->customMenueItems .= "
-            <li><a data-id=\"{$id}\" class=\"nav\">{$withPage[$i]}</a></li>";
-          $this->customPages .= "
-            <div id=\"{$id}\" data-function=\"{$pages[$i]}\" class=\"page\"></div>
-          ";
-        }
-        for ($i = 0; $i < count($noPage); $i++) {
-          $this->customMenueItems .= "
-            <li>{$noPage[$i]}</li>";
-        }
+        $this->customMenueItems .= "<li><a data-id=\"{$id}\" class=\"nav\">{$totalWithPage[$i]}{$alert}</a></li>
+        ";
+        $this->customPages .= "<div id=\"{$id}\" data-function=\"{$totalPages[$i]}\" class=\"page\">{$spinner}</div>
+        ";
+      }
+      for ($i = 0; $i < count($totalNoPage); $i++) {
+        $this->customMenueItems .= "<li>{$totalNoPage[$i]}</li>
+        ";
       }
     }
 
     public function createNavMenu() {
       self::customize();
-      $displayClientName = '<span class="error">User Name Error</span>';
-      $menuLinks = '
-          <span class="error">Link Generation Error</span>';
       if (isset($_SESSION['ClientName'])) {
         $displayClientName = $_SESSION['ClientName'];
       } elseif (isset($_SESSION['DriverID'])) {
@@ -914,64 +981,24 @@
         switch ($_SESSION['ulevel']) {
           case 2:
             $displayClientName .= "<br>{$_SESSION['Department']}";
-            $menuLinks = '
-            <li class="menu__list__active"><a data-id="ticketEntry" class="nav">Delivery Request</a></li>
-            <li><a data-id="ticketQuery" class="nav">Ticket History</a></li>
-            <li><a data-id="priceCalculator" class="nav"><span class="mobileHide">Run </span>Price Calc<span class="mobileHide">ulator</span></a></li>';
-          break;
           case 1:
-            $pwWarning1 = ($this->pwWarning === 1 || $this->pwWarning === 3) ? '<span class="alert">!</span>' : '';
-            $pwWarning2 = ($this->pwWarning === 2 || $this->pwWarning === 3) ? '<span class="alert">!</span>' : '';
             $displayClientName .= "<br>{$_SESSION['Department']} Admin";
-            $menuLinks = '
-            <li class="menu__list__active"><a data-id="ticketEntry" class="nav">Delivery Request</a></li>
-            <li><a data-id="ticketQuery" class="nav">Ticket History</a></li>
-            <li><a data-id="invoices" class="nav">Invoice History</a></li>
-            <li><a data-id="changePassword" class="nav"><span class="mobileHide">Change </span>Password' . $pwWarning1 . '</a></li>
-            <li><a data-id="changeAdminPassword" class="nav"><span class="mobileHide">Change </span> Admin Password' . $pwWarning2 . '</a></li>
-            <li><a data-id="updateInfo" class="nav">Update <span class="mobileHide">Contact </span>Info<span class="mobileHide">rmation</span></a></li>
-            <li><a data-id="priceCalculator" class="nav"><span class="mobileHide">Run </span>Price Calc<span class="mobileHide">ulator</span></a></li>';
           break;
           case 0:
-            $pwWarning1 = ($this->pwWarning === 4) ? '<span class="alert">!</span>' : '';
             $displayClientName .= '<br>Organizational';
-            $menuLinks = '
-            <li class="menu__list__active"><a data-id="priceCalculator" class="nav"><span class="mobileHide">Run </span>Price Calc<span class="mobileHide">ulator</span></a></li>
-            <li><a data-id="orgInvoices" class="nav">Invoice History</a></li>
-            <li><a data-id="orgTickets" class="nav">Ticket History</a></li>
-            <li><a data-id="changeOrgPW" class="nav">Change Password' . $pwWarning1 . '</a></li>';
           break;
         }
       } elseif ($_SESSION['ulevel'] === 'driver') {
         if ($_SESSION['CanDispatch'] > 0) {
           $displayClientName .= '<br>Driver / Dispatch';
-          $menuLinks = '
-          <li class="menu__list__active"><a data-id="route" class="nav">Route</a></li>
-          <li><a data-id="onCall" class="nav">On Call<span class="medium ticketCount"></span></a></li>
-          <li><a data-id="transfers" class="nav">Transfers<span class="medium transferCount"></span></a></li>';
-          $menuLinks .=  ($_SESSION['CanDispatch'] === 2) ? '
-          <li><a data-id="dispatch" class="nav">Dispatch<span class="medium dispatchCount"></span></a></li>
-          <li><a data-id="ticketEditor" class="nav">Active Tickets</a></li>' : '';
-          $menuLinks .= '
-          <li><a data-id="ticketEntry" class="nav">Ticket Entry</a></li>';
         } else {
           $displayClientName .= '<br>Driver';
-          $menuLinks = '
-          <li class="menu__list__active"><a data-id="route" class="nav">Route</a></li>
-          <li><a data-id="onCall" class="nav">On Call<span class="medium ticketCount"></span></a></li>
-          <li><a data-id="transfers" class="nav">Transfers<span class="medium transferCount"></span></a></li>';
         }
       } elseif ($_SESSION['ulevel'] === 'dispatch') {
         $displayClientName .= '<br>Dispatch';
-        $menuLinks = '
-          <li class="menu__list__active"><a data-id="dispatch" class="nav">Dispatch<span class="medium dispatchCount"></span></a></li>
-          <li><a data-id="priceCalculator" class="nav">Price Calculator</a></li>
-          <li><a data-id="ticketEditor" class="nav">Active Tickets</a></li>
-          <li><a data-id="transfers" class="nav">Transfers<span class="medium transferCount"></span></a></li>
-          <li><a data-id="ticketEntry" class="nav">Ticket Entry</a></li>';
       }
       $mobileMarker = (isset($_SESSION['mobile']) && $_SESSION['mobile'] === TRUE) ? 1 : 0;
-      $navMenu = "
+      return "
         <div class=\"menu__header\">
           <p id=\"menuDriverName\">{$displayClientName}</p>
           <div id=\"logoutRefresh\">
@@ -983,637 +1010,21 @@
           </div>
         </div>
         <ul class=\"menu__list\">
-        {$menuLinks}
-        {$this->customMenueItems}
+          {$this->customMenueItems}
         </ul>";
-      return $navMenu;
     }
 
     public function createAppLayout() {
-      $appLayout = '
-        <div class="swipe-wrap">
-          <div class="page">
-            <p class="error center">App Layout Error</p>
-          </div>
-        </div>';
-      if (is_numeric($_SESSION['ulevel'])) {
-        switch ($_SESSION['ulevel']) {
-          case 2:;
-          $appLayout = '
-        <div class="swipe-wrap">
-          <div id="ticketEntry" data-function="ticketForm" class="page">
-            <div class="showbox">
-              <!-- New spinner from http://codepen.io/collection/HtAne/ -->
-              <div class="loader">
-                <svg class="circular" viewBox="25 25 50 50">
-                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/>
-                </svg>
-              </div>
-            </div>
-          </div>
-          <div id="ticketQuery" data-function="ticketQueryForm" class="page"></div>
-          <div id="priceCalculator" data-function="runPriceForm" class="page"></div>'
-           . $this->customPages .
-       '</div>';
-          break;
-          case 1:
-            $showPWwarning1 = ($this->pwWarning === 1 || $this->pwWarning === 3) ? '' : 'hide';
-            $showPWwarning2 = ($this->pwWarning === 2 || $this->pwWarning === 3) ? '' : 'hide';
-            $search = $_SESSION['ClientID'];
-            $hideCountry = $_SESSION['config']['InternationalAddressing'] === 1 ? '' : 'hide';
-            $requireCountry = $requireCountry2 = $_SESSION['config']['InternationalAddressing'] === 1 ? 'required' : '';
-            if ($_SESSION['ClientName'] === $_SESSION['BillingName'] && $_SESSION['ShippingAddress1'] === $_SESSION['BillingAddress1'] && $_SESSION['ShippingAddress2'] === $_SESSION['BillingAddress2']) {
-              $sameChecked = 'checked';
-              $sameDisabled = $requireCountry2 = 'disabled';
-              $hideClass = 'hide';
-              $billingName = $billingAddress1 = $billingAddress2 = $billingCountry = '';
-            } else {
-              $sameChecked = $sameDisabled = $hideClass = '';
-              $billingName = $_SESSION['BillingName'];
-              $billingAddress1 = $_SESSION['BillingAddress1'];
-              $billingAddress2 = $_SESSION['BillingAddress2'];
-              $billingCountry = $_SESSION['BillingCountry'];
-            }
-            $appLayout = '
-        <div class="swipe-wrap">
-          <div id="ticketEntry" data-function="ticketForm" class="page">
-            <div class="showbox">
-              <!-- New spinner from http://codepen.io/collection/HtAne/ -->
-              <div class="loader">
-                <svg class="circular" viewBox="25 25 50 50">
-                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/>
-                </svg>
-              </div>
-            </div>
-          </div>
-          <div id="ticketQuery" data-function="ticketQueryForm" class="page"></div>
-          <div id="invoices" data-function="initInvoiceQueryForm" class="page">
-            <table id="queryForms" class="noPrint centerDiv">
-              <tr>
-                <td>
-                  <form id="singleInvoiceQuery" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
-                    <input type="hidden" name="clientID" value="' . $_SESSION['ClientID'] . '" />
-                    <input type="hidden" name="method" value="GET" />
-                    <input type="hidden" name="endPoint" value="invoices" />
-                    <input type="hidden" name="display" value="invoice" />
-                    <fieldset form="invoiceQuery" name="dateRange">
-                      <legend>Single Invoice Query</legend>
-                      <table>
-                        <tr>
-                          <td><label for="dateIssued">Date Issued:  </label></td>
-                          <td class="pullLeft">' . self::createLimitedMonthInput($_SESSION['ClientID'], 'dateIssued', FALSE, 'month', 'invoices', TRUE) . '</td>
-                        </tr>
-                        <tr>
-                          <td><label for="invoiceNumber">Invoice Number:  </label></td>
-                          <td class="pullLeft">
-                            <input type="checkbox" id="useInvoice" value="1" />
-                            ' . self::createInvoiceNumberSelect($_SESSION['ClientID']) . '
-                          </td>
-                        </tr>
-                        <tr>
-                          <td><span class="medium">*Open Invoice</span></td>
-                          <td class="pullRight"><button type="submit" id="singleInvoice">Query</button></td>
-                        </tr>
-                      </table>
-                    </fieldset>
-                  </form>
-                </td>
-                <td>
-                  <form id="multiInvoiceQuery" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
-                    <input type="hidden" name="clientID" value="' . $_SESSION['ClientID'] . '" />
-                    <input type="hidden" name="method" value="GET" />
-                    <input type="hidden" name="endPoint" value="invoices" />
-                    <input type="hidden" name="display" value="chart" />
-                    <fieldset>
-                      <legend>Multi Invoice Query</legend>
-                      <table>
-                        <tr>
-                          <td><label for="startDate">Start Date:</label></td>
-                          <td>' . self::createLimitedMonthInput($_SESSION['ClientID'], 'startDate', FALSE, 'month', 'invoices', TRUE) . '</td>
-                        </tr>
-                        <tr>
-                          <td><label for="endDate">End Date:</label></td>
-                          <td>' . self::createLimitedMonthInput($_SESSION['ClientID'], 'endDate', FALSE, 'month', 'invoices', TRUE). '</td>
-                        </tr>
-                        <tr>
-                          <td colspan="2" title="Range limited to 6 months.">
-                            <label for="compareInvoices">Compare:  </label>
-                            <select id="compareInvoices" name="compare">
-                              <option value="0">Date Range</option>
-                              <option value="1">Two Months</option>
-                            </select>
-                            <button type="submit" id="rangeInvoice">Query</button>
-                          </td>
-                        </tr>
-                      </table>
-                    </fieldset>
-                    <input type="hidden" name="compareMembers" value="0" />
-                  </form>
-                  <span id="message2" class="error"></span>
-                </td>
-              </tr>
-            </table>
-            <div id="invoiceQueryResults"></div>
-          </div>
-          <div id="changePassword" data-function="initChangePasswordForm" class="page">
-            <div class="PWcontainer">
-              <div class="PWform">
-                <form id="pwUpdate" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
-                  <input type="hidden" name="client" class="client" value="' . $_SESSION['ClientID'] . '" form="pwUpdate" />
-                  <input type="hidden" name="flag" class="flag" value="daily" form="pwUpdate" />
-                  <table>
-                    <tr>
-                      <td><label for="currentPw">Current Password:  </label></td>
-                      <td><input type="password" name="currentPw" class="currentPw" form="pwUpdate" /></td>
-                    </tr>
-                    <tr>
-                      <td><label for="newPw1">New Password:  </label></td>
-                      <td><input type="password" name="newPw1" class="newPw1" form="pwUpdate" />
-                    </tr>
-                    <tr>
-                      <td><label for="newPw2">Confirm Password:  </label></td>
-                      <td><input type="password" name="newPw2" class="newPw2" form="pwUpdate" /></td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <button type="submit" class="PWsubmit" form="pwUpdate">Submit</button>
-                        <button type="reset" class="clearPWform" form="pwUpdate">Clear</button>
-                      </td>
-                      <td><label for="showText">Show Text:</label> <input type="checkbox" name="showText" class="showText" form="pwUpdate" /></td>
-                    </tr>
-                    <tr>
-                      <td style="height:2em;" class="message" colspan="2"></td>
-                    </tr>
-                  </table>
-                </form>
-              </div>
-              <div class="criteria">
-                <span>Password criteria:</span>
-                <br>
-                <ul>
-                  <li class="defaultWarning ' . $showPWwarning1 . '">Password should be changed from default.</li>
-                  <li>Passwords must be at least 8 characters long.</li>
-                  <li>Passwords must contain:</li>
-                    <ul>
-                      <li>At least one upper case letter. <span style="background:black;color:#90EE90;"> A..Z </span></li>
-                      <li>At least one lower case letter. <span style="background:black;color:#90EE90;">a..z</span></li>
-                      <li>At least one number. <span style="background:black;color:#90EE90;">0..9</span></li>
-                      <li>At least one special character. <span style="background:black;color:#90EE90;"> ! @ # $ % ^ & * ( ) { } [ ] - _ . : ; , = + </span></li>
-                    </ul>
-                  <li>The "New Password" and "Confirm Password" fields must match.</li>
-                  <li>Daily user password must be different from admin password.</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div id="changeAdminPassword" data-function="initChangeAdminPasswordForm" class="page">
-            <div class="PWcontainer">
-              <div class="PWform">
-                <form id="apwUpdate" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
-                  <input type="hidden" name="client" class="client" value="' . $_SESSION['ClientID'] . '" form="apwUpdate" />
-                  <input type="hidden" name="flag" class="flag" value="admin" form="apwUpdate" />
-                  <table>
-                    <tr>
-                      <td><label for="currentPw">Current Password:  </label></td>
-                      <td><input type="password" name="currentPw" class="currentPw"  form="apwUpdate" /></td>
-                    </tr>
-                    <tr>
-                      <td><label for="newPw1">New Password:  </label></td>
-                      <td><input type="password" name="newPw1" class="newPw1" form="apwUpdate" />
-                    </tr>
-                    <tr>
-                      <td><label for="newPw2">Confirm Password:  </label></td>
-                      <td><input type="password" name="newPw2" class="newPw2" form="apwUpdate" /></td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <button type="submit" class="PWsubmit" form="apwUpdate">Submit</button>
-                        <button type="reset" class="clearPWform" form="apwUpdate">Clear</button>
-                      </td>
-                      <td><label for="showText">Show Text:</label> <input type="checkbox" class="showText" name="showText"  form="apwUpdate" /></td>
-                    </tr>
-                    <tr>
-                      <td style="height:2em;" class="message" colspan="2"></td>
-                    </tr>
-                  </table>
-                </form>
-              </div>
-              <div class="criteria">
-                <span>Password criteria:</span>
-                <br>
-                <ul>
-                  <li class="defaultWarning ' . $showPWwarning2 . '">Password should be changed from default.</li>
-                  <li>Passwords must be at least 8 characters long.</li>
-                  <li>Passwords must contain:</li>
-                    <ul>
-                      <li>At least one upper case letter. <span style="background:black;color:#90EE90;"> A..Z </span></li>
-                      <li>At least one lower case letter. <span style="background:black;color:#90EE90;">a..z</span></li>
-                      <li>At least one number. <span style="background:black;color:#90EE90;">0..9</span></li>
-                      <li>At least one special character. <span style="background:black;color:#90EE90;"> ! @ # $ % ^ & * ( ) { } [ ] - _ . : ; , = + </span></li>
-                    </ul>
-                  <li>The "New Password" and "Confirm Password" fields must match.</li>
-                  <li>Daily user password must be different from admin password.</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div id="updateInfo" data-function="initUpdateInfoForm" class="page">
-            <div id="clientUpdateForm">
-              <p id="clientUpdateResult" class="center"></p>
-              <form id="clientUpdate" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
-                <input type="hidden" name="formKey" value="" />
-                <fieldset form="clientUpdate" name="shippingInfo">
-                  <legend>Shipping Information</legend>
-                  <table class="centerDiv">
-                    <thead>
-                      <tr>
-                        <td colspan="4">&nbsp;
-                        </td>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>
-                          <label for="clientID">Client ID:  </label>
-                          ' . $_SESSION['ClientID'] . '
-                          <input type="hidden" name="clientID" id="ClientID" value="' . $_SESSION['ClientID'] . '" form="clientUpdate" />
-                        </td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <label for="clientName">Name:  </label>
-                          ' . $_SESSION['ClientName'] . '
-                          <input type="hidden" name="ClientName" id="clientName" value="' . $_SESSION['ClientName'] . '" form="clientUpdate" />
-                        </td>
-                        <td>
-                          <label for="department">Department:  </label>
-                          ' . $_SESSION['Department'] . '
-                          <input type="hidden" name="Department" id="department" value="' .$_SESSION['Department'] . '" form="clientUpdate" />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <label for="shippingAddress1">Address 1:  </label>
-                          <input type="text" name="ShippingAddress1" id="shippingAddress1"  required placeholder="1234 Main St." value="' . $_SESSION['ShippingAddress1'] . '" form="clientUpdate" /><span class="error">*</span>
-                        </td>
-                        <td>
-                          <label for="shippingAddress2">Address 2:  </label>
-                          <input type="text" name="ShippingAddress2" id="shippingAddress2"  required placeholder="City, State ZIP" value="' . $_SESSION['ShippingAddress2'] . '" form="clientUpdate" /><span class="error">*</span>
-                        </td>
-                      </tr>
-                      <tr class="' . $hideCountry . '">
-                        <td></td>
-                        <td><label for="shippingCountry">Shipping Country:</label><input list="countries" name="ShippingCountry" id="shippingCountry" class="shippingCountry" value="' . $_SESSION['ShippingCountry'] . '" ' . $requireCountry . ' form="clientUpdate" /><span class="error">*</span></td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <label for="telephone">Telephone:  </label>
-                          <input type="tel" name="Telephone" id="telephone"  value="' . $_SESSION['Telephone'] . '" placeholder="555-321-1234x567" form="clientUpdate" />
-                        </td>
-                        <td>
-                          <label for="emailAddress">Email Address:  </label>
-                          <input type="email" name="EmailAddress" id="emailAddress"  value="' . $_SESSION['EmailAddress'] . '" form="clientUpdate" />
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </fieldset>
-                <fieldset form="clientUpdate" name="billingInfo">
-                  <legend>Billing Information</legend>
-                  <table class="centerDiv">
-                    <tr>
-                      <td>
-                        <label for="same">Same As Shipping:  </label>
-                        <input type="hidden" name="same" value="0" form="clientUpdate" />
-  	                    <input type="checkbox" name="same" id="same" value="1" ' . $sameChecked . ' form="clientUpdate" />
-                      </td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <label for="billingName">Name:  </label>
-                        <input type="text" name="BillingName" id="billingName"  value="' . $billingName . '" form="clientUpdate" ' . $sameDisabled . ' /><span class="error ' . $hideClass . '">*</span>
-                      </td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <label for="billingAddress1">Address 1:  </label>
-                        <input type="text" name="BillingAddress1" id="billingAddress1"  placeholder="1234 Main St." value="' . $billingAddress1 . '" form="clientUpdate" ' . $sameDisabled . ' /><span class="error ' . $hideClass . '">*</span></td>
-                      <td>
-                        <label for="billingAddress2">Address 2:  </label>
-                        <input type="text" name="BillingAddress2" id="billingAddress2"  placeholder="City, State ZIP" value="' . $billingAddress2 . '" form="clientUpdate" ' . $sameDisabled . ' /><span class="error ' . $hideClass . '">*</span>
-                      </td>
-                    </tr>
-                      <tr class="' . $hideCountry . '">
-                        <td></td>
-                        <td><lable for="billingCountry">Billing Country:</label><input list="countries" name="BillingCountry" id="billingCountry" class="billingCountry" value="' . $billingCountry . '" ' . $requireCountry2 . ' form="clientUpdate" /><span class="error . ' . $hideClass . '">*</span></td>
-                      </tr>
-                    <tr>
-                      <td>
-                        <label for="attention">Attention:  </label>
-                        <input type="text" name="Attention" id="attention"  value="' . $_SESSION['Attention'] . '" form="clientUpdate" />
-                      </td>
-                      <td>
-                        <label for="credit">Credit:  </label>
-                        <span class="currencySymbol">' . $_SESSION['config']['CurrencySymbol'] . '</span>' . self::getCredit() . '
-                      </td>
-                    </tr>
-                  </table>
-                </fieldset>
-                <table>
-                  <tr>
-                    <td colspan="2">
-                      <label for="update">UPDATE:  </label>
-                      <input type="hidden" name="update" value="0" form="clientUpdate" />
-                      <input type="checkbox" name="update" id="enableInfoUpdate" value="1" form="clientUpdate" />
-                    </td>
-                    <td class="pullLeft"><button type="submit" class="submitInfoUpdate" form="clientUpdate" disabled>Submit</button></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                  </tr>
-                  <tr>
-                    <td><span class="error">* Required</span></td>
-                    <td colspan="5"></td>
-                  </tr>
-                  <tr>
-                    <td colspan="6">If greater changes are required than are permitted here please contact us.</td>
-                  </tr>
-                  <tr>
-                    <td colspan="6">By phone at ' . $_SESSION['config']['Telephone'] . '</td>
-                  </tr>
-                  <tr>
-                    <td colspan="6">Or via email at <a style="color:green" href="mailto:' . $_SESSION['config']['EmailAddress'] . '?subject=Update Contact Information">' . $_SESSION['config']['EmailAddress'] . '</a></td>
-                  </tr>
-                </table>
-	            </form>
-            </div>
-          </div>
-          <div id="priceCalculator" data-function="runPriceForm" class="page"></div>'
-           . $this->customPages .
-        '
-        </div>';
-          break;
-          case 0:
-          $showPWwarning1 = ($this->pwWarning === 4) ? '' : 'hide';
-          $appLayout = '
-        <div class="swipe-wrap">
-          <div id="priceCalculator" data-function="runPriceForm" class="page">
-            <div class="showbox">
-              <!-- New spinner from http://codepen.io/collection/HtAne/ -->
-              <div class="loader">
-                <svg class="circular" viewBox="25 25 50 50">
-                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/>
-                </svg>
-              </div>
-            </div>
-          </div>
-          <div id="orgInvoices" data-function="initInvoiceQueryFormOrg" class="page">
-            <table id="queryForms" class="noPrint centerDiv">
-              <thead>
-                <tr>
-                  <td id="message" colspan="2"></td>
-                </tr>
-              </thead>
-              <tfoot>
-                <tr>
-                  <td colspan="2">' . self::listOrgMembers('invoice') .'</td>
-                </tr>
-              </tfoot>
-              <tbody>
-                <tr>
-                  <td>
-                    <form id="singleInvoiceQuery" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
-                      <fieldset form="invoiceQuery" name="dateRange">
-                        <input type="hidden" name="method" value="GET" />
-                        <input type="hidden" name="endPoint" value="invoices" />
-                        <input type="hidden" name="display" value="invoice" />
-                        <input type="hidden" name="single" value="0" />
-                        <legend><label for="single">Single Invoice Query </label><input title="Regenerate an invoice as issued" type="checkbox" name="single" id="single" value="1" checked /></legend>
-                        <table>
-                          <tr>
-                            <td><label for="dateIssued">Date Issued:</label></td>
-                            <td class="pullLeft">' . self::createLimitedMonthInput(array_keys($_SESSION['members']), 'dateIssued', FALSE, 'month', 'invoices', TRUE) . '</td>
-                          </tr>
-                          <tr>
-                            <td colspan="2">&nbsp;</td>
-                          </tr>
-                          <tr>
-                            <td><button type="submit" id="submitSingle" disabled>Query</button></td>
-                          </tr>
-                        </table>
-                      </fieldset>
-                    </form>
-                  </td>
-                  <td>
-                    <form id="multiInvoiceQuery" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
-                      <fieldset>
-                        <input type="hidden" name="method" value="GET" />
-                        <input type="hidden" name="endPoint" value="invoices" />
-                        <input type="hidden" name="display" value="chart" />
-                        <input type="hidden" name="multi" value="0" />
-                        <legend><label for="multi">Multi Invoice Query </label><input title="Generate charts comparing data points&#10;For any 2 months or 6 month range." type="checkbox" name="multi" id="multi" value="1" /></legend>
-                        <table>
-                          <tr>
-                            <td class="pullLeft"><label for="invoiceStartDateMonth">Start Date:  </label></td>
-                            <td>' . self::createLimitedMonthInput(array_keys($_SESSION['members']), 'invoiceStartDate'). '</td>
-                            <td colspan="2" class="center bold">Compare</td>
-                          </tr>
-                          <tr>
-                            <td class="pullLeft"><label for="invoiceEndDateMonth">End Date:  </label></td>
-                            <td class="pullLeft">' . self::createLimitedMonthInput(array_keys($_SESSION['members']), 'invoiceEndDate') . '</td>
-                            <td class="center">
-                              <label for="compareInvoices">Months:</label>
-                              <input type="hidden" name="compare" value="0" />
-                              <input type="checkbox" name="compare" id="compareInvoices" value="1" />
-                            </td>
-                            <td class="center">
-                              <label for="compareMembers">Members:</label>
-                              <input type="hidden" name="compareMembers" value="0" />
-                              <input type="checkbox" name="compareMembers" id="compareMembers" value="1" disabled />
-                            </td>
-                          </tr>
-                          <tr>
-                            <td colspan="4">
-                              <button type="submit" id="range" disabled>Query</button>
-                            </td>
-                          </tr>
-                        </table>
-                      </fieldset>
-                    </form>
-                    <span id="message2" class="error"></span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <div id="invoiceQueryResults"></div>
-          </div>
-          <div id="orgTickets" data-function="ticketQueryForm" class="page"></div>
-          <div id="changeOrgPW" data-function="initChangeOrgPasswordForm" class="page">
-            <div class="PWcontainer">
-              <div class="PWform">
-                <form id="opwUpdate" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
-                  <input type="hidden" name="client" class="client" value="' . $_SESSION['ClientID'] . '" form="opwUpdate" />
-                  <input type="hidden" name="flag" class="flag" value="org" form="opwUpdate" />
-                  <table>
-                    <tr>
-                      <td><label for="currentPw">Current Password:  </label></td>
-                      <td><input type="password" name="currentPw" class="currentPw"  form="opwUpdate" /></td>
-                    </tr>
-                    <tr>
-                      <td><label for="newPw1">New Password:  </label></td>
-                      <td><input type="password" name="newPw1" class="newPw1" form="opwUpdate" />
-                    </tr>
-                    <tr>
-                      <td><label for="newPw2">Confirm Password:  </label></td>
-                      <td><input type="password" name="newPw2" class="newPw2" form="opwUpdate" /></td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <button type="submit" class="PWsubmit" form="opwUpdate">Submit</button>
-                        <button type="reset" class="clearPWform" form="opwUpdate">Clear</button>
-                      </td>
-                      <td><label for="showText">Show Text:</label> <input type="checkbox" class="showText" name="showText"  form="opwUpdate" /></td>
-                    </tr>
-                    <tr>
-                      <td style="height:2em;" class="message" colspan="2"></td>
-                    </tr>
-                  </table>
-                </form>
-              </div>
-              <div class="criteria">
-                <span>Password criteria:</span>
-                <br>
-                <ul>
-                  <li class="defaultWarning ' . $showPWwarning1 . '">Password should be changed from default.</li>
-                  <li>Passwords must be at least 8 characters long.</li>
-                  <li>Passwords must contain:</li>
-                    <ul>
-                      <li>At least one upper case letter. <span style="background:black;color:#90EE90;"> A..Z </span></li>
-                      <li>At least one lower case letter. <span style="background:black;color:#90EE90;">a..z</span></li>
-                      <li>At least one number. <span style="background:black;color:#90EE90;">0..9</span></li>
-                      <li>At least one special character. <span style="background:black;color:#90EE90;"> ! @ # $ % ^ & * ( ) { } [ ] - _ . : ; , = + </span></li>
-                    </ul>
-                  <li>The "New Password" and "Confirm Password" fields must match.</li>
-                </ul>
-              </div>
-            </div>
-          </div>'
-           . $this->customPages .
-        '
+      return "
+        <div class=\"swipe-wrap\">
+          {$this->customPages}
         </div>
-        ';
-          break;
-        }
-      }
-      if ($_SESSION['ulevel'] === 'driver') {
-        $appLayout = '
-        <div class="swipe-wrap">
-          <div id="route" data-function="activeTickets" class="page">
-            <div class="showbox">
-              <!-- New spinner from http://codepen.io/collection/HtAne/ -->
-              <div class="loader">
-                <svg class="circular" viewBox="25 25 50 50">
-                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/>
-                </svg>
-              </div>
-            </div>
-          </div>
-          <div id="onCall" data-function="onCallTickets" class="page">
-          </div>
-          <div id="transfers" data-function="transferredTickets" class="page">
-          </div>';
-        $appLayout .=  ($_SESSION['CanDispatch'] === 2) ? '
-          <div id="dispatch" data-function="ticketsToDispatch" class="page">
-          </div>
-          <div id="ticketEditor" data-function="initTicketEditor" class="page">
-            <form action="'. self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
-              <input type="hidden" name="ticketEditor" value="1" />
-              <table class="centerDiv">
-                <tr>
-                  <td><label for="driverID">Driver:</label></td>
-                  <td><input list="drivers" name="driverID" class="driverID"></td>
-                </tr>
-                <tr>
-                  <td><label for="contract">Ticket Type:</label></td>
-                  <td>
-                    <select name="contract" class="contract">
-                      <option value="0">On Call</option>
-                      <option value="1">Contract</option>
-                    </select>
-                  </td>
-                </tr>
-                <tr>
-                  <td><button type="submit" id="ticketEditorSubmit">Submit</button></td>
-                  <td class="pullRight"><button type="button" id="clearTicketEditorResults">Clear Results</button></td>
-                </tr>
-              </table>
-            </form>
-            <hr>
-            <span class="message"></span>
-            <span class="container"><p class="center">Select Driver &amp; Ticket Type</p></span>
-          </div>' : '';
-        $appLayout .=  ($_SESSION['CanDispatch'] > 0) ? '
-          <div id="ticketEntry" data-function="ticketForm" class="page"></div>' : '';
-        $appLayout .= $this->customPages .
-        '</div>';
-      }
-      if ($_SESSION['ulevel'] === 'dispatch') {
-        $appLayout = '
-        <div class="swipe-wrap">
-          <div id="dispatch" data-function="ticketsToDispatch" class="page">
-            <div class="showbox">
-              <!-- New spinner from http://codepen.io/collection/HtAne/ -->
-              <div class="loader">
-                <svg class="circular" viewBox="25 25 50 50">
-                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/>
-                </svg>
-              </div>
-            </div>
-          </div>
-          <div id="priceCalculator" data-function="runPriceForm" class="page">
-          </div>
-          <div id="ticketEditor" data-function="initTicketEditor" class="page">
-            <form action="'. self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
-              <input type="hidden" name="ticketEditor" value="1" />
-              <table class="centerDiv">
-                <tr>
-                  <td><label for="driverID">Driver:</label></td>
-                  <td><input list="drivers" name="driverID" class="driverID"></td>
-                </tr>
-                <tr>
-                  <td><label for="contract">Ticket Type:</label></td>
-                  <td>
-                    <select name="contract" class="contract">
-                      <option value="0">On Call</option>
-                      <option value="1">Contract</option>
-                    </select>
-                  </td>
-                </tr>
-                <tr>
-                  <td><button type="submit" id="ticketEditorSubmit">Submit</button></td>
-                  <td class="pullRight"><button type="button" id="clearTicketEditorResults">Clear Results</button></td>
-                </tr>
-              </table>
-            </form>
-            <hr>
-            <span class="message"></span>
-            <span class="container"><p class="center">Select Driver &amp; Ticket Type</p></span>
-          </div>
-          <div id="ticketEntry" data-function="ticketForm" class="page"></div>'
-           . $this->customPages .
-       '</div>';
-      }
-      $appLayout .= "
       <script>
         var myInfo = [\"{$_SESSION['config']['ClientName']}\",\"{$_SESSION['config']['EmailAddress']}\",\"{$_SESSION['config']['Telephone']}\"]
       </script>
       <script src=\"https://code.jquery.com/jquery-3.3.1.min.js\"></script>
       <script>window.jQuery || document.write('<script src=\"../app_js/jquery-3.3.1.min.js\"><\/script>')</script>
       {$this->customScripts}";
-      return $appLayout;
     }
 
     protected function countryFromAbbr($abbr) {

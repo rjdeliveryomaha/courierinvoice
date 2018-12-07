@@ -330,15 +330,11 @@ echo $ticket->displaySingleTicket();
 
 Display single ticket for drivers.
 
-Preconfigured to use [Signature Pad v2.3.2](https://github.com/szimek/signature_pad) to collect signatures.
-
 ```php
 echo $ticket->displayMultiTicket();
 ```
 
 Display groups of tickets with common pick up or drop off location and time.
-
-Preconfigured to use [Signature Pad v2.3.2](https://github.com/szimek/signature_pad) to collect signatures.
 
 ```php
 echo $ticket->ticketsToDispatch();
@@ -508,6 +504,8 @@ Usage:
   });
 ```
 
+[Signature Pad v2.3.2](https://github.com/szimek/signature_pad) is preconfigured with [extras/public_html/app_js/sigPad.js](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/public_html/app_js/sigPad.js) to collect signatures in conjunction with the functions ``` $ticket->displaySingleTicket() ``` and ``` $ticket->displaySingleTicket() ```.
+
 The function ``` toast(msg, options) ``` is exported to the global scope. It creates and deletes a toast-like div to show messages to the user.
 
 Usage:
@@ -523,6 +521,8 @@ Usage:
 ```
 
 ### Features
+
+Uses ticket information from database to populate datalist elements to assist form completion.
 
 Single page design navigated by either swipe or menu. Offers unique features based upon user type.
 
@@ -614,8 +614,6 @@ Single page design navigated by either swipe or menu. Offers unique features bas
 
     + Displays single tickets with ability to edit
 
-  * Transfers
-
   * Ticket Entry
 
 - Clients
@@ -652,4 +650,4 @@ Single page design navigated by either swipe or menu. Offers unique features bas
 
   + Password management
 
-Options are available that allow for custom pages, menu items (with or without matching pages), and javascript files. An example config file is located in [extras/includes](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes).
+Options are available that allow for custom menu items (with or without matching pages), and javascript files. An example config file is located in [extras/includes](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes).

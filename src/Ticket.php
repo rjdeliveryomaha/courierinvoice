@@ -2384,6 +2384,35 @@
       return $returnData;
     }
 
+    public function initTicketEditor() {
+      return "
+            <form action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
+              <input type=\"hidden\" name=\"ticketEditor\" value=\"1\" />
+              <table class=\"centerDiv\">
+                <tr>
+                  <td><label for=\"driverID\">Driver:</label></td>
+                  <td><input list=\"drivers\" name=\"driverID\" class=\"driverID\"></td>
+                </tr>
+                <tr>
+                  <td><label for=\"contract\">Ticket Type:</label></td>
+                  <td>
+                    <select name=\"contract\" class=\"contract\">
+                      <option value=\"0\">On Call</option>
+                      <option value=\"1\">Contract</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td><button type=\"submit\" id=\"ticketEditorSubmit\">Submit</button></td>
+                  <td class=\"pullRight\"><button type=\"button\" id=\"clearTicketEditorResults\">Clear Results</button></td>
+                </tr>
+              </table>
+            </form>
+            <hr>
+            <span class=\"message\"></span>
+            <span class=\"container\"><p class=\"center\">Select Driver &amp; Ticket Type</p></span>";
+    }
+
     public function ticketForm() {
       $returnData = '';
       $this->action = self::esc_url($_SERVER['REQUEST_URI']);

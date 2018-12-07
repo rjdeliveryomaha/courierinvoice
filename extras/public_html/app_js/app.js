@@ -422,7 +422,7 @@ function refreshRoute() {
 }
 
 function countOnCallTickets(oldCount) {
-  let newCount = $("#onCall .tickets").length;
+  let newCount = $("#on_call .tickets").length;
   if (newCount > oldCount) {
     $(".alert").addClass("onCallAlert").text("!");
     $("#newUpdate").removeClass("hide");
@@ -434,7 +434,7 @@ function countOnCallTickets(oldCount) {
 }
 
 function sortOnCall() {
-  let $container = $("#onCall"),
+  let $container = $("#on_call"),
       $items = $container.children(".sortable").get();
   $items.sort((a,b) => {
     return ($(a).find(".timing").text().convert12to24() > $(b).find(".timing").text().convert12to24()) ? 1 : -1;
@@ -443,7 +443,7 @@ function sortOnCall() {
 }
 
 function refreshOnCall(ticketCount = $(".ticketCount:first").text()) {
-  $("#onCall").html('<div class="showbox"><!-- New spinner from http://codepen.io/collection/HtAne/ --><div class="loader"><svg class="circular" viewBox="25 25 50 50"><circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/></svg></div></div>');
+  $("#on_call").html('<div class="showbox"><!-- New spinner from http://codepen.io/collection/HtAne/ --><div class="loader"><svg class="circular" viewBox="25 25 50 50"><circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/></svg></div></div>');
   scrollTo(0,0);
   let attempt = ajax_template("POST", "./refreshOnCall.php", "html", { formKey: $("#formKey").val() })
   .done((result) => {
@@ -453,19 +453,19 @@ function refreshOnCall(ticketCount = $(".ticketCount:first").text()) {
       return false;
     }
     setTimeout(() => {
-      $("#onCall").html(result);
+      $("#on_call").html(result);
       fixDeadRunButton();
       sortOnCall();
       countOnCallTickets(ticketCount);
     }, 2000);
   })
   .fail((jqXHR, status, error) => {
-    $("#onCall").html('<p class="center error">' + error + '</p>');
+    $("#on_call").html('<p class="center error">' + error + '</p>');
   });
 }
 
 function countInitOnCall() {
-  let newCount = $("#onCall .tickets").length;
+  let newCount = $("#on_call .tickets").length;
   $(".ticketCount").text(newCount);
   if (newCount > 0) $(".alert").addClass("onCallAlert").text("!");
 }
@@ -515,10 +515,10 @@ function countTransferTickets(oldCount) {
   if (newCount === 0) $(".alert").removeClass("transfersAlert");
   let classList = $(".alert").attr("class").split(/\s+/);
   if (classList.length === 1) $(".alert").text("");
-  $(".transferCount").text(newCount);
+  $(".transfersCount").text(newCount);
 }
 
-function refreshTransfers(transferCount = $(".transferCount:first").text()) {
+function refreshTransfers(transferCount = $(".transfersCount:first").text()) {
   $("#transfers").html('<div class="showbox"><!-- New spinner from http://codepen.io/collection/HtAne/ --><div class="loader"><svg class="circular" viewBox="25 25 50 50"><circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/></svg></div></div>');
   scrollTo(0,0);
   let refreshTransfersAttempt = ajax_template("POST", "./refreshTransfers.php", "html", { formKey: $("#formKey").val() })
@@ -540,7 +540,7 @@ function refreshTransfers(transferCount = $(".transferCount:first").text()) {
 
 function countInitTransfers() {
   let newCount = $("#transfers .sortable").length;
-  $(".transferCount").text(newCount);
+  $(".transfersCount").text(newCount);
   if (newCount > 0) $(".alert").addClass("transfersAlert").text("!");
 }
 
@@ -571,7 +571,7 @@ function populatePage() {
     }
     scrollTo(0,0);
     if ($("#route").length > 0) sortRoute();
-    if ($("#onCall").length > 0) {
+    if ($("#on_call").length > 0) {
       sortOnCall();
       countInitOnCall();
     }
@@ -581,7 +581,6 @@ function populatePage() {
   })
   .fail((jqXHR, status, error) => {
     $(".page:first").html('<p class="center"><span class="error">Error ' + status + '</span>:' + error + "</p>");
-      return false;
   });
 }
 
@@ -703,7 +702,6 @@ $(document).ready(function() {
     window.location = "./logout";
   });
   // active tickets
-
   $("#ticketEditorSubmit").click(function(e) {
     e.preventDefault();
     $("#ticketEditor .container").html("<span class=\"ellipsis\">.</span>");
@@ -882,51 +880,54 @@ $(document).ready(function() {
   // change password
   $(document).on("click", ".PWsubmit", function(e) {
     e.preventDefault();
-    let button = $(this);
-    button.prop("disabled", true);
+    $(this).prop("disabled", true);
     $(this).closest(".PWform").find(".message").html("");
     let postData = {};
-    $(this).parents(".PWform").find("input").each(function() {
+    $(this).closest(".PWform").find("input").each(function() {
       postData[$(this).attr("name")] = $(this).val();
     });
     postData.formKey = $("#formKey").val();
     let attempt = ajax_template("POST", "./changePW.php", "html", postData)
     .done((result) => {
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $(this).closest(".PWform").find(".message").html(result);
       setTimeout(() => {
-        button.closest(".PWform").find(".message").html("").end().find(".currentPw, .newPw1, .newPw2").val("").end().find(".currentPw").focus(); button.prop("disabled", false);
-        let $ele,
-            pwError = false;
-        switch(postData.flag) {
-          case 'daily':
-            $ele = $("a[data-id='changePassword']");
-            pwError = (postData.newPw1 === "!Delivery1");
-          break;
-          case 'admin':
-            $ele = $("a[data-id='changeAdminPassword']");
-            pwError = (postData.newPw1 === "!Delivery2");
-          break;
-          case 'org':
-            $ele = $("a[data-id='changeOrgPW']");
-            pwError = (postData.newPw1 === "3Delivery!");
-          break;
-        }
-        if (result.search('Password Updated') !== -1) {
-          if (pwError === true) {
-            button.closest(".page").find(".defaultWarning").removeClass("hide");
-            $ele.find(".alert").text("!");
-            $(".pageTitle .alert").text("!");
-          } else {
-            button.closest(".page").find(".defaultWarning").addClass("hide");
-            $ele.find(".alert").text("");
-            $(".pageTitle .alert").text("");
+        $(this).closest(".PWform").find(".message").html("").end().find(".currentPw, .newPw1, .newPw2").val("").end().find(".currentPw").focus();
+        $(this).prop("disabled", false);
+        if (postData.flag !== 'driver' && postData.flag !== 'dispatch') {
+          let $ele,
+              pwError = false;
+          switch(postData.flag) {
+            case 'dayly':
+              $ele = $("a[data-id='change_password']");
+              pwError = (postData.newPw1 === "!Delivery1");
+            break;
+            case 'admin':
+              $ele = $("a[data-id='change_admin_password']");
+              pwError = (postData.newPw1 === "!Delivery2");
+            break;
+            case 'org':
+              $ele = $("a[data-id='change_password']");
+              pwError = (postData.newPw1 === "3Delivery!");
+            break;
+          }
+          if (result.search('Password Updated') !== -1) {
+            if (pwError === true) {
+              button.closest(".page").find(".defaultWarning").removeClass("hide");
+              $ele.find(".alert").text("!");
+              $(".pageTitle .alert").text("!");
+            } else {
+              button.closest(".page").find(".defaultWarning").addClass("hide");
+              $ele.find(".alert").text("");
+              $(".pageTitle .alert").text("");
+            }
           }
         }
       }, 4000);
     })
     .fail((jqXHR, status, error) => {
       button.prop("disabled", false);
-      button.closest(".PWform").find(".message").text(error);
+      button.closest("form").find(".message").text(error);
     });
   });
   // datalist validation
@@ -1475,7 +1476,7 @@ $(document).ready(function() {
     mySwipe.slide($("a.nav:contains('Invoice')").attr("data-value"), 300);
   });
   // on call tickets page
-  $(document).on("click", "#onCall .transferTicket", function() {
+  $(document).on("click", "#on_call .transferTicket", function() {
     //Clear all 'message2' containers
     $(this).parents(".tickets").find(".message2").html("");
     //Request transfer confirmation
@@ -1484,7 +1485,7 @@ $(document).ready(function() {
     $(this).closest(".tickets").find(".transferTicket, .cancelRun, .deadRun, .dTicket, .declined, input[type='text'], .pGetSig, .dGetSig, .d2GetSig").prop("disabled", true);
   });
 
-  $(document).on("click", "#onCall .confirmTransfer", function() {
+  $(document).on("click", "#on_call .confirmTransfer", function() {
     let button = $(this);
     button.parents(".message2").find("button").prop("disabled", true);
     let pendingReceiver = $(this).closest(".message2").find(".pendingReceiver").val();
@@ -1534,7 +1535,7 @@ $(document).ready(function() {
     });
   });
 
-  $(document).on("click", "#onCall .declined", function(){
+  $(document).on("click", "#on_call .declined", function(){
     //Clear all 'message2' containers
     $(this).parents(".tickets").find(".message2").html("");
     //Request cancellation confirmation
@@ -1543,7 +1544,7 @@ $(document).ready(function() {
     $(this).closest(".tickets").find(".transferTicket, .cancelRun, .deadRun, .dTicket, .declined, input[type='text'], .pGetSig, .dGetSig, .d2GetSig").prop("disabled", true);
   })
 
-  $(document).on("click", "#onCall .cancelRun", function(){
+  $(document).on("click", "#on_call .cancelRun", function(){
     //Clear all 'message2' containers
     $(this).parents(".tickets").find(".message2").html("");
     //Request cancellation confirmation
@@ -1552,7 +1553,7 @@ $(document).ready(function() {
     $(this).closest(".tickets").find(".transferTicket, .cancelRun, .deadRun, .dTicket, .declined, input[type='text'], .pGetSig, .dGetSig, .d2GetSig").prop("disabled", true);
   });
 
-  $(document).on("click", "#onCall .deadRun", function(){
+  $(document).on("click", "#on_call .deadRun", function(){
     //Clear all 'message2' containers
     $(this).parents(".tickets").find(".message2").html("");
     //Request dead run confirmation
@@ -1561,12 +1562,12 @@ $(document).ready(function() {
     $(this).closest(".tickets").find(".transferTicket, .cancelRun, .deadRun, .dTicket, .declined, input[type='text'], .pGetSig, .dGetSig, .d2GetSig").prop("disabled", true);
   });
 
-  $(document).on("click", "#onCall .cancelThis", function(){
+  $(document).on("click", "#on_call .cancelThis", function(){
     $(this).parents(".tickets").find("button, .dTicket, input[type='text'], textarea").prop("disabled", false);
     $(this).parent("p").html("");
   });
 
-  $(document).on("click", "#onCall .confirmCancel", function(){
+  $(document).on("click", "#on_call .confirmCancel", function(){
     //Get the ticket number to be removed from the data base
     let tNum = $(this).parents(".tickets").find(".ticket_index").val();
     //Get the notes for the ticket
@@ -1608,7 +1609,7 @@ $(document).ready(function() {
     });
   });
 
-  $(document).on("click", "#onCall .confirmDeadRun", function(){
+  $(document).on("click", "#on_call .confirmDeadRun", function(){
     // Get the ticket number to be marked as dead run
     let tNum = $(this).parents(".tickets").find(".ticket_index").val();
     // Get the notes for the ticket
@@ -1650,7 +1651,7 @@ $(document).ready(function() {
     });
   });
 
-  $(document).on("click", "#onCall .confirmDecline", function(){
+  $(document).on("click", "#on_call .confirmDecline", function(){
     //Get the ticket number to be removed from the data base
     let tNum = $(this).parents(".tickets").find(".ticket_index").val();
     //Get the notes for the ticket
@@ -1692,17 +1693,17 @@ $(document).ready(function() {
     });
   });
 
-  $(document).on("click", "#onCall .dTicket", function( e ) {
+  $(document).on("click", "#on_call .dTicket", function( e ) {
     e.preventDefault();
     //Clear all 'message2' containers
-    $(this).parents("#onCall").find(".message2").html("");
+    $(this).parents("#on_call").find(".message2").html("");
     //Disable other buttons in the ticket form
     $(this).closest(".tickets").find("button").prop("disabled", true);
     //Request step confirmation
     $(this).closest(".tickets").find(".message2").html("Confirm " + $(this).text() + ":<br><button type='button' class='stepTicket' form='" + $(this).attr("form") + "'>Confirm</button>  <button type='button' class='cancelThis'>Go Back</button>");
   });
 
-  $(document).on("click", "#onCall .stepTicket", function( e ) {
+  $(document).on("click", "#on_call .stepTicket", function( e ) {
     e.preventDefault();
     let x = $(this);
     x.parents(".message2").find("button").prop("disabled", true);
@@ -2235,7 +2236,7 @@ $(document).ready(function() {
     });
   });
   // price calculator page
-  $(document).on("change", "#priceCalculator .dryIce", function(){
+  $(document).on("change", "#price_calculator .dryIce", function(){
     if($(this).is(":checked")){
       $(this).parents("form").find(".diWeight").val("0").prop("disabled", false).focus();
     }
@@ -2244,7 +2245,7 @@ $(document).ready(function() {
     }
   }).change();
 
-  $(document).on("change", "#priceCalculator #discountMarker", function(){
+  $(document).on("change", "#price_calculator #discountMarker", function(){
     if($(this).is(":checked")){
       $(this).parents("form").find("#discount").val("0").prop("disabled", false).show();
     }
@@ -2253,7 +2254,7 @@ $(document).ready(function() {
     }
   }).change();
 
-  $(document).on("change", "#priceCalculator .address1", function(){
+  $(document).on("change", "#price_calculator .address1", function(){
     let x = $(this);
     let testVal = x.val();
     let listIndex = "i";
@@ -2273,7 +2274,7 @@ $(document).ready(function() {
     }
   }).change();
 
-  $(document).on("click", "#priceCalculator .submitPriceQuery", function(e){
+  $(document).on("click", "#price_calculator .submitPriceQuery", function(e){
     e.preventDefault();
     let button = $(this);
     button.prop("disabled", true);
@@ -2371,11 +2372,11 @@ $(document).ready(function() {
     });
   });
 
-  $(document).on("click", "#priceCalculator .clear", function(){
+  $(document).on("click", "#price_calculator .clear", function(){
     $(this).parents("form").find(".dryIce").prop("checked", false).trigger("change").end().find("#CalcCharge").val("0");
     $("#pNotice, #dNotice, #rangeResult, #diWeightResult, #diPriceResult, #runPriceResult, #ticketPriceResult").text("");
     $("#priceResult .currencySymbol, #priceResult .weightMarker").hide();
-    $("#priceCalculator .elementError").removeClass("elementError");
+    $("#price_calculator .elementError").removeClass("elementError");
     initPriceMap();
   });
   // ticket entry page
@@ -2478,7 +2479,7 @@ $(document).ready(function() {
     }
   });
 
-  $(document).on("change", "#ticketEntry #pSigReq, #ticketEntry #dSigReq, #ticketEntry #d2SigReq", function(){
+  $(document).on("change", "#ticket_entry #pSigReq, #ticket_entry #dSigReq, #ticket_entry #d2SigReq", function(){
     let y = $(this).parents("form").find("#pSigReq").prop("checked");
     let x = $(this).parents("form").find("#dSigReq").prop("checked");
     let z = $(this).parents("form").find("#d2SigReq").prop("checked");
@@ -2492,7 +2493,7 @@ $(document).ready(function() {
     }
   }).change();
 
-  $(document).on("click", "#ticketEntry .submitForm", function(e) {
+  $(document).on("click", "#ticket_entry .submitForm", function(e) {
     e.preventDefault();
     let button = $(this);
     button.prop("disabled", true);
@@ -2551,7 +2552,7 @@ $(document).ready(function() {
         setTimeout(() => { $parentElement.html(""); $parentElement.closest("table").find("button").prop("disabled", false); }, 3000);
       } else {
         $("#deliveryRequest").remove();
-        $("#ticketEntry").prepend(result);
+        $("#ticket_entry").prepend(result);
         initMap("map", coords1, address1, coords2, address2, center);
       }
       scrollTo(0,0);
@@ -2563,14 +2564,14 @@ $(document).ready(function() {
     });
   });
 
-  $(document).on("click", "#ticketEntry .editForm, #ticketEntry .confirmed", function(e) {
+  $(document).on("click", "#ticket_entry .editForm, #ticket_entry .confirmed", function(e) {
     e.preventDefault();
     let button = $(this);
     button.closest("tr").find("button").prop("disabled", true);
     let elementToReturn = $(".subContainer");
     let targetForm = ($(this).hasClass("editForm")) ? "#editForm" : "#submitTicket";
     let formdata = {};
-    $(this).parents("#ticketEntry").find(targetForm + " input").each(function() {
+    $(this).parents("#ticket_entry").find(targetForm + " input").each(function() {
       formdata[$(this).attr("name")] = $(this).val();
     });
     formdata.formKey = $("#formKey").val();
@@ -2596,8 +2597,8 @@ $(document).ready(function() {
         $parentElement.html(result);
         setTimeout(() => { $parentElement.html(""); $parentElement.closest("table").find("button").prop("disabled", false); }, 3000);
       } else {
-        $("#ticketEntry").html("");
-        $("#ticketEntry").prepend(result).append(elementToReturn);
+        $("#ticket_entry").html("");
+        $("#ticket_entry").prepend(result).append(elementToReturn);
         if (targetForm === "#editForm") {
           initMap("map");
         } else {
@@ -2605,7 +2606,7 @@ $(document).ready(function() {
           .done((result2) => {
             scrollTo(0,0);
             if (result.indexOf("Session Error") !== -1) return showLogin();
-            setTimeout(() => { $("#ticketEntry").html(result2).append(elementToReturn); initMap("map"); }, 5000);
+            setTimeout(() => { $("#ticket_entry").html(result2).append(elementToReturn); initMap("map"); }, 5000);
             if ($("#deliveryQuery").length === 1) {
               let d = new Date();
               let month = d.getMonth() + 1;
@@ -2617,7 +2618,7 @@ $(document).ready(function() {
             }
           })
           .fail((jqXHR, status, error) => {
-            $("#ticketEntry").prepend('<span class="center">' + error + '</span>');
+            $("#ticket_entry").prepend('<span class="center">' + error + '</span>');
           });
         }
       }
