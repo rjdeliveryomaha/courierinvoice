@@ -405,18 +405,18 @@
                     <tbody>
                       <tr>
                         <td>
-                          <label for=\"clientID\">Client ID</label>: {$_SESSION['ClientID']} . '
+                          <label for=\"clientID\">Client ID</label>:  {$_SESSION['ClientID']}
                           <input type=\"hidden\" name=\"clientID\" value=\"{$_SESSION['ClientID']}\" form=\"clientUpdate\" />
                         </td>
                         <td></td>
                       </tr>
                       <tr>
                         <td>
-                          <label for=\"clientName\">Name</label>:{$_SESSION['ClientName']}
+                          <label for=\"clientName\">Name</label>:  {$_SESSION['ClientName']}
                           <input type=\"hidden\" name=\"ClientName\" value=\"{$_SESSION['ClientName']}\" form=\"clientUpdate\" />
                         </td>
                         <td>
-                          <label for=\"department\">Department</label>:{$_SESSION['Department']}
+                          <label for=\"department\">Department</label>:  {$_SESSION['Department']}
                           <input type=\"hidden\" name=\"Department\" value=\"{$_SESSION['Department']}\" form=\"clientUpdate\" />
                         </td>
                       </tr>

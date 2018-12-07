@@ -351,6 +351,10 @@ button.blue {
   margin: 0 auto;
 }
 
+#clientUpdateForm label {
+  font-weight: bold;
+}
+
 #ticketQueryOptions {
   display: flex;
 }
