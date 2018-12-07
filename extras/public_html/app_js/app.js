@@ -898,7 +898,7 @@ $(document).ready(function() {
           let $ele,
               pwError = false;
           switch(postData.flag) {
-            case 'dayly':
+            case 'daily':
               $ele = $("a[data-id='change_password']");
               pwError = (postData.newPw1 === "!Delivery1");
             break;

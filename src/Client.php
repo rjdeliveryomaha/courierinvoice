@@ -94,7 +94,7 @@
         $this->queryData['endPoint'] = 'clients';
         $this->queryData['queryParams']['include'] = ['AdminPassword', 'Password', 'client_index'];
         $this->queryData['queryParams']['filter'] = [ ['Resource'=>'ClientID', 'Filter'=>'eq', 'Value'=>$client], ['Resource'=>'RepeatClient', 'Filter'=>'eq','Value'=>$this->RepeatClient] ];
-      } elseif ($this->flag === 'dayly') {
+      } elseif ($this->flag === 'daily') {
         $this->resourceName = 'Password';
         $this->testAgainst = 'AdminPassword';
         $this->primaryKey = 'client_index';
@@ -161,9 +161,9 @@
       } else {
         if ($this->secondTest) {
           $hash2 = $this->result[0][$this->testAgainst];
-          //Compare new admin password to current dayly password
+          //Compare new admin password to current daily password
           if (password_verify($this->newPw1, $hash2)) {
-            echo '<p><span class="error">Invalid Entry.</span> Admin password and dayly user password must not match.</p>';
+            echo '<p><span class="error">Invalid Entry.</span> Admin password and daily user password must not match.</p>';
             return FALSE;
           }
         }
@@ -183,7 +183,7 @@
           return FALSE;
         }
         switch ($this->flag) {
-          case 'dayly':
+          case 'daily':
             if ($this->newPw1 === '!Delivery1') {
               if ($_SESSION['pwWarning'] === 0 || $_SESSION['pwWarning'] === 2) {
                 $_SESSION['pwWarning'] += 1;
@@ -271,10 +271,10 @@
         $flag = 'admin';
         $type = 'client';
         $id = $_SESSION['ClientID'];
-      } elseif ($this->userType === 'dayly') {
+      } elseif ($this->userType === 'daily') {
         $showPWwarning = ($this->pwWarning === 1 || $this->pwWarning === 3) ? '' : 'hide';
         $formID = 'pwUpdate';
-        $flag = 'dayly';
+        $flag = 'daily';
         $type = 'client';
         $id = $_SESSION['ClientID'];
       } elseif ($this->userType === 'org') {
@@ -342,7 +342,7 @@
                       <li>At least one special character. <span style=\"background:black;color:#90EE90;\"> ! @ # $ % ^ & * ( ) { } [ ] - _ . : ; , = + </span></li>
                     </ul>
                   <li>The \"New Password\" and \"Confirm Password\" fields must match.</li>
-                  <li>Dayly user password must be different from admin password.</li>
+                  <li>daily user password must be different from admin password.</li>
                 </ul>
               </div>
             </div>";
@@ -353,8 +353,8 @@
       return $this->passwordForm();
     }
 
-    public function daylyPasswordForm() {
-      $this->userType = 'dayly';
+    public function dailyPasswordForm() {
+      $this->userType = 'daily';
       return $this->passwordForm();
     }
 

@@ -44,11 +44,11 @@
     'dispatchChargesQueryExclude' => [ 9 ],
     // 2 dimentional indexed array of charges to exclude for clients entry (request) form
     // index 0 = admin clients
-    // index 1 = dayly clients
+    // index 1 = daily clients
     'clientChargesEntryExclude' => [ [ 0, 8, 9 ], [ 0, 8, 9 ] ],
     // 2 dimentional indexed array of charges to exclude for clients query form
     // index 0 = admin clients
-    // index 1 = dayly clients
+    // index 1 = daily clients
     'clientChargesQueryExclude' => [ [], [ 0, 8, 9 ] ],
     // indexed array of charges to exclude for organizations query from
     'orgChargesQueryExclude' => [],
@@ -71,7 +71,7 @@
     // If both index 0 and index 1 are null or empty string index 2 will be added as the src of a script element.
     // Any indices past 2 will be interpreted as properties to be applied to the script ex: defer or async.
     // The client and driver keys should a multi-dimentional indexed array with elements as described above
-    // 'client' => [ [ ['all clients'] ], [ ['admin clients'] ], [ ['dayly clients'] ] ]
+    // 'client' => [ [ ['all clients'] ], [ ['admin clients'] ], [ ['daily clients'] ] ]
     // 'drivers' => [ [ ['all drivers'] ], [ ['driver cannot dispatch'] ], [ ['driver can dispatch self'] ], [ ['driver can dispatch any'] ] ]
     'extend' => [
       'all' => [
@@ -92,12 +92,12 @@
           // admin clients
           ['Invoice Query', 'invoiceQueryForm'],
           ['Price Calculator', 'runPriceForm'],
-          ['Change Password', 'daylyPasswordForm'],
+          ['Change Password', 'dailyPasswordForm'],
           ['Change Admin Password', 'adminPasswordForm'],
           ['Contact Info', 'updateInfoForm']
         ],
         [
-          // dayly clients
+          // daily clients
           ['Price Calculator', 'runPriceForm']
         ]
       ],
@@ -142,7 +142,7 @@
       'client0' => [
         ['Price Calculator', 'runPriceForm'],
         ['Dispatch', 'ticketsToDispatch'],
-        ['Change Password', 'daylyPasswordForm'],
+        ['Change Password', 'dailyPasswordForm'],
         ['Change Admin Password', 'adminPasswordForm'],
         ['Contact Info', 'updateInfoForm']
       ]
