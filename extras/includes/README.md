@@ -1,6 +1,6 @@
 # Integration Configuration
 
-[Jump to user_functions]()
+[Jump to user_functions](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes#user_functions)
 
 ### username
 
@@ -60,5 +60,11 @@ Indexed array
 
 Addresses that should be ignored, for example, due to change of address.
 
+### ignoreValues
 
+Indexed array
+
+Values that should not be included on ticket entry datalists. Values should be lower case.
+
+---
 # user_functions
