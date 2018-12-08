@@ -528,138 +528,174 @@ Single page design navigated by either swipe or menu. Offers unique features bas
 
 Setting the order of menu items as well as adding custom menu items (with or without matching pages), and javascript files is handled in the config file is located at [extras/includes](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes).
 
-- Drivers
+### Drivers
 
-  * Route
+* Route
 
-    + Uses Route class to create or fetch contract tickets for a given driver.
+  + Uses Route class to create or fetch contract tickets for a given driver.
 
-    + Groups tickets with matching location and time.
+  + Groups tickets with matching location and time.
 
-    + Displays single and grouped tickets with ability to:
+  + Displays single and grouped tickets with ability to:
 
-      - collect signatures
+    - collect signatures
 
-      - update step
+    - update step
 
-      - update notes
+    - update notes
 
-      - cancel
+    - cancel
 
-      - mark as dead run
+    - mark as dead run
 
-      - transfer
+    - transfer
 
-    + Can be independently refreshed.
+  + Can be independently refreshed.
 
-  * On Call
+* On Call
 
-    + Uses Route class to fetch on call tickets for a given driver.
+  + Uses Route class to fetch on call tickets for a given driver.
 
-    + Displays single tickets with ability to:
+  + Displays single tickets with ability to:
 
-      - collect signatures
+    - collect signatures
 
-      - update step
+    - update step
 
-      - update notes
+    - update notes
 
-      - cancel
+    - cancel
 
-      - mark as dead run
+    - mark as dead run
 
-      - transfer
+    - transfer
 
-    + Can be independently refreshed.
+  + Can be independently refreshed.
 
-  * Transfers
+* Transfers
 
-    + Uses Route class to fetch tickets either transferred by or transferred to a given driver.
+  + Uses Route class to fetch tickets either transferred by or transferred to a given driver.
 
-    + Groups contract tickets with matching location and time.
+  + Groups contract tickets with matching location and time.
 
-    + Displays single and grouped tickets with ability to:
+  + Displays single and grouped tickets with ability to:
 
-      - accept transfer
+    - accept transfer
 
-      - decline transfer
+    - decline transfer
 
-      - cancel transfer
+    - cancel transfer
 
-    + Can be independently refreshed.
+  + Can be independently refreshed.
 
-  * Ticket Entry and Dispatch page for drivers with dispatch privileges. Described below.
+* Ticket Entry and Dispatch page for drivers with dispatch privileges. Described below.
 
-  * Active Tickets page for drivers with dispatch privileges. Described below.
+* Active Tickets page for drivers with dispatch privileges. Described below.
 
-  * Change Password
+* Change Password
 
-    + Provides a simple form to update the password
+  + Provides a simple form to update the password
 
-- Dispatchers
+### Dispatchers
 
-  * Dispatch
+* Dispatch
 
-    + Uses Ticket class to check for tickets that have not been dispatched.
+  + Uses Ticket class to check for tickets that have not been dispatched.
 
-    + Displays single tickets with ability to dispatch.
+  + Displays single tickets with ability to dispatch.
 
-  * Price Calculator
+* Price Calculator
 
-    + Compact ticket form
+  + Compact ticket form
 
-    + Accepts only pick up address, delivery address, charge, and dry ice information
+  + Accepts only pick up address, delivery address, charge, and dry ice information
 
-    + Uses Ticket class to compute the price of a ticket
+  + Uses Ticket class to compute the price of a ticket
 
-    + ``` <div class="mapContainer" id="map2"></div> ``` available to display a map
+  + ``` <div class="mapContainer" id="map2"></div> ``` available to display a map
 
-  * Active Tickets
+* Active Tickets
 
-    + Query contract or on call tickets for a given driver
+  + Query contract or on call tickets for a given driver
 
-    + Displays single tickets with ability to edit
+  + Displays single tickets with ability to edit
 
-  * Ticket Entry
+* Ticket Entry
 
-    + From to submit tickets to the API.
+  + Form to submit tickets to the API
 
-    + ``` <div class="mapContainer" id="map"></div> ``` available to display a map
+  + ``` <div class="mapContainer" id="map"></div> ``` available to display a map
 
-  * Change Password
+* Change Password
 
-    + Provides a simple form to update the password
+  + Provides a simple form to update the password
 
-- Clients
+### Clients
 
-  * Admin User
+* Admin User
 
-    + Delivery request form
+  + Delivery request form
 
-    + Ticket History query form
+    - Form to submit tickets to the API
 
-    + Invoice History query form
+  + Ticket Query
 
-    + Password management
+    - Can search tickets by ticket number or by date
 
-    + Contact information  management
+    - Displays either individual tickets or a bar graph depicting ticket volume
 
-    + Price Calculator
+    - Bar graph can cover a range of months (maximum can be configured) or compare two months
 
-  * Daily User
+    - Ticket charges available to be queried can be configured separately for admin and daily users
 
-    + Delivery request form
+  + Invoice Query
 
-    + Ticket History query form
+    - Can search invoices by invoice number or by date
 
-    + Price Calculator
+    - Displays either individual invoices or bar graph depicting expenses
 
-- Organizations
+    - Bar graph can cover a range of months (maximum can be configured) or compare two months
 
-  * Price Calculator
+  + Password management
 
-  * Invoice History query form
+    - Update password for either admin or daily users
 
-  * Ticket History query form
+    - Warns to change from default password
 
-  * Password management
+  + Contact information management
+
+  + Price Calculator
+
+* Daily User
+
+  + Delivery request form
+
+  + Ticket Query
+
+  + Price Calculator
+
+### Organizations
+
+* Price Calculator
+
+* Ticket Query
+
+  - Can search ticket by ticket number or by date
+
+  - Can search by individual member or by groups of members
+
+  - Displays either individual tickets or bar graph depicting ticket volume
+
+  - Bar graph can cover a range of months (maximum can be configured) or compare two months
+
+* Invoice Query
+
+  - Can search invoices by invoice number or by date
+
+  - Can search by individual member or by groups of members
+
+  - Displays either individual invoices or bar graph depicting expenses
+
+  - Bar graph can cover a range of months (maximum can be configured) or compare two months
+
+* Password management
