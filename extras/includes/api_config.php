@@ -24,8 +24,6 @@
     'emailConfig' => [ 'fromAddress' => '', 'password'=> '', 'smtpHost' => '', 'port' => '587', 'secureType' => 'tls', 'fromName' => '', 'BCCAddress' => '' ],
     // integer: maximum number of months to display on a chart. Default is 6
     'allTimeChartLimit' => 6,
-    // integer: to be described
-    'ticketChartRowLimit' => 5,
     // string: login name for Courier Invoice user as an alternative to using ClientID 0 (zero)
     'userLogin' => 'CustomLogin',
     // By default all charges are included on ticket forms
