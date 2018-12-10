@@ -2379,7 +2379,7 @@
       if ($this->formType === 'Query' && (is_numeric($this->ulevel) && ($this->ulevel < 2 || $this->ClientID === 0))) {
         $temp = $returnData;
         $returnData = "
-          <option value=\"10\">All</option>" . $temp;
+          <option value=\"10\">All</option>{$temp}";
       }
       return $returnData;
     }
