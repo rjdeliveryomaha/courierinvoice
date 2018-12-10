@@ -941,7 +941,7 @@
       $totalPages = array_merge($morePages, $pages);
       $totalNoPage = array_merge($moreNoPage, $noPage);
       for ($i = 0; $i < count($totalWithPage); $i++) {
-        $id = strtolower(preg_replace('/\s+/', '_', $totalWithPage[$i]));
+        $id = strtolower(preg_replace('/\s+/', '_', strip_tags($totalWithPage[$i])));
         $alert = '';
         if ($id === 'change_password' || $id === 'change_admin_password') {
           switch($this->ulevel) {
