@@ -858,6 +858,7 @@
       switch($type) {
         case 'org':
         case 'dispatcher':
+        case 'client0':
           if (isset($this->options['extend'][$type]) && is_array($this->options['extend'][$type]) && !empty($this->options['extend'][$type])) {
             for ($i = 0; $i < count($this->options['extend'][$type]); $i++) {
               if (isset($this->options['extend'][$type][$i][0]) && $this->options['extend'][$type][$i][0] !== '') {
