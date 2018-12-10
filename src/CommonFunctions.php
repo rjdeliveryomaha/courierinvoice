@@ -65,7 +65,7 @@
     // These properties should not be accessible when setting values from the $data argument
     private $protectedProperties = [ 'username', 'publicKey', 'privateKey', 'config', 'weightMarker', 'rangeMarker', 'countryClass', 'countryInput', 'requireCountry', 'shippingCountry', 'headerLogo', 'headerLogo2', 'myInfo', 'clientNameExceptions', 'clientAddressExceptions', 'showCancelledTicketsOnInvoiceExceptions', 'ignoreValues', 'showCancelledTicketsOnInvoice', 'consolidateContractTicketsOnInvoice', 'ints', 'floats', 'bools', 'afterSemicolon', 'jsonStrings', 'noFilter', 'sanitized', 'enableLogging', 'targetFile', 'fileWriteTry', 'loggingError', 'error', 'protectedProperties', 'RangeCenter', 'lat', 'lng', 'maxRange', 'timezone', 'emailConfig', 'allTimeChartLimit' ];
     private $noGetProps = [ 'error', 'loggingError', 'fileWriteTry', 'sanitized' ];
-    private $customMenueItems;
+    private $customMenuItems;
     private $customPages;
     private $customScripts;
 
@@ -851,8 +851,8 @@
           if (isset($this->options['extend']['all'][$i][2]) && $this->options['extend']['all'][$i][2] !== '') $this->customScripts .= '></script>';
         }
       }
-      // if the current user type has been extended add the menue items without pages to the end of that array.
-      // Otherwise add them to the customMenueItems property.
+      // if the current user type has been extended add the menu items without pages to the end of that array.
+      // Otherwise add them to the customMenuItems property.
       $search_index = false;
       $moreWithPage = $morePages = $moreNoPage = [];
       switch($type) {
@@ -960,13 +960,13 @@
         } elseif ($id === 'on_call' || $id === 'transfers' || $id === 'dispatch') {
           $alert = ($id === 'on_call') ? '<span class="ticketCount"></span>' : "<span class=\"{$id}Count\"></span>";
         }
-        $this->customMenueItems .= "<li><a data-id=\"{$id}\" class=\"nav\">{$totalWithPage[$i]}{$alert}</a></li>
+        $this->customMenuItems .= "<li><a data-id=\"{$id}\" class=\"nav\">{$totalWithPage[$i]}{$alert}</a></li>
         ";
         $this->customPages .= "<div id=\"{$id}\" data-function=\"{$totalPages[$i]}\" class=\"page\">{$spinner}</div>
         ";
       }
       for ($i = 0; $i < count($totalNoPage); $i++) {
-        $this->customMenueItems .= "<li>{$totalNoPage[$i]}</li>
+        $this->customMenuItems .= "<li>{$totalNoPage[$i]}</li>
         ";
       }
     }
@@ -1011,7 +1011,7 @@
           </div>
         </div>
         <ul class=\"menu__list\">
-          {$this->customMenueItems}
+          {$this->customMenuItems}
         </ul>";
     }
 
