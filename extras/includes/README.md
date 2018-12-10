@@ -107,25 +107,25 @@ Login name for Courier Invoice user as an alternative to using client ID 0 (zero
 
 ### driverChargesEntryExclude
 
-Indexed array
+Indexed array with 2 indices
 
 By default all charges are included on ticket forms.
 
 This setting removes charges for drivers ticket entry and update form.
 
-Index 0 driver can dispatch to self.
+Index 0: Indexed array of charges to remove for drivers who can dispatch to self.
 
-Index 1 driver can dispatch to all.
+Index 1: Indexed array of charges to remove for drivers who can dispatch to all.
 
 ### driverChargesQueryExclude
 
-Indexed array
+Indexed array with 2 indices.
 
 This setting removes charges for drivers ticket query form.
 
-Index 0 driver can dispatch to self.
+Index 0: Indexed array of charges to remove for drivers who can dispatch to self.
 
-Index 1 driver can dispatch to all.
+Index 1: Indexed array of charges to remove for drivers who can dispatch to all.
 
 ### dispatchChargesEntryExclude
 
@@ -141,23 +141,23 @@ This setting removes charges for dispatchers ticket query form.
 
 ### clientChargesEntryExclude
 
-Indexed array
+Indexed array with 2 indices.
 
 This setting removes charges for clients ticket entry (request) form.
 
-Index 0 admin clients.
+Index 0: Indexed array of charges to remove for admin clients.
 
-Index 1 daily clients.
+Index 1: Indexed array of charges to remove for daily clients.
 
 ### clientChargesQueryExclude
 
-Indexed array
+Indexed array with 2 indices
 
 This setting removes charges for client ticket query form.
 
-Index 0 admin clients.
+Index 0: Indexed array of charges to remove for admin clients.
 
-Index 1 daily clients.
+Index 1: Indexed array of charges to remove for daily clients.
 
 ### orgChargesQueryExclude
 
@@ -169,13 +169,13 @@ This setting removes charges for organizations ticket query form.
 
 Indexed array
 
-This setting removes charges for Courier Invoice user client 0 ticket entry and update form.
+This setting removes charges for Courier Invoice user client 0 (zero) ticket entry and update form.
 
 ### client0ChargesQueryExclude
 
 Indexed array
 
-This setting removes charges for Courier Invoice user client 0 ticket query form.
+This setting removes charges for Courier Invoice user client 0 (zero) ticket query form.
 
 ### initialCharge
 
@@ -183,7 +183,7 @@ Integer
 
 By default the Charge property is null when the ticket entry form is initialized.
 
-This setting selects a Charge value the ticket entry form is initialized.
+This setting selects a Charge value when the ticket entry form is initialized.
 
 ### extend
 
@@ -203,11 +203,11 @@ Entries are indexed arrays with the following content:
 
 Index 0 will be added, as is, to the menu. It will then have any HTML tags striped, be converted to lowercase, spaces replaced with underscore and used as the id attribute of the page.
 
-Index 1, if set and not null or an empty string, will be looked for first as a method in the Ticket, Route, Invoice, and Client classes then as a function in includes/user_functions.php to populate the page.
+Index 1, if set and not null or an empty string, will be looked for first as a method in the Ticket, Route, Invoice, and Client classes then as a function in includes/user_functions.php to populate the page. This function should return HTML content.
 
 Index 2, if set and not null or an empty string, will be added as the src of a script element.
 
-If an entry has a non-null, not empty string at index 0 and a null or empty string at index 1 it will be moved to the end of the list. This is done to preserve the indexing of entries to pages.
+If an entry has a non-null, not empty string at index 0 and a null or empty string at index 1 it will be moved to the end of the list. This is done to preserve the indexing of menu items to pages.
 
 If both index 0 and 1 are null or empty string index 2 will be added as the src of a script element. All scripts are added to the page in the order they are encountered in this configuration.
 
@@ -249,11 +249,11 @@ Any indices beyond 2 will be interpreted as attributes to be applied to the scri
 
     * 0: All drivers.
 
-    * 1: Drivers that cannot dispatch.
+    * 1: Drivers that _cannot_ dispatch.
 
-    * 2: Drivers that can dispatch only to themselves.
+    * 2: Drivers that can dispatch _only to themselves_.
 
-    * 3: Drivers that can dispatch to themselves and other.
+    * 3: Drivers that can dispatch _all_.
 
   - __dispatch__
 
@@ -265,7 +265,7 @@ Any indices beyond 2 will be interpreted as attributes to be applied to the scri
 
 ---
 
-Providing your basic Courier Invoice configuration options is necessary when using the CommonFunctions class without a session. An example is provided at the end of [api_config.php](https://github.com/rjdeliveryomaha/courierinvoice/blob/master/extras/includes/api_config.php).
+Providing your basic Courier Invoice configuration options is necessary when using the these classes without a session, for example, when offering a public delivery price calculator. An example is provided at the end of [api_config.php](https://github.com/rjdeliveryomaha/courierinvoice/blob/master/extras/includes/api_config.php).
 
 ---
 
