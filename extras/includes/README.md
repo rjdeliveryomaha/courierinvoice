@@ -32,6 +32,20 @@ String
 
 File location for logging. If enableLogging is ``` true ``` and this value is NULL or an empty string an error will be thrown.
 
+### testMode
+
+Boolean
+
+Indicates if test mode is active
+
+### testURL
+
+String
+
+URL to use in test mode.
+
+If test mode is true and this value is null or empty string an exception will be thrown.
+
 ### showCancelledTicketsOnInvoiceExceptions
 
 Indexed array

@@ -96,6 +96,9 @@
         if ($this->enableLogging !== FALSE && $this->loggingError === FALSE) self::writeLoop();
         throw new \Exception($this->error);
       }
+      if ($this->options['testMode'] === true && $this->options['testURL'] === null || $this->options['testURL'] === '') {
+        throw new Exception('Invalid URL');
+      }
       if (!isset($data['noSession'])) {
         if (empty($_SESSION) || !isset($_SESSION['ulevel']) || !isset($_SESSION['config']) || empty($_SESSION['config'])) {
           $this->error = 'Session Error';

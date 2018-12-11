@@ -10,6 +10,10 @@
 
     'targetFile' => './API.log',
 
+    'testMode' => false,
+
+    'testURL' => '',
+
     'showCancelledTicketsOnInvoiceExceptions' => [],
 
     'consolidateContractTicketsOnInvoiceExceptions' => [],

@@ -28,7 +28,7 @@
         throw $e;
       }
       // username, publicKey, and privateKey will be set in CommonFunctions
-      $this->baseURI = 'https://rjdeliveryomaha.com/v2/records/';
+      $this->baseURI = ($this->options['testMode'] === true) ? $this->options['testURL'] : 'https://rjdeliveryomaha.com';
       $this->validTables = [ 'config', 'tickets', 'invoices', 'clients', 'o_clients', 'contract_locations', 'contract_runs', 'schedule_override', 'drivers', 'dispatchers', 'categories' ];
     }
 
@@ -116,7 +116,7 @@
         throw new \Exception($this->error);
       }
       if (!is_array($this->queryParams) || empty($this->queryParams)) {
-        $this->queryURI = $this->baseURI . $this->endPoint;
+        $this->queryURI = "{$this->baseURI}/v2/records/{$this->endPoint}";
       } else {
         // make sure that the 'include' or 'exclude' key preceeds the 'filter' key
         self::orderParams();
@@ -157,7 +157,7 @@
             if (is_numeric($this->queryParams['page']) || $paramTest === true) $encodedQuery .= "&page={$this->queryParams['page']}";
           }
         }
-        $this->queryURI = "{$this->baseURI}{$this->endPoint}?$encodedQuery";
+        $this->queryURI = "{$this->baseURI}/v2/records/{$this->endPoint}?$encodedQuery";
       }
       return $this;
     }
@@ -171,8 +171,7 @@
       // Use api key to generate security token
       $this->timeVal = time();
       // Generate the security key using the REQUEST_URI
-      $stringSearchVal = (strpos($this->baseURI, 'testing') === false) ? '.com' : '.net';
-      $this->token = hash_hmac('sha256', substr($this->queryURI, strpos($this->queryURI, $stringSearchVal) + 4) . $this->timeVal, $this->privateKey);
+      $this->token = hash_hmac('sha256', $this->after($this->baseURI, $this->queryURI) . $this->timeVal, $this->privateKey);
       $this->ch = curl_init();
       curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, strtoupper($this->method));
       curl_setopt($this->ch, CURLOPT_URL, $this->queryURI);
