@@ -339,7 +339,7 @@
         throw new \Exception($this->error);
       }
       if (empty($this->result)) {
-        throw new \Exception('Unable To Fetch Configuration');
+        throw new \Exception('Unable To Fetch Organization Members');
       }
       foreach ($this->result as $member) {
         $marker = ($member['RepeatClient'] === 0) ? 't' : '';
