@@ -113,6 +113,7 @@
           $this->ClientID = $_SESSION['ClientID'];
           $clientData = [
             'client_index'=>$_SESSION['client_index'],
+            'RepeatClient'=>$_SESSION['RepeatClient'],
             'ClientID'=>$_SESSION['ClientID'],
             'ClientName'=>self::decode($_SESSION['ClientName']),
             'Department'=>self::decode($_SESSION['Department']),
