@@ -205,7 +205,11 @@ Associative array
 
 Extend functionality with custom menu items, pages, and javascript.
 
-The top level keys are who to create the items for; all, client, org, driver, dispatcher, client0.
+The top level keys are who to create the items for; all, client, org, driver, dispatcher, client0, org0.
+
+client0 provides customization options for use when logged in as Courier Invoice user.
+
+org0 provides customization options for use with Courier Invoice use organization that contains all not deleted clients.
 
 Entries are indexed arrays with the following content:
 
@@ -274,6 +278,10 @@ Any indices beyond 2 will be interpreted as attributes to be applied to the scri
     Indexed array of settings entries as described above.
 
   - __client0__
+
+    Indexed array of settings entries as described above.
+
+  - __org0__
 
     Indexed array of settings entries as described above.
 

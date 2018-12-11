@@ -329,7 +329,8 @@
       $this->queryData['formKey'] = $this->formKey;
       $this->queryData['method'] = 'GET';
       $this->queryData['endPoint'] = 'clients';
-      $this->queryData['queryParams']['filter'] = [ [ 'Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0 ], [ 'Resource'=>'Organization', 'Filter'=>'eq', 'Value'=>$_SESSION['ClientID'] ] ];
+      $this->queryData['queryParams']['filter'] = [ [ 'Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0 ] ];
+      if ($_SESSION['ClientID'] !== 0) $this->queryData['queryParams']['filter'][] = [ 'Resource'=>'Organization', 'Filter'=>'eq', 'Value'=>$_SESSION['ClientID'] ];
       $this->query = self::createQuery($this->queryData);
       if ($this->query === FALSE) {
         throw new \Exception($this->error);

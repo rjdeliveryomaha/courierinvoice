@@ -120,6 +120,12 @@
         ['Change Password', 'dailyPasswordForm'],
         ['Change Admin Password', 'adminPasswordForm'],
         ['Contact Info', 'updateInfoForm']
+      ],
+      'org0' => [
+        [ 'Price Calculator', 'runPriceForm' ],
+        [ 'Ticket Query', 'ticketQueryForm' ],
+        [ 'Invoice Query', 'invoiceQueryForm' ],
+        [ 'Change Password', 'orgPasswordForm']
       ]
     ]
   ];

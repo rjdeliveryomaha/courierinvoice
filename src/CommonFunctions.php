@@ -826,7 +826,7 @@
             </div>';
       if (is_numeric($_SESSION['ulevel'])) {
         $type = ($_SESSION['ulevel'] > 0) ? 'client' : 'org';
-        $type .= ($type === 'client' && $this->ClientID === 0) ? '0' : '';
+        $type .= ($this->ClientID === 0) ? '0' : '';
       } else {
         $type = ($_SESSION['ulevel'] === 'driver') ? 'driver' : 'dispatcher';
       }
