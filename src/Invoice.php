@@ -53,6 +53,10 @@
       } catch (Exception $e) {
         throw $e;
       }
+
+      $this->showCancelledTicketsOnInvoice = in_array($this->ClientID, $this->showCancelledTicketsOnInvoiceExceptions, true);
+
+      $this->consolidateContractTicketsOnInvoice = !in_array($this->ClientID, $this->consolidateContractTicketsOnInvoiceExceptions, true);
     }
 
     private function fetchInvoiceTickets() {
@@ -352,7 +356,6 @@
         if ($this->enableLogging !== FALSE) self::writeLoop();
         return FALSE;
       }
-      $this->consolidateContractTicketsOnInvoice = (!in_array($this->ClientID, $this->consolidateContractTicketsOnInvoiceExceptions));
       // Check for ticket consolidation request
       if ($this->consolidateContractTicketsOnInvoice === TRUE) {
         self::consolidateTickets();
