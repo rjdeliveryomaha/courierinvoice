@@ -30,7 +30,6 @@
     protected $newPw1;
     protected $newPw2;
     protected $flag;
-    protected $repeat;
     // Only the org flag doesn't need a second password test so set the test flag to true
     private $secondTest = TRUE;
     private $resourceName;
@@ -40,7 +39,7 @@
     private $queryData;
     private $result;
     private $newPass;
-    private $returnable = [ 'client_index', 'RepeatClient', 'ClientID', 'ClientName', 'Department', 'ShippingAddress1', 'ShippingAddress2', 'ShippingCountry', 'BillingName', 'BillingAddress1', 'BillingAddress2', 'BillingCountry', 'Telephone', 'EmailAddress', 'Attention', 'ContractDiscount', 'GeneralDiscount', 'Organization', 'repeat' ];
+    private $returnable = [ 'client_index', 'RepeatClient', 'ClientID', 'ClientName', 'Department', 'ShippingAddress1', 'ShippingAddress2', 'ShippingCountry', 'BillingName', 'BillingAddress1', 'BillingAddress2', 'BillingCountry', 'Telephone', 'EmailAddress', 'Attention', 'ContractDiscount', 'GeneralDiscount', 'Organization' ];
     private $updateValues = [ 'ShippingAddress1', 'ShippingAddress2', 'ShippingCountry', 'BillingName', 'BillingAddress1', 'BillingAddress2', 'BillingCountry', 'Telephone', 'EmailAddress', 'Attention' ];
     private $nullable = [ 'Telephone', 'EmailAddress', 'Attention' ];
     private $clientInfo;
@@ -53,7 +52,6 @@
         throw $e;
       }
       if ($this->ulevel === 1 || $this->ulevel === 2) {
-        $this->repeat = (strpos($_SESSION['ClientID'], 't') === FALSE);
         $this->clientInfo = [
           'client_index'=>$_SESSION['client_index'],
           'RepeatClient'=>$_SESSION['RepeatClient'],
@@ -240,8 +238,8 @@
       $this->queryData = [];
       $this->queryData['formKey'] = $this->formKey;
       $this->queryData['method'] = 'PUT';
-      $this->queryData['primaryKey'] = ($this->repeat === TRUE) ? $this->clientInfo['client_index'] : $this->clientInfo['t_client_index'];
-      $this->queryData['endPoint'] = ($this->repeat === TRUE) ? 'clients' : 't_clients';
+      $this->queryData['primaryKey'] = $this->clientInfo['client_index'];
+      $this->queryData['endPoint'] = 'clients';
       for ($i = 0; $i < count($this->updateValues); $i++) {
         $this->queryData['payload'][$this->updateValues[$i]] = (strpos($this->updateValues[$i], 'Country') !== FALSE) ? self::countryFromAbbr($this->{$this->updateValues[$i]}) : $this->{$this->updateValues[$i]};
       }
