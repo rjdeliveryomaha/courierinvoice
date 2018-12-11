@@ -2485,6 +2485,7 @@
       $emailNoteDisplay = ($this->EmailConfirm === 0) ? 'hide' : '';
 
       if ($this->userType === 'client') {
+        $this->RepeatClient = $_SESSION['RepeatClient'];
         $billingRowClass = 'hide';
         $dispatchInputType = 'type="hidden"';
         $billToType = 'type="hidden"';
@@ -2505,8 +2506,8 @@
         $dispatchedBy = ($this->ticketEditor === FALSE) ? "
           <input type=\"hidden\" name=\"dispatchedBy\" class=\"dispatchedBy\" value=\"{$this->DispatchedBy}\" />" : '';
         $hideDispatch = ($this->CanDispatch >= 1) ? '' : 'class="hide"';
-        $billToType = ($this->RepeatClient == 0) ? 'list="t_clients"' : 'list="clients"';
-        $nonRepeatChecked = ($this->RepeatClient == 0) ? 'checked' : '';
+        $billToType = ($this->RepeatClient === 0) ? 'list="t_clients"' : 'list="clients"';
+        $nonRepeatChecked = ($this->RepeatClient === 0) ? 'checked' : '';
         $billToValue = $this->BillTo;
         $billToRequired = 'required';
         $repeatOption = "<input type=\"checkbox\" name=\"repeatClient\" class=\"repeat\" id=\"repeatClient{$this->ticket_index}\" value=\"0\" form=\"request{$this->ticket_index}\" />";
@@ -2562,7 +2563,7 @@
                     <tr class=\"{$billingRowClass}\">
                       <td>
                         <label for=\"repeatClient{$this->ticket_index}\">Non-Repeat:</label>
-                        <input type=\"hidden\" name=\"repeatClient\" value=\"1\" form=\"request{$this->ticket_index}\" {$nonRepeatChecked} . ' />
+                        <input type=\"hidden\" name=\"repeatClient\" value=\"{$this->RepeatClient}\" form=\"request{$this->ticket_index}\" {$nonRepeatChecked} />
                         {$repeatOption}
                       </td>
                     </tr>
