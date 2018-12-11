@@ -38,13 +38,13 @@ Indexed array
 
 Canceled tickets are not displayed on invoices by default.
 
-This array may contain client ID numbers to exclude from this behavior.
+This array may contain client ID numbers to exclude from this behavior. The client ID should be preceded with the letter 't' if the client is not a repeat client, ex: ``` [ 25, 't1', 15, 't65' ] ```.
 
 ### consolidateContractTicketsOnInvoiceExceptions
 
 Contract tickets are consolidated for display on invoices by default.
 
-This array may contain client ID numbers to exclude from this behavior.
+This array may contain client ID numbers to exclude from this behavior. The client ID should be preceded with the letter 't' if the client is not a repeat client, ex: ``` [ 25, 't1', 15, 't65' ] ```.
 
 ### clientNameExceptions
 
