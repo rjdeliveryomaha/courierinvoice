@@ -2093,7 +2093,7 @@ $(document).ready(function() {
     if ($(".printName[form='" + $(this).attr("form") + "']").prop("required") === true && $(".printName[form='" + $(this).attr("form") + "']").val() === "") {
       $temp = x.parents(".sortable").find(".printName").addClass("elementError");
       setTimeout(() => { $temp.removeClass("elementError"); }, 3000);
-      x.parents("message2").find("button").prop("disabled", false);
+      x.parents(".message2").find("button").prop("disabled", false);
       return false;
     }
     let $parentElement = $(this).parents(".message2");
