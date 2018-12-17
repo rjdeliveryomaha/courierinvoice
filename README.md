@@ -464,7 +464,7 @@ Valid values:
 echo $ticket->cancelTicket();
 ```
 
-Takes processes the given ``` action ``` for a single ticket or multiTicket array.
+Processes the given ``` action ``` for a single ticket or multiTicket array.
 
 
 Valid values:
