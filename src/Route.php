@@ -35,8 +35,6 @@
     protected $LastSeen;
     // List of drivers on file for transfer data list for drivers without dispatch authorization
     protected $transferList;
-    // Flag of returning all on call tickets that have not been dispatched
-    public $forDisatch = FALSE;
     private $tTest;
 
     public function __construct($options, $data=[]) {
@@ -92,8 +90,6 @@
 
     public function onCallTickets() {
       $this->ticketSet = $ticketQueryData = [];
-      // Pull on call tickets for today
-      if ($this->forDisatch === TRUE) $this->driverID = 0;
       $ticketQueryData['endPoint'] = 'tickets';
       $ticketQueryData['method'] = 'GET';
       $ticketQueryData['formKey'] = $this->formKey;
