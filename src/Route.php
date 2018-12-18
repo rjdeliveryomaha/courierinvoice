@@ -35,8 +35,6 @@
     protected $LastSeen;
     // List of drivers on file for transfer data list for drivers without dispatch authorization
     protected $transferList;
-    // Flag for returning only the number of on call tickets for the current driver
-    public $countTickets = FALSE;
     // Flag of returning all on call tickets that have not been dispatched
     public $forDisatch = FALSE;
     private $tTest;
@@ -118,7 +116,7 @@
         return "<p class=\"center\"><span class=\"error\>Error</span>: {$this->error}</p>";
       }
       if (count($this->onCallTicketSet) === 0) {
-        return ($this->countTickets === TRUE) ? 0 : '<p class="center">No On Call Tickets On File</p>';
+        return '<p class="center">No On Call Tickets On File</p>';
       }
       $returnData = '';
       for ($i = 0; $i < count($this->onCallTicketSet); $i++) {
