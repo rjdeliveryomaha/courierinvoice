@@ -7,23 +7,25 @@ A set of classes for the Courier Invoice API
 ```
 composer require "rjdeliveryomaha/courierinvoice"
 ```
- Or add "rjdeliveryomaha/courierinvoice":"^1.0.0" to composer.json
+ Or add "rjdeliveryomaha/courierinvoice":"~1.0.0" to composer.json
 # Classes
   - [CommonFunctions](https://github.com/rjdeliveryomaha/courierinvoice#commonfunctions)
   - [Query](https://github.com/rjdeliveryomaha/courierinvoice#query)
   - [LoginHandler](https://github.com/rjdeliveryomaha/courierinvoice#loginhandler)
   - [Ticket](https://github.com/rjdeliveryomaha/courierinvoice#ticket)
-  - Route
-  - Invoice
-  - SearchHandler
-  - TicketChart
-  - InvoiceChart
-  - Client
-  - InvoiceCron\*
+  - [Route](https://github.com/rjdeliveryomaha/courierinvoice#route)
+  - [Invoice](https://github.com/rjdeliveryomaha/courierinvoice#invoice)
+  - [SearchHandler](https://github.com/rjdeliveryomaha/courierinvoice#searchHandler)
+  - [TicketChart](https://github.com/rjdeliveryomaha/courierinvoice#ticketChart)
+  - [InvoiceChart](https://github.com/rjdeliveryomaha/courierinvoice#invoiceChart)
+  - [Client](https://github.com/rjdeliveryomaha/courierinvoice#client)
+  - [InvoiceCron](https://github.com/rjdeliveryomaha/courierinvoice#invoiceCron)\*
 
 \*Not yet implemented
 
 [extras](https://github.com/rjdeliveryomaha/courierinvoice#extras)
+
+---
 
 # CommonFunctions
 
@@ -94,6 +96,8 @@ $functions->outputKey();
 ```
 
 Generates unique session value for validating POST data. Returns the value.
+
+---
 
 # Query
 Throws exception on error.
@@ -233,6 +237,8 @@ try {
 }
 ```
 
+---
+
 # LoginHandler
 
 Processes login credentials.
@@ -278,6 +284,9 @@ try {
 echo $type;
 return false;
 ```
+
+---
+
 # Ticket
 
 Processes and displays tickets individually or batched
@@ -478,6 +487,87 @@ Valid values:
 - 'declined'
 
 - 'transfer'
+
+---
+
+# Route
+
+Creates tickets for a driver as defined on the Manage Runs page.
+
+Updates LastSeen resource.
+
+Checks for and displays on call tickets.
+
+Checks for and displays transferred tickets.
+
+## Usage:
+
+```php
+try {
+  $route = new Route($config, $data);
+} catch(Exception $e) {
+  echo $e->getMessage();
+  return FALSE;
+}
+```
+
+## Properties settable in $data:
+
+All properties of this class are set by the session.
+
+## Public Methods:
+
+```php
+$route->routeTickets();
+```
+
+Checks drivers LastSeen resource. If it is not the current date a call is made to check for tickets defined on the Manage Runs page and creates them. The LastSeen resource is then updated.
+
+A call is made to fetch incomplete routine and round trip contract tickets. If this result is empty a third call is made to check if any contract tickets were created for the driver on the current day.
+
+Returns HTML content to populate the route page.
+
+```php
+$route->onCallTickets();
+```
+
+Checks for incomplete on call tickets that have been dispatched to the current driver in the past 7 days.
+
+Returns HTML content to populate the onCall page.
+
+```php
+$route->transferredTickets();
+```
+
+Checks for tickets that have been transferred to or by the current driver.
+
+Returns HTML content to populate the transfers page.
+
+---
+
+# Invoice
+
+---
+
+# SearchHandler
+
+---
+
+# TicketChart
+
+---
+
+# InvoiceChart
+
+---
+
+# Client
+
+---
+
+# InvoiceCron
+
+---
 
 # extras
 
