@@ -46,6 +46,18 @@ URL to use in test mode.
 
 If test mode is true and this value is null or empty string an exception will be thrown.
 
+### invoicePage1Max
+
+Integer
+
+The maximum number of line items on the first page of an invoice. If this is equal to the total number of line items on an invoice if will be reduced by 1 to accommodate the invoice foot.
+
+### invoicePageMax
+
+Integer
+
+The maximum number of line items on every page after the first.
+
 ### showCancelledTicketsOnInvoiceExceptions
 
 Indexed array

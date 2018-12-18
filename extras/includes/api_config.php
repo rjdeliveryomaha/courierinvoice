@@ -14,6 +14,10 @@
 
     'testURL' => '',
 
+    'invoicePage1Max' => 6,
+
+    'invoicePageMax' => 9,
+
     'showCancelledTicketsOnInvoiceExceptions' => [],
 
     'consolidateContractTicketsOnInvoiceExceptions' => [],
