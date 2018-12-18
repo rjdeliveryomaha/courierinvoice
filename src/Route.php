@@ -595,7 +595,7 @@
       }
     }
 
-    function scheduleFrequency($code) {
+    private function scheduleFrequency($code) {
       $x = $y = $schedule = '';
       $test = explode(' ', $code);
       if (count($test) === 1) {
