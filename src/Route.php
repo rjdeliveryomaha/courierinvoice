@@ -130,7 +130,7 @@
       return $returnData;
     }
 
-    public function activeTickets() {
+    public function routeTickets() {
       $output = '';
       if (!self::buildRoute()) {
         $temp = $this->error . "\n";

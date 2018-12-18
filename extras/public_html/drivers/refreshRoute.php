@@ -17,7 +17,7 @@
     return FALSE;
   }
   try {
-    $val = $route->activeTickets();
+    $val = $route->routeTickets();
   } catch(Exception $e) {
     $val = "<span data-value=\"error\">{$e->getMessage()}</span>";
   }

@@ -84,7 +84,7 @@
       'driver' => [
         [
           // all drivers
-          ['Route', 'activeTickets'],
+          ['Route', 'routeTickets'],
           ['On Call', 'onCallTickets'],
           ['Transfers', 'transferredTickets'],
           [null, null, 'https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js'],
