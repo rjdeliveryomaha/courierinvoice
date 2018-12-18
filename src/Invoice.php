@@ -2,10 +2,6 @@
   namespace rjdeliveryomaha\courierinvoice;
 
   use rjdeliveryomaha\courierinvoice\CommonFunctions;
-  /***
-  * throws Exception
-  *
-  ***/
 
   class Invoice extends CommonFunctions {
     protected $invoice_index;
@@ -43,8 +39,8 @@
     private $paymentDisplay;
     private $closedMarker;
     private $invoiceDisplay;
-    private $page1max;
-    private $pageMax = 9;
+    private $invoicePage1Max;
+    private $invoicePageMax = 9;
     private $counter = 2;
 
     public function __construct($options, $data=[]) {
@@ -184,9 +180,9 @@
       } else {
         $filteredTicketSet = $ticketSet;
       }
-      $this->page1max = (count($filteredTicketSet) === 6) ? 5 : 6;
-      $page1 = array_slice($filteredTicketSet,0,$this->page1max);
-      $morePages = array_slice($filteredTicketSet,$this->page1max);
+      $this->invoicePage1Max = (count($filteredTicketSet) === 6) ? 5 : 6;
+      $page1 = array_slice($filteredTicketSet,0,$this->invoicePage1Max);
+      $morePages = array_slice($filteredTicketSet,$this->invoicePage1Max);
       $singlePage = empty($morePages);
       for ($i=0; $i<count($page1); $i++) {
         if ($i === 0) {
@@ -268,7 +264,7 @@
               </tr>';
             $body .= $morePages[$i]->invoiceBody();
           } else {
-            if ($i % $this->pageMax === 0) {
+            if ($i % $this->invoicePageMax === 0) {
               $this->counter++;
               $body .= '
             </tbody>
