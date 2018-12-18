@@ -1040,7 +1040,7 @@ $(document).ready(function() {
     let breakFunction = false;
     let thisButton = $(this);
     thisButton.prop("disabled", true);
-    let workspace = ($(this).attr("id") === "singleInvoice" || $(this).attr("id") === "rangeInvoice") ? $(this).parents("#invoices") : $(this).parents("#orgInvoices");
+    let workspace = ($(this).attr("id") === "singleInvoice" || $(this).attr("id") === "rangeInvoice") ? $("#invoices") : $("#orgInvoices");
     if (workspace.attr("id") === "invoices" && noData === true) return false;
     let postData = {};
     $(this).parents("form").find("input, select").each(function() {
@@ -1215,28 +1215,13 @@ $(document).ready(function() {
   $(document).on("change", "#display", function() {
     switch ($(this).val()) {
       case "tickets":
-        if ($(this).parents("#queryForms").find("#charge").length > 0) $(this).parents("#queryForms").find("#charge").prop("disabled", false);
-        $(this).parents("#deliveryQuery").find(".ticketDate").show();
-        $(this).parents("#deliveryQuery").find(".chartDate, .compare").hide();
-        $(this).parents("#deliveryQuery").find("#compareBox").prop("disabled", true);
-        $(this).parents("#deliveryQuery").find("#ticketNumber").prop("readonly", false);
-        $(this).parents("#deliveryQuery").find("#allTime, #chargeHistory, #type").prop("disabled", false);
-        $(this).parents("#deliveryQuery").find(".startDateDate, .endDateDate").prop("required", true).prop("disabled", false);
-        $(this).parents("#deliveryQuery").find(".startDateMonth, .endDateMonth").prop("required", false).prop("disabled", true);
-        $(this).parents("#deliveryQuery").find("#compareBox").prop("checked", false).prop("disabled", true);
+        if ($("#queryForms").find("#charge").length > 0) $("#queryForms").find("#charge").prop("disabled", false);
+        $("#deliveryQuery").find(".ticketDate").show().end().find(".chartDate, .compare").hide().end().find("#compareBox").prop("disabled", true).end().find("#ticketNumber").prop("readonly", false).end().find("#allTime, #chargeHistory, #type").prop("disabled", false).end().find(".startDateDate, .endDateDate").prop("required", true).prop("disabled", false).end().find(".startDateMonth, .endDateMonth").prop("required", false).prop("disabled", true).end().find("#compareBox").prop("checked", false).prop("disabled", true);
       break;
       case "chart":
-      if ($(this).parents("#queryForms").find("#charge").length > 0) $(this).parents("#queryForms").find("#charge").prop("disabled", true);
-        $(this).parents("#deliveryQuery").find(".chartDate, .compare").show();
-        $(this).parents("#deliveryQuery").find("#compareBox").prop("disabled", false);
-        $(this).parents("#deliveryQuery").find(".ticketDate").hide();
-        $(this).parents("#deliveryQuery").find("#ticketNumber").prop("readonly", true).val("");
-        $(this).parents("#deliveryQuery").find("#allTime").prop("checked", false).prop("disabled", true);
-        $(this).parents("#deliveryQuery").find("#chargeHistory").val("10").prop("disabled", true);
-        $(this).parents("#deliveryQuery").find("#type").val("2").prop("disabled", true);
-        $(this).parents("#deliveryQuery").find(".startDateDate, .endDateDate").prop("required", false).prop("disabled", true);
-        $(this).parents("#deliveryQuery").find(".startDateMonth, .endDateMonth").prop("required", true).prop("disabled", false);
-        $(this).parents("#deliveryQuery").find("#compareBox").prop("disabled", false);
+      if ($("#queryForms").find("#charge").length > 0) $("#queryForms").find("#charge").prop("disabled", true);
+        $("#deliveryQuery").find(".chartDate, .compare").show().end().find("#compareBox").prop("disabled", false).end().find(".ticketDate").hide().end().find("#ticketNumber").prop("readonly", true).val("").end().find("#allTime").prop("checked", false).prop("disabled", true).end().find("#chargeHistory").val("10").prop("disabled", true).end().find("#type").val("2").prop("disabled", true).end().find(".startDateDate, .endDateDate").prop("required", false).prop("disabled", true).end().find(".startDateMonth, .endDateMonth").prop("required", true).prop("disabled", false);
+        $("#deliveryQuery").find("#compareBox").prop("disabled", false);
       break;
     }
     $("#orgTickets .orgMember").each(function() { $(this).prop("checked", false); } );
@@ -1253,7 +1238,8 @@ $(document).ready(function() {
 
   $(document).on("change", "#compareBox", function(){
     if($(this).is(":checked")) {
-      $(this).parents("fieldset").find("#allTime").each(function() { if ($(this).is(":checked")) { $(this).prop("checked", false).trigger("change"); } }).end().find(".chartDate").attr("title", "");
+      if ($("#allTime").is(":checked")) $("#allTime").prop("checked", false).trigger("change");
+      $(this).parents("fieldset").find(".chartDate").attr("title", "");
     } else {
       $(this).parents("fieldset").find(".chartDate").attr("title", "Query Range Limited To 6 Month Periods");
     }
@@ -1372,18 +1358,18 @@ $(document).ready(function() {
       $("#working").fadeOut( 1000, function() { $(this).remove(); });
       clearInterval(dots);
       if (result.indexOf("Session Error") !== -1) return showLogin();
-      workspace.find("#ticketQueryResults").html(result);
+      $("#ticketQueryResults").html(result);
     })
     .fail((jqXHR, status, error) => {
       $(this).prop("disabled", false);
       clearInterval(dots);
-      workspace.find("#ticketQueryResults").html('<p class="center">' + error + "</p>");
+      $("#ticketQueryResults").html('<p class="center">' + error + "</p>");
     });
   });
 
   $(document).on("click", ".resetTicketQuery", function() {
     $("#display").val("tickets").trigger("change");
-    $(this).parents("#deliveryQuery").find(".elementError").each(function() {
+    $("#deliveryQuery").find(".elementError").each(function() {
       $(this).removeClass("elementError");
     });
   });
@@ -1396,7 +1382,7 @@ $(document).ready(function() {
     e.preventDefault();
     let workspace = $(this).closest(".page");
     $(this).prop("disabled", true);
-    workspace.find("#deliveryQuery").find("#startDate, #endDate").each(function() {
+    $("#deliveryQuery").find("#startDate, #endDate").each(function() {
       if ($(this).parent("span").is(":visible")) {
         $(this).prop("required", true);
       }
@@ -1466,12 +1452,12 @@ $(document).ready(function() {
       $("#working").fadeOut( 1000, function() { $(this).remove(); });
       clearInterval(dots);
       if (result.indexOf("Session Error") !== -1) return showLogin();
-      workspace.find("#ticketQueryResults").html(result);
+      $("#ticketQueryResults").html(result);
     })
     .fail((jqXHR, status, error) => {
       $(this).prop("disabled", false);
       clearInterval(dots);
-      workspace.find("#ticketQueryResults").html('<p class="center">' + error + "</p>");
+      $("#ticketQueryResults").html('<p class="center">' + error + "</p>");
     });
   });
 
@@ -2151,7 +2137,6 @@ $(document).ready(function() {
   });
 
   $(document).on("click", "#route .confirmTransferGroup", function() {
-    let x = $(this);
     let multiTicket = [];
     let pendingReceiver = $(this).closest(".message2").find(".pendingReceiver").val();
     $(this).parents(".sortable").find(".tickets").each(function( i ) {
@@ -2163,24 +2148,24 @@ $(document).ready(function() {
       // console.log(result);
       if (result.indexOf("Session Error") !== -1) return showLogin();
       if(result.indexOf("error") === -1) {
-        x.parents(".sortable").find("p.message2").text(result);
+        $(this).parents(".sortable").find("p.message2").text(result);
         setTimeout(refreshTransfers, 2990);
         setTimeout(refreshRoute, 3000);
       }
       else {
-        x.after('<p class="center">Processing Error ' + result + "</p>");
+        $(this).after('<p class="center">Processing Error ' + result + "</p>");
         if (result.indexOf("Session Error") !== - 1) return showLogin();
       }
     })
     .fail((jqXHR, status, error) => {
-      x.parents(".sortable").find(".message2").text("Error: " + error);
+      $(this).parents(".sortable").find(".message2").text("Error: " + error);
     });
   });
 
   $(document).on("click", ".confirmAll", function( e ) {
     e.preventDefault();
     //Clear all 'message2' containers
-    $(this).parents("#route").find(".message2").html("");
+    $("#route").find(".message2").html("");
     //Disable other buttons in the ticket form
     $(this).closest(".sortable").find("button").prop("disabled", true);
     //Request step confirmation
@@ -2258,20 +2243,19 @@ $(document).ready(function() {
   }).change();
 
   $(document).on("change", "#price_calculator .address1", function(){
-    let x = $(this);
-    let testVal = x.val();
+    let element = $(this);
     let listIndex = "i";
     // Check the datalist to see if this value is on it and set the listIndex equal to the corisponding data-value
-    $(this).parents("body").find("datalist#addy1 option").each(function(){
-      if ($(this).val() === testVal) {
+    $("#addy1 option").each(function(){
+      if ($(this).val() === element.val()) {
         listIndex = $(this).attr("data-value");
       }
     });
     // If the listIndex has changed continue on
     if (listIndex !== "i") {
-      $(this).parents("body").find("datalist#addy2 option").each(function(){
+      $("#addy2 option").each(function(){
         if ($(this).attr("data-value") === listIndex) {
-          x.closest("table").find(".address2").val($(this).val());
+          element.closest("table").find(".address2").val($(this).val());
         }
       });
     }
@@ -2279,9 +2263,7 @@ $(document).ready(function() {
 
   $(document).on("click", "#price_calculator .submitPriceQuery", function(e){
     e.preventDefault();
-    let button = $(this);
-    button.prop("disabled", true);
-    setTimeout(() => { button.prop("disabled", false); }, 3000);
+    $(this).prop("disabled", true);
     let breakFunction = false;
     let pickUpError = false;
     let dropOffError = false;
@@ -2333,6 +2315,7 @@ $(document).ready(function() {
     let attempt = ajax_template("POST", "../priceCalc.php", "text", { pAddress1: pAddress1, pAddress2: pAddress2, pCountry: pCountry, dAddress1: dAddress1, dAddress2: dAddress2, dCountry: dCountry, charge: charge, dryIce: dryIce, diWeight: diWeight, formKey: $("#formKey").val() })
     .done((result) => {
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $(this).prop("disabled", false);
       $("#pNotice, #dNotice, #CalcError").html("");
       let obj;
       if (result.substr(0,1) === "<") {
@@ -2463,29 +2446,29 @@ $(document).ready(function() {
   }).change();
 
   $(document).on("blur", "input[name='pAddress1'], input[name='dAddress1']", function(){
-    let x = $(this);
+    let element = $(this);
     let listIndex = "i";
     // Check the datalist to see if this value is on it and set the listIndex equal to the cosponsoring data-value
-    $(this).parents("body").find("datalist#addy1 option").each(function(){
-      if ($(this).val() === x.val()) {
+    $("#addy1 option").each(function(){
+      if ($(this).val() === element.val()) {
         listIndex = $(this).attr("data-value");
-        x.attr("data-value", listIndex)
+        element.attr("data-value", listIndex)
       }
     });
     // If the listIndex has changed continue on
     if (listIndex !== "i") {
-      $(this).parents("body").find("datalist#addy2 option").each(function(){
+      $("#addy2 option").each(function(){
         if ($(this).attr("data-value") === listIndex) {
-          x.closest("fieldset").find("input[name='" + x.attr("name").substr(0,1) + "Address2']").val($(this).val())
+          element.closest("fieldset").find("input[name='" + element.attr("name").substr(0,1) + "Address2']").val($(this).val())
         }
       });
     }
   });
 
   $(document).on("change", "#ticket_entry #pSigReq, #ticket_entry #dSigReq, #ticket_entry #d2SigReq", function(){
-    let y = $(this).parents("form").find("#pSigReq").prop("checked");
-    let x = $(this).parents("form").find("#dSigReq").prop("checked");
-    let z = $(this).parents("form").find("#d2SigReq").prop("checked");
+    let y = $("#pSigReq").is(":checked");
+    let x = $("#dSigReq").is(":checked");
+    let z = $("#d2SigReq").is(":checked");
     if ($(this).is(":checked")) {
       $(this).parents("form").find(".sigNote").show();
     }
