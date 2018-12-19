@@ -140,6 +140,7 @@
         }
         if ($this->ulevel === 0 && self::after_last('\\', get_class($this)) !== 'Client') {
           $this->organizationFlag = TRUE;
+          $this->ClientID = $_SESSION['ClientID'];
           $this->ListBy = $_SESSION['ListBy'];
           foreach ($_SESSION['members'] as $key => $value) {
             $value['formKey'] = $_SESSION['formKey'];
@@ -863,6 +864,7 @@
         case 'org':
         case 'dispatcher':
         case 'client0':
+        case 'org0':
           if (isset($this->options['extend'][$type]) && is_array($this->options['extend'][$type]) && !empty($this->options['extend'][$type])) {
             for ($i = 0; $i < count($this->options['extend'][$type]); $i++) {
               if (isset($this->options['extend'][$type][$i][0]) && $this->options['extend'][$type][$i][0] !== '') {
