@@ -156,8 +156,7 @@
           $_SESSION[$key] = $value;
         }
       }
-      $_SESSION['driverName'] = $_SESSION['config']['driverName'] = $this->result[0]['FirstName'] . " " . $this->result[0]['LastName'];
-      $_SESSION['ClientName'] = $_SESSION['driverName'];
+      $_SESSION['driverName'] = $this->result[0]['FirstName'] . " " . $this->result[0]['LastName'];
       $_SESSION['ClientID'] = $this->result[0]['DriverID'];
       $user_browser = $_SERVER['HTTP_USER_AGENT'];
       $_SESSION['login_string'] = hash('sha512', $this->result[0]['Password'] . $user_browser);
@@ -184,8 +183,7 @@
           $_SESSION[$key] = $value;
         }
       }
-      $_SESSION['driverName'] = $_SESSION['config']['driverName'] = $this->result[0]['FirstName'] . " " . $this->result[0]['LastName'];
-      $_SESSION['ClientName'] = $_SESSION['driverName'];
+      $_SESSION['driverName'] = $this->result[0]['FirstName'] . " " . $this->result[0]['LastName'];
       $_SESSION['ClientID'] = $this->result[0]['DispatchID'];
       $user_browser = $_SERVER['HTTP_USER_AGENT'];
       $_SESSION['login_string'] = hash('sha512', $this->result[0]['Password'] . $user_browser);
