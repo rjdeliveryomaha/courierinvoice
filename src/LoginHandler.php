@@ -158,8 +158,6 @@
       }
       $_SESSION['driverName'] = $this->result[0]['FirstName'] . " " . $this->result[0]['LastName'];
       $_SESSION['ClientID'] = $this->result[0]['DriverID'];
-      $user_browser = $_SERVER['HTTP_USER_AGENT'];
-      $_SESSION['login_string'] = hash('sha512', $this->result[0]['Password'] . $user_browser);
       $_SESSION['ulevel'] = 'driver';
       $_SESSION['CanDispatch'] = $this->result[0]['CanDispatch'];
       echo '/drivers';
@@ -185,8 +183,6 @@
       }
       $_SESSION['driverName'] = $this->result[0]['FirstName'] . " " . $this->result[0]['LastName'];
       $_SESSION['ClientID'] = $this->result[0]['DispatchID'];
-      $user_browser = $_SERVER['HTTP_USER_AGENT'];
-      $_SESSION['login_string'] = hash('sha512', $this->result[0]['Password'] . $user_browser);
       $_SESSION['ulevel'] = 'dispatch';
       $_SESSION['CanDispatch'] = 2;
       echo '/drivers';
@@ -224,8 +220,6 @@
       if (password_verify('!Delivery2', $this->result[0]['AdminPassword'])) {
         $_SESSION['pwWarning'] += 2;
       }
-      $user_browser = $_SERVER['HTTP_USER_AGENT'];
-      $_SESSION['login_string'] = hash('sha512', $hash . $user_browser);
       $_SESSION['ulevel'] = ($this->loginType === 'client') ? 2 : 1;
       echo '/clients';
       return FALSE;
@@ -246,8 +240,6 @@
       if (password_verify('3Delivery!', $this->result[0]['Password'])) {
         $_SESSION['pwWarning'] += 4;
       }
-      $user_browser = $_SERVER['HTTP_USER_AGENT'];
-      $_SESSION['login_string'] = hash('sha512', $this->result[0]['Password'] . $user_browser);
       $_SESSION['ClientName'] = $this->result[0]['Name'];
       $_SESSION['ClientID'] = $this->result[0]['id'];
       $_SESSION['ListBy'] = $this->result[0]['ListBy'];
