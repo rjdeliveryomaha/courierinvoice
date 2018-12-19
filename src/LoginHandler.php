@@ -297,7 +297,9 @@
         if ($key === 'GeneralDiscount' || $key === 'ContractDiscount') {
           $_SESSION['config'][$key] = array();
         } else {
-          $_SESSION['config'][$key] = (in_array($key, $this->countryParams)) ? self::countryFromAbbr($value) : $value;
+          if (!in_array($key, $this->exclude)) {
+            $_SESSION['config'][$key] = (in_array($key, $this->countryParams)) ? self::countryFromAbbr($value) : $value;
+          }
         }
       }
       if ($this->loginType === 'driver' || $this->loginType === 'dispatch') {
