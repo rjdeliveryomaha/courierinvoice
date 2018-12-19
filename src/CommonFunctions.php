@@ -982,12 +982,8 @@
 
     public function createNavMenu() {
       self::customize();
-      if (isset($_SESSION['ClientName'])) {
-        $displayClientName = $_SESSION['ClientName'];
-      } elseif (isset($_SESSION['DriverID'])) {
-        $displayClientName = $_SESSION['driverName'];
-      }
       if (is_numeric($_SESSION['ulevel'])) {
+        $displayClientName = $_SESSION['ClientName'];
         switch ($_SESSION['ulevel']) {
           case 2:
             $displayClientName .= "<br>{$_SESSION['Department']}";
@@ -999,12 +995,14 @@
           break;
         }
       } elseif ($_SESSION['ulevel'] === 'driver') {
+        $displayClientName = "{$_SESSION['FirstName']} {$_SESSION['LastName']}";
         if ($_SESSION['CanDispatch'] > 0) {
           $displayClientName .= '<br>Driver / Dispatch';
         } else {
           $displayClientName .= '<br>Driver';
         }
       } elseif ($_SESSION['ulevel'] === 'dispatch') {
+        $displayClientName = "{$_SESSION['FirstName']} {$_SESSION['LastName']}";
         $displayClientName .= '<br>Dispatch';
       }
       $mobileMarker = (isset($_SESSION['mobile']) && $_SESSION['mobile'] === TRUE) ? 1 : 0;
