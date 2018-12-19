@@ -32,6 +32,7 @@
     protected $maxRange;
     protected $timezone;
     protected $ulevel;
+    protected $RepeatClient;
     protected $ListBy;
     protected $members;
     protected $pwWarning;
@@ -113,6 +114,7 @@
 
         if (isset($_SESSION['pwWarning'])) $this->pwWarning = $_SESSION['pwWarning'];
         if (($this->ulevel === 1 || $this->ulevel === 2) && self::after_last('\\', get_class($this)) !== 'Client') {
+          $this->RepeatClient = $_SESSION['RepeatClient'];
           $this->ClientID = $_SESSION['ClientID'];
           $clientData = [
             'client_index'=>$_SESSION['client_index'],
@@ -693,14 +695,14 @@
         $format = 'Y-m';
         $when = 'DateIssued';
         $queryData['queryParams']['include'] = ['DateIssued'];
-        $queryData['queryParams']['filter'] = [ ['Resource'=>'InvoiceNumber', 'Filter'=>'ncs', 'Value'=>'t'] ];
+        $queryData['queryParams']['filter'] = ($this->RepeatClient === 0) ? [ ['Resource'=>'InvoiceNumber', 'Filter'=>'cs', 'Value'=>'t'] ] : [ ['Resource'=>'InvoiceNumber', 'Filter'=>'ncs', 'Value'=>'t'] ];
         $who = 'ClientID';
         $placeholder = 'JAN 2000';
       } elseif ($type === 'date') {
         $format = 'Y-m-d';
         $when = 'ReceivedDate';
         $queryData['queryParams']['include'] = ['ReceivedDate'];
-        $queryData['queryParams']['filter'] = [ ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1] ];
+        $queryData['queryParams']['filter'] = [ ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>$this->RepeatClient] ];
         $who = 'BillTo';
         $placeholder = '';
       }
@@ -745,7 +747,8 @@
       $queryData['method'] = 'GET';
       $queryData['endPoint'] = 'invoices';
       $queryData['queryParams']['include'] = ['InvoiceNumber', 'Closed'];
-      $queryData['queryParams']['filter'] = [ ['Resource'=>'ClientID','Filter'=>'eq','Value'=>$search], ['Resource'=>'InvoiceNumber','Filter'=>'ncs','Value'=>'t'] ];
+      $queryData['queryParams']['filter'] = [ ['Resource'=>'ClientID','Filter'=>'eq','Value'=>$search] ];
+      $queryData['queryParams']['filter'][] = ($this->RepeatClient === 0) ? ['Resource'=>'InvoiceNumber', 'Filter'=>'cs', 'Value'=>'t'] : ['Resource'=>'InvoiceNumber', 'Filter'=>'ncs', 'Value'=>'t'];
       $queryData['queryParams']['order'] = ['InvoiceNumber,desc'];
       if (!$query = self::createQuery($queryData)) {
         return $this->error;

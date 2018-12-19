@@ -2124,7 +2124,8 @@
         $returnData = "
             <div id=\"ticketQueryOptions\">
               <form id=\"deliveryQuery\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
-                <input type=\"hidden\" name=\"billTo\" value=\"{$_SESSION['ClientID']}\" />
+                <input type=\"hidden\" name=\"billTo\" value=\"{$this->ClientID}\" />
+                <input type=\"hidden\" name=\"repeatClient\" value=\"{$this->RepeatClient}\" />
                 <input type=\"hidden\" name=\"endPoint\" class=\"endPoint\" value=\"tickets\" />
                 <input type=\"hidden\" name=\"method\" class=\"method\" value=\"GET\" />
                 <fieldset form=\"deliveryQuery\" name=\"dateRange\">
@@ -2189,7 +2190,8 @@
         $returnData = "
             <div id=\"ticketQueryOptions\">
               <form id=\"deliveryQuery\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
-                <input type=\"hidden\" name=\"billTo\" value=\"{$_SESSION['ClientID']}\" />
+                <input type=\"hidden\" name=\"billTo\" value=\"{$this->ClientID}\" />
+                <input type=\"hidden\" name=\"repeatClient\" value=\"{$this->RepeatClient}\" />
                 <input type=\"hidden\" name=\"endPoint\" class=\"endPoint\" value=\"tickets\" />
                 <input type=\"hidden\" name=\"method\" class=\"method\" value=\"GET\" />
                 <fieldset form=\"deliveryQuery\" name=\"dateRange\">

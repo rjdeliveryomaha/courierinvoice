@@ -7,6 +7,7 @@
     protected $invoice_index;
     protected $InvoiceNumber;
     protected $ClientID;
+    protected $RepeatClient;
     protected $InvoiceTotal;
     protected $InvoiceSubTotal;
     protected $BalanceForwarded;
