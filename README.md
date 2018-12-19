@@ -547,6 +547,46 @@ Returns HTML content to populate the transfers page.
 
 # Invoice
 
+Displays invoices for review.
+
+By default cancelled thickets are not displayed. This behavior can be adjusted on a per client basis in the config file located at [extras/includes](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes).
+
+By default contract tickets are consolidated by run number. This behavior can be adjusted on a per client basis in the config file located at [extras/includes](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes).
+
+## Usage:
+
+```php
+try {
+  $invoice = new Invoice($config, $data);
+} catch(Exception $e) {
+  echo $e->getMessage();
+  return FALSE;
+}
+```
+
+## Properties settable in $data:
+
+A list of standard properties can be found in the [API Documentation](https://www.rjdeliveryomaha.com/courierinvoice/apidoc#invoices)
+
+The ``` invoiceQueryResult ``` property is an indexed array of invoice datasets used for receiving data from the [SearchHandler](https://github.com/rjdeliveryomaha/courierinvoice#searchHandler) class.
+
+## Public Methods:
+
+```php
+$invoice->regenInvoice();
+```
+
+Uses the data provided in ``` invoiceQueryResult ``` to displays invoice.
+
+If multiple datasets are provided a form will be returned to select which invoice to recreate by invoice number.
+
+```php
+$invoice->invoiceQueryForm();
+```
+
+Creates a query form for admin and organization clients. The parameters provided by this form are processed by the [SearchHandler](https://github.com/rjdeliveryomaha/courierinvoice#searchHandler) class.
+
+
 ---
 
 # SearchHandler
