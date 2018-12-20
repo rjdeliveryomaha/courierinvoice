@@ -292,7 +292,7 @@
       if ($this->loginType === 'driver' || $this->loginType === 'dispatch') {
         // pause for one quater (1/4 (0.25)) of a second between API calls
         time_nanosleep(0, 250000000);
-        $this->queryData['queryParams']['include'] = [ 'ClientID', 'ContractDiscount', 'GeneralDiscount' ];
+        $this->queryData['queryParams']['include'] = [ 'ClientID', 'ContractDiscount', 'GeneralDiscount', 'RepeatClient' ];
         $this->queryData['queryParams']['filter'] = [ ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0] ];
         $this->query = self::createQuery($this->queryData);
         if ($this->query === FALSE) {
@@ -306,6 +306,7 @@
           throw new \Exception('Unable To Fetch Configuration');
         }
         foreach ($this->discountResult as $temp) {
+          $temp['ClientID'] = ($temp['RepeatClient'] === 0) ? "t{$temp['ClientID']}" : $temp['ClientID'];
           $_SESSION['config']['GeneralDiscount'][$temp['ClientID']] = floatval((100 - $temp['GeneralDiscount']) / 100);
           $_SESSION['config']['ContractDiscount'][$temp['ClientID']] = floatval((100 - $temp['ContractDiscount']) / 100);
         }
