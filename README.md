@@ -285,6 +285,43 @@ echo $type;
 return false;
 ```
 
+Sets the following session values:
+
+```php
+$_SESSION['config']
+```
+
+This associative array contains resources from the [config](https://rjdeliveryomaha.com/courierinvoice/apidoc#config) endpoint as well as all Client 0 resources except Password, AdminPassword, and Deleted.
+
+
+```php
+$_SESSION['mobile']
+```
+
+If ``` true ``` this Boolean value indicates that the user logged in from a portal located at domain.com/mobileLogin that passed the LoginHandler class a dataset that included the key "mobile" and will redirect there instead of domain.com upon log out.
+
+```php
+$_SESSION['ulevel']
+```
+
+Describes the type of user logged in:
+
+  - 0: Organization
+
+  - 1: Admin Client
+
+  - 2: Daily Client
+
+  - driver
+
+  - dispatch
+
+All resources from the end point corresponding to the client, organization, driver, or dispatcher except Deleted and passwords.
+
+Dispatchers have ``` $_SESSION['CanDispatch'] ``` set to a value of 2.
+
+Dispatchers and Drivers with dispatch privileges have ``` $_SESSION['config']['ContractDiscount'] ``` and ``` $_SESSION['config']['GeneralDiscount'] ``` set. These are associative arrays with keys being Client IDs (preceded with the letter 't' for non-repeat clients) and the values being the discount values for each client.
+
 ---
 
 # Ticket
