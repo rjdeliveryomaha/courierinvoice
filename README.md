@@ -320,7 +320,7 @@ All resources from the end point corresponding to the client, organization, driv
 
 Dispatchers have ``` $_SESSION['CanDispatch'] ``` set to a value of 2.
 
-Dispatchers and Drivers with dispatch privileges have ``` $_SESSION['config']['ContractDiscount'] ``` and ``` $_SESSION['config']['GeneralDiscount'] ``` set. These are associative arrays with keys being Client IDs (preceded with the letter 't' for non-repeat clients) and the values being the discount values for each client.
+Clients, Dispatchers, and Drivers with dispatch privileges have ``` $_SESSION['config']['ContractDiscount'] ``` and ``` $_SESSION['config']['GeneralDiscount'] ``` set. These are associative arrays with keys being Client IDs (preceded with the letter 't' for non-repeat clients) and the values being the discount values for each (or current) client. 
 
 ---
 
