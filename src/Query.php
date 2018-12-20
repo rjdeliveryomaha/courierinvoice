@@ -176,7 +176,7 @@
       curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, strtoupper($this->method));
       curl_setopt($this->ch, CURLOPT_URL, $this->queryURI);
       curl_setopt($this->ch, CURLOPT_FAILONERROR, true);
-      if (strpos($this->baseURI, 'testing') !== false) {
+      if ($this->options['testMode'] === true) {
         //CURLOPT_SSL_VERIFYPEER set to false for testing only
         curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, false);
         // CURLOPT_SSL_VERIFYHOST disabled for testing only
