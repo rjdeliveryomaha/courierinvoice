@@ -291,7 +291,7 @@ Sets the following session values:
 $_SESSION['config']
 ```
 
-This associative array contains resources from the [config](https://rjdeliveryomaha.com/courierinvoice/apidoc#config) endpoint as well as all Client 0 resources except Password, AdminPassword, and Deleted.
+This associative array contains resources from the [config](https://rjdeliveryomaha.com/courierinvoice/apidoc#config) endpoint as well as all Client 0 resources except ``` Password ```, ``` AdminPassword ```, and ``` Deleted ```.
 
 
 ```php
@@ -316,11 +316,29 @@ Describes the type of user logged in:
 
   - dispatch
 
-All resources from the end point corresponding to the client, organization, driver, or dispatcher except Deleted and passwords.
+All resources from the end point corresponding to the client, organization, driver, or dispatcher except ``` Deleted ``` and passwords.
 
 Dispatchers have ``` $_SESSION['CanDispatch'] ``` set to a value of 2.
 
-Clients, Dispatchers, and Drivers with dispatch privileges have ``` $_SESSION['config']['ContractDiscount'] ``` and ``` $_SESSION['config']['GeneralDiscount'] ``` set. These are associative arrays with keys being Client IDs (preceded with the letter 't' for non-repeat clients) and the values being the discount values for each (or current) client. 
+Clients, Dispatchers, and Drivers with dispatch privileges have ``` $_SESSION['config']['ContractDiscount'] ``` and ``` $_SESSION['config']['GeneralDiscount'] ``` set. These are associative arrays with keys being Client IDs (preceded with the letter 't' for non-repeat clients) and the values being the discount values for each (or current) client.
+
+Clients and organizations will have ``` $_SESSION['pwWarning'] ``` set.
+
+Integer
+
+  - 0: password did not match the default password for the login type.
+
+  - 1: daily client password is default
+
+  - 2: admin client password is default
+
+  - 3: both daily and admin clients are default
+
+  - 4: organization password is default
+
+These values are used to notify the user that the password should be changed.
+
+Organizations have ``` $_SESSION['members'] ``` set. This is an associative array with the keys being client IDs (preceded by the letter 't' for non-repeat clients) and the values being an associative array containing the data stored at the clients end point for each client associated with the organization.
 
 ---
 
