@@ -157,7 +157,6 @@
         }
       }
       $_SESSION['driverName'] = $this->result[0]['FirstName'] . " " . $this->result[0]['LastName'];
-      $_SESSION['ClientID'] = $this->result[0]['DriverID'];
       $_SESSION['ulevel'] = 'driver';
       $_SESSION['CanDispatch'] = $this->result[0]['CanDispatch'];
       echo '/drivers';
@@ -181,8 +180,6 @@
           $_SESSION[$key] = $value;
         }
       }
-      $_SESSION['driverName'] = $this->result[0]['FirstName'] . " " . $this->result[0]['LastName'];
-      $_SESSION['ClientID'] = $this->result[0]['DispatchID'];
       $_SESSION['ulevel'] = 'dispatch';
       $_SESSION['CanDispatch'] = 2;
       echo '/drivers';

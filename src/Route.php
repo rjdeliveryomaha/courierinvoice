@@ -43,8 +43,8 @@
       } catch (Exception $e) {
         throw $e;
       }
-      $this->driverID = $_SESSION['ClientID'];
-      $this->driverName = $this->config['driverName'];
+      $this->driverID = $_SESSION['DriverID'];
+      $this->driverName = "{$_SESSION['FirstName']} {$_SESSION['LastName']}";
       $this->LastSeen = $_SESSION['LastSeen'];
       try {
         self::setTimezone();

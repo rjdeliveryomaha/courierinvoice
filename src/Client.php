@@ -286,13 +286,13 @@
         $formID = 'driverPwUpdate';
         $flag = 'driver';
         $type = 'driver';
-        $id = $_SESSION['ClientID'];
+        $id = $_SESSION['DriverID'];
       } elseif ($this->userType === 'dispatch') {
         $showPWwarning = 'hide';
         $formID = 'dispatchPwUpdate';
         $flag = 'dispatch';
         $type = 'dispatch';
-        $id = $_SESSION['ClientID'];
+        $id = $_SESSION['DispatchID'];
       }
       return "
             <div class=\"PWcontainer\">
