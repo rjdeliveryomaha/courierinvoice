@@ -297,9 +297,25 @@ Any indices beyond 2 will be interpreted as attributes to be applied to the scri
 
     Indexed array of settings entries as described above.
 
+### invoiceCronIgnoreClients
+
+Indexed array of client IDs to ignore when the cron job is run.
+
+### invoiceCronIgnoreNonRepeat
+
+Indexed array of non-repeat client IDs to ignore when the cron job is run.
+
+### invoiceCronLogSuccess
+
+Boolean indicates if success of the cron job should be logged.
+
+### invoiceCronLogFailure
+
+Boolean indicates if failure of the cron job should be logged.
+
 ---
 
-Providing your basic Courier Invoice configuration options is necessary when using the these classes without a session, for example, when offering a public delivery price calculator. An example is provided at the end of [api_config.php](https://github.com/rjdeliveryomaha/courierinvoice/blob/master/extras/includes/api_config.php).
+Providing your basic Courier Invoice configuration options is necessary when using the these classes without a session, for example, when offering a public delivery price calculator or creating invoices with a cron job. An example is provided at the end of [api_config.php](https://github.com/rjdeliveryomaha/courierinvoice/blob/master/extras/includes/api_config.php).
 
 ---
 

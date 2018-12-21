@@ -662,6 +662,41 @@ Creates a query form for admin and organization clients. The parameters provided
 
 # InvoiceCron
 
+Automatically creates invoices with a [cron](https://en.wikipedia.org/wiki/Cron) job run on the day following the end of a monthly billing cycle.
+
+This class does not account for leap years and assumes that invoices will not be generated after the 28th of any month.
+
+Updates tickets with new invoice number.
+
+Can be configured to ignore clients and non-repeat clients.
+
+Checks for past due invoices.
+
+## Usage:
+
+```php
+<?php
+  require_once '../includes/api_config.php';
+  require_once '../vendor/autoload.php';
+
+  use rjdeliveryomaha\courierinvoice\InvoiceCron;
+
+  try {
+    $cron = new InvoiceCron($config);
+  } catch(Exception $e) {
+    echo $e->getMessage();
+    exit;
+  }
+
+  try {
+    $cron->createInvoices();
+  } catch(Exception $e) {
+    echo $e->getMessage();
+    exit;
+  }
+  exit;
+```
+
 ---
 
 # extras

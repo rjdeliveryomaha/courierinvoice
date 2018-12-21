@@ -131,7 +131,11 @@
         [ 'Invoice Query', 'invoiceQueryForm' ],
         [ 'Change Password', 'orgPasswordForm']
       ]
-    ]
+    ],
+    'invoiceCronIgnoreClients' => [ 0 ],
+    'invoiceCronIgnoreNonRepeat' => [],
+    'invoiceCronLogSuccess' => false,
+    'invoiceCronLogFailure' => true
   ];
   // config for price calculation without session
   if (!isset($_SESSION['config'])) {
