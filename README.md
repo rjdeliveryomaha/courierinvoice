@@ -19,9 +19,7 @@ composer require "rjdeliveryomaha/courierinvoice"
   - [TicketChart](https://github.com/rjdeliveryomaha/courierinvoice#ticketChart)
   - [InvoiceChart](https://github.com/rjdeliveryomaha/courierinvoice#invoiceChart)
   - [Client](https://github.com/rjdeliveryomaha/courierinvoice#client)
-  - [InvoiceCron](https://github.com/rjdeliveryomaha/courierinvoice#invoiceCron)\*
-
-\*Not yet implemented
+  - [InvoiceCron](https://github.com/rjdeliveryomaha/courierinvoice#invoiceCron)
 
 [extras](https://github.com/rjdeliveryomaha/courierinvoice#extras)
 
