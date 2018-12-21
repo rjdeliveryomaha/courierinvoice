@@ -2133,8 +2133,8 @@
                   <div>
                     <p>
                       <label for=\"allTime\">All Time:</label>
-                      <input type=\"hidden\" name=\"allTime\" value=\"N\" />
-                      <input type=\"checkbox\" name=\"allTime\" id=\"allTime\" class=\"allTime2\" value=\"Y\" />
+                      <input type=\"hidden\" name=\"allTime\" value=\"0\" />
+                      <input type=\"checkbox\" name=\"allTime\" id=\"allTime\" class=\"allTime2\" value=\"1\" />
                     </p>
                     <p>
                       <label for=\"ticketNumber\" class=\"switchable\">Ticket<span class=\"mobileHide\"> Number</span>:</label>
@@ -2199,8 +2199,8 @@
                   <div>
                     <p>
                       <label for=\"allTime\">All Time:</label>
-                      <input type=\"hidden\" name=\"allTime\" value=\"N\" />
-                      <input type=\"checkbox\" name=\"allTime\" id=\"allTime\" class=\"allTime\" value=\"Y\" />
+                      <input type=\"hidden\" name=\"allTime\" value=\"0\" />
+                      <input type=\"checkbox\" name=\"allTime\" id=\"allTime\" class=\"allTime\" value=\"1\" />
                     </p>
                     <p>
                       <label for=\"ticketNumber\" class=\"switchable\">Ticket<span class=\"mobileHide\"> Number</span>:</label>
@@ -2277,8 +2277,8 @@
                   <div>
                     <p>
                       <label for=\"allTime\">All Time:</label>
-                      <input type=\"hidden\" name=\"allTime\" value=\"N\" />
-                      <input type=\"checkbox\" name=\"allTime\" id=\"allTime\" value=\"Y\" />
+                      <input type=\"hidden\" name=\"allTime\" value=\"0\" />
+                      <input type=\"checkbox\" name=\"allTime\" id=\"allTime\" value=\"1\" />
                     </p>
                     <p>
                       <label for=\"ticketNumber\" class=\"switchable\">Ticket<span class=\"mobileHide\"> Number</span>:</label>

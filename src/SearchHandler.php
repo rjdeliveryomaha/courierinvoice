@@ -4,10 +4,6 @@
   use rjdeliveryomaha\courierinvoice\CommonFunctions;
   use rjdeliveryomaha\courierinvoice\Ticket;
   use rjdeliveryomaha\courierinvoice\Invoice;
-  /***
-  * throws Exception
-  *
-  ***/
 
   class SearchHandler extends CommonFunctions {
     protected $endPoint;
@@ -16,6 +12,7 @@
     protected $compareMembers = FALSE;
     protected $clientID;
     protected $billTo;
+    protected $repeatClient;
     protected $startDate;
     protected $endDate;
     protected $invoiceNumber;
@@ -24,7 +21,6 @@
     protected $charge;
     protected $type;
     protected $allTime;
-    protected $repeatClient = 1;
     private $query;
     private $queryData = [];
     private $result;
@@ -193,7 +189,7 @@
         $temp = clone $this->today;
         $this->yesterday = $temp->modify('-1 day')->format('Y-m-d') . ' 23:59:59';
         $this->queryData['queryParams']['filter'] = [ ['Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=>$this->clientID], ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>$this->repeatClient], ['Resource'=>'ReceivedDate', 'Filter'=>'gt', 'Value'=>$this->yesterday] ];
-      } elseif ($this->allTime === 'Y') {
+      } elseif ($this->allTime === '1') {
         switch ($this->display) {
           case 'tickets':
             $filterStart = [ ['Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=>$this->clientID], ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>$this->repeatClient], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>$this->charge], ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>$this->type] ];
