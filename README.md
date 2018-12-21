@@ -7,7 +7,7 @@ A set of classes for the Courier Invoice API
 ```
 composer require "rjdeliveryomaha/courierinvoice"
 ```
- Or add "rjdeliveryomaha/courierinvoice":"~1.0.0" to composer.json
+ Or add "rjdeliveryomaha/courierinvoice":"~1.1" to composer.json
 # Classes
   - [CommonFunctions](https://github.com/rjdeliveryomaha/courierinvoice#commonfunctions)
   - [Query](https://github.com/rjdeliveryomaha/courierinvoice#query)
