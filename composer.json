@@ -3,6 +3,8 @@
   "version": "1.0.1",
   "type": "library",
   "keywords": [ "courier invoice" ],
+  "homepage": "https://github.com/rjdeliveryomaha/courierinvoice",
+  "license": "MIT",
   "description": "Tools for using the Courier Invoice API",
   "authors": [
     {
