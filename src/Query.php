@@ -176,27 +176,15 @@
       curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, strtoupper($this->method));
       curl_setopt($this->ch, CURLOPT_URL, $this->queryURI);
       curl_setopt($this->ch, CURLOPT_FAILONERROR, true);
-      if ($this->options['testMode'] === true) {
-        //CURLOPT_SSL_VERIFYPEER set to false for testing only
-        curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, false);
-        // CURLOPT_SSL_VERIFYHOST disabled for testing only
-        curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, 0);
-        /**
-        ** How to create and store cacert.pem:
-        ** http://unitstep.net/blog/2009/05/05/using-curl-in-php-to-access-https-ssltls-protected-sites/
-        **/
-        // curl_setopt($this->ch, CURLOPT_CAINFO, __DIR__ . DIRECTORY_SEPARATOR . "cacert.pem");
-      } else {
-        //CURLOPT_SSL_VERIFYPEER set to false for testing only
-        curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, true);
-        // CURLOPT_SSL_VERIFYHOST disabled for testing only
-        curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, 2);
-        /**
-        ** How to create and store cacert.pem:
-        ** http://unitstep.net/blog/2009/05/05/using-curl-in-php-to-access-https-ssltls-protected-sites/
-        **/
-        curl_setopt($this->ch, CURLOPT_CAINFO, __DIR__ . DIRECTORY_SEPARATOR . "cacert.pem");
-      }
+      //CURLOPT_SSL_VERIFYPEER set to false for testing only
+      curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, ($this->options['testMode'] === false));
+      // CURLOPT_SSL_VERIFYHOST disabled for testing only
+      curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, ($this->options['testMode'] === false) ? 0 : 2);
+      /**
+      ** How to create and store cacert.pem:
+      ** http://unitstep.net/blog/2009/05/05/using-curl-in-php-to-access-https-ssltls-protected-sites/
+      **/
+      if ($this->options['testMode'] === fasle) curl_setopt($this->ch, CURLOPT_CAINFO, __DIR__ . DIRECTORY_SEPARATOR . "cacert.pem");
       // Set the authorization headers");
       $this->headers[] = 'Authorization: Basic ' . base64_encode("{$this->username}:{$this->publicKey}");
       $this->headers[] = "auth: {$this->token}";
