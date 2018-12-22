@@ -56,7 +56,7 @@
     // Properties that should always be floats
     private $floats = ['diPrice', 'TicketBase', 'RunPrice', 'TicketPrice', 'Multiplier', 'timestamp', 'lat',' lng', 'maxRange'];
     // Properties that should always be boolean
-    private $bools = ['newTicket', 'compare', 'compareMembers', 'ticketEditor', 'updateTicket', 'consolidateContractTicketsOnInvoice', 'showCancelledTicketsOnInvoice', 'organizationFlag', 'noSession', 'processTransfer'];
+    private $bools = ['newTicket', 'compare', 'compareMembers', 'ticketEditor', 'updateTicket', 'consolidateContractTicketsOnInvoice', 'showCanceledTicketsOnInvoice', 'organizationFlag', 'noSession', 'processTransfer'];
     // Properties that are passed at the end of a string value
     private $afterSemicolon = ['billTo', 'dispatchedTo', 'PendingReceiver'];
     // Properties that are json encoded strings
@@ -64,7 +64,7 @@
     // No need to filter passwords they will be hashed
     private $noFilter = ['currentPw', 'newPw1', 'newPw2'];
     // These properties should not be accessible when setting values from the $data argument
-    private $protectedProperties = [ 'username', 'publicKey', 'privateKey', 'config', 'weightMarker', 'rangeMarker', 'countryClass', 'countryInput', 'requireCountry', 'shippingCountry', 'headerLogo', 'headerLogo2', 'myInfo', 'clientNameExceptions', 'clientAddressExceptions', 'showCancelledTicketsOnInvoiceExceptions', 'ignoreValues', 'showCancelledTicketsOnInvoice', 'consolidateContractTicketsOnInvoice', 'ints', 'floats', 'bools', 'afterSemicolon', 'jsonStrings', 'noFilter', 'sanitized', 'enableLogging', 'targetFile', 'fileWriteTry', 'loggingError', 'error', 'protectedProperties', 'RangeCenter', 'lat', 'lng', 'maxRange', 'timezone', 'emailConfig', 'allTimeChartLimit', 'invoicePage1Max', 'invoicePageMax'];
+    private $protectedProperties = [ 'username', 'publicKey', 'privateKey', 'config', 'weightMarker', 'rangeMarker', 'countryClass', 'countryInput', 'requireCountry', 'shippingCountry', 'headerLogo', 'headerLogo2', 'myInfo', 'clientNameExceptions', 'clientAddressExceptions', 'showCanceledTicketsOnInvoiceExceptions', 'ignoreValues', 'showCanceledTicketsOnInvoice', 'consolidateContractTicketsOnInvoice', 'ints', 'floats', 'bools', 'afterSemicolon', 'jsonStrings', 'noFilter', 'sanitized', 'enableLogging', 'targetFile', 'fileWriteTry', 'loggingError', 'error', 'protectedProperties', 'RangeCenter', 'lat', 'lng', 'maxRange', 'timezone', 'emailConfig', 'allTimeChartLimit', 'invoicePage1Max', 'invoicePageMax'];
     private $noGetProps = [ 'error', 'loggingError', 'fileWriteTry', 'sanitized' ];
     private $customMenuItems;
     private $customPages;

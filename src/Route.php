@@ -744,8 +744,8 @@
     }
 
     private function compareSchedule($runNumber, $scheduleFrequency) {
-      // Stop here if the run has been cancelled
-      if (self::cancelledRun($runNumber)) {
+      // Stop here if the run has been canceled
+      if (self::canceledRun($runNumber)) {
         return FALSE;
       }
       if ($this->testDate === $this->today) {
@@ -783,7 +783,7 @@
       }
     }
 
-    private function cancelledRun($runNumber) {
+    private function canceledRun($runNumber) {
       // Use month and day to determine if today has an event
       $match = FALSE;
       for ($i = 0; $i < count($this->cancelations); $i++) {

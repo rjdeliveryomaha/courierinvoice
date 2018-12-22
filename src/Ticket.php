@@ -3776,7 +3776,7 @@
               $ticketUpdateData['payload'][] = $tempObj;
             }
           }
-          $answer = 'cancelled';
+          $answer = 'canceled';
         break;
         case 'deadRun':
           if ($this->multiTicket === NULL) {
@@ -3874,7 +3874,7 @@
                   $ticketUpdateData['payload'][] = $tempObj;
                 }
               }
-              $answer = 'transfer cancelled';
+              $answer = 'transfer canceled';
             break;
             case 3:
               if ($this->multiTicket === NULL) {

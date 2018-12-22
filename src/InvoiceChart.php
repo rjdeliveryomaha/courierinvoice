@@ -47,7 +47,7 @@
     private $tableHeadAddendum;
     private $headerSpan;
     private $nestedTableColspan;
-    private $nonZeroIgnore = ['invoices', 'cancelled', 'credit', 'billTo'];
+    private $nonZeroIgnore = ['invoices', 'canceled', 'credit', 'billTo'];
     private $nonZero = [];
     private $orderedData;
     private $groupLabels = [];

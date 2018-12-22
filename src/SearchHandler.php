@@ -85,7 +85,7 @@
       }
       $rtFlag = $this->result[0]['Charge'] === 6 || ($this->result[0]['Charge'] === 7 && $this->result[0]['d2SigReq'] === 1);
 
-      $cancelledFlag = $this->result[0]['Charge'] === 0;
+      $canceledFlag = $this->result[0]['Charge'] === 0;
 
       $data = [];
       foreach ($this->result[0] as $key => $value) {
@@ -100,8 +100,8 @@
       if (!$rtFlag) {
         $data['d2TimeStamp'] = 'Not Scheduled';
       }
-      if ($cancelledFlag) {
-        $data['queryError'] = 'Delivery Cancelled';
+      if ($canceledFlag) {
+        $data['queryError'] = 'Delivery Canceled';
       }
       return json_encode($data);
     }
@@ -366,12 +366,12 @@
           $this->months[$monthLabel][$ticket['BillTo']]['monthTotal']++;
           $this->months[$monthLabel][$ticket['BillTo']]['endDate'] = $receivedDate->format('Y-m-d');
         } else {
-          $this->months[$monthLabel][$ticket['BillTo']] = [ 'billTo'=>$ticket['BillTo'], 'monthTotal'=>1, 'contract'=>0, 'credit'=>0, 'cancelled'=>0, 'onCall'=>0, 'routine'=>0, 'fourHour'=>0, 'threeHour'=>0, 'twoHour'=>0, 'oneHour'=>0, 'roundTrip'=>0, 'deadRun'=>0, 'dedicatedRun'=>0, 'withIce'=>0, 'withoutIce'=>0, 'startDate'=>$receivedDate->format('Y-m-d'), 'endDate'=>$receivedDate->format('Y-m-d') ];
+          $this->months[$monthLabel][$ticket['BillTo']] = [ 'billTo'=>$ticket['BillTo'], 'monthTotal'=>1, 'contract'=>0, 'credit'=>0, 'canceled'=>0, 'onCall'=>0, 'routine'=>0, 'fourHour'=>0, 'threeHour'=>0, 'twoHour'=>0, 'oneHour'=>0, 'roundTrip'=>0, 'deadRun'=>0, 'dedicatedRun'=>0, 'withIce'=>0, 'withoutIce'=>0, 'startDate'=>$receivedDate->format('Y-m-d'), 'endDate'=>$receivedDate->format('Y-m-d') ];
         }
         // count totals for ticket types overall and by month
         switch ($ticket['Charge']) {
           case 0:
-            $this->months[$monthLabel][$ticket['BillTo']]['cancelled']++;
+            $this->months[$monthLabel][$ticket['BillTo']]['canceled']++;
           break;
           case 1:
             $this->months[$monthLabel][$ticket['BillTo']]['oneHour']++;
@@ -438,7 +438,7 @@
             $this->months[$invoiceLabel][$invoiceGroup]['monthTotal'] += $invoice['InvoiceSubTotal'];
             $this->months[$invoiceLabel][$invoiceGroup]['monthTotal'] -= $invoice['BalanceForwarded'];
           } else {
-            $this->months[$invoiceLabel][$invoiceGroup] = [ 'invoices' => [0=>$invoice['InvoiceNumber']], 'monthTotal'=>$invoice['InvoiceSubTotal'] - $invoice['BalanceForwarded'], 'contract'=>0, 'credit'=>0, 'cancelled'=>0, 'onCall'=>0, 'routine'=>0, 'fourHour'=>0, 'threeHour'=>0, 'twoHour'=>0, 'oneHour'=>0, 'roundTrip'=>0, 'deadRun'=>0, 'dedicatedRun'=>0, 'dryIce'=>0, 'iceDelivery'=>0, ];
+            $this->months[$invoiceLabel][$invoiceGroup] = [ 'invoices' => [0=>$invoice['InvoiceNumber']], 'monthTotal'=>$invoice['InvoiceSubTotal'] - $invoice['BalanceForwarded'], 'contract'=>0, 'credit'=>0, 'canceled'=>0, 'onCall'=>0, 'routine'=>0, 'fourHour'=>0, 'threeHour'=>0, 'twoHour'=>0, 'oneHour'=>0, 'roundTrip'=>0, 'deadRun'=>0, 'dedicatedRun'=>0, 'dryIce'=>0, 'iceDelivery'=>0, ];
           }
         }
       } else {
@@ -450,7 +450,7 @@
             $this->months[$invoiceLabel]['monthTotal'] += $invoice['InvoiceSubTotal'];
             $this->months[$invoiceLabel]['monthTotal'] -= $invoice['BalanceForwarded'];
           } else {
-            $this->months[$invoiceLabel] = [ 'invoices'=>[0 => $invoice['InvoiceNumber']], 'billTo'=>$invoice['ClientID'], 'monthTotal'=>$invoice['InvoiceSubTotal'] - $invoice['BalanceForwarded'], 'contract'=>0, 'credit'=>0, 'cancelled'=>0, 'onCall'=>0, 'routine'=>0, 'fourHour'=>0, 'threeHour'=>0, 'twoHour'=>0, 'oneHour'=>0, 'roundTrip'=>0, 'deadRun'=>0, 'dedicatedRun'=>0, 'dryIce'=>0, 'iceDelivery'=>0, ];
+            $this->months[$invoiceLabel] = [ 'invoices'=>[0 => $invoice['InvoiceNumber']], 'billTo'=>$invoice['ClientID'], 'monthTotal'=>$invoice['InvoiceSubTotal'] - $invoice['BalanceForwarded'], 'contract'=>0, 'credit'=>0, 'canceled'=>0, 'onCall'=>0, 'routine'=>0, 'fourHour'=>0, 'threeHour'=>0, 'twoHour'=>0, 'oneHour'=>0, 'roundTrip'=>0, 'deadRun'=>0, 'dedicatedRun'=>0, 'dryIce'=>0, 'iceDelivery'=>0, ];
           }
         }
       }
@@ -462,7 +462,7 @@
         if ($this->organizationFlag === FALSE) {
           switch ($ticket['Charge']) {
             case 0:
-              $this->months[$targetKey]['cancelled'] += $ticket['TicketPrice'];
+              $this->months[$targetKey]['canceled'] += $ticket['TicketPrice'];
             break;
             case 1:
               $this->months[$targetKey]['oneHour'] += $ticket['TicketPrice'];
@@ -509,7 +509,7 @@
         } elseif ($this->organizationFlag === TRUE) {
           switch ($ticket['Charge']) {
             case 0:
-              $this->months[$targetKey][$ticket['BillTo']]['cancelled'] += $ticket['TicketPrice'];
+              $this->months[$targetKey][$ticket['BillTo']]['canceled'] += $ticket['TicketPrice'];
             break;
             case 1:
               $this->months[$targetKey][$ticket['BillTo']]['oneHour'] += $ticket['TicketPrice'];

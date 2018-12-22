@@ -18,7 +18,7 @@
 
     'invoicePageMax' => 9,
 
-    'showCancelledTicketsOnInvoiceExceptions' => [],
+    'showCanceledTicketsOnInvoiceExceptions' => [],
 
     'consolidateContractTicketsOnInvoiceExceptions' => [],
 

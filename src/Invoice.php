@@ -21,7 +21,7 @@
     protected $CheckNumber;
     protected $Closed;
     protected $consolidateContractTicketsOnInvoice = TRUE;
-    protected $showCancelledTicketsOnInvoice = FALSE;
+    protected $showCanceledTicketsOnInvoice = FALSE;
     protected $Tickets;
     protected $ConsolidatedTickets = [];
     protected $RegenThisInvoice;
@@ -51,7 +51,7 @@
         throw $e;
       }
 
-      $this->showCancelledTicketsOnInvoice = in_array($this->ClientID, $this->showCancelledTicketsOnInvoiceExceptions, true);
+      $this->showCanceledTicketsOnInvoice = in_array($this->ClientID, $this->showCanceledTicketsOnInvoiceExceptions, true);
 
       $this->consolidateContractTicketsOnInvoice = !in_array($this->ClientID, $this->consolidateContractTicketsOnInvoiceExceptions, true);
     }
@@ -172,7 +172,7 @@
       $body = '
             <table class="wide">';
       $page1 = $morePages = $filteredTicketSet = array();
-      if ($this->showCancelledTicketsOnInvoice === FALSE) {
+      if ($this->showCanceledTicketsOnInvoice === FALSE) {
         foreach ($ticketSet as $filtered) {
           if ($filtered->getProperty('Charge') !== 0) {
             $filteredTicketSet[] = $filtered;

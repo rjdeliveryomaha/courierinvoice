@@ -19,7 +19,7 @@
     private $totals = [];
     private $monthKeys = [];
     // Define the order for the keys in $dataSet
-    private $properOrder = [ 'monthTotal', 'contract', 'onCall', 'credit', 'withIce', 'withoutIce', 'cancelled', 'deadRun', 'oneHour', 'twoHour', 'threeHour', 'fourHour', 'routine', 'roundTrip', 'dedicated' ];
+    private $properOrder = [ 'monthTotal', 'contract', 'onCall', 'credit', 'withIce', 'withoutIce', 'canceled', 'deadRun', 'oneHour', 'twoHour', 'threeHour', 'fourHour', 'routine', 'roundTrip', 'dedicated' ];
     private $graph_height = 12.5;
     private $bar_width = 0.35;  //width of bar in em
     private $bar_gap = 0.35;  //gap between adjacent bars
@@ -143,7 +143,7 @@
         case 'onCall': return 'On Call';
         case 'withIce': return 'With Ice';
         case 'withoutIce': return 'W/O Ice';
-        case 'cancelled': return 'Cancelled';
+        case 'canceled': return 'Canceled';
         case 'deadRun': return 'Dead Run';
         case 'oneHour': return '1 Hour';
         case 'twoHour': return '2 Hour';

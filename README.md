@@ -602,7 +602,7 @@ Returns HTML content to populate the transfers page.
 
 Displays invoices for review.
 
-By default cancelled thickets are not displayed. This behavior can be adjusted on a per client basis in the config file located at [extras/includes](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes).
+By default canceled thickets are not displayed. This behavior can be adjusted on a per client basis in the config file located at [extras/includes](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes).
 
 By default contract tickets are consolidated by run number. This behavior can be adjusted on a per client basis in the config file located at [extras/includes](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes).
 

@@ -58,7 +58,7 @@ Integer
 
 The maximum number of line items on every page after the first.
 
-### showCancelledTicketsOnInvoiceExceptions
+### showCanceledTicketsOnInvoiceExceptions
 
 Indexed array
 
