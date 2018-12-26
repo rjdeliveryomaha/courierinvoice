@@ -792,14 +792,14 @@ Checks for past due invoices.
   try {
     $cron = new InvoiceCron($config);
   } catch(Exception $e) {
-    echo $e->getMessage();
+    // log $e->getMessage();
     exit;
   }
 
   try {
     $cron->createInvoices();
   } catch(Exception $e) {
-    echo $e->getMessage();
+    // log $e->getMessage();
     exit;
   }
   exit;
@@ -813,7 +813,7 @@ This is an extendable drop-in implementation of this set of classes using jQuery
 
 [jQuery.ajaxRetry](https://github.com/dcherman/jQuery.ajaxRetry) is used to implement a simple backoff.
 
-A templet for ajax calls with this backoff built in is also included. This will retry a failed call indefinitely waiting ``` n * 250 ``` milliseconds between calls where n is the retry count. The function returns the jQuery ajax object.
+A templet for ajax calls with this backoff built in is also included. This will retry a failed call 20 times waiting ``` n * 250 ``` milliseconds between calls where n is the retry count. The function returns the jQuery ajax object.
 
 ```javascript
   ajax_template(callMethod, url, returnType, postData=false)
@@ -853,6 +853,8 @@ Usage:
 Uses ticket information from database to populate datalist elements to assist form completion.
 
 Single page design navigated by either swipe or menu. Offers unique features based upon user type.
+
+At the end of the transition between pages ``` scroll(0,0) ``` is called and a window event named 'pageChange' is triggered.
 
 Setting the order of menu items as well as adding custom menu items (with or without matching pages), and javascript files is handled in the config file is located at [extras/includes](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes).
 

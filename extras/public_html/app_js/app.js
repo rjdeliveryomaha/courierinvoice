@@ -62,7 +62,7 @@ function debug(val) {
     console.log(typeof(val), val.length, val);
   }
 }
-// menu controll
+// menu control
 (function () {
   "use strict";
 
@@ -211,11 +211,8 @@ window.mySwipe = new Swipe(document.getElementById("slider"), {
     $(".menu__list li").each(function() {
       $(this).removeClass("menu__list__active");
     });
-    let currentPage;
     $(".page").each(function() {
       if ($(this).prop("id") === elem.id) {
-        currentPage = elem.id;
-        scroll(0,0);
         let titleText;
         let buttonTitles = [ "Route", "On Call", "Dispatch", "Transfers" ];
         // if the link text has a span in it or links to div#route.page
@@ -231,6 +228,8 @@ window.mySwipe = new Swipe(document.getElementById("slider"), {
         $('a.nav[data-id="' + $(this).prop("id") + '"').parents("li").addClass("menu__list__active");
       }
     });
+    scroll(0,0);
+    $(window).trigger('pageChange');
   }
 });
 
@@ -240,7 +239,7 @@ function assignLinkValues() {
     eles[i].setAttribute("data-value", i);
   }
 }
-// End menu controll
+// End menu control
 // offline
 (function () {
   "use strict";
@@ -702,7 +701,7 @@ $(document).ready(function() {
     window.location = "./logout";
   });
   // active tickets
-  $("#ticketEditorSubmit").click(function(e) {
+  $(document).on("client", "#ticketEditorSubmit", function(e) {
     e.preventDefault();
     $("#ticketEditor .container").html("<span class=\"ellipsis\">.</span>");
     let $ele = $("#ticketEditor .ellipsis"),
