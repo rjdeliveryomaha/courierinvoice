@@ -171,7 +171,7 @@
         if (empty($value['tickets'])) continue;
         // create invoice object for submission
         $tempInvoice = new \stdClass();
-        $tempInvoice->ClientID = $self::test_int($key);
+        $tempInvoice->ClientID = self::test_int($key);
         $tempInvoice->RepeatClient = (substr($key,0,1) === 't') ? 0 : 1;
         $tempInvoice->StartDate = $this->startDate;
         $tempInvoice->EndDate = $this->endDate;
