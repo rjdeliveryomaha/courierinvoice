@@ -116,8 +116,8 @@
       }
       $returnData = '';
       for ($i = 0; $i < count($this->onCallTicketSet); $i++) {
-        $this->ticketSet[$i]['formKey'] = $this->formKey;
-        $ticket = self::createTicket($this->ticketSet[$i]);
+        $this->onCallTicketSet[$i]['formKey'] = $this->formKey;
+        $ticket = self::createTicket($this->onCallTicketSet[$i]);
         if ($ticket === FALSE) {
           $temp = $this->error;
           $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
