@@ -956,13 +956,13 @@
         if ($id === 'change_password' || $id === 'change_admin_password') {
           switch($this->ulevel) {
             case 0:
-              $alert = ($this->pwWarning === 4) ? '<span class="pwalert">!</span>' : '<span class="pwalert"></span>';
+              $alert = ($this->pwWarning === 4) ? '<span class="alert">!</span>' : '<span class="alert"></span>';
             break;
             case 1:
               if ($id === 'change_password') {
-                $alert = ($this->pwWarning === 1 || $this->pwWarning === 3) ? '<span class="alert">!</span>' : '<span class="pwalert"></span>';
+                $alert = ($this->pwWarning === 1 || $this->pwWarning === 3) ? '<span class="alert">!</span>' : '<span class="alert"></span>';
               } elseif ($id === 'change_admin_password') {
-                $alert = ($this->pwWarning === 2 || $this->pwWarning === 3) ? '<span class="alert">!</span>' : '<span class="pwalert"></span>';
+                $alert = ($this->pwWarning === 2 || $this->pwWarning === 3) ? '<span class="alert">!</span>' : '<span class="alert"></span>';
               }
             break;
           }
