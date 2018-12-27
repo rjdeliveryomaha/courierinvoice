@@ -2446,7 +2446,7 @@ $(document).ready(function() {
       $(this).parents("form").find(".rtMarker, .dedicatedNote").show().end().find("#pSigReq, #dSigReq").prop("checked", true).addClass("stayChecked");
     }
     else {
-      $(this).parents("form").find(".rtMarker, .dedicatedNote").hide().prop("checked", false).end().find("#pSigReq, #dSigReq").prop("checked", false).removeClass("stayChecked");
+      $(this).parents("form").find(".rtMarker, .dedicatedNote").hide().prop("checked", false).end().find("#pSigReq, #dSigReq").prop("checked", false).trigger("change").removeClass("stayChecked");
     }
   }).change();
 
@@ -2458,8 +2458,7 @@ $(document).ready(function() {
     if ($(this).val() !== "0") {
       $(this).parents("form").find(".emailAddress").prop("required", true);
       $(this).parents("form").find(".emailNote").removeClass("hide");
-    }
-    else {
+    } else {
       $(this).parents("form").find(".emailAddress").prop("required", false);
       $(this).parents("form").find(".emailNote").addClass("hide");
     }
@@ -2485,7 +2484,7 @@ $(document).ready(function() {
     }
   });
 
-  $(document).on("change", "#ticket_entry #pSigReq, #ticket_entry #dSigReq, #ticket_entry #d2SigReq", function(){
+  $(document).on("change", "#pSigReq, #dSigReq, #d2SigReq", function(){
     let y = $("#pSigReq").is(":checked");
     let x = $("#dSigReq").is(":checked");
     let z = $("#d2SigReq").is(":checked");
@@ -2499,7 +2498,7 @@ $(document).ready(function() {
     }
   }).change();
 
-  $(document).on("click", "#ticket_entry .submitForm", function(e) {
+  $(document).on("click", ".submitForm", function(e) {
     e.preventDefault();
     let button = $(this);
     button.prop("disabled", true);
@@ -2688,12 +2687,10 @@ $(document).ready(function() {
       $(this).parents("fieldset").find(".clientList").each( function(){ $(this).prop("disabled", true).prop("required", false).prop("readonly", false).val("").hide();} ).end().find(".clientSelect").each( function(){$(this).prop("disabled", false).show();} );
       if ($(this).attr("id") === "onFileP") {
         $(this).parents("form").find("#toMe").prop("disabled", false);
-      }
-      else {
+      } else {
         $(this).parents("form").find("#fromMe").prop("disabled", false);
       }
-    }
-    else {
+    } else {
       $(this).parents("fieldset").find(".clientList").each( function(){ $(this).prop("disabled", false).prop("required", true).show(); if ($(this).prop("name").substr(1) === "Department") { $(this).prop("required", false); } } ).end().find(".clientSelect").each( function(){$(this).prop("disabled", true).hide();} );
     }
   }).change();
