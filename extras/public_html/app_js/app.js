@@ -703,8 +703,8 @@ $(document).ready(function() {
   // active tickets
   $(document).on("click", "#ticketEditorSubmit", function(e) {
     e.preventDefault();
-    $("#ticketEditor .container").html("<span class=\"ellipsis\">.</span>");
-    let $ele = $("#ticketEditor .ellipsis"),
+    $("#active_tickets .container").html("<span class=\"ellipsis\">.</span>");
+    let $ele = $("#active_tickets .ellipsis"),
         forward = true,
         dots = setInterval(() => {
           if (forward === true) {
@@ -717,20 +717,21 @@ $(document).ready(function() {
         }, 500),
         dispatchedTo = $(this).parents("form").find(".driverID").val(),
         contract = $(this).parents("form").find(".contract").val(),
+        searchDate = $(this).parents("form").find(".searchDate").val(),
         formKey = $("#formKey").val();
-    if (dispatchedTo === "" || dispatchedTo === null || dispatchedTo === "undefined") return false;
-    let attempt = ajax_template("POST", "./activeTickets.php", "html", { dispatchedTo: dispatchedTo, contract: contract, formKey: formKey })
+    if (dispatchedTo === "" || dispatchedTo === "undefined" || searchDate === "" || searchDate === "undefined") return false;
+    let attempt = ajax_template("POST", "./activeTickets.php", "html", { dispatchedTo: dispatchedTo, contract: contract, ticketEditorSearchDate: searchDate, formKey: formKey })
     .done((result) => {
       clearInterval(dots);
-      $("#ticketEditor").find(".ellipsis").remove();
+      $("#active_tickets").find(".ellipsis").remove();
       if (result.indexOf("Session Error") !== -1) return showLogin();
-      $("#ticketEditor .container").html(result);
+      $("#active_tickets .container").html(result);
     })
     .fail((jqXHR, status, error) => {
       clearInterval(dots);
-      $("#ticketEditor").find(".ellipsis").remove();
-      $("#ticketEditor .message").find("#message").html("<p class=\"center ajaxError\"><span class=\"error\">Error</span>: " + error + "</p>");
-      setTimeout(() => { $("#ticketEditor").find(".ajaxError").remove(); }, 4000);
+      $("#active_tickets").find(".ellipsis").remove();
+      $("#active_tickets .message").find("#message").html("<p class=\"center ajaxError\"><span class=\"error\">Error</span>: " + error + "</p>");
+      setTimeout(() => { $("#active_tickets").find(".ajaxError").remove(); }, 4000);
     });
   });
 
@@ -751,7 +752,7 @@ $(document).ready(function() {
     });
   });
 
-  $(document).on("click", "#ticketEditor .submitForm", function(e) {
+  $(document).on("click", "#active_tickets .submitForm", function(e) {
     e.preventDefault();
     $(this).prop("disable", true);
     let breakFunction = false,
@@ -817,7 +818,7 @@ $(document).ready(function() {
     });
   });
 
-  $(document).on("click", "#ticketEditor .editForm, #ticketEditor .confirmed", function(e) {
+  $(document).on("click", "#active_tickets .editForm, #active_tickets .confirmed", function(e) {
     e.preventDefault();
     let button = $(this);
     let workspace = button.parents(".tickets");
@@ -874,7 +875,7 @@ $(document).ready(function() {
   });
 
   $(document).on("click", "#clearTicketEditorResults", function() {
-    $("#ticketEditor .container").html('<p class="center">Select Driver &amp; Ticket Type</p>');
+    $("#active_tickets .container").html('<p class="center">Select Driver &amp; Ticket Type</p>');
   });
   // change password
   $(document).on("click", ".PWsubmit", function(e) {

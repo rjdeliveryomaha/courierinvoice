@@ -111,12 +111,12 @@
     private $stepMarker;
     private $driverDatalist;
     private $dispatchForm;
+    protected $ticketEditorSearchDate;
     // Ticket values that should not be included on datalists
     protected $ignoreValues = [];
     // Other needed properties
     private $activeTicketSet = [];
     private $today;
-    private $backstop;
     private $dateObject;
     public $index = 0;
     public $edit;
@@ -2051,9 +2051,12 @@
         $ticketQueryData['queryParams']['filter'][] = ['Resource'=>'DispatchTimeStamp', 'Filter'=>'is'];
       } else {
         if ($this->ticket_index === NULL) {
-          $this->dateObject = clone $this->today;
-          $this->backstop = $this->dateObject->modify('- 7 days')->format('Y-m-d');
-          $ticketQueryData['queryParams']['filter'][] = ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>"{$this->backstop} 00:00:00,{$this->today->format('Y-m-d')} 23:59:59"];
+          if (preg_match('/\d{4}-\d{2}-\d{2}/', $this->ticketEditorSearchDate) !== 1) {
+            $this->error = '<p class="center">Invalid search date. Please use YYYY-mm-dd</p>';
+            if ($this->enableLogging !== FALSE) self::writeLoop();
+            return $this->error;
+          }
+          $ticketQueryData['queryParams']['filter'][] = ['Resource'=>'ReceivedDate', 'Filter'=>'sw', 'Value'=>$this->ticketEditorSearchDate];
         }
       }
       if ($this->ticket_index === NULL) $ticketQueryData['queryParams']['filter'][] = ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->DispatchedTo];
@@ -2388,27 +2391,29 @@
 
     public function initTicketEditor() {
       return "
-            <form action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
+            <form id=\"ticketEditor\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
               <input type=\"hidden\" name=\"ticketEditor\" value=\"1\" />
-              <table class=\"centerDiv\">
-                <tr>
-                  <td><label for=\"driverID\">Driver:</label></td>
-                  <td><input list=\"drivers\" name=\"driverID\" class=\"driverID\"></td>
-                </tr>
-                <tr>
-                  <td><label for=\"contract\">Ticket Type:</label></td>
-                  <td>
-                    <select name=\"contract\" class=\"contract\">
-                      <option value=\"0\">On Call</option>
-                      <option value=\"1\">Contract</option>
-                    </select>
-                  </td>
-                </tr>
-                <tr>
-                  <td><button type=\"submit\" id=\"ticketEditorSubmit\">Submit</button></td>
-                  <td class=\"pullRight\"><button type=\"button\" id=\"clearTicketEditorResults\">Clear Results</button></td>
-                </tr>
-              </table>
+              <p>
+                <span class=\"item\">
+                  <label for=\"driverID\">Driver:</label>
+                  <input list=\"drivers\" name=\"driverID\" class=\"driverID\">
+                </span>
+                <span class=\"item\">
+                  <label for=\"contract\">Type:</label>
+                  <select name=\"contract\" class=\"contract\">
+                    <option value=\"0\">On Call</option>
+                    <option value=\"1\">Contract</option>
+                  </select>
+                </span>
+                <span class=\"item\">
+                  <label for=\"ticketEditorDate\">Date</label>
+                  <input type=\"date\" name=\"searchDate\" class=\"searchDate\" value=\"{$this->today->format('Y-m-d')}\" />
+                </span>
+                <span class=\"item\">
+                  <button type=\"submit\" id=\"ticketEditorSubmit\">Submit</button>
+                  <button type=\"button\" id=\"clearTicketEditorResults\">Clear Results</button>
+                </span>
+              </p>
             </form>
             <hr>
             <span class=\"message\"></span>

@@ -100,6 +100,16 @@ label {
   /* width: 90%; */
 }
 
+#ticketEditor {
+  text-align: center;
+}
+
+#ticketEditor .item {
+  display: inline-block;
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+}
+
 .routeStop {
   /* display: inline; */
 }
@@ -196,7 +206,7 @@ label {
   .confirmAddress > td {
     display: table-cell;
   }
-  #ticketEditor .container .wide td {
+  #active_tickets .container .wide td {
     text-align: center;
   }
 }
