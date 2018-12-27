@@ -324,7 +324,7 @@ button.blue {
   width: 3.5em;
 }
 
-.alert, #newUpdate {
+.alert, .PWalert, #newUpdate {
   font-style: italic;
 }
 

@@ -913,12 +913,10 @@ $(document).ready(function() {
           if (result.search("Password Updated") !== -1) {
             if (pwError === true) {
               button.closest(".page").find(".defaultWarning").removeClass("hide");
-              $ele.find(".alert").text("!");
-              $(".pageTitle .alert").text("!");
+              $ele.find(".PWalert").text("!");
             } else {
               button.closest(".page").find(".defaultWarning").addClass("hide");
-              $ele.find(".alert").text("");
-              $(".pageTitle .alert").text("");
+              $ele.find(".PWalert").text("");
             }
           }
         }
