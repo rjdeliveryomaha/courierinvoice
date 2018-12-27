@@ -856,7 +856,7 @@ Single page design navigated by either swipe or menu. Offers unique features bas
 
 At the end of the transition between pages ``` scroll(0,0) ``` is called and a window event named 'pageChange' is triggered.
 
-Setting the order of menu items as well as adding custom menu items (with or without matching pages), and javascript files is handled in the config file is located at [extras/includes](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes).
+Setting the order of menu items as well as adding custom menu items (with or without matching pages), and javascript files is handled in the config file located at [extras/includes](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes).
 
 ### Drivers
 
