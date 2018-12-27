@@ -71,7 +71,7 @@ table td {
   white-space: normal;
 }
 
-#route .tickets td, #onCall .tickets td, #transfers .tickets td, .ticketContainer tfoot td {
+.tickets td, .ticketContainer tfoot td {
   text-align: center;
 }
 
