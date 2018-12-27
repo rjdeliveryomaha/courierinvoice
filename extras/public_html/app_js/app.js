@@ -214,7 +214,7 @@ window.mySwipe = new Swipe(document.getElementById("slider"), {
     $(".page").each(function() {
       if ($(this).prop("id") === elem.id) {
         let titleText;
-        let buttonTitles = [ "Route", "On Call", "Dispatch", "Transfers" ];
+        let buttonTitles = [ "Route", "On Call", "Dispatch", "Transfers", "Ticket Entry" ];
         // if the link text has a span in it or links to div#route.page
         // use the text to make button to refresh the corresponding div.page
         let eleTest = $('a.nav[data-id="' + $(this).prop("id") + '"').html().split("<");
@@ -469,6 +469,28 @@ function countInitOnCall() {
   if (newCount > 0) $(".alert").addClass("onCallAlert").text("!");
 }
 
+function refreshTicketEntry() {
+  $("#ticket_entry .subContainer").hide();
+  $("#deliveryRequest").remove();
+  $("#ticket_entry .subContainer").before('<div class="showbox"><!-- New spinner from http://codepen.io/collection/HtAne/ --><div class="loader"><svg class="circular" viewBox="25 25 50 50"><circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/></svg></div></div>');
+  scrollTo(0,0);
+  let attempt = ajax_template("POST", "./refreshTicketForm.php", "html", { edit: 1, formKey: $("#formKey").val() })
+  .done(result => {
+    if (result.indexOf("Session Error") !== -1) {
+      $("#confirmLogin").find("#function").val("refreshTicketForm");
+      showLogin();
+      return false;
+    }
+    setTimeout(() => {
+      $("#ticket_entry .showbox").remove();
+      $("#ticket_entry .subContainer").show().before(result);
+    }, 2000);
+  })
+  .fail((jqXHR, status, error) => {
+
+  });
+}
+
 function countDispatch(oldCount) {
   let newCount = $("#dispatch .tickets").length;
   if (newCount > oldCount) $(".alert").addClass("dispatchAlert").text("!");
@@ -618,7 +640,7 @@ $(document).ready(function() {
     setTimeout(() => { $temp.removeClass("red"); }, 3000);
   });
 
-  $(document).on("click", "#refreshRoute, #refreshOnCall, #refreshDispatch, #refreshTransfers", function(e) {
+  $(document).on("click", "#refreshRoute, #refreshOnCall, #refreshDispatch, #refreshTransfers, #refreshTicketEntry", function(e) {
     e.preventDefault();
     window[$(this).prop("id")]();
   });
