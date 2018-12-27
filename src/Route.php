@@ -43,7 +43,7 @@
       } catch (Exception $e) {
         throw $e;
       }
-      $this->driverID = $_SESSION['DriverID'];
+      $this->driverID = $_SESSION['DriverID'] ?? $_SESSION['DispatchID'];
       $this->driverName = "{$_SESSION['FirstName']} {$_SESSION['LastName']}";
       $this->LastSeen = $_SESSION['LastSeen'];
       try {
