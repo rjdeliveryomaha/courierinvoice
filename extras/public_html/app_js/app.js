@@ -283,7 +283,7 @@ function isTarget(ele) {
 // count organization memebers for invoice page
 function disableButtonsInvoices() {
   let howMany = 0;
-  $("#orgInvoices .orgMember").each(function() {
+  $("#invoice_query .orgMember").each(function() {
     if ($(this).is(":checked")) howMany++;
   });
   $("#compareMembers").prop("disabled", howMany < 2);
@@ -291,9 +291,9 @@ function disableButtonsInvoices() {
 
   if (howMany === 0) {
     $("#range, #submitSingle").prop("disabled", true).prop("title", "Select a member to continue");
-    $("#orgInvoices").find(".noticeRow").show();
+    $("#invoice_query").find(".noticeRow").show();
   } else {
-    $("#orgInvoices").find(".noticeRow").hide();
+    $("#invoice_query").find(".noticeRow").hide();
     $("#range, #submitSingle").prop("title", "");
     if ($("#single").is(":checked")) {
       $("#submitSingle").prop("disabled", false);
@@ -305,12 +305,12 @@ function disableButtonsInvoices() {
 // count organization members for ticket page
 function disableButtonsTickets() {
   let howMany = 0;
-  $("#orgTickets .orgMember").each(function() {
+  $("#ticket_query .orgMember").each(function() {
     if ($(this).is(":checked")) howMany++;
   });
   $("#compareMembersTickets").prop("disabled", !(howMany > 1 && $("#display").val() === "chart"));
   if ($("#compareMembersTickets").is(":disabled")) $("#compareMembersTickets").prop("checked", false);
-  (howMany === 0 && $("#ticketNumber").val() === "") ? $("#orgTickets").find(".noticeRow").show() : $("#orgTickets").find(".noticeRow").hide()
+  (howMany === 0 && $("#ticketNumber").val() === "") ? $("#ticket_query").find(".noticeRow").show() : $("#ticket_query").find(".noticeRow").hide()
 }
 
 if (!String.prototype.convert12to24) {
@@ -1009,8 +1009,8 @@ $(document).ready(function() {
     $("#useInvoice").prop("disabled", true);
   }
 
-  if ($("#orgInvoices .orgMember").length > 0) {
-    $("#orgInvoices .orgMember:first").parents("tfoot").append('<tr class="noticeRow"><td colspan="2">Select member to query</td></tr>')
+  if ($("#invoice_query .orgMember").length > 0) {
+    $("#invoice_query .orgMember:first").parents("tfoot").append('<tr class="noticeRow"><td colspan="2">Select member to query</td></tr>')
   }
 
   $(document).on("click", "#single, #multi", function() {
@@ -1020,10 +1020,10 @@ $(document).ready(function() {
   $(document).on("change", "#single, #multi", function() {
     disableButtonsInvoices();
     let recheck = [];
-    $("#orgInvoices .orgMember").each(function() {
+    $("#invoice_query .orgMember").each(function() {
       if ($(this).is(":checked")) recheck.push($(this));
     });
-    $("#orgInvoices .orgMember").prop("checked", false).trigger("change");
+    $("#invoice_query .orgMember").prop("checked", false).trigger("change");
     let target = ($(this).prop("id") === "single") ? "multi" : "single";
     if ($(this).is(":checked")) {
       $("#" + target).prop("checked", false);
@@ -1031,12 +1031,12 @@ $(document).ready(function() {
     if (recheck.length > 0) recheck[0].prop("checked", true).trigger("change");
   }).change();
 
-  $(document).on("change", "#orgInvoices .orgMember", function() {
+  $(document).on("change", "#invoice_query .orgMember", function() {
     disableButtonsInvoices();
     let testVal = $(this).attr("data-value");
     if ($(this).is(":checked")) {
       if ($("#single").is(":checked")) {
-        $("#orgInvoices .orgMember").each(function() { $(this).prop("checked", $(this).attr("data-value") === testVal); } );
+        $("#invoice_query .orgMember").each(function() { $(this).prop("checked", $(this).attr("data-value") === testVal); } );
         $("#singleInvoiceQuery").find($(".removable")).remove();
         $("#submitSingle").before('<input type="hidden" class="removable" name="clientID[]" value="' + testVal + '" />');
       } else if ($("#multi").is(":checked")) {
@@ -1060,7 +1060,7 @@ $(document).ready(function() {
     let breakFunction = false;
     let thisButton = $(this);
     thisButton.prop("disabled", true);
-    let workspace = ($(this).attr("id") === "singleInvoice" || $(this).attr("id") === "rangeInvoice") ? $("#invoices") : $("#orgInvoices");
+    let workspace = ($(this).attr("id") === "singleInvoice" || $(this).attr("id") === "rangeInvoice") ? $("#invoices") : $("#invoice_query");
     if (workspace.attr("id") === "invoices" && noData === true) return false;
     let postData = {};
     $(this).parents("form").find("input, select").each(function() {
@@ -1220,7 +1220,7 @@ $(document).ready(function() {
     $("#options").find("input[type='submit']").prop("disabled", true);
   }
 
-  if ($("#orgTickets .orgMember").length > 0) {
+  if ($("#ticket_query .orgMember").length > 0) {
     $("#ticketQueryResults").before('<p class="center noticeRow">Select member or ticket number to query</p>')
   }
 
@@ -1244,15 +1244,15 @@ $(document).ready(function() {
         $("#deliveryQuery").find("#compareBox").prop("disabled", false);
       break;
     }
-    $("#orgTickets .orgMember").each(function() { $(this).prop("checked", false); } );
+    $("#ticket_query .orgMember").each(function() { $(this).prop("checked", false); } );
   });
 
-  $(document).on("change", "#orgTickets .orgMember", function() {
+  $(document).on("change", "#ticket_query .orgMember", function() {
     disableButtonsTickets();
     if ($(this).is(":checked")) {
-      $("#orgTickets #ticketNumber").val("").prop("readonly", true).trigger("change");
+      $("#ticket_query #ticketNumber").val("").prop("readonly", true).trigger("change");
     } else {
-      $("#orgTickets #ticketNumber").prop("readonly", ($("#display").val() === "chart"));
+      $("#ticket_query #ticketNumber").prop("readonly", ($("#display").val() === "chart"));
     }
   }).change();
 
@@ -1293,22 +1293,22 @@ $(document).ready(function() {
 
   $(document).on("change", "#deliveryQuery #ticketNumber", function(){
     if($(this).val() !== "") {
-      if ($("#orgTickets .noticeRow").length > 0) {
-        $("#orgTickets .noticeRow").hide();
+      if ($("#ticket_query .noticeRow").length > 0) {
+        $("#ticket_query .noticeRow").hide();
       }
       $(this).parents("form").find("#startDate, #endDate, #chargeHistory, #type, #allTime, #display, #compareBox, #compareMembersTickets").prop("disabled", true).prop("checked", false).prop("required", false).end().find(".startDateMarker, .endDateMarker, .chargeMarker, .typeMarker, #displayMarker").prop("disabled", false);
       if ($(".submitOrgTickets").length > 0) {
         $(".submitOrgTickets").prop("disabled", false);
       }
     } else {
-      if ($("#orgTickets .noticeRow").length > 0) {
+      if ($("#ticket_query .noticeRow").length > 0) {
         let memberTest = false;
-        $("#orgTickets .orgMember").each(function() {
+        $("#ticket_query .orgMember").each(function() {
           if ($(this).is(":checked")) {
             memberTest = true;
           }
         });
-        if (memberTest === false) $("#orgTickets .noticeRow").show();
+        if (memberTest === false) $("#ticket_query .noticeRow").show();
       }
       if ($(this).prop("readonly") === false) {
         $("#deliveryQuery #startDate, #deliveryQuery #endDate").prop("required", true);
@@ -1442,7 +1442,7 @@ $(document).ready(function() {
     }
     if (postData.ticketNumber !== "") {
       let clients = [];
-      $("#orgTickets .orgMember").each(function() {
+      $("#ticket_query .orgMember").each(function() {
         clients.push($(this).val());
       });
       postData.clientID = clients;
@@ -1450,7 +1450,7 @@ $(document).ready(function() {
     postData.formKey = $("#formKey").val();
     $("#startDate, #endDate, #startDateMonth, #endDateMonth, #ticketNumber").val("");
     $("#compareBox, #compareMembersTickets").prop("checked", false).trigger("change");
-    $("#orgTickets #display").val("tickets").trigger("change");
+    $("#ticket_query #display").val("tickets").trigger("change");
     disableButtonsTickets();
     if (breakFunction === true) return false;
     $("#ticketQueryResults").html("");
