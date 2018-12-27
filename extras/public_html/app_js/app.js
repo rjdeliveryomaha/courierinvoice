@@ -701,7 +701,7 @@ $(document).ready(function() {
     window.location = "./logout";
   });
   // active tickets
-  $(document).on("client", "#ticketEditorSubmit", function(e) {
+  $(document).on("click", "#ticketEditorSubmit", function(e) {
     e.preventDefault();
     $("#ticketEditor .container").html("<span class=\"ellipsis\">.</span>");
     let $ele = $("#ticketEditor .ellipsis"),
