@@ -9,7 +9,6 @@
     // array of (int)ClientID that should not be processed on this schedule
     protected $invoiceCronIgnoreClients;
     protected $invoiceCronIgnoreNonRepeat;
-    protected $invoiceCronTimezone;
     // invoice variables
     private $startDate;
     private $endDate;
