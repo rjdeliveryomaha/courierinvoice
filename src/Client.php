@@ -269,36 +269,42 @@
         $flag = 'admin';
         $type = 'client';
         $id = $_SESSION['ClientID'];
+        $repeatClient = '<input type="hidden" name="repeatClient" value="' . $_SESSION['RepeatClient'] . '" />';
       } elseif ($this->userType === 'daily') {
         $showPWwarning = ($this->pwWarning === 1 || $this->pwWarning === 3) ? '' : 'hide';
         $formID = 'pwUpdate';
         $flag = 'daily';
         $type = 'client';
         $id = $_SESSION['ClientID'];
+        $repeatClient = '<input type="hidden" name="repeatClient" value="' . $_SESSION['RepeatClient'] . '" />';
       } elseif ($this->userType === 'org') {
         $showPWwarning = ($this->pwWarning === 4) ? '' : 'hide';
         $formID = 'opwUpdate';
         $flag = 'org';
         $type = 'client';
         $id = $_SESSION['ClientID'];
+        $repeatClient = '';
       } elseif ($this->userType === 'driver') {
         $showPWwarning = 'hide';
         $formID = 'driverPwUpdate';
         $flag = 'driver';
         $type = 'driver';
         $id = $_SESSION['DriverID'];
+        $repeatClient = '';
       } elseif ($this->userType === 'dispatch') {
         $showPWwarning = 'hide';
         $formID = 'dispatchPwUpdate';
         $flag = 'dispatch';
         $type = 'dispatch';
         $id = $_SESSION['DispatchID'];
+        $repeatClient = '';
       }
       return "
             <div class=\"PWcontainer\">
               <div class=\"PWform\">
                 <form id=\"{$formID}\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
                   <input type=\"hidden\" name=\"{$type}\" class=\"{$type}\" value=\"{$id}\" form=\"{$formID}\" />
+                  $repeatClient
                   <input type=\"hidden\" name=\"flag\" class=\"flag\" value=\"{$flag}\" form=\"{$formID}\" />
                   <table>
                     <tr>
