@@ -762,7 +762,7 @@ Receives a dataset of tickets grouped by month from the [SearchHandler](https://
 
 Displays a simple bar chart depicting the number of each type of ticket over a given period.
 
-[example](https://github.com/rjdeliveryomaha/courierinvoice/extras/example_images/ticketChartExample.png)
+[example](extras/example_images/ticketChartExample.png?raw=true "Example of ticket chart.")
 
 ## Usage:
 
@@ -801,7 +801,8 @@ try {
                                                    'dedicatedRun'=>0,
                                                    'withIce'=>0,
                                                    'withoutIce'=>0,
-                                                   'startDate'=>$receivedDate->format('Y-m-d'), 'endDate'=>$receivedDate->format('Y-m-d')
+                                                   'startDate'=>$receivedDate->format('Y-m-d'),
+                                                   'endDate'=>$receivedDate->format('Y-m-d')
                                                  ];
   ```
 
