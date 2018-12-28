@@ -783,7 +783,6 @@ Checks for past due invoices.
 ## Usage:
 
 ```php
-<?php
   require_once '../includes/api_config.php';
   require_once '../vendor/autoload.php';
 
