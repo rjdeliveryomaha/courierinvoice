@@ -2,10 +2,7 @@
   namespace rjdeliveryomaha\courierinvoice;
 
   use rjdeliveryomaha\courierinvoice\CommonFunctions;
-  /***
-  * throws Exception
-  *
-  ***/
+
   class TicketChart extends CommonFunctions {
     protected $dataSet;
     protected $clientID;
@@ -20,11 +17,6 @@
     private $monthKeys = [];
     // Define the order for the keys in $dataSet
     private $properOrder = [ 'monthTotal', 'contract', 'onCall', 'credit', 'withIce', 'withoutIce', 'canceled', 'deadRun', 'oneHour', 'twoHour', 'threeHour', 'fourHour', 'routine', 'roundTrip', 'dedicated' ];
-    private $graph_height = 12.5;
-    private $bar_width = 0.35;  //width of bar in em
-    private $bar_gap = 0.35;  //gap between adjacent bars
-    private $interval_gap = 1;  //gap between groups
-    private $interval_border = 0.125; //border-width of bar container
     // $ratio will be used to make sure that bars never go beyond graph height
     private $ratio;
     private $testMax = [];
@@ -45,7 +37,7 @@
     private $groups;
     private $total_bars;
     private $interval_width;
-    private $graph_width;
+    private $chart_width;
     private $bars;
     private $tableOutput;
     private $graphOutput;
@@ -93,9 +85,9 @@
               if (array_key_exists($this->clientID, $value)) $this->groups++;
             }
             // Calculate the width of each interval
-            $this->interval_width = ($this->bar_width * $this->total_bars) + ($this->bar_gap * $this->total_bars + 1) + (2 * $this->interval_border);
+            $this->interval_width = ($this->options['bar_width'] * $this->total_bars) + ($this->options['bar_gap'] * $this->total_bars + 1) + (2 * $this->options['interval_border']);
             // Calculate the width of the graph
-            $this->graph_width = ($this->interval_width * $this->groups) + ($this->interval_gap * ($this->groups + 1)) + 1;
+            $this->chart_width = ($this->interval_width * $this->groups) + ($this->options['interval_gap'] * ($this->groups + 1)) + 1;
             self::displayTable();
             self::displayBarGraph();
           }
@@ -110,8 +102,8 @@
           // Calculate the width of each interval
           $this->interval_width = 5;
           // Calculate the width of the graph
-          $this->graph_width = ($this->interval_width * $this->groups) + ($this->interval_gap * ($this->groups + 1)) + 1;
-          // var_dump($this->interval_width, $this->groups, $this->interval_gap, $this->graph_width);
+          $this->chart_width = ($this->interval_width * $this->groups) + ($this->options['interval_gap'] * ($this->groups + 1)) + 1;
+          // var_dump($this->interval_width, $this->groups, $this->options['interval_gap'], $this->chart_width);
           self::displayCompareGraph();
         } else {
           $this->error = 'Invalid Member Compare Value Line ' . __line__;
@@ -127,9 +119,9 @@
         // Number of bars in each group
         $this->total_bars = count($this->labels);
         // Calculate the width of each interval
-        $this->interval_width = ($this->bar_width * $this->total_bars) + ($this->bar_gap * $this->total_bars + 1) + (2 * $this->interval_border);
+        $this->interval_width = ($this->options['bar_width'] * $this->total_bars) + ($this->options['bar_gap'] * $this->total_bars + 1) + (2 * $this->options['interval_border']);
         // Calculate the width of the graph
-        $this->graph_width = ($this->interval_width * $this->groups) + ($this->interval_gap * ($this->groups + 1));
+        $this->chart_width = ($this->interval_width * $this->groups) + ($this->options['interval_gap'] * ($this->groups + 1));
         self::displayTable();
         self::displayBarGraph();
       }
@@ -217,12 +209,12 @@
         }
         $this->tableLabelGroups = array_chunk($this->labels, 5);
         $this->max = max($this->testMax);
-        $this->ratio = $this->graph_height/$this->max;
+        $this->ratio = $this->options['chart_height']/$this->max;
         foreach ($this->orderedData as $key => $value) {
           $this->nonAssocData[] = array_values($value);
           foreach ($value as $k => $v) {
             $this->heights["{$k}_height"][] = $v * $this->ratio;
-            $this->margins["{$k}_margin"][] = $this->graph_height - ($v * $this->ratio);
+            $this->margins["{$k}_margin"][] = $this->options['chart_height'] - ($v * $this->ratio);
             $this->counts["{$k}_counts"][] = self::number_format_drop_zero_decimals($v, 2);
           }
         }
@@ -344,13 +336,13 @@
         }
       }
       $this->max = max($this->testMax);
-      $this->ratio = $this->graph_height/$this->max;
+      $this->ratio = $this->options['chart_height']/$this->max;
       foreach ($temp as $key => $value) {
         foreach ($value as $k => $v) {
           $this->totals[$k] = $v;
           foreach ($v as $k1 => $v1) {
             $this->heights["{$k1}_height"][] = $v1 * $this->ratio;
-            $this->margins["{$k1}_margin"][] = $this->graph_height - ($v1 * $this->ratio);
+            $this->margins["{$k1}_margin"][] = $this->options['chart_height'] - ($v1 * $this->ratio);
             $this->counts["{$k1}_counts"][] = self::number_format_drop_zero_decimals($v1, 2);
           }
         }
@@ -485,34 +477,34 @@
       if ($this->error != NULL) return FALSE;
       $this->graphOutput = "
       <div class=\"ticketGraphContainer\">
-        <div class=\"centerDiv\" style=\"border:solid 0.1em #e1e1e1; background-color:#f4f4f4; height:{$this->graph_height}em; width:{$this->graph_width}em; margin-top:1.25em; overflow: hidden;\">
-          <div style=\"height:{$this->graph_height}em;width:{$this->interval_gap}em;\" class=\"space\"></div>";
+        <div class=\"centerDiv\" style=\"border:solid 0.1em #e1e1e1; background-color:#f4f4f4; height:{$this->options['chart_height']}em; width:{$this->chart_width}em; margin-top:1.25em; overflow: hidden;\">
+          <div style=\"height:{$this->options['chart_height']}em;width:{$this->options['interval_gap']}em;\" class=\"space\"></div>";
       // Generate bar graph output for each month
       for ($i = 0; $i < count($this->nonAssocData); $i++) {
         $this->graphOutput .= "
-          <div style=\"height:{$this->graph_height}em; width:{$this->interval_width}em; margin:0; padding:0;\" class=\"barContainer\">
-          <div style=\"height:{$this->graph_height}em;width:{$this->bar_gap}em;\" class=\"gap\"></div>";
+          <div style=\"height:{$this->options['chart_height']}em; width:{$this->interval_width}em; margin:0; padding:0;\" class=\"barContainer\">
+          <div style=\"height:{$this->options['chart_height']}em;width:{$this->options['bar_gap']}em;\" class=\"gap\"></div>";
         for ($j = 0; $j < count($this->nonAssocData[$i]); $j++) {
           $height = $this->heights[$this->nonZero[$j] . '_height'][$i];
           $margin = $this->margins[$this->nonZero[$j] . '_margin'][$i];
           $this->graphOutput .= "
-            <div title=\"{$this->arrayValueToChartLabel($this->nonZero[$j])}&#10;{$this->totals[$this->nonZero[$j]][$i]}\" style=\"height:{$height}em; width:{$this->bar_width}em; margin-top:{$margin}em;\" class=\"bar{$j}\"></div>
-            <div style=\"height:{$this->graph_height}em;width:{$this->bar_gap}em;\" class=\"gap\"></div>
+            <div title=\"{$this->arrayValueToChartLabel($this->nonZero[$j])}&#10;{$this->totals[$this->nonZero[$j]][$i]}\" style=\"height:{$height}em; width:{$this->options['bar_width']}em; margin-top:{$margin}em;\" class=\"bar{$j}\"></div>
+            <div style=\"height:{$this->options['chart_height']}em;width:{$this->options['bar_gap']}em;\" class=\"gap\"></div>
           ";
         }
         $this->graphOutput .= "
           </div>
-          <div style=\"height:{$this->graph_height}em;width:{$this->interval_gap}em;\" class=\"space\"></div>";
+          <div style=\"height:{$this->options['chart_height']}em;width:{$this->options['interval_gap']}em;\" class=\"space\"></div>";
       }
       $this->graphOutput .= "
           <div style=\"clear:both;\"></div>
         </div>
-        <div class=\"centerDiv\" style=\"height:2.75em; background-color:#8c8c8c; width:{$this->graph_width}em; color:#fff; border:solid 1px #666;\">
-        <div style=\"height:2.75em;width:{$this->interval_gap}em;\" class=\"space\"></div>";
+        <div class=\"centerDiv\" style=\"height:2.75em; background-color:#8c8c8c; width:{$this->chart_width}em; color:#fff; border:solid 1px #666;\">
+        <div style=\"height:2.75em;width:{$this->options['interval_gap']}em;\" class=\"space\"></div>";
       foreach ($this->groupLabels as $label) {
         $this->graphOutput .= "
-          <div style=\"width:{$this->interval_width}em;padding-left:{$this->interval_border}em; padding-right:{$this->interval_border}em;\" class=\"chartLabels\">{$label}</div>
-          <div style=\"height:2.75em;width:{$this->interval_gap}em;\" class=\"space\"></div>";
+          <div style=\"width:{$this->interval_width}em;padding-left:{$this->options['interval_border']}em; padding-right:{$this->options['interval_border']}em;\" class=\"chartLabels\">{$label}</div>
+          <div style=\"height:2.75em;width:{$this->options['interval_gap']}em;\" class=\"space\"></div>";
       }
       $this->graphOutput .= '
         </div>
@@ -530,7 +522,7 @@
       }
       // dynamically calculate the width of the graph
       $this->groups = count($this->currentChart);  // Number of groups
-      $this->graph_width = ($this->interval_width * $this->groups) + ($this->interval_gap * ($this->groups + 1));
+      $this->chart_width = ($this->interval_width * $this->groups) + ($this->options['interval_gap'] * ($this->groups + 1));
       if ($this->compareMembers === TRUE) {
         $this->graphOutput .= "
         <p class=\"center displayHeader\">{$this->tableHead}</p>
@@ -544,34 +536,34 @@
       }
       $this->graphOutput .= "
         <div class=\"ticketGraphContainer\">
-        <div class=\"centerDiv\" style=\"border:solid 0.1em #e1e1e1; background-color:#f4f4f4; height:{$this->graph_height}em; width:{$this->graph_width}em; margin-top:1.25em; /* padding-top:0.75em; */ overflow: hidden;\">
-          <div style=\"height:{$this->graph_height}em;width:{$this->interval_gap}em;\" class=\"space\"></div>";
+        <div class=\"centerDiv\" style=\"border:solid 0.1em #e1e1e1; background-color:#f4f4f4; height:{$this->options['chart_height']}em; width:{$this->chart_width}em; margin-top:1.25em; /* padding-top:0.75em; */ overflow: hidden;\">
+          <div style=\"height:{$this->options['chart_height']}em;width:{$this->options['interval_gap']}em;\" class=\"space\"></div>";
       // Sort out the bars here
       for ($i = 0; $i < count($this->currentChart); $i++) {
         $this->graphOutput .= "
-          <div style=\"height:{$this->graph_height}em; width:{$this->interval_width}em; margin:0; padding:0;\" class=\"barContainer\">
-          <div style=\"height:{$this->graph_height}em;width:{$this->bar_gap}em;\" class=\"gap\"></div>";
+          <div style=\"height:{$this->options['chart_height']}em; width:{$this->interval_width}em; margin:0; padding:0;\" class=\"barContainer\">
+          <div style=\"height:{$this->options['chart_height']}em;width:{$this->options['bar_gap']}em;\" class=\"gap\"></div>";
         for ($j = 0; $j < count($this->monthKeys); $j++) {
           $height = $this->heights[$this->currentChart[$i] . '_height'][$j];
           $margin = $this->margins[$this->currentChart[$i] . '_margin'][$j];
           $this->graphOutput .= "
-            <div title=\"{$this->totals[$this->monthKeys[$j]][$this->currentChart[$i]]}\" style=\"height:{$height}em; width:{$this->bar_width}em; margin-top:{$margin}em;\" class=\"bar{$j}\"></div>
-            <div style=\"height:{$this->graph_height}em;width:{$this->bar_gap}em;\" class=\"gap\"></div>
+            <div title=\"{$this->totals[$this->monthKeys[$j]][$this->currentChart[$i]]}\" style=\"height:{$height}em; width:{$this->options['bar_width']}em; margin-top:{$margin}em;\" class=\"bar{$j}\"></div>
+            <div style=\"height:{$this->options['chart_height']}em;width:{$this->options['bar_gap']}em;\" class=\"gap\"></div>
           ";
         }
         $this->graphOutput .= "
           </div>
-          <div style=\"height:{$this->graph_height}em;width:{$this->interval_gap}em;\" class=\"space\"></div>";
+          <div style=\"height:{$this->options['chart_height']}em;width:{$this->options['interval_gap']}em;\" class=\"space\"></div>";
       }
       $this->graphOutput .= "
           <div style=\"clear:both;\"></div>
         </div>
-        <div class=\"centerDiv\" style=\"height:2.75em; background-color:#8c8c8c; width:{$this->graph_width}em; color:#fff; border:solid 1px #666;\">
-        <div style=\"height:2.75em;width:{$this->interval_gap}em;\" class=\"space\"></div>";
+        <div class=\"centerDiv\" style=\"height:2.75em; background-color:#8c8c8c; width:{$this->chart_width}em; color:#fff; border:solid 1px #666;\">
+        <div style=\"height:2.75em;width:{$this->options['interval_gap']}em;\" class=\"space\"></div>";
       foreach ($this->currentChart as $label) {
         $this->graphOutput .= "
           <div style=\"width:{$this->interval_width}em;\" class=\"chartLabels\">{$this->arrayValueToChartLabel($label)}</div>
-          <div style=\"height:2.75em;width:{$this->interval_gap}em;\" class=\"space\"></div>";
+          <div style=\"height:2.75em;width:{$this->options['interval_gap']}em;\" class=\"space\"></div>";
       }
       $this->graphOutput .= '
         </div>
