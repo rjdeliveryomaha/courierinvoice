@@ -32,6 +32,16 @@
 
     'allTimeChartLimit' => 6,
 
+    'chart_height' => 12.5,
+
+    'bar_width' => 0.35,
+
+    'bar_gap' => 0.35,
+
+    'interval_gap' => 1,
+
+    'interval_border' => 0.125,
+
     'userLogin' => 'CustomLogin',
 
     'driverChargesEntryExclude' => [ [ 0, 8, 9 ], [ 0, 8, 9 ] ],
@@ -132,14 +142,12 @@
         [ 'Change Password', 'orgPasswordForm']
       ]
     ],
-    'chart_height' => 12.5,
-    'bar_width' => 0.35,
-    'bar_gap' => 0.35,
-    'interval_gap' => 1,
-    'interval_border' => 0.125,
     'invoiceCronIgnoreClients' => [ 0 ],
+
     'invoiceCronIgnoreNonRepeat' => [],
+
     'invoiceCronLogSuccess' => false,
+    
     'invoiceCronLogFailure' => true
   ];
   // config for price calculation without session

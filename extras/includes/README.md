@@ -123,7 +123,37 @@ Keys:
 
 Integer
 
-Maximum number of months to display on a chart. Default is 6.
+Maximum number of months to display on a chart.
+
+### chart_height
+
+Float
+
+Overall height of a chart in em.
+
+### bar_width
+
+Float
+
+Width of each bar for a chart in em.
+
+### bar_gap
+
+Float
+
+Gap between adjacent bars in em.
+
+### interval_gap
+
+Float
+
+Gap between groups of bars in em.
+
+### interval_border
+
+Float
+
+Border width in em of the container that holds each group of bars.
 
 ### userLogin
 
@@ -296,36 +326,6 @@ Any indices beyond 2 will be interpreted as attributes to be applied to the scri
   - __org0__
 
     Indexed array of settings entries as described above.
-
-### chart_height
-
-Float
-
-Overall height of a chart in em.
-
-### bar_width
-
-Float
-
-Width of each bar for a chart in em.
-
-### bar_gap
-
-Float
-
-Gap between adjacent bars in em.
-
-### interval_gap
-
-Float
-
-Gap between groups of bars in em.
-
-### interval_border
-
-Float
-
-Border width in em of the container that holds each group of bars.
 
 ### invoiceCronIgnoreClients
 

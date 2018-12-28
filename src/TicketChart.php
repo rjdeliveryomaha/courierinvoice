@@ -10,7 +10,6 @@
     protected $compareMembers;
     protected $ListBy;
     protected $organizationFlag = FALSE;
-    protected $ticketChartRowLimit = 5;
     protected $orgClients = [];
     private $memberList = [];
     private $totals = [];

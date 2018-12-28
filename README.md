@@ -241,7 +241,7 @@ try {
 
 Processes login credentials.
 
-Populates ``` $_SESSION ``` with user data.
+Populates ` $_SESSION ` with user data.
 
 Returns string; either '/clients' or '/drivers'.
 
@@ -262,10 +262,10 @@ try {
 
   Users login name.
   * Repeat clients: integer
-  * Non-repeat clients: string; ``` t1 ```
-  * Organizations: string; ``` orgLogin ```
-  * Drivers: string; ``` driver1 ```
-  * Dispatchers: string; ``` dispatch1 ```
+  * Non-repeat clients: string; ` t1 `
+  * Organizations: string; ` orgLogin `
+  * Drivers: string; ` driver1 `
+  * Dispatchers: string; ` dispatch1 `
 - upw
 
   Users password.
@@ -289,14 +289,14 @@ Sets the following session values:
 $_SESSION['config']
 ```
 
-This associative array contains resources from the [config](https://rjdeliveryomaha.com/courierinvoice/apidoc#config) endpoint as well as all Client 0 resources except ``` Password ```, ``` AdminPassword ```, and ``` Deleted ```.
+This associative array contains resources from the [config](https://rjdeliveryomaha.com/courierinvoice/apidoc#config) endpoint as well as all Client 0 resources except ` Password `, ` AdminPassword `, and ` Deleted `.
 
 
 ```php
 $_SESSION['mobile']
 ```
 
-If ``` true ``` this Boolean value indicates that the user logged in from a portal located at domain.com/mobileLogin that passed the LoginHandler class a dataset that included the key "mobile" and will redirect there instead of domain.com upon log out.
+If ` true ` this Boolean value indicates that the user logged in from a portal located at domain.com/mobileLogin that passed the LoginHandler class a dataset that included the key "mobile" and will redirect there instead of domain.com upon log out.
 
 ```php
 $_SESSION['ulevel']
@@ -314,13 +314,13 @@ Describes the type of user logged in:
 
   - dispatch
 
-All resources from the end point corresponding to the client, organization, driver, or dispatcher except ``` Deleted ``` and passwords.
+All resources from the end point corresponding to the client, organization, driver, or dispatcher except ` Deleted ` and passwords.
 
-Dispatchers have ``` $_SESSION['CanDispatch'] ``` set to a value of 2.
+Dispatchers have ` $_SESSION['CanDispatch'] ` set to a value of 2.
 
-Clients, Dispatchers, and Drivers with dispatch privileges have ``` $_SESSION['config']['ContractDiscount'] ``` and ``` $_SESSION['config']['GeneralDiscount'] ``` set. These are associative arrays with keys being Client IDs (preceded with the letter 't' for non-repeat clients) and the values being the discount values for each (or current) client.
+Clients, Dispatchers, and Drivers with dispatch privileges have ` $_SESSION['config']['ContractDiscount'] ` and ` $_SESSION['config']['GeneralDiscount'] ` set. These are associative arrays with keys being Client IDs (preceded with the letter 't' for non-repeat clients) and the values being the discount values for each (or current) client.
 
-Clients and organizations will have ``` $_SESSION['pwWarning'] ``` set.
+Clients and organizations will have ` $_SESSION['pwWarning'] ` set.
 
 Integer
 
@@ -336,7 +336,7 @@ Integer
 
 These values are used to notify the user that the password should be changed.
 
-Organizations have ``` $_SESSION['members'] ``` set. This is an associative array with the keys being client IDs (preceded by the letter 't' for non-repeat clients) and the values being an associative array containing the data stored at the clients end point for each client associated with the organization.
+Organizations have ` $_SESSION['members'] ` set. This is an associative array with the keys being client IDs (preceded by the letter 't' for non-repeat clients) and the values being an associative array containing the data stored at the clients end point for each client associated with the organization.
 
 ---
 
@@ -358,11 +358,11 @@ try {
 
 A list of standard properties can be found in the [API Documentation](https://www.rjdeliveryomaha.com/courierinvoice/apidoc#tickets)
 
-The ``` step ``` property is used by ``` $ticket->updateStep() ```.
+The ` step ` property is used by ` $ticket->updateStep() `.
 
-The ``` action ``` property is used by ``` $ticket->cancelTicket() ```.
+The ` action ` property is used by ` $ticket->cancelTicket() `.
 
-The special property ``` multiTicket ``` can contain an array of ticket data sets for batch creation or updating. Ex: Update two tickets; one is being delivered the other returned to the same address.
+The special property ` multiTicket ` can contain an array of ticket data sets for batch creation or updating. Ex: Update two tickets; one is being delivered the other returned to the same address.
 
 ```php
 $data['multiTicket'] = [
@@ -412,11 +412,11 @@ Has 3 states based on $data passed to Ticket.
 
 - initial: Generates an empty ticket entry form.
 
-  This form is followed by ``` <div class="mapContainer" id="map"></div> ``` for use with a javascript api.
+  This form is followed by ` <div class="mapContainer" id="map"></div> ` for use with a javascript api.
 
   This div is only generated on this step.
 
-- edit: Generates a ticket entry form populated with provided ``` $data ```.
+- edit: Generates a ticket entry form populated with provided ` $data `.
 
 - confirmation: Generates a read-only form for validation.
 
@@ -432,9 +432,9 @@ echo $ticket->runPriceForm();
 
 Generates a simplified ticket form that only accepts 2 addresses, charge, and dry ice weight.
 
-The data from this form should be passed to ``` $ticket->calculateRunPrice() ```.
+The data from this form should be passed to ` $ticket->calculateRunPrice() `.
 
-This form is followed by ``` <div class="mapContainer" id="map2"></div> ``` for use with a javascript api.
+This form is followed by ` <div class="mapContainer" id="map2"></div> ` for use with a javascript api.
 
 ```php
 echo $ticket->calculateRunPrice();
@@ -462,7 +462,7 @@ echo $ticket->fetchTodaysTickets();
 
 Checks for tickets for a given client on the current date.
 
-Returns the results of ``` $ticket->regenTicket() ``` for each ticket found, false if none exist.
+Returns the results of ` $ticket->regenTicket() ` for each ticket found, false if none exist.
 
 ```php
 $ticket->processRouteTicket();
@@ -492,7 +492,7 @@ Processes and submits a change of charge from 5 to 6 using the values stored in 
 echo $ticket->stepTicket();
 ```
 
-Sets the time stamp and submits that, notes and other values for the given ``` step ``` for a single ticket or multiTicket array.
+Sets the time stamp and submits that, notes and other values for the given ` step ` for a single ticket or multiTicket array.
 
 Sends confirmation email if indicated.
 
@@ -502,17 +502,17 @@ Valid values:
 
 - 'pickedUp'
 
-  Checks for ``` $ticket->sigImage ``` and submits pSigPrint, pSig, and pSigType.
+  Checks for ` $ticket->sigImage ` and submits pSigPrint, pSig, and pSigType.
 
 - 'delivered'
 
-  Checks for ``` $ticket->sigImage ``` and submits dSigPrint, dSig, and dSigType.
+  Checks for ` $ticket->sigImage ` and submits dSigPrint, dSig, and dSigType.
 
   Solves for TicketPrice is Charge is 7 and d2SigReq is 0.
 
 - 'returned'
 
-  Checks for ``` $ticket->sigImage ``` and submits d2SigPrint, d2Sig, and d2SigType.
+  Checks for ` $ticket->sigImage ` and submits d2SigPrint, d2Sig, and d2SigType.
 
   Solves for TicketPrice if Charge is 7 and d2SigReq is 1.
 
@@ -526,7 +526,7 @@ Valid values:
 echo $ticket->cancelTicket();
 ```
 
-Processes the given ``` action ``` for a single ticket or multiTicket array.
+Processes the given ` action ` for a single ticket or multiTicket array.
 
 
 Valid values:
@@ -621,7 +621,7 @@ try {
 
 A list of standard properties can be found in the [API Documentation](https://www.rjdeliveryomaha.com/courierinvoice/apidoc#invoices)
 
-The ``` invoiceQueryResult ``` property is an indexed array of invoice datasets used for receiving data from the [SearchHandler](https://github.com/rjdeliveryomaha/courierinvoice#searchHandler) class.
+The ` invoiceQueryResult ` property is an indexed array of invoice datasets used for receiving data from the [SearchHandler](https://github.com/rjdeliveryomaha/courierinvoice#searchHandler) class.
 
 ## Public Methods:
 
@@ -629,7 +629,7 @@ The ``` invoiceQueryResult ``` property is an indexed array of invoice datasets 
 $invoice->regenInvoice();
 ```
 
-Uses the data provided in ``` invoiceQueryResult ``` to displays invoice.
+Uses the data provided in ` invoiceQueryResult ` to displays invoice.
 
 If multiple datasets are provided a form will be returned to select which invoice to recreate by invoice number.
 
@@ -676,9 +676,9 @@ return false;
 
 - display
 
-  + tickets: displays the result of ``` $ticket->regenTicket() ``` for each ticket matching query parameters.
+  + tickets: displays the result of ` $ticket->regenTicket() ` for each ticket matching query parameters.
 
-  + invoice: displays the result of ``` $invoice->regenInvoice() ``` for the matching invoice.
+  + invoice: displays the result of ` $invoice->regenInvoice() ` for the matching invoice.
 
   + chart: displays a bar graph generated by either the TicketChart or InvoiceChart class.
 
@@ -718,9 +718,9 @@ return false;
 
   Expected formats:
 
-  + ##EX####-## regex: ``` /(^[\d]{2}EX[\d]+-[\d]+$)/ ```
+  + ##EX####-## regex: ` /(^[\d]{2}EX[\d]+-[\d]+$)/ `
 
-  + ##EX####-t## regex: ``` /(^[\d]{2}EX[\d]+-t[\d]+$)/ ```
+  + ##EX####-t## regex: ` /(^[\d]{2}EX[\d]+-t[\d]+$)/ `
 
 - dateIssued
 
@@ -752,11 +752,84 @@ return false;
 
   + If display is "tickets" all tickets from account creation to current date will be displayed.
 
-  + If display is "chart" data will be displayed for the period between the current date and the pervious ``` allTimeChartLimit ``` months.
+  + If display is "chart" data will be displayed for the period between the current date and the pervious ` allTimeChartLimit ` months.
 
 ---
 
 # TicketChart
+
+Receives a dataset of tickets grouped by month from the [SearchHandler](https://github.com/rjdeliveryomaha/courierinvoice#searchHandler) class.
+
+Displays a simple bar chart depicting the number of each type of ticket over a given period.
+
+[example](https://github.com/rjdeliveryomaha/courierinvoice/extras/example_images/ticketChartExample.png)
+
+## Usage:
+
+```php
+try {
+  $obj = new TicketChart($this->options, $data);
+} catch(Exception $e) {
+  echo $e->getMessage();
+  return FALSE;
+}
+```
+
+## Properties settable in $data
+
+- dataSet
+
+  Associative array of data sorted by month.
+
+  ` $monthLabel ` is the ` ReceivedDate ` of a ticket in the format 'M Y'.
+
+  ```php
+  $this->months[$monthLabel][$ticket['BillTo']] = [
+                                                   'billTo'=>$ticket['BillTo'],
+                                                   'monthTotal'=>1,
+                                                   'contract'=>0,
+                                                   'credit'=>0,
+                                                   'canceled'=>0,
+                                                   'onCall'=>0,
+                                                   'routine'=>0,
+                                                   'fourHour'=>0,
+                                                   'threeHour'=>0,
+                                                   'twoHour'=>0,
+                                                   'oneHour'=>0,
+                                                   'roundTrip'=>0,
+                                                   'deadRun'=>0,
+                                                   'dedicatedRun'=>0,
+                                                   'withIce'=>0,
+                                                   'withoutIce'=>0,
+                                                   'startDate'=>$receivedDate->format('Y-m-d'), 'endDate'=>$receivedDate->format('Y-m-d')
+                                                 ];
+  ```
+
+- organizationFlag
+
+  Boolean
+
+  Indicates if the query if for an organization (` true `) or an individual client (` false `)
+
+- clientID
+
+  Array or Integer
+
+  If ` organizationFlag ` is ` true ` this is an indexed array of members to be queries.
+
+  If ` organizationFlag ` is ` false ` this is the ID of the current client.
+
+- compare
+
+  Boolean
+
+  Indicates if dataset is two months compared or a series of months.
+
+- compareMembers
+
+  Boolean
+
+  Indicates if members are being compared of displayed separately.
 
 ---
 
@@ -812,7 +885,7 @@ This is an extendable drop-in implementation of this set of classes using jQuery
 
 [jQuery.ajaxRetry](https://github.com/dcherman/jQuery.ajaxRetry) is used to implement a simple backoff.
 
-A templet for ajax calls with this backoff built in is also included. This will retry a failed call 20 times waiting ``` n * 250 ``` milliseconds between calls where n is the retry count. The function returns the jQuery ajax object.
+A templet for ajax calls with this backoff built in is also included. This will retry a failed call 20 times waiting ` n * 250 ` milliseconds between calls where n is the retry count. The function returns the jQuery ajax object.
 
 ```javascript
   ajax_template(callMethod, url, returnType, postData=false)
@@ -831,9 +904,9 @@ Usage:
   });
 ```
 
-[Signature Pad v2.3.2](https://github.com/szimek/signature_pad) is preconfigured with [extras/public_html/app_js/sigPad.js](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/public_html/app_js/sigPad.js) to collect signatures in conjunction with the functions ``` $ticket->displaySingleTicket() ``` and ``` $ticket->displayMultiTicket() ```.
+[Signature Pad v2.3.2](https://github.com/szimek/signature_pad) is preconfigured with [extras/public_html/app_js/sigPad.js](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/public_html/app_js/sigPad.js) to collect signatures in conjunction with the functions ` $ticket->displaySingleTicket() ` and ` $ticket->displayMultiTicket() `.
 
-The function ``` toast(msg, options) ``` is exported to the global scope. It creates and deletes a toast-like div to show messages to the user.
+The function ` toast(msg, options) ` is exported to the global scope. It creates and deletes a toast-like div to show messages to the user.
 
 Usage:
 
@@ -853,7 +926,7 @@ Uses ticket information from database to populate datalist elements to assist fo
 
 Single page design navigated by either swipe or menu. Offers unique features based upon user type.
 
-At the end of the transition between pages ``` scroll(0,0) ``` is called and a window event named 'pageChange' is triggered.
+At the end of the transition between pages ` scroll(0,0) ` is called and a window event named 'pageChange' is triggered.
 
 Setting the order of menu items as well as adding custom menu items (with or without matching pages), and javascript files is handled in the config file located at [extras/includes](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes).
 
@@ -941,7 +1014,7 @@ Setting the order of menu items as well as adding custom menu items (with or wit
 
   + Uses Ticket class to compute the price of a ticket
 
-  + ``` <div class="mapContainer" id="map2"></div> ``` available to display a map
+  + ` <div class="mapContainer" id="map2"></div> ` available to display a map
 
 * Active Tickets
 
@@ -953,7 +1026,7 @@ Setting the order of menu items as well as adding custom menu items (with or wit
 
   + Form to submit tickets to the API
 
-  + ``` <div class="mapContainer" id="map"></div> ``` available to display a map
+  + ` <div class="mapContainer" id="map"></div> ` available to display a map
 
 * Change Password
 
