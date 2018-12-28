@@ -51,9 +51,9 @@
         throw $e;
       }
 
-      $this->showCanceledTicketsOnInvoice = in_array($this->ClientID, $this->showCanceledTicketsOnInvoiceExceptions, true);
+      $this->showCanceledTicketsOnInvoice = in_array($this->ClientID, $this->options['showCanceledTicketsOnInvoiceExceptions'], true);
 
-      $this->consolidateContractTicketsOnInvoice = !in_array($this->ClientID, $this->consolidateContractTicketsOnInvoiceExceptions, true);
+      $this->consolidateContractTicketsOnInvoice = !in_array($this->ClientID, $this->options['consolidateContractTicketsOnInvoiceExceptions'], true);
     }
 
     private function fetchInvoiceTickets() {
@@ -508,6 +508,7 @@
                 <td>
                   <form id="singleInvoiceQuery" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
                     <input type="hidden" name="clientID" value="' . $_SESSION['ClientID'] . '" />
+                    <input type="hidden" name="repeatClient" value="' . $this->RepeatClient . '" />
                     <input type="hidden" name="method" value="GET" />
                     <input type="hidden" name="endPoint" value="invoices" />
                     <input type="hidden" name="display" value="invoice" />
@@ -536,6 +537,7 @@
                 <td>
                   <form id="multiInvoiceQuery" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
                     <input type="hidden" name="clientID" value="' . $_SESSION['ClientID'] . '" />
+                    <input type="hidden" name="repeatClient" value="' . $this->RepeatClient . '" />
                     <input type="hidden" name="method" value="GET" />
                     <input type="hidden" name="endPoint" value="invoices" />
                     <input type="hidden" name="display" value="chart" />
