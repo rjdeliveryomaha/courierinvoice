@@ -350,3 +350,9 @@ Providing your basic Courier Invoice configuration options is necessary when usi
 ---
 
 # user_functions
+
+[Jump to Integration Configuration](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes#integration_configuration)
+
+These functions are used by this integration but need to be unique to each integration. Of the two functions included, ` is_sec_session_started() ` and ` sec_session_start() `, only the latter will need to be edited to match your domain and desired session name.
+
+This file is where functions should be located that will be called to extend the application.
