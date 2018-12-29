@@ -73,7 +73,7 @@
       'client' => [
         [
           // All clients
-          ['Ticket Entry', 'ticketForm'],
+          ['Delivery Request', 'ticketForm'],
           ['Ticket Query', 'ticketQueryForm']
         ],
         [
@@ -147,7 +147,7 @@
     'invoiceCronIgnoreNonRepeat' => [],
 
     'invoiceCronLogSuccess' => false,
-    
+
     'invoiceCronLogFailure' => true
   ];
   // config for price calculation without session
