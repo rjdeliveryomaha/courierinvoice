@@ -470,9 +470,10 @@ function countInitOnCall() {
 }
 
 function refreshTicketEntry() {
-  $("#ticket_entry .subContainer").hide();
+  let $target = $("#deliveryRequest").next(".subContainer");
+  $target.hide();
   $("#deliveryRequest").remove();
-  $("#ticket_entry .subContainer").before('<div class="showbox"><!-- New spinner from http://codepen.io/collection/HtAne/ --><div class="loader"><svg class="circular" viewBox="25 25 50 50"><circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/></svg></div></div>');
+  $target.before('<div class="showbox"><!-- New spinner from http://codepen.io/collection/HtAne/ --><div class="loader"><svg class="circular" viewBox="25 25 50 50"><circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/></svg></div></div>');
   scrollTo(0,0);
   let attempt = ajax_template("POST", "./refreshTicketForm.php", "html", { edit: 1, formKey: $("#formKey").val() })
   .done(result => {
@@ -482,12 +483,12 @@ function refreshTicketEntry() {
       return false;
     }
     setTimeout(() => {
-      $("#ticket_entry .showbox").remove();
-      $("#ticket_entry .subContainer").show().before(result);
+      $target.prev(".showbox").remove();
+      $target.show().before(result);
     }, 2000);
   })
   .fail((jqXHR, status, error) => {
-
+    $target.show().before('<p class="center"><span class="error">Error</span>: ' + error + '</p>');
   });
 }
 
@@ -774,7 +775,7 @@ $(document).ready(function() {
     });
   });
 
-  $(document).on("click", "#active_tickets .submitForm", function(e) {
+  $(document).on("click", "#ticketEditor .submitForm", function(e) {
     e.preventDefault();
     $(this).prop("disable", true);
     let breakFunction = false,
@@ -2498,8 +2499,9 @@ $(document).ready(function() {
     }
   }).change();
 
-  $(document).on("click", ".submitForm", function(e) {
+  $(document).on("click", "#request .submitForm", function(e) {
     e.preventDefault();
+    let $target = $(this).closest(".page");
     let button = $(this);
     button.prop("disabled", true);
     let breakFunction = false;
@@ -2539,7 +2541,6 @@ $(document).ready(function() {
     $parentElement.html("<span class=\"ellipsis\">.</span>");
     let $ele = $parentElement.find(".ellipsis");
     let forward = true;
-    let target = ($("#ticket_entry").length === 1) ? "#ticket_entry" : "#delivery_request";
     let dots = setInterval(() => {
       if (forward === true) {
         $ele.append("..");
@@ -2558,8 +2559,8 @@ $(document).ready(function() {
         setTimeout(() => { $parentElement.html(""); $parentElement.closest("table").find("button").prop("disabled", false); }, 3000);
       } else {
         $("#deliveryRequest").remove();
-        $(target).prepend(result);
-        // initMap("map", coords1, address1, coords2, address2, center);
+        $target.prepend(result);
+        initMap("map", coords1, address1, coords2, address2, center);
       }
       scrollTo(0,0);
     })
@@ -2570,12 +2571,12 @@ $(document).ready(function() {
     });
   });
 
-  $(document).on("click", "#ticket_entry .editForm, #ticket_entry .confirmed, #delivery_request .editForm, #delivery_request .confirmed", function(e) {
+  $(document).on("click", "#deliveryConfirmation .editForm, #deliveryConfirmation .confirmed", function(e) {
     e.preventDefault();
     let button = $(this);
     button.closest("tr").find("button").prop("disabled", true);
     let elementToReturn = $(".subContainer");
-    let target = ($("#ticket_entry").length === 1) ? "#ticket_entry" : "#delivery_request";
+    let $target = $(this).closest(".page");
     let targetForm = ($(this).hasClass("editForm")) ? "#editForm" : "#submitTicket";
     let formdata = {};
     $(this).parents("#ticket_entry").find(targetForm + " input").each(function() {
@@ -2604,8 +2605,8 @@ $(document).ready(function() {
         $parentElement.html(result);
         setTimeout(() => { $parentElement.html(""); $parentElement.closest("table").find("button").prop("disabled", false); }, 3000);
       } else {
-        $(target).html("");
-        $(target).prepend(result).append(elementToReturn);
+        $target.html("");
+        $target.prepend(result).append(elementToReturn);
         if (targetForm === "#editForm") {
           initMap("map");
         } else {
@@ -2613,7 +2614,7 @@ $(document).ready(function() {
           .done((result2) => {
             scrollTo(0,0);
             if (result.indexOf("Session Error") !== -1) return showLogin();
-            setTimeout(() => { $(target).html(result2).append(elementToReturn); initMap("map"); }, 5000);
+            setTimeout(() => { $target.html(result2).append(elementToReturn); initMap("map"); }, 5000);
             if ($("#deliveryQuery").length === 1) {
               let d = new Date();
               let month = d.getMonth() + 1;
@@ -2625,7 +2626,7 @@ $(document).ready(function() {
             }
           })
           .fail((jqXHR, status, error) => {
-            $(target).prepend('<span class="center">' + error + "</span>");
+            $target.prepend('<span class="center">' + error + "</span>");
           });
         }
       }
