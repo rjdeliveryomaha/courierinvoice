@@ -26,7 +26,7 @@
     protected $crun_index;
     protected $ticket_index;
     protected $TicketNumber;
-    protected $RunNumber = 0;
+    protected $RunNumber;
     protected $BillTo;
     protected $ClientName;
     protected $Department;
@@ -46,17 +46,17 @@
     protected $dAddress2;
     protected $dCountry;
     protected $dryIce;
-    protected $diWeight = 0;
+    protected $diWeight;
     protected $diPrice;
     protected $TicketBase;
     protected $OldBase;
     protected $Charge;
-    protected $Contract = 0;
+    protected $Contract;
     protected $Multiplier;
     protected $RunPrice;
     protected $TicketPrice;
     protected $Notes;
-    protected $EmailConfirm = 0;
+    protected $EmailConfirm;
     protected $EmailAddress;
     protected $Telephone;
     protected $pSigReq;
@@ -74,8 +74,8 @@
     protected $d2Sig;
     protected $d2SigType;
     protected $d2SigFile;
-    protected $RepeatClient = 1;
-    protected $DispatchedTo = 0;
+    protected $RepeatClient;
+    protected $DispatchedTo;
     protected $driverID;
     protected $FirstName;
     protected $LastName;
@@ -83,7 +83,7 @@
     protected $ReceivedDate;
     protected $DispatchTimeStamp;
     protected $DispatchMicroTime;
-    protected $DispatchedBy = '0.0';
+    protected $DispatchedBy;
     protected $Transfers;
     /* TransferState will be bool to and from the API
      * Here it is used to indicate how to process a transfer
@@ -133,7 +133,7 @@
     private $tTest;
     // Define the type of form to create charge options for
     private $formType;
-    private $newTicketDatabaseKeys = ['Contract', 'RunNumber', 'TicketNumber', 'TicketBase', 'BillTo', 'RequestedBy', 'pClient', 'dClient', 'pDepartment', 'dDepartment', 'pAddress1', 'dAddress1', 'pAddress2', 'dAddress2', 'pCountry', 'dCountry', 'pContact', 'dContact', 'pTelephone', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'Charge', 'RunPrice', 'TicketPrice', 'EmailConfirm', 'EmailAddress', 'Telephone', 'pTime', 'dTime', 'd2Time', 'pSigReq', 'dSigReq', 'd2SigReq', 'DispatchedTo', 'Transfers', 'ReceivedDate', 'DispatchTimeStamp', 'DispatchMicroTime', 'DispatchedBy', 'Notes'];
+    private $newTicketDatabaseKeys = ['Contract', 'RunNumber', 'TicketNumber', 'TicketBase', 'BillTo', 'RepeatClient', 'RequestedBy', 'pClient', 'dClient', 'pDepartment', 'dDepartment', 'pAddress1', 'dAddress1', 'pAddress2', 'dAddress2', 'pCountry', 'dCountry', 'pContact', 'dContact', 'pTelephone', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'Charge', 'RunPrice', 'TicketPrice', 'EmailConfirm', 'EmailAddress', 'Telephone', 'pTime', 'dTime', 'd2Time', 'pSigReq', 'dSigReq', 'd2SigReq', 'DispatchedTo', 'Transfers', 'ReceivedDate', 'DispatchTimeStamp', 'DispatchMicroTime', 'DispatchedBy', 'Notes'];
     private $updateTicketDatabaseKeys = ['BillTo', 'Charge', 'EmailAddress', 'EmailConfirm', 'Telephone', 'RequestedBy', 'pClient', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'dClient', 'dAddress1', 'dAddress2', 'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'DispatchedTo', 'Transfers', 'TicketBase', 'RunPrice', 'TicketPrice', 'Notes', 'pSigReq', 'dSigReq', 'd2SigReq'];
     private $postableKeys = ['repeatClient', 'fromMe', 'pClient', 'pDepartment', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'pSigReq', 'toMe', 'dClient', 'dDepartment', 'dAddress1', 'dAddress2', 'dCountry', 'dContact', 'dTelephone', 'dSigReq', 'dryIce', 'diWeight', 'Notes', 'Charge', 'DispatchedTo', 'd2SigReq', 'EmailAddress', 'EmailConfirm', 'Telephone', 'RequestedBy', 'locationList', 'clientList', 'tClientList', 'driverList'];
     private $javascriptKeys = ['ClientName', 'Department', 'ShippingAddress1', 'ShippingAddress2', 'ShippingCountry'];
@@ -249,6 +249,17 @@
       }
       if ($this->charge !== NULL) {
         $this->Charge = $this->charge;
+      }
+    }
+
+    protected function clearTicket() {
+      $keysToClear = [];
+      for ($i = 0; $i < count($this->newTicketDatabaseKeys); $i++) {
+        if ($this->newTicketDatabaseKeys !== 'RepeatClient') $keysToClear[] = $this->newTicketDatabaseKeys[$i];
+      }
+      $keysToClear[] = 'ticket_index';
+      foreach ($this as $key => $value) {
+        if (in_array($key, $keysToClear)) { $this->{$key} = NULL; }
       }
     }
 
@@ -2090,6 +2101,7 @@
           }
           $returnData .= self::regenTicket();
         }
+        self::clearTicket();
         return $returnData;
       } else {
         $this->forDisatch = FALSE;
@@ -2470,7 +2482,7 @@
       $dSigChecked = ($this->dSigReq === 1) ? 'checked' : '';
       $d2SigChecked = ($this->d2SigReq === 1) ? 'checked' : '';
       $sigNoteClass = ($this->pSigReq === 1 || $this->dSigReq === '1' || $this->d2SigReq === '1') ? '' : 'hide';
-      $emailNoteClass = ($this->EmailConfirm === 0) ? 'hide' : '';
+      $emailNoteClass = ($this->EmailConfirm === 0 || $this->EmailConfirm === NULL) ? 'hide' : '';
       $dryIceChecked = $diWeightMarkerDisabled = '';
       $diWeightDisabled = 'disabled';
       if ($this->dryIce === 1) {
