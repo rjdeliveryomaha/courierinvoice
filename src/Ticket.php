@@ -3198,7 +3198,7 @@
       $json_decode = 'json_decode';
       $htmlentities = 'htmlentities';
       // Generate the confirmation display
-      $jsVar = 'coords1=' . json_encode($this->loc1) . ',address1="' . htmlentities($this->pAddress1 . ' ' . $this->pAddress2, ENT_QUOTES) . '", coords2=' . json_encode($this->loc2) . ',address2="' . htmlentities($this->dAddress1 . ' ' . $this->dAddress2, ENT_QUOTES) . '",center="' . json_encode($this->center) . ';';
+      $jsVar = 'coords1=' . json_encode($this->loc1) . ',address1="' . htmlentities($this->pAddress1 . ' ' . $this->pAddress2, ENT_QUOTES) . '", coords2=' . json_encode($this->loc2) . ',address2="' . htmlentities($this->dAddress1 . ' ' . $this->dAddress2, ENT_QUOTES) . '",center=' . json_encode($this->center) . ';';
       $output .= "
         <table class=\"ticketContainer\">
           <thead>
