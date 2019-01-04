@@ -2579,7 +2579,7 @@ $(document).ready(function() {
     let $target = $(this).closest(".page");
     let targetForm = ($(this).hasClass("editForm")) ? "#editForm" : "#submitTicket";
     let formdata = {};
-    $(this).parents("#ticket_entry").find(targetForm + " input").each(function() {
+    $(targetForm + " input").each(function() {
       formdata[$(this).attr("name")] = $(this).val();
     });
     formdata.formKey = $("#formKey").val();
