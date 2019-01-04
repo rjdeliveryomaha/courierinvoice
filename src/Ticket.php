@@ -2433,6 +2433,8 @@
     }
 
     public function ticketForm() {
+      $this->Contract = $this->Contract ?? 0;
+      $this->RunNumber = $this->RunNumber ?? 0;
       $returnData = '';
       $this->action = self::esc_url($_SERVER['REQUEST_URI']);
       $this->formType = 'Entry';
@@ -2571,7 +2573,7 @@
         <form id=\"request{$this->ticket_index}\" action=\"{$this->action}\" method=\"post\">
           <input type=\"hidden\" name=\"formKey\" value=\"{$this->formKey}\" form=\"request{$this->ticket_index}\" />
           {$indexInput} {$dispatchedBy} {$transferredBy} {$ticketNumberInput}
-          <input type=\"hidden\" name=\"runNumber\" value=\"'{$this->RunNumber}\" form=\"request{$this->ticket_index}\" />
+          <input type=\"hidden\" name=\"runNumber\" value=\"{$this->RunNumber}\" form=\"request{$this->ticket_index}\" />
           <input type=\"hidden\" name=\"contract\" value=\"{$this->Contract}\" form=\"request{$this->ticket_index}\" />
           <table class=\"ticketContainer\">
             <tr>
@@ -2585,6 +2587,7 @@
                         <input type=\"hidden\" name=\"repeatClient\" value=\"{$this->RepeatClient}\" form=\"request{$this->ticket_index}\" {$nonRepeatChecked} />
                         {$repeatOption}
                       </td>
+                      <td></td>
                     </tr>
                     <tr class=\"{$billingRowClass}\">
                       <td><label for=\"billTo{$this->ticket_index}\">Bill To: </label><input {$billToType} name=\"billTo\" id=\"billTo{$this->ticket_index}\" class=\"billTo\" value=\"{$billToValue}\" title=\"{$billToValue}\" form=\"request{$this->ticket_index}\" {$billToRequired} /></td>
