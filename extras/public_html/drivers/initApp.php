@@ -1,9 +1,9 @@
 <?php
   if ($_SERVER['REQUEST_METHOD'] !== 'POST') return FALSE;
   if (!isset($_POST['functions'])) return FALSE;
-  // Include functions
-  require_once '../../includes/sip_secSession.php';
+  
   require_once '../../includes/APIToolsConfig.php';
+  require_once '../../includes/user_functions.php';
   require_once '../../vendor/autoload.php';
 
   use rjdeliveryomaha\courierinvoice\Ticket;
