@@ -27,13 +27,15 @@ A set of classes for the Courier Invoice API
 
 # SecureSessionHandler
 
+Extends PHPs SessionHandler class.
+
 Provides static functions for session management.
 
 Throws exception on error.
 
 ## Properties settable in $config
 
-These properties are described in [extras](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes).
+These properties are described in [extras/includes](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes).
 
  - session_name
 
@@ -969,6 +971,8 @@ Usage:
   let postData =  { "formKey": $("#formKey").val(), "ticket_index": $(".ticket_index").val() }
   let attempt = ajax_template("post", "../ajax/doSomething.php", "html", postData)
   .done((result)=>{
+    // SecureSessionHandler iterates the value of the session formKey so it must be iterated here as well.
+    $("#formKey").val(Number($("#formKey").val()) + 1);
     // do something with the returned html
   })
   .fail((jqXHR, status, error)=>{

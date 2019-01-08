@@ -3,6 +3,7 @@
 
   use rjdeliveryomaha\courierinvoice\CommonFunctions;
   use rjdeliveryomaha\courierinvoice\Query;
+  use rjdeliveryomaha\courierinvoice\SecureSessionHandler;
 
   class LoginHandler extends CommonFunctions {
     protected $clientID;
@@ -145,9 +146,7 @@
       } else {
         throw new \Exception('Invalid Credentials');
       }
-      $session = $_SESSION;
-      session_regenerate_id(true);
-      $_SESSION = $session;
+      SecureSessionHandler::regenerate_session();
       try {
         self::fetchConfig();
       } catch (Exception $e) {
@@ -172,9 +171,7 @@
       } else {
         throw new \Exception('Invalid Credentials');
       }
-      $session = $_SESSION;
-      session_regenerate_id(true);
-      $_SESSION = $session;
+      SecureSessionHandler::regenerate_session();
       try {
         self::fetchConfig();
       } catch (Exception $e) {
@@ -203,9 +200,7 @@
       } else {
         throw new \Exception('Invalid Credentials');
       }
-      $session = $_SESSION;
-      session_regenerate_id(true);
-      $_SESSION = $session;
+      SecureSessionHandler::regenerate_session();
       try {
         self::fetchConfig();
       } catch (Exception $e) {
@@ -239,9 +234,7 @@
       } else {
         throw new \Exception('Invalid Credentials');
       }
-      $session = $_SESSION;
-      session_regenerate_id(true);
-      $_SESSION = $session;
+      SecureSessionHandler::regenerate_session();
       try {
         self::fetchConfig();
       } catch (Exception $e) {

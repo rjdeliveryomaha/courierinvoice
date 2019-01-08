@@ -8,8 +8,8 @@ class SecureSessionHandler extends \SessionHandler {
     if (session_status() === PHP_SESSION_ACTIVE) return false;
     if (ini_set('session.use_only_cookies', 1) === false) throw new \Exception('Session Error: use only cookies failed');
     if (ini_set('session.use_strict_mode', 1) === false) throw new \Exception('Session Error: use strict mode failed');
-    $https = $config['https'] ?? 0;
-    if (ini_set('session.cookie_secure', $https) === false) throw new \Exception('Session Error: cookie secure failed');
+    $secure = $config['secure'] ?? 0;
+    if (ini_set('session.cookie_secure', $secure) === false) throw new \Exception('Session Error: cookie secure failed');
     if (ini_set('session.use_trans_sid', 0) === false) throw new \Exception('Session Error: use trans id failed');
     $domain = $config['domain'] ?? false;
     if ($domain === false) throw new \Exception('Session Error: Invalid domain');
@@ -23,7 +23,7 @@ class SecureSessionHandler extends \SessionHandler {
       $lifetime,
       $path,
       $domain,
-      $https,
+      $secure,
       true
     );
     session_start();
@@ -46,22 +46,8 @@ class SecureSessionHandler extends \SessionHandler {
     if (!isset($_SESSION['formKey'])) $_SESSION['formKey'] = mt_rand();
   }
 
-  static public function regenerate_session() {
-    // If this session is obsolete it means there already is a new id
-    if (isset($_SESSION['OBSOLETE']) && $_SESSION['OBSOLETE'] === true) return;
-    // Set current session to expire in 10 seconds
-    $_SESSION['OBSOLETE'] = true;
-    $_SESSION['EXPIRES'] = time() + 10;
-    // Create new session without destroying the old one
-    session_regenerate_id(false);
-    // Grab current session ID and close both sessions to allow other scripts to use them
-    $new_session = session_id();
-    session_write_close();
-    // Set session ID to the new one, and start it back up again
-    session_id($new_session);
-    session_start();
-    // Now unset the obsolete and expiration values for the session we want to keep
-    unset($_SESSION['OBSOLETE'], $_SESSION['EXPIRES']);
+  static public function outputKey() {
+    return $_SESSION['formKey'];
   }
 
   static public function destroySession() {
@@ -74,10 +60,6 @@ class SecureSessionHandler extends \SessionHandler {
     $_SESSION = [];
     session_regenerate_id(true);
     $_SESSION = [ 'formKey' => $formKey ];
-  }
-
-  static public function outputKey() {
-    return $_SESSION['formKey'];
   }
 
   static public function newKey($config) {
@@ -106,6 +88,24 @@ class SecureSessionHandler extends \SessionHandler {
     }
     $_SESSION['formKey'] = mt_rand();
     return $_SESSION['formKey'];
+  }
+
+  static public function regenerate_session() {
+    // If this session is obsolete it means there already is a new id
+    if (isset($_SESSION['OBSOLETE']) && $_SESSION['OBSOLETE'] === true) return;
+    // Set current session to expire in 10 seconds
+    $_SESSION['OBSOLETE'] = true;
+    $_SESSION['EXPIRES'] = time() + 10;
+    // Create new session without destroying the old one
+    session_regenerate_id(false);
+    // Grab current session ID and close both sessions to allow other scripts to use them
+    $new_session = session_id();
+    session_write_close();
+    // Set session ID to the new one, and start it back up again
+    session_id($new_session);
+    session_start();
+    // Now unset the obsolete and expiration values for the session we want to keep
+    unset($_SESSION['OBSOLETE'], $_SESSION['EXPIRES']);
   }
 
   static protected function preventHijacking() {

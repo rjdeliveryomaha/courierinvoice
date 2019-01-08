@@ -52,7 +52,7 @@ Boolean
 
 If TRUE cookie will only be sent over secure connections.
 
-Default ``` false ```.
+Default ` false `.
 
 ### bypassHijackingTest
 
@@ -60,7 +60,9 @@ Boolean
 
 Bypass test of HTTP_USER_AGENT and REMOTE_ADDR.
 
-Default ``` false ```.
+Default ` false `.
+
+It is not recommended that this value be set to ` true ` however, it may be necessary in situations where a users IP address is frequently changed due to network instability or service provider issues.
 
 ### enableLogging
 
@@ -72,7 +74,7 @@ Indicates weather or not to log errors.
 
 String
 
-File location for logging. If enableLogging is ``` true ``` and this value is NULL or an empty string an error will be thrown.
+File location for logging. If enableLogging is ` true ` and this value is NULL or an empty string an error will be thrown.
 
 ### testMode
 
@@ -106,13 +108,13 @@ Indexed array
 
 Canceled tickets are not displayed on invoices by default.
 
-This array may contain client ID numbers to exclude from this behavior. The client ID should be preceded with the letter 't' if the client is not a repeat client, ex: ``` [ 25, 't1', 15, 't65' ] ```.
+This array may contain client ID numbers to exclude from this behavior. The client ID should be preceded with the letter 't' if the client is not a repeat client, ex: ` [ 25, 't1', 15, 't65' ] `.
 
 ### consolidateContractTicketsOnInvoiceExceptions
 
 Contract tickets are consolidated for display on invoices by default.
 
-This array may contain client ID numbers to exclude from this behavior. The client ID should be preceded with the letter 't' if the client is not a repeat client, ex: ``` [ 25, 't1', 15, 't65' ] ```.
+This array may contain client ID numbers to exclude from this behavior. The client ID should be preceded with the letter 't' if the client is not a repeat client, ex: ` [ 25, 't1', 15, 't65' ] `.
 
 ### clientNameExceptions
 
@@ -120,7 +122,7 @@ Associative array
 
 Client names that should be changed, for example, to abbreviate.
 
-Ex: ``` [ 'some long client name' => 'SLCN'] ```
+Ex: ` [ 'some long client name' => 'SLCN'] `
 
 ### clientAddressExceptions
 
