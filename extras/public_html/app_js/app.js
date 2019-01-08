@@ -7,6 +7,49 @@
 */
 !function(a,b){"function"==typeof define&&define.amd?define([],function(){return a.Swipe=b(),a.Swipe}):"object"==typeof module&&module.exports?module.exports=b():a.Swipe=b()}(this,function(){function Swipe(c,d){"use strict";function e(){I.addEventListener?(N.removeEventListener("touchstart",R,!1),N.removeEventListener("mousedown",R,!1),N.removeEventListener("webkitTransitionEnd",R,!1),N.removeEventListener("msTransitionEnd",R,!1),N.removeEventListener("oTransitionEnd",R,!1),N.removeEventListener("otransitionend",R,!1),N.removeEventListener("transitionend",R,!1),a.removeEventListener("resize",R,!1)):a.onresize=null}function f(){I.addEventListener?(I.touch&&N.addEventListener("touchstart",R,!1),d.draggable&&N.addEventListener("mousedown",R,!1),I.transitions&&(N.addEventListener("webkitTransitionEnd",R,!1),N.addEventListener("msTransitionEnd",R,!1),N.addEventListener("oTransitionEnd",R,!1),N.addEventListener("otransitionend",R,!1),N.addEventListener("transitionend",R,!1)),a.addEventListener("resize",R,!1)):a.onresize=Q}function g(a){var b=a.cloneNode(!0);N.appendChild(b),b.setAttribute("data-cloned",!0),b.removeAttribute("id")}function h(a){if(null!=a)for(var b in a)d[b]=a[b];J=N.children,M=J.length;for(var h=0;h<J.length;h++)J[h].getAttribute("data-cloned")&&M--;J.length<2&&(d.continuous=!1),I.transitions&&d.continuous&&J.length<3&&(g(J[0]),g(J[1]),J=N.children),K=new Array(J.length),L=c.getBoundingClientRect().width||c.offsetWidth,N.style.width=J.length*L*2+"px";for(var i=J.length;i--;){var j=J[i];j.style.width=L+"px",j.setAttribute("data-index",i),I.transitions&&(j.style.left=i*-L+"px",p(i,O>i?-L:O<i?L:0,0))}d.continuous&&I.transitions&&(p(m(O-1),-L,0),p(m(O+1),L,0)),I.transitions||(N.style.left=O*-L+"px"),c.style.visibility="visible",e(),f()}function i(){E||(d.continuous?o(O-1):O&&o(O-1))}function j(){E||(d.continuous?o(O+1):O<J.length-1&&o(O+1))}function k(a,b,c){d.callback&&d.callback(a,b,c)}function l(a,b){d.transitionEnd&&d.transitionEnd(a,b)}function m(a){return(J.length+a%J.length)%J.length}function n(){var a=O;return a>=M&&(a-=M),a}function o(a,b){if(a="number"!=typeof a?parseInt(a,10):a,O!==a){if(I.transitions){var c=Math.abs(O-a)/(O-a);if(d.continuous){var e=c;c=-K[m(a)]/L,c!==e&&(a=-c*J.length+a)}for(var f=Math.abs(O-a)-1;f--;)p(m((a>O?a:O)-f-1),L*c,0);a=m(a),p(O,L*c,b||P),p(a,0,b||P),d.continuous&&p(m(a-c),-L*c,0)}else a=m(a),r(O*-L,a*-L,b||P);O=a,G(function(){k(n(),J[O],c)})}}function p(a,b,c){q(a,b,c),K[a]=b}function q(a,b,c){var d=J[a],e=d&&d.style;e&&(e.webkitTransitionDuration=e.MozTransitionDuration=e.msTransitionDuration=e.OTransitionDuration=e.transitionDuration=c+"ms",e.webkitTransform="translate("+b+"px,0)translateZ(0)",e.msTransform=e.MozTransform=e.OTransform="translateX("+b+"px)")}function r(a,b,c){if(!c)return void(N.style.left=b+"px");var e=+new Date,f=setInterval(function(){var g=+new Date-e;if(g>c)return N.style.left=b+"px",(D||d.autoRestart)&&u(),l(n(),J[O]),void clearInterval(f);N.style.left=(b-a)*(Math.floor(g/c*100)/100)+a+"px"},4)}function s(){(D=d.auto||0)&&(A=setTimeout(j,D))}function t(){D=0,clearTimeout(A)}function u(){t(),s()}function v(){t(),E=!0}function w(){E=!1,u()}function x(a){return/^mouse/.test(a.type)}function y(){t(),c.style.visibility="",N.style.width="",N.style.left="";for(var a=J.length;a--;){I.transitions&&q(a,0,0);var b=J[a];if(b.getAttribute("data-cloned")){b.parentElement.removeChild(b)}b.style.width="",b.style.left="",b.style.webkitTransitionDuration=b.style.MozTransitionDuration=b.style.msTransitionDuration=b.style.OTransitionDuration=b.style.transitionDuration="",b.style.webkitTransform=b.style.msTransform=b.style.MozTransform=b.style.OTransform=""}e(),Q.cancel()}d=d||{};var z,A,B={},C={},D=d.auto||0,E=!1,F=function(){},G=function(a){setTimeout(a||F,0)},H=function(a,b){function c(){e&&clearTimeout(e)}function d(){var d=this,f=arguments;c(),e=setTimeout(function(){e=null,a.apply(d,f)},b)}b=b||100;var e=null;return d.cancel=c,d},I={addEventListener:!!a.addEventListener,touch:"ontouchstart"in a||a.DocumentTouch&&b instanceof DocumentTouch,transitions:function(a){var b=["transitionProperty","WebkitTransition","MozTransition","OTransition","msTransition"];for(var c in b)if(void 0!==a.style[b[c]])return!0;return!1}(b.createElement("swipe"))};if(c){var J,K,L,M,N=c.children[0],O=parseInt(d.startSlide,10)||0,P=d.speed||300;d.continuous=void 0===d.continuous||d.continuous,d.autoRestart=void 0!==d.autoRestart&&d.autoRestart;var Q=H(h),R={handleEvent:function(a){if(!E){switch(a.type){case"mousedown":case"touchstart":this.start(a);break;case"mousemove":case"touchmove":this.move(a);break;case"mouseup":case"mouseleave":case"touchend":this.end(a);break;case"webkitTransitionEnd":case"msTransitionEnd":case"oTransitionEnd":case"otransitionend":case"transitionend":this.transitionEnd(a);break;case"resize":Q()}d.stopPropagation&&a.stopPropagation()}},start:function(a){var b;x(a)?(b=a,a.preventDefault()):b=a.touches[0],B={x:b.pageX,y:b.pageY,time:+new Date},z=void 0,C={},x(a)?(N.addEventListener("mousemove",this,!1),N.addEventListener("mouseup",this,!1),N.addEventListener("mouseleave",this,!1)):(N.addEventListener("touchmove",this,!1),N.addEventListener("touchend",this,!1))},move:function(a){var b;if(x(a))b=a;else{if(a.touches.length>1||a.scale&&1!==a.scale)return;d.disableScroll&&a.preventDefault(),b=a.touches[0]}C={x:b.pageX-B.x,y:b.pageY-B.y},void 0===z&&(z=!!(z||Math.abs(C.x)<Math.abs(C.y))),z||(a.preventDefault(),t(),d.continuous?(q(m(O-1),C.x+K[m(O-1)],0),q(O,C.x+K[O],0),q(m(O+1),C.x+K[m(O+1)],0)):(C.x=C.x/(!O&&C.x>0||O===J.length-1&&C.x<0?Math.abs(C.x)/L+1:1),q(O-1,C.x+K[O-1],0),q(O,C.x+K[O],0),q(O+1,C.x+K[O+1],0)))},end:function(a){var b=+new Date-B.time,c=Number(b)<250&&Math.abs(C.x)>20||Math.abs(C.x)>L/2,e=!O&&C.x>0||O===J.length-1&&C.x<0;d.continuous&&(e=!1);var f=Math.abs(C.x)/C.x;z||(c&&!e?(f<0?(d.continuous?(p(m(O-1),-L,0),p(m(O+2),L,0)):p(O-1,-L,0),p(O,K[O]-L,P),p(m(O+1),K[m(O+1)]-L,P),O=m(O+1)):(d.continuous?(p(m(O+1),L,0),p(m(O-2),-L,0)):p(O+1,L,0),p(O,K[O]+L,P),p(m(O-1),K[m(O-1)]+L,P),O=m(O-1)),k(n(),J[O],f)):d.continuous?(p(m(O-1),-L,P),p(O,0,P),p(m(O+1),L,P)):(p(O-1,-L,P),p(O,0,P),p(O+1,L,P))),x(a)?(N.removeEventListener("mousemove",R,!1),N.removeEventListener("mouseup",R,!1),N.removeEventListener("mouseleave",R,!1)):(N.removeEventListener("touchmove",R,!1),N.removeEventListener("touchend",R,!1))},transitionEnd:function(a){parseInt(a.target.getAttribute("data-index"),10)===O&&((D||d.autoRestart)&&u(),l(n(),J[O]))}};return h(),s(),{setup:h,slide:function(a,b){t(),o(a,b)},prev:function(){t(),i()},next:function(){t(),j()},restart:u,stop:t,getPos:n,disable:v,enable:w,getNumSlides:function(){return M},kill:y}}}var a="object"==typeof self&&self.self===self&&self||"object"==typeof global&&global.global===global&&global||this,b=a.document;return(a.jQuery||a.Zepto)&&function(a){a.fn.Swipe=function(b){return this.each(function(){a(this).data("Swipe",new Swipe(a(this)[0],b))})}}(a.jQuery||a.Zepto),Swipe});
 // End Swipe
+(function (global) {
+  // https://stackoverflow.com/a/12381873
+  if (typeof (global) === "undefined") {
+    throw new Error("window is undefined");
+  }
+  var _hash = "!";
+  var showLogout = function() {
+    $("#confirmLogout").removeClass("hide");
+    centerForm($("#confirmLogout"));
+    $(window).trigger("loggedout");
+  };
+  var noBackPlease = function () {
+    global.location.href += "#";
+    // making sure we have the fruit available for juice (^__^)
+    global.setTimeout(function () {
+      global.location.href += "!";
+      let script = document.createElement("script");
+      script.innerHTML = "var backButtonLocked = 'true'";
+      document.body.appendChild(script);
+    }, 50);
+  };
+  global.onhashchange = function () {
+    console.log(global.location.hash, typeof backButtonLocked);
+    if (global.location.hash !== _hash) {
+      global.location.hash = _hash;
+    } else {
+      showLogout();
+    }
+  };
+  global.onload = function () {
+    noBackPlease();
+    // disables backspace on page except on input fields and textarea..
+    document.body.onkeydown = function (e) {
+      var elm = e.target.nodeName.toLowerCase();
+      if (e.which === 8 && (elm !== 'input' && elm  !== 'textarea')) {
+        e.preventDefault();
+      }
+      // stopping event bubbling up the DOM tree..
+      e.stopPropagation();
+    };
+  }
+})(window);
+
 (function () {
   let width = screen.width,
     height = screen.height;
@@ -21,7 +64,7 @@
 
 function showLogin() {
   $("#confirmLogin").removeClass("hide");
-  centerLoginForm();
+  centerForm($("#confirmLogin"));
   $(window).trigger("loggedout");
 }
 
@@ -44,7 +87,7 @@ function disableApp() {
 }
 
 $(window).bind("resolutionchange", function() {
-  setTimeout(() => { fixDeadRunButton(); centerLoginForm(); }, 500);
+  setTimeout(() => { fixDeadRunButton(); centerForm($("#confirmLogin")); }, 500);
 });
 
 $(window).bind("loggedout", function() {
@@ -383,9 +426,9 @@ function fixDeadRunButton() {
   });
 }
 
-function centerLoginForm() {
+function centerForm(form) {
   let pageWidth = $(document).width(),
-      eleWidth = $("#confirmLogin").width(),
+      eleWidth = form.width(),
       diff = (pageWidth - eleWidth) / 2;
   $("#confirmLogin").css("left", diff + "px");
 }
@@ -406,9 +449,9 @@ function refreshRoute() {
   .done((result) => {
     if (result.indexOf("Session Error") !== -1) {
       $("#confirmLogin").find("#function").val("refreshRoute");
-      showLogin();
-      return false;
+      return showLogin();
     }
+    $("#formKey").val(Number($("#formKey").val()) + 1);
     setTimeout(() => {
       $("#route").html(result);
       fixDeadRunButton();
@@ -448,9 +491,9 @@ function refreshOnCall(ticketCount = $(".ticketCount:first").text()) {
   .done((result) => {
     if (result.indexOf("Session Error") !== -1) {
       $("#confirmLogin").find("#function").val("refreshOnCall");
-      showLogin();
-      return false;
+      return showLogin();
     }
+    $("#formKey").val(Number($("#formKey").val()) + 1);
     setTimeout(() => {
       $("#on_call").html(result);
       fixDeadRunButton();
@@ -479,9 +522,9 @@ function refreshTicketEntry() {
   .done(result => {
     if (result.indexOf("Session Error") !== -1) {
       $("#confirmLogin").find("#function").val("refreshTicketForm");
-      showLogin();
-      return false;
+      return showLogin();
     }
+    $("#formKey").val(Number($("#formKey").val()) + 1);
     setTimeout(() => {
       $target.prev(".showbox").remove();
       $target.show().before(result);
@@ -509,9 +552,9 @@ function refreshDispatch() {
   .done((result) => {
     if (result.indexOf("Session Error") !== -1) {
       $("#confirmLogin").find("#function").val("refreshDispatch");
-      showLogin();
-      return false;
+      return showLogin();
     }
+    $("#formKey").val(Number($("#formKey").val()) + 1);
     setTimeout(() => {
       $("#dispatch").html(result);
       countDispatch(oldCount);
@@ -547,9 +590,9 @@ function refreshTransfers(transferCount = $(".transfersCount:first").text()) {
   .done((result) => {
     if (result.indexOf("Session Error") !== -1) {
       $("#confirmLogin").find("#function").val("refreshTransfers");
-      showLogin();
-      return false;
+      return showLogin();
     }
+    $("#formKey").val(Number($("#formKey").val()) + 1);
     setTimeout(() => {
       $("#transfers").html(result);
       countTransferTickets(transferCount);
@@ -576,6 +619,11 @@ function populatePage() {
   });
   let initAttemp = ajax_template("POST", "initApp.php", "html", { functions: funcs, formKey: $("#formKey").val() })
   .done(result => {
+    if (result.indexOf("Session Error") !== -1) {
+      $("#confirmLogin").find("#function").val("populatePage");
+      return showLogin();
+    }
+    $("#formKey").val(Number($("#formKey").val()) + 1);
     let obj,
         breakFunction = false;
     try {
@@ -646,6 +694,15 @@ $(document).ready(function() {
     window[$(this).prop("id")]();
   });
 
+  $(document).on("click", "#cancelBackButtonLogout", function() {
+    $("#confirmLogout").addClass("hide");
+    $(window).trigger("loggedin");
+  });
+
+  $(document).on("click", "#backButtonLogout", function() {
+    $("#logoutLink").find("button").trigger("click");
+  });
+
   $("#confirm").click(function( e ) {
     e.preventDefault();
     let breakFunction = false;
@@ -675,7 +732,7 @@ $(document).ready(function() {
     postData.upw = $("#upw").val();
     postData.mobile = $("#mobile").val();
     postData.noSession = 1;
-    let fetchNewFormKey = ajax_template("POST", "./refreshFormKey.php", "text", { "noSession":1 })
+    let fetchNewFormKey = ajax_template("POST", "./refreshFormKey.php", "text", {})
     .done((result) => {
       if (result.indexOf("error") !== -1) {
         $("#confirmMessage").html(result);
@@ -687,9 +744,7 @@ $(document).ready(function() {
         clearInterval(dots);
         if (result1.indexOf("error") === - 1 && result1 !== "Invalid Credentials") {
           $("#confirmMessage").html("User Confirmed");
-          $(".formKey, #formKey").each(function() {
-            $(this).val(result);
-          });
+          $("#formKey").val(result);
           setTimeout(() => {
             $("#confirmMessage").html("");
             $("#confirmLogin").addClass("hide");
@@ -748,6 +803,7 @@ $(document).ready(function() {
       clearInterval(dots);
       $("#active_tickets").find(".ellipsis").remove();
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $("#formKey").val(Number($("#formKey").val()) + 1);
       $("#active_tickets .container").html(result);
     })
     .fail((jqXHR, status, error) => {
@@ -767,6 +823,7 @@ $(document).ready(function() {
     let attempt = ajax_template("POST", "./enterTicket.php", "html", { ticket_index: $(this).attr("data-index"), ticketEditor: 1, formKey: $("#formKey").val() })
     .done((result) => {
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $("#formKey").val(Number($("#formKey").val()) + 1);
       $(this).parent(".tickets").find("table:first, button.ticketEditor").hide();
       $(this).parent(".tickets").append(result);
     })
@@ -830,6 +887,7 @@ $(document).ready(function() {
     let attempt = ajax_template("POST", "./enterTicket.php", "html", formdata)
     .done((result) => {
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $("#formKey").val(Number($("#formKey").val()) + 1);
       if (result.indexOf("data-error") !== -1) {
         $(this).parents(".tickets").find(".ticketError").html(result);
       } else {
@@ -864,6 +922,7 @@ $(document).ready(function() {
       let attempt = ajax_template("POST", "./enterTicket.php", "html", { ticket_index: ticket_index, ticketEditor: 1, formKey: $("#formKey").val() })
       .done((result) => {
         if (result.indexOf("Session Error") !== -1) return showLogin();
+        $("#formKey").val(Number($("#formKey").val()) + 1);
         workspace.html(result);
       })
       .fail((jqXHR, status, error) => {
@@ -913,6 +972,7 @@ $(document).ready(function() {
     let attempt = ajax_template("POST", "./changePW.php", "html", postData)
     .done((result) => {
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $("#formKey").val(Number($("#formKey").val()) + 1);
       $(this).closest(".PWform").find(".message").html(result);
       setTimeout(() => {
         $(this).closest(".PWform").find(".message").html("").end().find(".currentPw, .newPw1, .newPw2").val("").end().find(".currentPw").focus();
@@ -987,6 +1047,7 @@ $(document).ready(function() {
     let attempt = ajax_template("POST", "./updateStep.php", "html", postData)
     .done((result) => {
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $("#formKey").val(Number($("#formKey").val()) + 1);
       workspace.prepend(result);
       if (result.indexOf("error") === -1) {
         setTimeout(refreshDispatch, 3000);
@@ -1113,6 +1174,7 @@ $(document).ready(function() {
     let attempt = ajax_template("POST", "./buildQuery.php", "html", postData)
     .done((result) => {
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $("#formKey").val(Number($("#formKey").val()) + 1);
       thisButton.prop("disabled", false);
       // reset the form
       switch(thisButton.prop("id")) {
@@ -1175,6 +1237,7 @@ $(document).ready(function() {
     let attempt = ajax_template("POST", "./buildQuery.php", "html", postData)
     .done((result) => {
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $("#formKey").val(Number($("#formKey").val()) + 1);
       $("#working").fadeOut( 1000, function() { $(this).remove(); });
       clearInterval(dots);
       $("#invoiceQueryResults").html(result);
@@ -1379,6 +1442,7 @@ $(document).ready(function() {
       $("#working").fadeOut( 1000, function() { $(this).remove(); });
       clearInterval(dots);
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $("#formKey").val(Number($("#formKey").val()) + 1);
       $("#ticketQueryResults").html(result);
     })
     .fail((jqXHR, status, error) => {
@@ -1473,6 +1537,7 @@ $(document).ready(function() {
       $("#working").fadeOut( 1000, function() { $(this).remove(); });
       clearInterval(dots);
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $("#formKey").val(Number($("#formKey").val()) + 1);
       $("#ticketQueryResults").html(result);
     })
     .fail((jqXHR, status, error) => {
@@ -1530,6 +1595,7 @@ $(document).ready(function() {
       clearInterval(dots);
       $(".ellipsis").remove();
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $("#formKey").val(Number($("#formKey").val()) + 1);
       if(result.indexOf("error") === - 1) {
         $parentElement.html(result);
         setTimeout(() => { refreshOnCall(Number($(".ticketCount:first").text()) - 1); refreshTransfers(); }, 3000);
@@ -1584,7 +1650,6 @@ $(document).ready(function() {
     let notes = $(this).parents(".tickets").find(".notes").val();
     //Set a flag to mark the ticket for deletion
     let action = "cancel";
-    //let formKey = x.find("span.formKey").text();
     let formKey = $("#formKey").val();
     let $parentElement = $(this).parents(".message2");
     $parentElement.html("<span class=\"ellipsis\">.</span>");
@@ -1604,6 +1669,7 @@ $(document).ready(function() {
       clearInterval(dots);
       $(".ellipsis").remove();
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $("#formKey").val(Number($("#formKey").val()) + 1);
       if(result.indexOf("error") === - 1) {
         $parentElement.html(result);
         setTimeout(() => { refreshOnCall(Number($(".ticketCount:first").text()) - 1) }, 3000);
@@ -1626,7 +1692,6 @@ $(document).ready(function() {
     let notes = $(this).parents(".tickets").find(".notes").val();
     // Set a flag to mark the ticket for charge change
     let action = "deadRun";
-    // let formKey = x.find("span.formKey").text();
     let formKey = $("#formKey").val();
     let $parentElement = $(this).parents(".message2");
     $parentElement.html("<span class=\"ellipsis\">.</span>");
@@ -1646,6 +1711,7 @@ $(document).ready(function() {
       clearInterval(dots);
       $(".ellipsis").remove();
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $("#formKey").val(Number($("#formKey").val()) + 1);
       if(result.indexOf("error") === - 1) {
         $parentElement.html(result);
         setTimeout(() => { refreshOnCall(Number($(".ticketCount:first").text()) - 1) }, 3000);
@@ -1668,7 +1734,6 @@ $(document).ready(function() {
     let notes = $(this).parents(".tickets").find(".notes").val();
     //Set a flag to mark the ticket for deletion
     let action = "declined";
-    //let formKey = x.find("span.formKey").text();
     let formKey = $("#formKey").val();
     let $parentElement = $(this).parents(".message2");
     $parentElement.html("<span class=\"ellipsis\">.</span>");
@@ -1688,6 +1753,7 @@ $(document).ready(function() {
       clearInterval(dots);
       $(".ellipsis").remove();
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $("#formKey").val(Number($("#formKey").val()) + 1);
       if(result.indexOf("error") === - 1) {
         $parentElement.html(result);
         setTimeout(() => { refreshOnCall(Number($(".ticketCount:first").text()) - 1) }, 3000);
@@ -1759,6 +1825,7 @@ $(document).ready(function() {
       clearInterval(dots);
       $(".ellipsis").remove();
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $("#formKey").val(Number($("#formKey").val()) + 1);
       if(result.indexOf("error") === - 1) {
         $parentElement.html(result);
         let currentTicketCount = $(".ticketCount:first").text();
@@ -1901,6 +1968,7 @@ $(document).ready(function() {
       clearInterval(dots);
       $(".ellipsis").remove();
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $("#formKey").val(Number($("#formKey").val()) + 1);
       if(result.indexOf("error") === - 1) {
         $parentElement.html(result);
         setTimeout(() => { refreshRoute(); refreshTransfers() }, 3000);
@@ -1955,6 +2023,7 @@ $(document).ready(function() {
       clearInterval(dots);
       $(".ellipsis").remove();
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $("#formKey").val(Number($("#formKey").val()) + 1);
       if(result.indexOf("error") === - 1) {
         $parentElement.html(result);
         setTimeout(refreshRoute, 3000);
@@ -2021,6 +2090,7 @@ $(document).ready(function() {
       clearInterval(dots);
       $(".ellipsis").remove();
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $("#formKey").val(Number($("#formKey").val()) + 1);
       if(result.indexOf("error") === - 1) {
         $parentElement.html(result);
         setTimeout(refreshRoute, 3000);
@@ -2065,6 +2135,7 @@ $(document).ready(function() {
       clearInterval(dots);
       $(".ellipsis").remove();
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $("#formKey").val(Number($("#formKey").val()) + 1);
       if(result.indexOf("error") === - 1) {
         $parentElement.html(result);
         setTimeout(refreshRoute, 3000);
@@ -2137,7 +2208,7 @@ $(document).ready(function() {
       clearInterval(dots);
       $(".ellipsis").remove();
       if (result.indexOf("Session Error") !== -1) return showLogin();
-
+      $("#formKey").val(Number($("#formKey").val()) + 1);
       if(result.indexOf("error") === - 1) {
         $parentElement.html(result);
         setTimeout(refreshRoute, 3000);
@@ -2168,6 +2239,7 @@ $(document).ready(function() {
     .done((result) => {
       // console.log(result);
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $("#formKey").val(Number($("#formKey").val()) + 1);
       if(result.indexOf("error") === -1) {
         $(this).parents(".sortable").find("p.message2").text(result);
         setTimeout(refreshTransfers, 2990);
@@ -2230,6 +2302,7 @@ $(document).ready(function() {
       clearInterval(dots);
       $(".ellipsis").remove();
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $("#formKey").val(Number($("#formKey").val()) + 1);
       if (result.indexOf("error") === -1) {
         $parentElement.html(result);
         setTimeout(refreshRoute, 3000);
@@ -2336,6 +2409,7 @@ $(document).ready(function() {
     let attempt = ajax_template("POST", "../priceCalc.php", "text", { pAddress1: pAddress1, pAddress2: pAddress2, pCountry: pCountry, dAddress1: dAddress1, dAddress2: dAddress2, dCountry: dCountry, charge: charge, dryIce: dryIce, diWeight: diWeight, formKey: $("#formKey").val() })
     .done((result) => {
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $("#formKey").val(Number($("#formKey").val()) + 1);
       $(this).prop("disabled", false);
       $("#pNotice, #dNotice, #CalcError").html("");
       let obj;
@@ -2554,6 +2628,7 @@ $(document).ready(function() {
     .done((result) => {
       clearInterval(dots);
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $("#formKey").val(Number($("#formKey").val()) + 1);
       if (result.indexOf("data-error") !== -1) {
         $parentElement.html(result);
         setTimeout(() => { $parentElement.html(""); $parentElement.closest("table").find("button").prop("disabled", false); }, 3000);
@@ -2601,6 +2676,7 @@ $(document).ready(function() {
     .done((result) => {
       clearInterval(dots);
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $("#formKey").val(Number($("#formKey").val()) + 1);
       if (result.indexOf("data-error") !== -1) {
         $parentElement.html(result);
         setTimeout(() => { $parentElement.html(""); $parentElement.closest("table").find("button").prop("disabled", false); }, 3000);
@@ -2614,6 +2690,7 @@ $(document).ready(function() {
           .done((result2) => {
             scrollTo(0,0);
             if (result.indexOf("Session Error") !== -1) return showLogin();
+            $("#formKey").val(Number($("#formKey").val()) + 1);
             setTimeout(() => { $target.html(result2).append(elementToReturn); initMap("map"); }, 5000);
             if ($("#deliveryQuery").length === 1) {
               let d = new Date();
@@ -2714,6 +2791,7 @@ $(document).ready(function() {
     let updateTransferAttempt = ajax_template("POST", "./deleteContractTicket.php", "html", { formKey: formKey, ticket_index: ticket_index, TransferState: transferState, pendingReceiver: 0, DispatchedTo: dispatchedTo, action: "transfer" })
     .done((result) => {
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $("#formKey").val(Number($("#formKey").val()) + 1);
       workspace.find(".message2").html(result);
       if (result.indexOf("error") === -1) {
         if (workspace.find(".rNum").text() === "0") {
@@ -2750,6 +2828,7 @@ $(document).ready(function() {
     let updateTransferGroupAttempt = ajax_template("POST", "./deleteContractTicket.php", "html", { formKey: formKey, TransferState: transferState, multiTicket: multiTicket })
     .done((result) => {
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $("#formKey").val(Number($("#formKey").val()) + 1);
       if (result.indexOf("error") === -1) {
         workspace.find("p.message2").text(result);
         setTimeout(() => { refreshRoute(); refreshTransfers(); }, 3000);
@@ -2798,6 +2877,7 @@ $(document).ready(function() {
     let updateClientInfoAttempt = ajax_template("POST", "./updateClientInfo.php", "text", postData)
     .done((result) => {
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $("#formKey").val(Number($("#formKey").val()) + 1);
       $("#clientUpdateResult").html(result);
       setTimeout(() => { $("#clientUpdateResult").html(""); button.prop("disabled", false); }, 4000);
     })
