@@ -1,0 +1,49 @@
+main {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  color: #2f4f4f;
+  background: black; /* Fallback */
+  background: -webkit-linear-gradient(left top, white, black); /* Safari 5.1 - 6.0 */
+  background: -o-linear-gradient(bottom right, white, black); /* Opera 11.1 - 12.0 */
+  background: -moz-linear-gradient(bottom right, white, black); /* Firefox 3.6 - 15 */
+  background: linear-gradient(to bottom right, white, black); /* Standard syntax */
+}
+button.red, button.red:disabled {
+  /* IE10 Consumer Preview */ 
+  background-image: -ms-linear-gradient(top left, #FF0000 -50%, #FCFCFC 110.00000000000001%);
+  /* Mozilla Firefox */ 
+  background-image: -moz-linear-gradient(top left, #FF0000 -50%, #FCFCFC 110.00000000000001%);
+  /* Opera */ 
+  background-image: -o-linear-gradient(top left, #FF0000 -50%, #FCFCFC 110.00000000000001%);
+  /* Webkit (Safari/Chrome 10) */ 
+  background-image: -webkit-gradient(linear, left top, right bottom, color-stop(-.5, #FF0000), color-stop(1.1, #FCFCFC));
+  /* Webkit (Chrome 11+) */ 
+  background-image: -webkit-linear-gradient(top left, #FF0000 -50%, #FCFCFC 110.00000000000001%);
+  /* W3C Markup, IE10 Release Preview */ 
+  background-image: linear-gradient(to bottom right, #FF0000 -50%, #FCFCFC 110.00000000000001%);
+}
+img {
+  max-width: 100%;
+}
+#driverLoginForm td {
+  padding-left: 10%;
+}
+.message {
+  font-size: 0.9em;
+}
+.centerDiv {
+  margin: 0 auto;
+}
+.logoContainer {
+  margin-top: 5%;
+  display: flex;
+  justify-content: center;
+}
+
+#homeScreen {
+  margin-top: 2em;
+}
