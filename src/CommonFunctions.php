@@ -1,6 +1,7 @@
 <?php
   namespace rjdeliveryomaha\courierinvoice;
 
+  use rjdeliveryomaha\courierinvoice\SecureSessionHandler;
   use rjdeliveryomaha\courierinvoice\Query;
   use rjdeliveryomaha\courierinvoice\Ticket;
   use rjdeliveryomaha\courierinvoice\Invoice;
@@ -185,14 +186,6 @@
         }
         next($this->sanitized);
       } while (key($this->sanitized) !== NULL);
-
-      if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($data['noSession'])) {
-        if (!$this->validate()) {
-          $this->error = 'Session Validation Error';
-          if ($this->enableLogging !== FALSE) self::writeLoop();
-          throw new \Exception($this->error);
-        }
-      }
     }
 
     public function getProperty($property) {
@@ -295,32 +288,6 @@
           throw new \Exception($this->error);
         }
       }
-    }
-    // session validation key
-    // Private function to generate the key
-    private function generateKey() {
-      // Get the user IP-address for use in key
-      $ip = $_SERVER['REMOTE_ADDR'];
-      // Use mt_rand and uniqid to generate another part of the key
-      $uniqid = uniqid(mt_rand(), TRUE);
-      // Return a hash of the string for added opacity
-      return md5($ip . $uniqid);
-    }
-
-    // Public function to output the key in a hidden form element
-    public function outputKey() {
-      // Generate the key and store it in the class
-      $this->formKey = self::generateKey();
-      // Store the key as a session variable
-      $_SESSION['formKey'] = $this->formKey;
-      //Output the form key
-      return $this->formKey;
-    }
-
-    //Public function to validate the key as POST data
-    private function validate() {
-      // Compare the POST value to the previous key
-      return (isset($_SESSION['formKey']) && $this->formKey === $_SESSION['formKey']);
     }
 
     protected function recursive_santizer($array, $filter='input') {
@@ -1012,6 +979,7 @@
           <div id=\"logoutRefresh\">
             <button type=\"button\" class=\"refresh\">Refresh</button>
             <form id=\"logoutLink\" action=\"logout\" method=\"post\">
+              <input type=\"hidden\" name=\"formKey\" id=\"formKey\" value=\"" . SecureSessionHandler::outputKey() . "\" />
               <input type=\"hidden\" name=\"mobile\" value=\"{$mobileMarker}\" />
               <button type=\"submit\" form=\"logoutLink\">Log Out</button>
             </form>

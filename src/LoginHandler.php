@@ -145,6 +145,9 @@
       } else {
         throw new \Exception('Invalid Credentials');
       }
+      $session = $_SESSION;
+      session_regenerate_id(true);
+      $_SESSION = $session;
       try {
         self::fetchConfig();
       } catch (Exception $e) {
@@ -156,9 +159,9 @@
           $_SESSION[$key] = $value;
         }
       }
+      unset($_SESSION['error']);
       $_SESSION['driverName'] = $this->result[0]['FirstName'] . " " . $this->result[0]['LastName'];
       $_SESSION['ulevel'] = 'driver';
-      $_SESSION['CanDispatch'] = $this->result[0]['CanDispatch'];
       echo '/drivers';
       return FALSE;
     }
@@ -169,6 +172,9 @@
       } else {
         throw new \Exception('Invalid Credentials');
       }
+      $session = $_SESSION;
+      session_regenerate_id(true);
+      $_SESSION = $session;
       try {
         self::fetchConfig();
       } catch (Exception $e) {
@@ -180,6 +186,7 @@
           $_SESSION[$key] = $value;
         }
       }
+      unset($_SESSION['error']);
       $_SESSION['ulevel'] = 'dispatch';
       $_SESSION['CanDispatch'] = 2;
       echo '/drivers';
@@ -196,6 +203,9 @@
       } else {
         throw new \Exception('Invalid Credentials');
       }
+      $session = $_SESSION;
+      session_regenerate_id(true);
+      $_SESSION = $session;
       try {
         self::fetchConfig();
       } catch (Exception $e) {
@@ -210,6 +220,7 @@
           }
         }
       }
+      unset($_SESSION['error']);
       $_SESSION['pwWarning'] = 0;
       if (password_verify('!Delivery1', $this->result[0]['Password'])) {
         $_SESSION['pwWarning'] += 1;
@@ -228,6 +239,9 @@
       } else {
         throw new \Exception('Invalid Credentials');
       }
+      $session = $_SESSION;
+      session_regenerate_id(true);
+      $_SESSION = $session;
       try {
         self::fetchConfig();
       } catch (Exception $e) {
@@ -237,6 +251,7 @@
       if (password_verify('3Delivery!', $this->result[0]['Password'])) {
         $_SESSION['pwWarning'] += 4;
       }
+      unset($_SESSION['error']);
       $_SESSION['ClientName'] = $this->result[0]['Name'];
       $_SESSION['ClientID'] = $this->result[0]['id'];
       $_SESSION['ListBy'] = $this->result[0]['ListBy'];

@@ -1,25 +1,15 @@
 <?php
   if ($_SERVER['REQUEST_METHOD'] !== 'POST') return FALSE;
-  // Include functions
-  require_once '../../includes/user_functions.php';
 
-  if (!is_sec_session_started()) sec_session_start();
-
-  require_once '../../includes/api_config.php';
+  require_once '../../includes/APIToolsConfig.php';
   require_once '../../vendor/autoload.php';
 
-  use rjdeliveryomaha\courierinvoice\CommonFunctions;
+  use rjdeliveryomaha\courierinvoice\SecureSessionHandler;
 
   try {
-    $functions = new CommonFunctions($config, $_POST);
+    $val = SecureSessionHandler::newKey($config);
   } catch(Exception $e) {
-    echo "<span data-value=\"error\">{$e->getMessage()}</span>";
-    return FALSE;
-  }
-  try {
-    $val = $functions->outputMultiKey();
-  } catch(Exception $e) {
-    $val = "<span data-value=\"error\">{$e->getMessage()}</span>";
+    $val = $e->getMessage();
   }
   echo $val;
   return FALSE;

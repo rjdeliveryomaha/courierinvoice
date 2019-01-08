@@ -4,15 +4,20 @@
   // header("Cache-Control: no-cache, must-revalidate"); //HTTP 1.1
   // header("Pragma: no-cache"); //HTTP 1.0
   // header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
-  // Include functions
-  require_once '../../includes/user_functions.php';
 
-  if (!is_sec_session_started()) sec_session_start();
-
-  require_once '../../includes/api_config.php';
+  require_once '../../includes/APIToolsConfig.php';
   require_once '../../vendor/autoload.php';
 
   use rjdeliveryomaha\courierinvoice\CommonFunctions;
+  use rjdeliveryomaha\courierinvoice\SecureSessionHandler;
+
+  try {
+    SecureSessionHandler::start_session($config);
+  } catch (Exception $e) {
+    echo $e->getMessage();
+    exit;
+  }
+  if (isset($_SESSION['error'])) exit(header('Location: logout'));
 ?>
 <!DOCTYPE html>
 <html>
@@ -58,7 +63,6 @@
     header('refresh:5;url=/');
     exit;
   }
-  echo "<input type=\"hidden\" name=\"formKey\" class=\"formKey\" id=\"formKey\" value=\"{$functions->outputKey()}\" />";
   try {
     $timezone = new dateTimeZone($_SESSION['config']['TimeZone']);
   } catch (Exception $e) {

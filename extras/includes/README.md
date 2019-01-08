@@ -1,7 +1,5 @@
 # Integration Configuration
 
-[Jump to user_functions](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes#user_functions)
-
 ### username
 
 String
@@ -19,6 +17,50 @@ Public API key. This can be found on the reconfigure page at [courierinvoice.com
 String
 
 Private API key. This can be found on the reconfigure page at [courierinvoice.com](https://rjdeliveryomaha.com/courierinvoice.com)
+
+### session_name
+
+String
+
+Custom session name to use instead of default PHPSESSID.
+
+### domain
+
+String
+
+Domain name to associate the session with.
+
+### lifetime
+
+Integer
+
+Time, in seconds, to keep the session alive.
+
+Default 28800 (8 hours).
+
+### path
+
+String
+
+Path on the domain where the cookie will work. Use a single slash ('/') for all paths on the domain.
+
+Default '/'.
+
+### secure
+
+Boolean
+
+If TRUE cookie will only be sent over secure connections.
+
+Default ``` false ```.
+
+### bypassHijackingTest
+
+Boolean
+
+Bypass test of HTTP_USER_AGENT and REMOTE_ADDR.
+
+Default ``` false ```.
 
 ### enableLogging
 
@@ -351,8 +393,6 @@ Providing your basic Courier Invoice configuration options is necessary when usi
 
 # user_functions
 
-[Jump to Integration Configuration](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes#integration_configuration)
-
-These functions are used by this integration but need to be unique to each integration. Of the two functions included, ` is_sec_session_started() ` and ` sec_session_start() `, only the latter will need to be edited to match your domain and desired session name.
+[Return to top](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes#integration_configuration)
 
 This file is where functions should be located that will be called to extend the application.

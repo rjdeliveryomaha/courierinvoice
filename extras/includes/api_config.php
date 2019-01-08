@@ -6,6 +6,18 @@
 
     'privateKey' => '',
 
+    'session_name' => 'something_other_than_PHPSESSID',
+
+    'domain' => '.website.com',
+
+    'lifetime' => 12 * 60 * 60,
+
+    'path' => '/',
+
+    'https' => 0,
+
+    'bypassHijackingTest' => false,
+
     'enableLogging' => false,
 
     'targetFile' => './API.log',
