@@ -832,7 +832,7 @@ $(document).ready(function() {
     });
   });
 
-  $(document).on("click", "#ticketEditor .submitForm", function(e) {
+  $(document).on("click", ".submitForm", function(e) {
     e.preventDefault();
     $(this).prop("disable", true);
     let breakFunction = false,
