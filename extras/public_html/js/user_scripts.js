@@ -87,6 +87,7 @@ $(document).ready(function() {
           }, 500),
           loginAttempt = ajax_template("POST", "./login.php", "html", { clientID:clientID, upw:upw, mobile:mobile, noSession:'1', formKey:$("#formKey").val() })
       .done(result => {
+        $("#formKey").val(Number($("#formKey").val()) + 1);
         if (result.search("clients") === -1 && result.search("drivers") === -1) {
           $(this).parents("form").find(".message").append(result);
           let bruteCheck  = ajax_template("POST", "./login.php", "html", { clientID:clientID, brute:1 })
