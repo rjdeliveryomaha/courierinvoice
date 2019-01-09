@@ -4,12 +4,12 @@
   // header("Cache-Control: no-cache, must-revalidate"); //HTTP 1.1
   // header("Pragma: no-cache"); //HTTP 1.0
   // header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
-  
+
   require_once '../includes/APIToolsConfig.php';
   require_once '../vendor/autoload.php';
-  
+
   use rjdeliveryomaha\courierinvoice\SecureSessionHandler;
-  
+
   try {
     SecureSessionHandler::start_session($config);
   } catch (Exception $e) {
@@ -36,6 +36,8 @@
       </a>
     </div>
     <form class="wide" name="login" action="/" method="post">
+      <input type="hidden" name="formKey" id="formKey" value="<?php echo SecureSessionHandler::outputKey(); ?>" />
+      <input type="hidden" class="mobile" name="mobile" value="1" />
       <table class="centerDiv" id="driverLoginForm">
         <tfoot>
           <tr>
@@ -57,7 +59,6 @@
           </tr>
           <tr>
             <td>
-              <input type="hidden" class="mobile" name="mobile" value="1" />
               <button type="submit" id="submit" class="login">Login</button>
             </td>
           </tr>
