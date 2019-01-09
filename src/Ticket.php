@@ -1140,7 +1140,6 @@
         }
         $this->dispatchForm = "
           <form id=\"dispatchForm{$this->ticket_index}\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
-            <input type=\"hidden\" name=\"formKey\" class=\"formKey\" value=\"{$this->formKey}\" form=\"dispatchForm{$this->ticket_index}\" />
             <input type=\"hidden\" name=\"step\" class=\"step\" value=\"dispatched\" form=\"dispatchForm{$this->ticket_index}\" />
             <input type=\"hidden\" name=\"ticket_index\" class=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"dispatchForm{$this->ticket_index}\" />
             <input type=\"hidden\" name=\"emailConfirm\" class=\"emailConfirm\" value=\"{$this->EmailConfirm}\" form=\"dispatchForm{$this->ticket_index}\" />
@@ -1219,7 +1218,6 @@
           }
           $billed = "
           <form class=\"noPrint\" action=\"{$url}\" method=\"post\">
-            <input type=\"hidden\" name=\"formKey\" value=\"{$this->formKey}\" />
             <input type=\"hidden\" name=\"clientID\" value=\"{$this->ClientID}\" />
             <input type=\"hidden\" name=\"endPoint\" value=\"invoices\" />
             <input type=\"hidden\" name=\"display\" value=\"invoice\" />
@@ -1491,7 +1489,7 @@
           </td>
         </tr>
       </table>";
-      if ($this->ticketEditor === TRUE) $returnData .= "<button type=\"button\" class=\"ticketEditor\" data-key=\"{$this->formKey}\" data-contract=\"{$this->Contract}\" data-index=\"{$this->ticket_index}\">Edit Ticket</button>";
+      if ($this->ticketEditor === TRUE) $returnData .= "<button type=\"button\" class=\"ticketEditor\" data-contract=\"{$this->Contract}\" data-index=\"{$this->ticket_index}\">Edit Ticket</button>";
     $returnData .= '
     </div>';
     return $returnData;
@@ -1565,7 +1563,6 @@
                 <tr>
                   <td colspan=\"2\">
                     <form id=\"ticketForm{$this->ticket_index}\" class=\"routeStop\">
-                      <input type=\"hidden\" name=\"formKey\" value=\"{$this->formKey}\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"sigImage\" class=\"sigImage\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"step\" class=\"step\" value=\"pickedUp\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"ticket_index\" class=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"ticketForm{$this->ticket_index}\" />
@@ -1630,7 +1627,6 @@
                 <tr>
                   <td colspan=\"2\">
                     <form id=\"ticketForm{$this->ticket_index}\" class=\"routeStop\">
-                      <input type=\"hidden\" name=\"formKey\" value=\"{$this->formKey}\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"sigImage\" class=\"sigImage\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"step\" class=\"step\" value=\"delivered\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"ticket_index\" class=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"ticketForm{$this->ticket_index}\" />
@@ -1662,7 +1658,6 @@
                 <tr>
                   <td colspan=\"2\">
                     <form id=\"ticketForm{$this->ticket_index}\" class=\"routeStop\">
-                      <input type=\"hidden\" name=\"formKey\" value=\"{$this->formKey}\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"sigImage\" class=\"sigImage\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"step\" class=\"step\" value=\"returned\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"ticket_index\" class=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"ticketForm{$this->ticket_index}\" />
@@ -1942,7 +1937,6 @@
             <tr>
               <td colspan=\"2\" class=\"center\">
                 <form id=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" class=\"routeStop\">
-                  <input type=\"hidden\" name=\"formKey\" class=\"formKey\" value=\"{$this->formKey}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                   <input type=\"hidden\" name=\"ticket_index\" class=\"ticket_index\" value=\"{$this->multiTicket[$i]->ticket_index}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                   <input type=\"hidden\" name=\"runNumber\" class=\"runNumber\" value=\"{$this->multiTicket[$i]->RunNumber}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                   <input type=\"hidden\" name=\"charge\" class=\"charge\" value=\"{$this->multiTicket[$i]->Charge}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
@@ -2571,7 +2565,6 @@
       $returnData .= "
       <div id=\"deliveryRequest{$this->ticket_index}\" class=\"removableByEditor\">
         <form id=\"request{$this->ticket_index}\" action=\"{$this->action}\" method=\"post\">
-          <input type=\"hidden\" name=\"formKey\" value=\"{$this->formKey}\" form=\"request{$this->ticket_index}\" />
           {$indexInput} {$dispatchedBy} {$transferredBy} {$ticketNumberInput}
           <input type=\"hidden\" name=\"runNumber\" value=\"{$this->RunNumber}\" form=\"request{$this->ticket_index}\" />
           <input type=\"hidden\" name=\"contract\" value=\"{$this->Contract}\" form=\"request{$this->ticket_index}\" />
@@ -3057,8 +3050,7 @@
 
     private function confirmRequest() {
       self::solveTicketPrice();
-      $editForm = "<form id=\"editForm{$this->ticket_index}\" method=\"post\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\">
-          <input type=\"hidden\" name=\"formKey\" value=\"{$this->formKey}\" form=\"editForm{$this->ticket_index}\" />";
+      $editForm = "<form id=\"editForm{$this->ticket_index}\" method=\"post\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\">";
       // Set the form name to editForm
       $this->formName = 'editForm' . $this->ticket_index;
       $editForm .= self::hiddenInputs();
@@ -3149,7 +3141,6 @@
       $transfersFormValue = ($this->Transfers == NULL) ? '' : htmlentities(json_encode($this->Transfers), ENT_QUOTES);
       $submitForm = "
             <form id=\"submitTicket{$this->ticket_index}\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
-              <input type=\"hidden\" name=\"formKey\" id=\"formKey\" value=\"{$this->formKey}\" />
               {$newTicketInput}
               <input type=\"hidden\" name=\"edit\" value=\"0\" form=\"submitTicket{$this->ticket_index}\" />
               <input type=\"hidden\" name=\"ticketNumber\" value=\"{$this->TicketNumber}\" form=\"submitTicket{$this->ticket_index}\" />
