@@ -23,13 +23,9 @@
     // making sure we have the fruit available for juice (^__^)
     global.setTimeout(function () {
       global.location.href += "!";
-      let script = document.createElement("script");
-      script.innerHTML = "var backButtonLocked = 'true'";
-      document.body.appendChild(script);
     }, 50);
   };
   global.onhashchange = function () {
-    console.log(global.location.hash, typeof backButtonLocked);
     if (global.location.hash !== _hash) {
       global.location.hash = _hash;
     } else {
@@ -744,7 +740,7 @@ $(document).ready(function() {
         clearInterval(dots);
         if (result1.indexOf("error") === - 1 && result1 !== "Invalid Credentials") {
           $("#confirmMessage").html("User Confirmed");
-          $("#formKey").val(result);
+          $("#formKey").val(Number(result) + 1);
           setTimeout(() => {
             $("#confirmMessage").html("");
             $("#confirmLogin").addClass("hide");
@@ -781,8 +777,8 @@ $(document).ready(function() {
   // active tickets
   $(document).on("click", "#ticketEditorSubmit", function(e) {
     e.preventDefault();
-    $("#active_tickets .container").html("<span class=\"ellipsis\">.</span>");
-    let $ele = $("#active_tickets .ellipsis"),
+    $("#ticketEditorResultContainer").html("<span class=\"ellipsis\">.</span>");
+    let $ele = $("#ticketEditorResultContainer .ellipsis"),
         forward = true,
         dots = setInterval(() => {
           if (forward === true) {
@@ -801,16 +797,16 @@ $(document).ready(function() {
     let attempt = ajax_template("POST", "./activeTickets.php", "html", { dispatchedTo: dispatchedTo, contract: contract, ticketEditorSearchDate: searchDate, formKey: formKey })
     .done((result) => {
       clearInterval(dots);
-      $("#active_tickets").find(".ellipsis").remove();
+      $("#ticketEditorResultContainer").find(".ellipsis").remove();
       if (result.indexOf("Session Error") !== -1) return showLogin();
       $("#formKey").val(Number($("#formKey").val()) + 1);
-      $("#active_tickets .container").html(result);
+      $("#ticketEditorResultContainer").html(result);
     })
     .fail((jqXHR, status, error) => {
       clearInterval(dots);
-      $("#active_tickets").find(".ellipsis").remove();
-      $("#active_tickets .message").find("#message").html("<p class=\"center ajaxError\"><span class=\"error\">Error</span>: " + error + "</p>");
-      setTimeout(() => { $("#active_tickets").find(".ajaxError").remove(); }, 4000);
+      $("#ticketEditorResultContainer").find(".ellipsis").remove();
+      $("#ticketEditorResultContainer .message").find("#message").html("<p class=\"center ajaxError\"><span class=\"error\">Error</span>: " + error + "</p>");
+      setTimeout(() => { $("#ticketEditorResultContainer").find(".ajaxError").remove(); }, 4000);
     });
   });
 
@@ -842,7 +838,7 @@ $(document).ready(function() {
     $(this).parents("form").find("input[name], select, textarea").each(function() {
       if (checkboxes.indexOf($(this).attr("name")) === -1 && $(this).prop("disabled") === false) {
         if ((($(this).prop("required") === true && $(this).attr("name") !== "requestedBy") || requiredElements.indexOf($(this).attr("name")) !== -1) && $(this).val() === "") {
-          let $temp = $(this).addClass("elementError");
+          let $temp = $(this).addClass("elementError").focus();
           setTimeout(() => { $temp.removeClass("elementError") }, 3000);
           breakFunction = true;
         } else {
@@ -872,7 +868,7 @@ $(document).ready(function() {
       }
     }
     // Replace html entity &quot; with double quote for JSON parsing
-    if (formdata.transfers !== null && formdata.transfers !== "") formdata.transfers = $.parseJSON(formdata.transfers.replace(/&quot;/g,'"'));
+    if (formdata.transfers !== null && formdata.transfers !== "" && typeof formdata.transfers !== "undefined") formdata.transfers = $.parseJSON(formdata.transfers.replace(/&quot;/g,'"'));
     if (formdata.dispatchedTo.substr(formdata.dispatchedTo.lastIndexOf(" ") + 1) !== formdata.holder) {
       if (typeof(formdata.transfers) === "object") {
         formdata.transfers.push({ "holder":Number(formdata.holder), "receiver": Number(formdata.dispatchedTo.substr(formdata.dispatchedTo.lastIndexOf(" ") + 1)), "transferredBy": formdata.transferredBy, "timestamp": null });
@@ -889,9 +885,13 @@ $(document).ready(function() {
       if (result.indexOf("Session Error") !== -1) return showLogin();
       $("#formKey").val(Number($("#formKey").val()) + 1);
       if (result.indexOf("data-error") !== -1) {
-        $(this).parents(".tickets").find(".ticketError").html(result);
+        $(this).closest(".tickets").find(".ticketError").html(result);
       } else {
-        $(this).parents(".tickets").html(result);
+        if ($(this).closest(".page").attr("data-function") === "ticketForm") {
+          $(this).closest(".tickets").html(result);
+        } else {
+          $(this).closest(".removableByEditor").html(result);
+        }
       }
     })
     .fail((jqXHR, status, error) => {
@@ -899,27 +899,28 @@ $(document).ready(function() {
     });
   });
 
-  $(document).on("click", "#active_tickets .editForm, #active_tickets .confirmed", function(e) {
+  $(document).on("click", ".editorConfirmation .editForm, .editorConfirmation .confirmed", function(e) {
     e.preventDefault();
-    let button = $(this);
-    let workspace = button.parents(".tickets");
-    button.prop("disabled", true);
-    setTimeout(() => { button.prop("disabled", false); }, 5000);
-    let targetForm = "#" + $(this).attr("form");
-    let tempError;
-    let formdata = {};
+    $(this).prop("disabled", true);
+    let workspace = $(this).parents(".removableByEditor"),
+    targetForm = "#" + $(this).attr("form"),
+    tempError,
+    attempt,
+    formdata = {};
     $(this).parents(".tickets").find(targetForm + " input").each(function() {
       formdata[$(this).attr("name")] = ($(this).attr("type") === "checkbox") ? (($(this).is(":checked")) ? 1 : 0) : $(this).val();
     });
-    formdata.formKey = $("#formKey").val();
-    if (button.hasClass("editForm")) {
-      let ticket_index = button.attr("form").match(/\d+/)[0];
-      if (ticket_index === "" || ticket_index === null) {
+    if ($(this).hasClass("editForm")) {
+      formdata.formKey = $("#formKey").val();
+      formdata.ticket_index = $(this).attr("form").match(/\d+/)[0];
+      if (formdata.ticket_index === "" || formdata.ticket_index === null) {
         tempError = '<p class="center">Invalid Ticket Index</p>';
         workspace.find(".ticketError").html(tempError);
         setTimeout(() => { workspace.find(".ticketError").html(""); }, 3000);
       }
-      let attempt = ajax_template("POST", "./enterTicket.php", "html", { ticket_index: ticket_index, ticketEditor: 1, formKey: $("#formKey").val() })
+      formdata.ticketEditor = 1;
+      console.log(formdata);
+      attempt = ajax_template("POST", "./enterTicket.php", "html", formdata)
       .done((result) => {
         if (result.indexOf("Session Error") !== -1) return showLogin();
         $("#formKey").val(Number($("#formKey").val()) + 1);
@@ -930,18 +931,23 @@ $(document).ready(function() {
         workspace.find(".ticketError").html(tempError);
         setTimeout(() => { workspace.find(".ticketError").html(""); }, 3000);
       });
-    } else if (button.hasClass("confirmed")) {
+    } else if ($(this).hasClass("confirmed")) {
       formdata.updateTicket = 1;
-      let attempt = ajax_template("POST", "./enterTicket.php", "html", formdata)
+      formdata.ticketEditor = 1;
+      formdata.formKey = $("#formKey").val();
+      console.log(formdata);
+      attempt = ajax_template("POST", "./enterTicket.php", "html", formdata)
       .done((result) => {
         if (result.indexOf("Session Error") !== -1) return showLogin();
+        $("#formKey").val(Number($("#formKey").val()) + 1);
         if (result === "remove") {
           workspace.prepend('<p class="center">Update Successful</p>').scrollTop($("header").outerHeight() + 5);
           setTimeout(() => { workspace.remove(); }, 3000);
         } else {
-          workspace.before(result);
-          workspace.prev(".tickets").prepend('<p class="center removable">Update Successful</p>').scrollTop($("header").outerHeight() + 5);
-          workspace.remove();
+          let target = workspace.closest(".tickets");
+          target.before(result);
+          target.prev(".tickets").prepend('<p class="center removable">Update Successful</p>').scrollTop($("header").outerHeight() + 5);
+          target.remove();
           setTimeout(() => { $(".removable").remove(); }, 3000);
         }
       })
@@ -957,7 +963,7 @@ $(document).ready(function() {
   });
 
   $(document).on("click", "#clearTicketEditorResults", function() {
-    $("#active_tickets .container").html('<p class="center">Select Driver &amp; Ticket Type</p>');
+    $("#ticketEditorResultContainer").html('<p class="center">Select Driver &amp; Ticket Type</p>');
   });
   // change password
   $(document).on("click", ".PWsubmit", function(e) {

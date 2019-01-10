@@ -836,7 +836,7 @@ button.blue {
 }
 
 .ticketSpace {
-  width: 25%;
+  width: 10%;
 }
 
 #pickupField, #deliveryField {
@@ -1176,9 +1176,6 @@ button.blue {
 @media screen and (max-width: 720px) {
   #invoiceQueryResults > div {
     /* overflow-x: scroll; */
-  }
-  .ticketContainer > tbody > tr > td {
-    display: block;
   }
   .mobileHide {
     display: none;

@@ -2381,7 +2381,7 @@
         $excludes = (isset($this->options["{$this->userType}Charges{$this->formType}Exclude"])) ? $this->options["{$this->userType}Charges{$this->formType}Exclude"] : [];
       }
       for ($i=0; $i < 10; $i++) {
-        if (!in_array($i, $excludes, true)) {
+        if (!in_array($i, $excludes, TRUE)) {
           $selected = ($testCharge === $i) ? 'selected' : '';
           $returnData .= "
           <option value=\"{$i}\" {$selected}>{$this->ticketCharge($i)}</option>";
@@ -2423,7 +2423,7 @@
             </form>
             <hr>
             <span class=\"message\"></span>
-            <span class=\"container\"><p class=\"center\">Select Driver &amp; Ticket Type</p></span>";
+            <span id=\"ticketEditorResultContainer\"><p class=\"center\">Select Driver &amp; Ticket Type</p></span>";
     }
 
     public function ticketForm() {
@@ -2536,6 +2536,7 @@
       // Display the ticket form
       $indexInput = ($this->ticket_index == NULL) ? '' : "<input type=\"hidden\" name=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"request{$this->ticket_index}\" />
       ";
+      $ticketEditor = ($this->ticketEditor === TRUE) ? "<input type=\"hidden\" name=\"ticketEditor\" value=\"1\" form=\"request{$this->ticket_index}\" />" : '';
       $ticketNumberInput = ($this->TicketNumber !== NULL) ? "
         <input type=\"hidden\" name=\"ticketNumber\" class=\"ticketNumber\" value=\"{$this->TicketNumber}\" form=\"request{$this->ticket_index}\" />
         " : '';
@@ -2565,7 +2566,7 @@
       $returnData .= "
       <div id=\"deliveryRequest{$this->ticket_index}\" class=\"removableByEditor\">
         <form id=\"request{$this->ticket_index}\" action=\"{$this->action}\" method=\"post\">
-          {$indexInput} {$dispatchedBy} {$transferredBy} {$ticketNumberInput}
+          {$indexInput} {$dispatchedBy} {$transferredBy} {$ticketNumberInput} {$ticketEditor}
           <input type=\"hidden\" name=\"runNumber\" value=\"{$this->RunNumber}\" form=\"request{$this->ticket_index}\" />
           <input type=\"hidden\" name=\"contract\" value=\"{$this->Contract}\" form=\"request{$this->ticket_index}\" />
           <table class=\"ticketContainer\">
@@ -3170,8 +3171,9 @@
         $this->dRangeError = '<p>Delivery address is outside of our delivery range. Please contact us via phone or email to confirm driver availability.</p>';
       }
       // Generate the output
-      $output = '
-          <div id="deliveryConfirmation">';
+      $div_marker = ($this->ticketEditor === TRUE) ? 'class="editorConfirmation"' : 'id="deliveryConfirmation"';
+      $output = "
+          <div {$div_marker}>";
       $output .= ($this->edit === 0) ? '<h1>Delivery Confirmation<span class="error">*</span></h1>' : '';
       $output .= $editForm . $submitForm;
       // Display the delivery and dry ice price for clients only
@@ -3387,11 +3389,11 @@
         }
         if ($regen === TRUE) {
           $this->ticketEditor = TRUE;
-          self::regenTicket();
+          return self::regenTicket();
         } else {
           echo 'remove';
+          return FALSE;
         }
-        return FALSE;
       }
       if ($this->ticket_index === NULL) {
         if (!self::testTicketNumber()) {

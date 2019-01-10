@@ -71,7 +71,7 @@ table td {
   white-space: normal;
 }
 
-.tickets td, .ticketContainer tfoot td {
+.tickets thead td, .ticketContainer tfoot td, .confirm td {
   text-align: center;
 }
 
