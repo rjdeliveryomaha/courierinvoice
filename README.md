@@ -753,7 +753,7 @@ echo $val;
 return false;
 ```
 
-## Properties settable in $data
+## Properties settable in $data:
 
 - endPoint
 
@@ -861,14 +861,14 @@ All other values are only displayed if they are not zero.
 
 ```php
 try {
-  $obj = new TicketChart($this->options, $data);
+  $ticketChart = new TicketChart($config, $data);
 } catch(Exception $e) {
   echo $e->getMessage();
   return FALSE;
 }
 ```
 
-## Properties settable in $data
+## Properties settable in $data:
 
 - dataSet
 
@@ -925,6 +925,14 @@ try {
 
   Indicates if members are being compared of displayed separately.
 
+## Public Methods:
+
+```php
+$ticketChart->displayChart();
+```
+
+Sorts data and ` echo `s table and bar chart for the given parameter.
+
 ---
 
 # InvoiceChart
@@ -941,14 +949,14 @@ Only non-zero values are displayed.
 
 ```php
 try {
-  $obj = new InvoiceChart($this->options, $data);
+  $invoiceChart = new InvoiceChart($config, $data);
 } catch(Exception $e) {
   echo $e->getMessage();
   return FALSE;
 }
 ```
 
-## Properties settable in ` $data `
+## Properties settable in $data:
 
 - dataSet
 
@@ -1004,9 +1012,130 @@ Boolean
 
 Indicates if members are being compared of displayed separately.
 
+## Public Methods:
+
+```php
+$invoiceChart->displayChart();
+```
+
+Sorts data and ` echo `s table and bar chart for the given parameter.
+
 ---
 
 # Client
+
+Manages information for clients, drivers, and dispatchers.
+
+## Usage:
+
+```php
+try {
+  $client = new Client($config, $data);
+} catch(Exception $e) {
+  echo $e->getMessage();
+  return FALSE;
+}
+```
+
+## Properties settable in $data:
+
+A list of standard properties can be found in the [API Documentation](https://www.rjdeliveryomaha.com/courierinvoice/apidoc#clients)
+
+- same
+
+  Indicates that a clients billing information is identical to their shipping information.
+
+- currentPw
+
+  The current password of the user to be change.
+
+- newPw1
+
+  The new password.
+
+- newPw2
+
+  Confirmation of the new password.
+
+## Public methods:
+
+```php
+$client->getAllClientInfo();
+```
+
+Returns array of client information.
+
+```php
+$client->changePassword();
+```
+
+` echo `s message and returns ` false ` on error.
+
+Requires current password to be submitted.
+
+Validates submitted current password against database stored hash.
+
+Tests that newPw1 meets criteria
+
+  - At least 8 characters long.
+  - At least one upper case letter. A..Z
+  - At least one lower case letter. a..z
+  - At least one number. 0..9
+  - At least one special character. ! @ # $ % ^ & * ( ) { } [ ] - _ . : ; , = +
+
+Compares newPw1 and newPw2 for confirmation.
+
+Ensures that admin and daily user passwords do not match.
+
+Hashes the new password using PASSWORD_DEFAULT algorithm and a cost of 12.
+
+```php
+$client->updateInfo();
+```
+
+` echo `s message and returns ` false ` on error.
+
+If ` $client->same ` is equal to 1 billing information is set equal to shipping information.
+
+Phone numbers are validated ` preg_match('/(\d{3})-(\d{3})-(\d{4})x(\d+)/i', $val) || preg_match('/(\d{3})-(\d{3})-(\d{4})/', $val); `. These patters are slated for update.
+
+```php
+$client->adminPasswordForm();
+```
+
+Returns a password update form with admin user values set.
+
+```php
+$client->dailyPasswordForm();
+```
+
+Returns a password update form with daily user values set.
+
+```php
+$client->orgPasswordForm();
+```
+
+Returns a password update form with organization user values set.
+
+```php
+$client->driverPasswordForm();
+```
+
+Returns a password update form with driver values set.
+
+```php
+$client->dispatchPasswordForm();
+```
+
+Returns a password update form with dispatch values set.
+
+```php
+$client->updateInfoForm();
+```
+
+Only available to admin user level.
+
+Returns an contact information update form.
 
 ---
 

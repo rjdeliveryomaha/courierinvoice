@@ -2,10 +2,7 @@
   namespace rjdeliveryomaha\courierinvoice;
 
   use rjdeliveryomaha\courierinvoice\CommonFunctions;
-  /***
-  * throws Exception
-  *
-  ***/
+
   class Client extends CommonFunctions {
     protected $client_index;
     protected $RepeatClient;
