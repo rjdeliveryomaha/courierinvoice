@@ -176,12 +176,6 @@ $functions->getError();
 
 Return the last error.
 
-```php
-$functions->outputKey();
-```
-
-Generates unique session value for validating POST data. Returns the value.
-
 ---
 
 # Query
