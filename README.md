@@ -849,6 +849,12 @@ Receives a dataset of tickets grouped by month from the [SearchHandler](https://
 
 Displays a simple bar chart depicting the number of each type of ticket over a given period.
 
+Contract and On Call are always displayed.
+
+With Ice and Without Ice are always displayed.
+
+All other values are only displayed if they are not zero.
+
 [example](extras/example_images/ticketChartExample.png?raw=true "Example of ticket chart.")
 
 ## Usage:
@@ -903,7 +909,7 @@ try {
 
   Array or Integer
 
-  If ` organizationFlag ` is ` true ` this is an indexed array of members to be queries.
+  If ` organizationFlag ` is ` true ` this is an indexed array of members to be queried.
 
   If ` organizationFlag ` is ` false ` this is the ID of the current client.
 
@@ -922,6 +928,81 @@ try {
 ---
 
 # InvoiceChart
+
+Receives a dataset of tickets grouped by month from the [SearchHandler](https://github.com/rjdeliveryomaha/courierinvoice#searchHandler) class.
+
+Displays a simple bar chart depicting the expense of each type of ticket over a given period.
+
+Only non-zero values are displayed.
+
+[example](extras/example_images/invoiceChartExample.png?raw=true "Example of invoice chart.")
+
+## Usage:
+
+```php
+try {
+  $obj = new InvoiceChart($this->options, $data);
+} catch(Exception $e) {
+  echo $e->getMessage();
+  return FALSE;
+}
+```
+
+## Properties settable in ` $data `
+
+- dataSet
+
+  Associative array of data sorted by month.
+
+  ` $invoiceLabel ` is the ` DateIssued ` of an invoice in the format 'M Y'.
+
+```php
+$this->months[$invoiceLabel] = [
+                                'invoices'=>[0 => $invoice['InvoiceNumber']],
+                                'billTo'=>$invoice['ClientID'],
+                                'monthTotal'=>$invoice['InvoiceSubTotal'] - $invoice['BalanceForwarded'],
+                                'contract'=>0,
+                                'credit'=>0,
+                                'canceled'=>0,
+                                'onCall'=>0,
+                                'routine'=>0,
+                                'fourHour'=>0,
+                                'threeHour'=>0,
+                                'twoHour'=>0,
+                                'oneHour'=>0,
+                                'roundTrip'=>0,
+                                'deadRun'=>0,
+                                'dedicatedRun'=>0,
+                                'dryIce'=>0,
+                                'iceDelivery'=>0,
+                               ];
+```
+
+- organizationFlag
+
+Boolean
+
+Indicates if the query if for an organization (` true `) or an individual client (` false `)
+
+- clientID
+
+Array or Integer
+
+If ` organizationFlag ` is ` true ` this is an indexed array of members to be queried.
+
+If ` organizationFlag ` is ` false ` this is the ID of the current client.
+
+- compare
+
+Boolean
+
+Indicates if dataset is two months compared or a series of months.
+
+- compareMembers
+
+Boolean
+
+Indicates if members are being compared of displayed separately.
 
 ---
 
