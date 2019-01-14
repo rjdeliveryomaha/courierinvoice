@@ -114,6 +114,8 @@
     protected $ticketEditorSearchDate;
     // Ticket values that should not be included on datalists
     protected $ignoreValues = [];
+    // bool flag indicating if a map will be displayed for price calculation
+    protected $mapAvailable = TRUE;
     // Other needed properties
     private $activeTicketSet = [];
     private $today;
@@ -158,8 +160,6 @@
     private $angle;
     private $greatCircleDistance;
     private $processingRoute = FALSE;
-    // bool flag indicating if a map will be displayed for price calculation
-    private $mapAvailable = TRUE;
     // list of providers supported by php/Geocoder
     private $providers = [ 'AlgoliaPlaces', 'ArcGISOnline', 'BingMaps', 'FreeGeoIp', 'GeoIP', 'GeoIP2', 'GeoIPs', 'GeoPlugin', 'Geonames', 'GoogleMaps', 'Here', 'HostIp', 'IpInfo', 'IpInfoDb', 'Ipstack', 'LocationIQ', 'MapQuest', 'MapBox', 'Mapzen', 'MaxMind', 'MaxMindBinary', 'Nominatim', 'OpenCage', 'PickPoint', 'TomTom', 'Yandex' ];
     private $ticketBaseRetries = 0;
