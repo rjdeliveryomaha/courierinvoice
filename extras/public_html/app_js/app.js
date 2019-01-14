@@ -41,7 +41,7 @@
         e.preventDefault();
       }
       // stopping event bubbling up the DOM tree..
-      e.stopPropagation();
+      if (e.which === 8) e.stopPropagation();
     };
   }
 })(window);
@@ -264,7 +264,7 @@ window.mySwipe = new Swipe(document.getElementById("slider"), {
           titleText = $('a.nav[data-id="' + $(this).prop("id") + '"').html();
         }
         $(".pageTitle").html(titleText);
-        $('a.nav[data-id="' + $(this).prop("id") + '"').parents("li").addClass("menu__list__active");
+        $('a.nav[data-id="' + $(this).prop("id") + '"').closest("li").addClass("menu__list__active");
       }
     });
     scroll(0,0);
@@ -789,9 +789,9 @@ $(document).ready(function() {
             forward = $ele.text().length === 1;
           }
         }, 500),
-        dispatchedTo = $(this).parents("form").find(".driverID").val(),
-        contract = $(this).parents("form").find(".contract").val(),
-        searchDate = $(this).parents("form").find(".searchDate").val(),
+        dispatchedTo = $(this).closest("form").find(".driverID").val(),
+        contract = $(this).closest("form").find(".contract").val(),
+        searchDate = $(this).closest("form").find(".searchDate").val(),
         formKey = $("#formKey").val();
     if (dispatchedTo === "" || dispatchedTo === "undefined" || searchDate === "" || searchDate === "undefined") return false;
     let attempt = ajax_template("POST", "./activeTickets.php", "html", { dispatchedTo: dispatchedTo, contract: contract, ticketEditorSearchDate: searchDate, formKey: formKey })
@@ -811,8 +811,8 @@ $(document).ready(function() {
   });
 
   $(document).on("click", ".cancelTicketEditor", function() {
-    $(this).parents(".tickets").find("table:first, button.ticketEditor").show();
-    $(this).parents(".removableByEditor").remove();
+    $(this).closest(".tickets").find("table:first, button.ticketEditor").show();
+    $(this).closest(".removableByEditor").remove();
   });
 
   $(document).on("click", ".ticketEditor", function() {
@@ -831,11 +831,23 @@ $(document).ready(function() {
   $(document).on("click", ".submitForm", function(e) {
     e.preventDefault();
     $(this).prop("disable", true);
+    $(this).closest(".page").find(".ticketError").html('<span class="ellipsis">.</span>');
+    let $ele = $(this).closest(".page").find(".ellipsis");
+    let forward = true;
+    let dots = setInterval(() => {
+      if (forward === true) {
+        $ele.append("..");
+        forward = $ele.text().length < 21 && $ele.text().length != 1;
+      } else {
+        $ele.text($ele.text().substr(0,$ele.text().length - 2));
+        forward = $ele.text().length === 1;
+      }
+    }, 500);
     let breakFunction = false,
         checkboxes = ["repeatClient", "fromMe", "toMe", "dryIce", "pSigReq", "dSigReq", "d2SigReq"],
         requiredElements = ["pClient", "pAddress1", "pAddress2", "dClient", "dAddress1", "dAddress2", "dispatchedTo"],
         formdata = {};
-    $(this).parents("form").find("input[name], select, textarea").each(function() {
+    $(this).closest("form").find("input[name], select, textarea").each(function() {
       if (checkboxes.indexOf($(this).attr("name")) === -1 && $(this).prop("disabled") === false) {
         if ((($(this).prop("required") === true && $(this).attr("name") !== "requestedBy") || requiredElements.indexOf($(this).attr("name")) !== -1) && $(this).val() === "") {
           let $temp = $(this).addClass("elementError").focus();
@@ -852,17 +864,18 @@ $(document).ready(function() {
           formdata[$(this).attr("name")] = 0 + $(this).is(":checked");
         }
       }
-      formdata.formKey = $("#formKey").val();
     });
+    formdata.formKey = $("#formKey").val();
+    formdata.mapAvailable = ($(this).closest(".page").attr("data-function") === "ticketForm") ? 1 : 0;
     if (formdata.dryIce === 1) {
       if (formdata.diWeight % 5 !== 0) {
-        let $tempMessage = $(this).parents("form").find(".ticketError").text("Dry Ice in increments of 5 only.");
-        let $tempError = $(this).parents("form").find(".diWeight").addClass("elementError");
+        let $tempMessage = $(this).closest("form").find(".ticketError").text("Dry Ice in increments of 5 only.");
+        let $tempError = $(this).closest("form").find(".diWeight").addClass("elementError");
         breakFunction = true;
         setTimeout(() => { $tempMessage.text(""); $tempError.removeClass("elementError"); }, 3000)
       } else if (formdata.diWeight === "0") {
-        let $tempMessage = $(this).parents("form").find(".ticketError").text("Dry Ice must be non-zero.");
-        let $tempError = $(this).parents("form").find(".diWeight").addClass("elementError");
+        let $tempMessage = $(this).closest("form").find(".ticketError").text("Dry Ice must be non-zero.");
+        let $tempError = $(this).closest("form").find(".diWeight").addClass("elementError");
         breakFunction = true;
         setTimeout(() => { $tempMessage.text(""); $tempError.removeClass("elementError"); }, 3000)
       }
@@ -877,37 +890,44 @@ $(document).ready(function() {
       }
     }
     if (breakFunction === true) {
+      clearInterval(dots);
+      $(this).closest(".page").find(".ellipsis").remove();
       $(this).prop("disabled", false);
       return false;
     }
     let attempt = ajax_template("POST", "./enterTicket.php", "html", formdata)
     .done((result) => {
+      clearInterval(dots);
       if (result.indexOf("Session Error") !== -1) return showLogin();
       $("#formKey").val(Number($("#formKey").val()) + 1);
       if (result.indexOf("data-error") !== -1) {
         $(this).closest(".tickets").find(".ticketError").html(result);
       } else {
         if ($(this).closest(".page").attr("data-function") === "ticketForm") {
-          $(this).closest(".tickets").html(result);
+          $(this).closest("#request").html(result);
+          scroll(0,0);
+          initMap("map", coords1, address1, coords2, address2, center);
         } else {
           $(this).closest(".removableByEditor").html(result);
         }
       }
     })
     .fail((jqXHR, status, error) => {
-      $(this).parents(".tickets").find(".ticketError").html('<span class="center">' + error + "</span>");
+      clearInterval(dots);
+      $(this).closest(".page").find(".ellipsis").remove();
+      $(this).closest(".tickets").find(".ticketError").html('<span class="center">' + error + "</span>");
     });
   });
 
   $(document).on("click", ".editorConfirmation .editForm, .editorConfirmation .confirmed", function(e) {
     e.preventDefault();
     $(this).prop("disabled", true);
-    let workspace = $(this).parents(".removableByEditor"),
+    let workspace = $(this).closest(".removableByEditor"),
     targetForm = "#" + $(this).attr("form"),
     tempError,
     attempt,
     formdata = {};
-    $(this).parents(".tickets").find(targetForm + " input").each(function() {
+    $(this).closest(".tickets").find(targetForm + " input").each(function() {
       formdata[$(this).attr("name")] = ($(this).attr("type") === "checkbox") ? (($(this).is(":checked")) ? 1 : 0) : $(this).val();
     });
     if ($(this).hasClass("editForm")) {
@@ -1038,7 +1058,7 @@ $(document).ready(function() {
     let button = $(this);
     button.prop("disabled", true);
     let formID = button.attr("form");
-    let workspace = button.parents(".tickets");
+    let workspace = button.closest(".tickets");
     let postData = {};
     postData.ticket_index = $(".ticket_index[form='" + formID + "']").val();
     postData.step = $(".step[form='" + formID + "']").val();
@@ -1078,7 +1098,7 @@ $(document).ready(function() {
   }
 
   if ($("#invoice_query .orgMember").length > 0) {
-    $("#invoice_query .orgMember:first").parents("tfoot").append('<tr class="noticeRow"><td colspan="2">Select member to query</td></tr>')
+    $("#invoice_query .orgMember:first").closest("tfoot").append('<tr class="noticeRow"><td colspan="2">Select member to query</td></tr>')
   }
 
   $(document).on("click", "#single, #multi", function() {
@@ -1116,7 +1136,7 @@ $(document).ready(function() {
   }).change();
 
   $(document).on("change", "#useInvoice", function(){
-    $(this).parents("#singleInvoiceQuery").find("#invoiceNumber").prop("disabled", !$(this).is(":checked")).end().find(".dateIssuedMonth").prop("disabled", $(this).is(":checked")).prop("required", !$(this).is(":checked")).val("");
+    $(this).closest("#singleInvoiceQuery").find("#invoiceNumber").prop("disabled", !$(this).is(":checked")).end().find(".dateIssuedMonth").prop("disabled", $(this).is(":checked")).prop("required", !$(this).is(":checked")).val("");
   }).change();
 
   $(document).on("change", "#compareInvoices", function(){
@@ -1131,7 +1151,7 @@ $(document).ready(function() {
     let workspace = ($(this).attr("id") === "singleInvoice" || $(this).attr("id") === "rangeInvoice") ? $("#invoices") : $("#invoice_query");
     if (workspace.attr("id") === "invoices" && noData === true) return false;
     let postData = {};
-    $(this).parents("form").find("input, select").each(function() {
+    $(this).closest("form").find("input, select").each(function() {
       if (($(this).prop("required") === true || $(this).attr("name") === "startDate" || $(this).attr("name") === "endDate") && $(this).val() === "") {
         let $temp = $(this).addClass("elementError");
         setTimeout(() => { $temp.removeClass("elementError"); }, 3000 );
@@ -1215,7 +1235,7 @@ $(document).ready(function() {
   $(document).on("click", "button.invoiceQuery", function( e ) {
     e.preventDefault();
     let postData = {};
-    $(this).parents("form").find("input").each(function() {
+    $(this).closest("form").find("input").each(function() {
       if ($(this).attr("name").slice(-2) === "[]") {
         if (typeof(postData[$(this).attr("name").slice(0, ($(this).attr("name").length - 2))]) === "undefined") {
           postData[$(this).attr("name").slice(0, ($(this).attr("name").length - 2))] = [ $(this).val() ];
@@ -1257,9 +1277,10 @@ $(document).ready(function() {
   $(document).on("click", "#mulitInvoiceButton", function( e ) {
     e.preventDefault();
     let postData = {};
-    $(this).parents("form").find("input, select").each(function() {
+    $(this).closest("form").find("input, select").each(function() {
       postData[$(this).prop("name")] = $(this).val();
     });
+    postData.formKey = $("#formKey").val();
     $("#invoiceQueryResults").html("");
     $("#invoiceQueryResults").html('<p id="working" class="center"><span id="ellipsis">.</span></p>');
     let forward = true;
@@ -1276,6 +1297,7 @@ $(document).ready(function() {
     let attempt = ajax_template("POST", "./buildQuery.php", "html", postData)
     .done((result) => {
       if (result.indexOf("Session Error") !== -1) return showLogin();
+      $("#formKey").val(Number($("#formKey").val()) + 1);
       $("#working").fadeOut( 1000, function() { $(this).remove(); });
       clearInterval(dots);
       $("#invoiceQueryResults").html(result);
@@ -1329,35 +1351,35 @@ $(document).ready(function() {
   $(document).on("change", "#compareBox", function(){
     if($(this).is(":checked")) {
       if ($("#allTime").is(":checked")) $("#allTime").prop("checked", false).trigger("change");
-      $(this).parents("fieldset").find(".chartDate").attr("title", "");
+      $(this).closest("fieldset").find(".chartDate").attr("title", "");
     } else {
-      $(this).parents("fieldset").find(".chartDate").attr("title", "Query Range Limited To 6 Month Periods");
+      $(this).closest("fieldset").find(".chartDate").attr("title", "Query Range Limited To 6 Month Periods");
     }
   }).change();
 
   $(document).on("change", ".allTime3", function() {
     if($(this).is(":checked")){
-      $(this).parents("fieldset").find("#startDateMonth, #endDateMonth").prop("disabled", true).end().find(".startDateMarker, .endDateMarker").prop("disabled", false).end().find("#compareBox").prop("checked", false);
+      $(this).closest("fieldset").find("#startDateMonth, #endDateMonth").prop("disabled", true).end().find(".startDateMarker, .endDateMarker").prop("disabled", false).end().find("#compareBox").prop("checked", false);
     } else{
-      $(this).parents("fieldset").find("#startDateMonth, #endDateMonth").prop("disabled", false).end().find(".startDateMarker, .endDateMarker").prop("disabled", true);
+      $(this).closest("fieldset").find("#startDateMonth, #endDateMonth").prop("disabled", false).end().find(".startDateMarker, .endDateMarker").prop("disabled", true);
     }
   }).change();
 
   $(document).on("change", ".allTime2", function(){
     if($(this).is(":checked")){
-      $(this).parents("fieldset").find(".startDateDate, .endDateDate").prop("disabled", true).end().find(".startDateMarker, .endDateMarker").prop("disabled", false);
+      $(this).closest("fieldset").find(".startDateDate, .endDateDate").prop("disabled", true).end().find(".startDateMarker, .endDateMarker").prop("disabled", false);
     } else{
-      $(this).parents("fieldset").find(".startDateDate, .endDateDate").prop("disabled", false).end().find(".startDateMarker, .endDateMarker").prop("disabled", true);
+      $(this).closest("fieldset").find(".startDateDate, .endDateDate").prop("disabled", false).end().find(".startDateMarker, .endDateMarker").prop("disabled", true);
     }
   }).change();
 
   $(document).on("change", "#allTime", function(){
     if($(this).is(":checked")){
-      $(this).parents("form").find(".startDateDate, .endDateDate").prop("disabled", true).end().find("#ticketNumber").val("").prop("readonly", true);
-      $(this).parents("form").find(".startDateMarker, .endDateMarker, .ticketNumberMarker").prop("disabled", false);
+      $(this).closest("form").find(".startDateDate, .endDateDate").prop("disabled", true).end().find("#ticketNumber").val("").prop("readonly", true);
+      $(this).closest("form").find(".startDateMarker, .endDateMarker, .ticketNumberMarker").prop("disabled", false);
     } else{
-      $(this).parents("form").find(".startDateDate, .endDateDate").prop("disabled", false).end().find("#ticketNumber").prop("readonly", false);
-      $(this).parents("form").find(".startDateMarker, .endDateMarker, .ticketNumberMarker").prop("disabled", true);
+      $(this).closest("form").find(".startDateDate, .endDateDate").prop("disabled", false).end().find("#ticketNumber").prop("readonly", false);
+      $(this).closest("form").find(".startDateMarker, .endDateMarker, .ticketNumberMarker").prop("disabled", true);
     }
   }).change();
 
@@ -1366,7 +1388,7 @@ $(document).ready(function() {
       if ($("#ticket_query .noticeRow").length > 0) {
         $("#ticket_query .noticeRow").hide();
       }
-      $(this).parents("form").find("#startDate, #endDate, #chargeHistory, #type, #allTime, #display, #compareBox, #compareMembersTickets").prop("disabled", true).prop("checked", false).prop("required", false).end().find(".startDateMarker, .endDateMarker, .chargeMarker, .typeMarker, #displayMarker").prop("disabled", false);
+      $(this).closest("form").find("#startDate, #endDate, #chargeHistory, #type, #allTime, #display, #compareBox, #compareMembersTickets").prop("disabled", true).prop("checked", false).prop("required", false).end().find(".startDateMarker, .endDateMarker, .chargeMarker, .typeMarker, #displayMarker").prop("disabled", false);
       if ($(".submitOrgTickets").length > 0) {
         $(".submitOrgTickets").prop("disabled", false);
       }
@@ -1382,16 +1404,16 @@ $(document).ready(function() {
       }
       if ($(this).prop("readonly") === false) {
         $("#deliveryQuery #startDate, #deliveryQuery #endDate").prop("required", true);
-        $(this).parents("form").find("#startDate, #endDate, #allTime, #display, #compareBox, #compareMembersTickets").prop("disabled", false).end().find(".startDateMarker, .endDateMarker, .chargeMarker, .typeMarker, #displayMarker").prop("disabled", true);
-        $(this).parents("form").find("#chargeHistory, #type").prop("disabled", ($("#display").val() === "chart"));
+        $(this).closest("form").find("#startDate, #endDate, #allTime, #display, #compareBox, #compareMembersTickets").prop("disabled", false).end().find(".startDateMarker, .endDateMarker, .chargeMarker, .typeMarker, #displayMarker").prop("disabled", true);
+        $(this).closest("form").find("#chargeHistory, #type").prop("disabled", ($("#display").val() === "chart"));
       }
     }
   }).change();
 
   $(document).on("change", "#deliveryQuery #startDate, #deliveryQuery #endDate", function() {
     let testVal = ($("#deliveryQuery #endDate").val() === "") && ($("#deliveryQuery #startDate").val() === "");
-    $(this).parents("fieldset").find("#ticketNumber").prop("readonly", !testVal);
-    if (!testVal) $(this).parents("fieldset").find("#ticketNumber").val("");
+    $(this).closest("fieldset").find("#ticketNumber").prop("readonly", !testVal);
+    if (!testVal) $(this).closest("fieldset").find("#ticketNumber").val("");
   }).change();
 
   $(document).on("click", ".sigPrint", function(){
@@ -1401,7 +1423,7 @@ $(document).ready(function() {
   $(document).on("click", ".submitTicketQuery", function( e ) {
     e.preventDefault();
     $(this).prop("disabled", true);
-    $(this).parents("#deliveryQuery").find("#startDate, #endDate").each(function() {
+    $(this).closest("#deliveryQuery").find("#startDate, #endDate").each(function() {
       if ($(this).is(":visible")) {
         $(this).prop("required", true);
       }
@@ -1559,31 +1581,31 @@ $(document).ready(function() {
   // on call tickets page
   $(document).on("click", "#on_call .transferTicket", function() {
     //Clear all 'message2' containers
-    $(this).parents(".tickets").find(".message2").html("");
+    $(this).closest(".tickets").find(".message2").html("");
     //Request transfer confirmation
-    $(this).closest(".tickets").find(".message2").html("Confirm Transfer:<br><input list=\"receivers\" class=\"pendingReceiver\" name=\"pendingReceiver\" id=\"pendingReceiver" + $(this).parents(".tickets").find(".tNum").text() + "\" /><br><button type=\"button\" class=\"confirmTransfer\">Confirm</button>  <button type=\"button\" class=\"cancelThis\">Go Back</button>");
+    $(this).closest(".tickets").find(".message2").html("Confirm Transfer:<br><input list=\"receivers\" class=\"pendingReceiver\" name=\"pendingReceiver\" id=\"pendingReceiver" + $(this).closest(".tickets").find(".tNum").text() + "\" /><br><button type=\"button\" class=\"confirmTransfer\">Confirm</button>  <button type=\"button\" class=\"cancelThis\">Go Back</button>");
     //Disable other buttons in the ticket form
     $(this).closest(".tickets").find(".transferTicket, .cancelRun, .deadRun, .dTicket, .declined, input[type='text'], .pGetSig, .dGetSig, .d2GetSig").prop("disabled", true);
   });
 
   $(document).on("click", "#on_call .confirmTransfer", function() {
     let button = $(this);
-    button.parents(".message2").find("button").prop("disabled", true);
+    button.closest(".message2").find("button").prop("disabled", true);
     let pendingReceiver = $(this).closest(".message2").find(".pendingReceiver").val();
     if (pendingReceiver === null || pendingReceiver === "") {
       let $temp = $(this).closest(".message2").find(".pendingReceiver").addClass("elementError");
-      setTimeout(() => { $temp.removeClass("elementError"); button.parents(".message2").find("button").prop("disabled", false); }, 3000 );
+      setTimeout(() => { $temp.removeClass("elementError"); button.closest(".message2").find("button").prop("disabled", false); }, 3000 );
       return false;
     }
     // Get the ticket number to be removed from the data base
-    let tNum = $(this).parents(".tickets").find(".tNum").text();
+    let tNum = $(this).closest(".tickets").find(".tNum").text();
     // Get the notes for the ticket
-    let notes = $(this).parents(".tickets").find(".notes").val();
+    let notes = $(this).closest(".tickets").find(".notes").val();
     //Set a flag to mark the ticket for deletion
     let action = "transfer";
     // Get the form key
     let formKey = $("#formKey").val();
-    let $parentElement = $(this).parents(".message2");
+    let $parentElement = $(this).closest(".message2");
     $parentElement.html("<span class=\"ellipsis\">.</span>");
     let $ele = $parentElement.find(".ellipsis");
     let forward = true;
@@ -1619,7 +1641,7 @@ $(document).ready(function() {
 
   $(document).on("click", "#on_call .declined", function(){
     //Clear all 'message2' containers
-    $(this).parents(".tickets").find(".message2").html("");
+    $(this).closest(".tickets").find(".message2").html("");
     //Request cancellation confirmation
     $(this).closest(".tickets").find(".message2").html('Confirm Decline:<br><button type="button" class="confirmDecline">Confirm</button>  <button type="button" class="cancelThis">Go Back</button>');
     //Disable other buttons in the ticket form
@@ -1628,7 +1650,7 @@ $(document).ready(function() {
 
   $(document).on("click", "#on_call .cancelRun", function(){
     //Clear all 'message2' containers
-    $(this).parents(".tickets").find(".message2").html("");
+    $(this).closest(".tickets").find(".message2").html("");
     //Request cancellation confirmation
     $(this).closest(".tickets").find(".message2").html('Confirm Cancel:<br><button type="button" class="confirmCancel">Confirm</button>  <button type="button" class="cancelThis">Go Back</button>');
     //Disable other buttons in the ticket form
@@ -1637,7 +1659,7 @@ $(document).ready(function() {
 
   $(document).on("click", "#on_call .deadRun", function(){
     //Clear all 'message2' containers
-    $(this).parents(".tickets").find(".message2").html("");
+    $(this).closest(".tickets").find(".message2").html("");
     //Request dead run confirmation
     $(this).closest(".tickets").find(".message2").html('Confirm Dead Run:<br><button type="button" class="confirmDeadRun">Confirm</button>  <button type="button" class="cancelThis">Go Back</button>');
     //Disable other buttons in the ticket form
@@ -1645,19 +1667,19 @@ $(document).ready(function() {
   });
 
   $(document).on("click", "#on_call .cancelThis", function(){
-    $(this).parents(".tickets").find("button, .dTicket, input[type='text'], textarea").prop("disabled", false);
+    $(this).closest(".tickets").find("button, .dTicket, input[type='text'], textarea").prop("disabled", false);
     $(this).parent("p").html("");
   });
 
   $(document).on("click", "#on_call .confirmCancel", function(){
     //Get the ticket number to be removed from the data base
-    let tNum = $(this).parents(".tickets").find(".ticket_index").val();
+    let tNum = $(this).closest(".tickets").find(".ticket_index").val();
     //Get the notes for the ticket
-    let notes = $(this).parents(".tickets").find(".notes").val();
+    let notes = $(this).closest(".tickets").find(".notes").val();
     //Set a flag to mark the ticket for deletion
     let action = "cancel";
     let formKey = $("#formKey").val();
-    let $parentElement = $(this).parents(".message2");
+    let $parentElement = $(this).closest(".message2");
     $parentElement.html("<span class=\"ellipsis\">.</span>");
     let $ele = $parentElement.find(".ellipsis");
     let forward = true;
@@ -1693,13 +1715,13 @@ $(document).ready(function() {
 
   $(document).on("click", "#on_call .confirmDeadRun", function(){
     // Get the ticket number to be marked as dead run
-    let tNum = $(this).parents(".tickets").find(".ticket_index").val();
+    let tNum = $(this).closest(".tickets").find(".ticket_index").val();
     // Get the notes for the ticket
-    let notes = $(this).parents(".tickets").find(".notes").val();
+    let notes = $(this).closest(".tickets").find(".notes").val();
     // Set a flag to mark the ticket for charge change
     let action = "deadRun";
     let formKey = $("#formKey").val();
-    let $parentElement = $(this).parents(".message2");
+    let $parentElement = $(this).closest(".message2");
     $parentElement.html("<span class=\"ellipsis\">.</span>");
     let $ele = $parentElement.find(".ellipsis");
     let forward = true;
@@ -1735,13 +1757,13 @@ $(document).ready(function() {
 
   $(document).on("click", "#on_call .confirmDecline", function(){
     //Get the ticket number to be removed from the data base
-    let tNum = $(this).parents(".tickets").find(".ticket_index").val();
+    let tNum = $(this).closest(".tickets").find(".ticket_index").val();
     //Get the notes for the ticket
-    let notes = $(this).parents(".tickets").find(".notes").val();
+    let notes = $(this).closest(".tickets").find(".notes").val();
     //Set a flag to mark the ticket for deletion
     let action = "declined";
     let formKey = $("#formKey").val();
-    let $parentElement = $(this).parents(".message2");
+    let $parentElement = $(this).closest(".message2");
     $parentElement.html("<span class=\"ellipsis\">.</span>");
     let $ele = $parentElement.find(".ellipsis");
     let forward = true;
@@ -1778,7 +1800,7 @@ $(document).ready(function() {
   $(document).on("click", "#on_call .dTicket", function( e ) {
     e.preventDefault();
     //Clear all 'message2' containers
-    $(this).parents("#on_call").find(".message2").html("");
+    $(this).closest("#on_call").find(".message2").html("");
     //Disable other buttons in the ticket form
     $(this).closest(".tickets").find("button").prop("disabled", true);
     //Request step confirmation
@@ -1788,19 +1810,19 @@ $(document).ready(function() {
   $(document).on("click", "#on_call .stepTicket", function( e ) {
     e.preventDefault();
     let x = $(this);
-    x.parents(".message2").find("button").prop("disabled", true);
+    x.closest(".message2").find("button").prop("disabled", true);
     let postData = {};
-    $(this).parents(".tickets").find("input[form='" + $(this).attr("form") + "'], textarea[form='" + $(this).attr("form") + "']").each(function() {
+    $(this).closest(".tickets").find("input[form='" + $(this).attr("form") + "'], textarea[form='" + $(this).attr("form") + "']").each(function() {
       postData[$(this).prop("name")] = $(this).val();
     });
-    // let dedicatedRoundTrip = $(this).parents(".tickets").find(".timing").parent("td").text();
-    if ($(this).parents(".tickets").find(".printName").is(":required") && $(this).parents(".tickets").find(".printName").val() === "") {
-      $temp = $(this).parents(".tickets").find(".printName").addClass("elementError");
+    // let dedicatedRoundTrip = $(this).closest(".tickets").find(".timing").parent("td").text();
+    if ($(this).closest(".tickets").find(".printName").is(":required") && $(this).closest(".tickets").find(".printName").val() === "") {
+      $temp = $(this).closest(".tickets").find(".printName").addClass("elementError");
       setTimeout(() => { $temp.removeClass("elementError"); }, 3000);
-      x.parents(".message2").find("button").prop("disabled", false);
+      x.closest(".message2").find("button").prop("disabled", false);
       return false;
     }
-    let $parentElement = $(this).parents(".message2");
+    let $parentElement = $(this).closest(".message2");
     $parentElement.html("<span class=\"ellipsis\">.</span>");
     let $ele = $parentElement.find(".ellipsis");
     let forward = true;
@@ -1835,7 +1857,7 @@ $(document).ready(function() {
       if(result.indexOf("error") === - 1) {
         $parentElement.html(result);
         let currentTicketCount = $(".ticketCount:first").text();
-        currentTicketCount -= (postData.step === "returned" || (postData.step === "delivered" && charge < 6) || (charge === "7" && x.parents(".tickets").find(".timing").parent("td").text().indexOf("Return") !== -1)) ? 1 : 0;
+        currentTicketCount -= (postData.step === "returned" || (postData.step === "delivered" && charge < 6) || (charge === "7" && x.closest(".tickets").find(".timing").parent("td").text().indexOf("Return") !== -1)) ? 1 : 0;
         setTimeout(() => { refreshOnCall(currentTicketCount) }, 3000);
       } else {
         $parentElement.html('<span class="center">' + result + "</span>");
@@ -1921,11 +1943,11 @@ $(document).ready(function() {
 
   $(document).on("change", ".showText", function() {
     if ($(this).is(":checked")) {
-      $(this).parents("form").find("input[type='password']").each(function() {
+      $(this).closest("form").find("input[type='password']").each(function() {
         $(this).attr("type", "text");
       });
     } else {
-      $(this).parents("form").find("input[type='text']").each(function() {
+      $(this).closest("form").find("input[type='text']").each(function() {
         $(this).attr("type", "password");
       });
     }
@@ -1933,15 +1955,15 @@ $(document).ready(function() {
   // route page
   $(document).on("click", "#route .transferTicket", function() {
     //Clear all 'message2' containers
-    $(this).parents("#route").find(".message2").html("");
+    $(this).closest("#route").find(".message2").html("");
     //Disable other buttons in the ticket form
     $(this).closest(".tickets").find("button").prop("disabled", true);
     //Request cancellation confirmation
-    $(this).closest(".tickets").find(".message2").html("Confirm Transfer:<br><input list=\"receivers\" class=\"pendingReceiver\" name=\"pendingReceiver\" id=\"pendingReceiver" + $(this).parents(".tickets").find(".tNum").text() + "\" /><br><button type=\"button\" class=\"confirmTransfer\">Confirm</button>  <button type=\"button\" class=\"cancelThis\">Go Back</button>");
+    $(this).closest(".tickets").find(".message2").html("Confirm Transfer:<br><input list=\"receivers\" class=\"pendingReceiver\" name=\"pendingReceiver\" id=\"pendingReceiver" + $(this).closest(".tickets").find(".tNum").text() + "\" /><br><button type=\"button\" class=\"confirmTransfer\">Confirm</button>  <button type=\"button\" class=\"cancelThis\">Go Back</button>");
   });
 
   $(document).on("click", "#route .confirmTransfer", function() {
-    $(this).parents(".message2").find("button").prop("disabled", true);
+    $(this).closest(".message2").find("button").prop("disabled", true);
     let pendingReceiver = $(this).closest(".message2").find(".pendingReceiver").val();
     if (pendingReceiver === null || pendingReceiver === "") {
       let $temp = $(this).closest(".message2").find(".pendingReceiver").addClass("elementError");
@@ -1949,14 +1971,14 @@ $(document).ready(function() {
       return false;
     }
     // Get the ticket number to be removed from the data base
-    let tNum = $(this).parents(".tickets").find(".tNum").text();
+    let tNum = $(this).closest(".tickets").find(".tNum").text();
     // Get the notes for the ticket
-    let notes = $(this).parents(".tickets").find(".notes").val();
+    let notes = $(this).closest(".tickets").find(".notes").val();
     //Set a flag to mark the ticket for deletion
     let action = "transfer";
     // Get the form key
     let formKey = $("#formKey").val();
-    let $parentElement = $(this).parents(".message2");
+    let $parentElement = $(this).closest(".message2");
     $parentElement.html("<span class=\"ellipsis\">.</span>");
     let $ele = $parentElement.find(".ellipsis");
     let forward = true;
@@ -1993,7 +2015,7 @@ $(document).ready(function() {
 
   $(document).on("click", "#route .declined", function(){
     //Clear all 'message2' containers
-    $(this).parents("#route").find(".message2").html("");
+    $(this).closest("#route").find(".message2").html("");
     //Disable other buttons in the ticket form
     $(this).closest(".tickets").find("button").prop("disabled", true);
     //Request cancellation confirmation
@@ -2001,16 +2023,16 @@ $(document).ready(function() {
   });
 
   $(document).on("click", "#route .confirmDecline", function(){
-    $(this).parents(".message2").find("button").prop("disabled", true);
+    $(this).closest(".message2").find("button").prop("disabled", true);
     // Get the ticket number to be removed from the data base
-    let tNum = $(this).parents(".tickets").find(".tNum").text();
+    let tNum = $(this).closest(".tickets").find(".tNum").text();
     // Get the notes for the ticket
-    let notes = $(this).parents(".tickets").find(".notes").val();
+    let notes = $(this).closest(".tickets").find(".notes").val();
     // Set a flag to mark the ticket for deletion
     let action = "declined";
     // Get the form key
     let formKey = $("#formKey").val();
-    let $parentElement = $(this).parents(".message2");
+    let $parentElement = $(this).closest(".message2");
     $parentElement.html("<span class=\"ellipsis\">.</span>");
     let $ele = $parentElement.find(".ellipsis");
     let forward = true;
@@ -2048,7 +2070,7 @@ $(document).ready(function() {
 
   $(document).on("click", "#route .cancelRun", function(){
     //Clear all 'message2' containers
-    $(this).parents("#route").find(".message2").html("");
+    $(this).closest("#route").find(".message2").html("");
     //Disable other buttons in the ticket form
     $(this).closest(".tickets").find("button").prop("disabled", true);
     //Request cancellation confirmation
@@ -2057,7 +2079,7 @@ $(document).ready(function() {
 
   $(document).on("click", "#route .deadRun", function(){
     //Clear all 'message2' containers
-    $(this).parents("#route").find(".message2").html("");
+    $(this).closest("#route").find(".message2").html("");
     //Disable other buttons in the ticket form
     $(this).closest(".tickets").find("button").prop("disabled", true);
     //Request dead run confirmation
@@ -2065,20 +2087,20 @@ $(document).ready(function() {
   });
 
   $(document).on("click", "#route .cancelThis", function(){
-    $(this).parents(".tickets").find("button, .notes").prop("disabled", false);
+    $(this).closest(".tickets").find("button, .notes").prop("disabled", false);
     $(this).parent(".message2").html("");
   });
 
   $(document).on("click", "#route .confirmCancel", function(){
     // Get the ticket number to be removed from the data base
-    let tNum = $(this).parents(".tickets").find(".tNum").text();
+    let tNum = $(this).closest(".tickets").find(".tNum").text();
     // Get the notes for the ticket
-    let notes = $(this).parents(".tickets").find(".notes").val();
+    let notes = $(this).closest(".tickets").find(".notes").val();
     //Set a flag to mark the ticket for deletion
     let action = "cancel";
     // Get the form key
     let formKey = $("#formKey").val();
-    let $parentElement = $(this).parents(".message2");
+    let $parentElement = $(this).closest(".message2");
     $parentElement.html("<span class=\"ellipsis\">.</span>");
     let $ele = $parentElement.find(".ellipsis");
     let forward = true;
@@ -2114,16 +2136,16 @@ $(document).ready(function() {
   });
 
   $(document).on("click", "#route .confirmDeadRun", function(){
-    $(this).parents(".message2").find("button").prop("disabled", true);
+    $(this).closest(".message2").find("button").prop("disabled", true);
     // Get the ticket number to be marked as dead run
-    let tNum = $(this).parents(".tickets").find(".tNum").html();
+    let tNum = $(this).closest(".tickets").find(".tNum").html();
     // Get the notes for the ticket
-    let notes = $(this).parents(".tickets").find(".notes").val();
+    let notes = $(this).closest(".tickets").find(".notes").val();
     // Set a flag to mark the ticket for charge change
     let action = "deadRun";
     // Get the form key
     let formKey = $("#formKey").val();
-    let $parentElement = $(this).parents(".message2");
+    let $parentElement = $(this).closest(".message2");
     $parentElement.html("<span class=\"ellipsis\">.</span>");
     let $ele = $parentElement.find(".ellipsis");
     let forward = true;
@@ -2161,7 +2183,7 @@ $(document).ready(function() {
   $(document).on("click", "#route .dTicket", function( e ) {
     e.preventDefault();
     //Clear all 'message2' containers
-    $(this).parents("#route").find(".message2").html("");
+    $(this).closest("#route").find(".message2").html("");
     //Disable other buttons in the ticket form
     $(this).closest(".tickets").find("button").prop("disabled", true);
     //Request step confirmation
@@ -2172,18 +2194,18 @@ $(document).ready(function() {
   $(document).on("click", "#route .stepTicket", function( e ) {
     e.preventDefault();
     let x = $(this);
-    x.parents(".message2").find("button").prop("disabled", true);
+    x.closest(".message2").find("button").prop("disabled", true);
     let postData = {};
-    $(this).parents(".tickets").find("input[form='" + $(this).attr("form") + "'], textarea[form='" + $(this).attr("form") + "']").each(function() {
+    $(this).closest(".tickets").find("input[form='" + $(this).attr("form") + "'], textarea[form='" + $(this).attr("form") + "']").each(function() {
       postData[$(this).prop("name")] = $(this).val();
     });
     if ($(".printName[form='" + $(this).attr("form") + "']").prop("required") === true && $(".printName[form='" + $(this).attr("form") + "']").val() === "") {
-      $temp = x.parents(".sortable").find(".printName").addClass("elementError");
+      $temp = x.closest(".sortable").find(".printName").addClass("elementError");
       setTimeout(() => { $temp.removeClass("elementError"); }, 3000);
-      x.parents(".message2").find("button").prop("disabled", false);
+      x.closest(".message2").find("button").prop("disabled", false);
       return false;
     }
-    let $parentElement = $(this).parents(".message2");
+    let $parentElement = $(this).closest(".message2");
     $parentElement.html("<span class=\"ellipsis\">.</span>");
     let $ele = $parentElement.find(".ellipsis");
     let forward = true;
@@ -2231,13 +2253,13 @@ $(document).ready(function() {
   });
 
   $(document).on("click", ".transferGroup", function() {
-    $(this).parents(".sortable").find("p.message2").html("Confirm Transfer: <input list=\"receivers\" class=\"pendingReceiver\" name=\"pendingReceiver\" id=\"pendingReceiver\" /> <button type=\"button\" class=\"confirmTransferGroup\">Confirm</button>  <button type=\"button\" class=\"cancelThis\">Go Back</button>");
+    $(this).closest(".sortable").find("p.message2").html("Confirm Transfer: <input list=\"receivers\" class=\"pendingReceiver\" name=\"pendingReceiver\" id=\"pendingReceiver\" /> <button type=\"button\" class=\"confirmTransferGroup\">Confirm</button>  <button type=\"button\" class=\"cancelThis\">Go Back</button>");
   });
 
   $(document).on("click", "#route .confirmTransferGroup", function() {
     let multiTicket = [];
     let pendingReceiver = $(this).closest(".message2").find(".pendingReceiver").val();
-    $(this).parents(".sortable").find(".tickets").each(function( i ) {
+    $(this).closest(".sortable").find(".tickets").each(function( i ) {
       multiTicket[ i ] = { ticket_index: $(this).find(".tNum").text(), notes: $(this).find(".notes").val(), pendingReceiver: pendingReceiver, action: "transfer", transferState: 1 };
     });
     let postData = { multiTicket: multiTicket, TransferState: 1, formKey: $("#formKey").val() };
@@ -2247,7 +2269,7 @@ $(document).ready(function() {
       if (result.indexOf("Session Error") !== -1) return showLogin();
       $("#formKey").val(Number($("#formKey").val()) + 1);
       if(result.indexOf("error") === -1) {
-        $(this).parents(".sortable").find("p.message2").text(result);
+        $(this).closest(".sortable").find("p.message2").text(result);
         setTimeout(refreshTransfers, 2990);
         setTimeout(refreshRoute, 3000);
       }
@@ -2257,7 +2279,7 @@ $(document).ready(function() {
       }
     })
     .fail((jqXHR, status, error) => {
-      $(this).parents(".sortable").find(".message2").text("Error: " + error);
+      $(this).closest(".sortable").find(".message2").text("Error: " + error);
     });
   });
 
@@ -2272,9 +2294,9 @@ $(document).ready(function() {
   });
 
   $(document).on("click", "#route .stepAll", function(){
-    $(this).parents(".message2").find("button").prop("disabled", true);
+    $(this).closest(".message2").find("button").prop("disabled", true);
     let multiTicket = [];
-    $(this).parents(".sortable").find(".routeStop").each(function( i ) {
+    $(this).closest(".sortable").find(".routeStop").each(function( i ) {
       let data = {};
       $(this).find("input").each(function() {
         if ($(this).prop("name") !== "formKey") data[$(this).prop("name")] = $(this).val();
@@ -2289,7 +2311,7 @@ $(document).ready(function() {
       return false;
     }
     let postData = { multiTicket: multiTicket, formKey: $("#formKey").val(), printName: $(this).closest(".sortable").find(".printName").val(), sigImage: $(this).closest(".sortable").find(".sigImage").val() };
-    let $parentElement = $(this).parents(".message2");
+    let $parentElement = $(this).closest(".message2");
     $parentElement.html("<span class=\"ellipsis\">.</span>");
     let $ele = $parentElement.find(".ellipsis");
     let forward = true;
@@ -2326,19 +2348,19 @@ $(document).ready(function() {
   // price calculator page
   $(document).on("change", "#price_calculator .dryIce", function(){
     if($(this).is(":checked")){
-      $(this).parents("form").find(".diWeight").val("0").prop("disabled", false).focus();
+      $(this).closest("form").find(".diWeight").val("0").prop("disabled", false).focus();
     }
     else{
-      $(this).parents("form").find(".diWeight").val("0").prop("disabled", true);
+      $(this).closest("form").find(".diWeight").val("0").prop("disabled", true);
     }
   }).change();
 
   $(document).on("change", "#price_calculator #discountMarker", function(){
     if($(this).is(":checked")){
-      $(this).parents("form").find("#discount").val("0").prop("disabled", false).show();
+      $(this).closest("form").find("#discount").val("0").prop("disabled", false).show();
     }
     else{
-      $(this).parents("form").find("#discount").val("0").prop("disabled", true).hide();
+      $(this).closest("form").find("#discount").val("0").prop("disabled", true).hide();
     }
   }).change();
 
@@ -2460,7 +2482,7 @@ $(document).ready(function() {
   });
 
   $(document).on("click", "#price_calculator .clear", function(){
-    $(this).parents("form").find(".dryIce").prop("checked", false).trigger("change").end().find("#CalcCharge").val("0");
+    $(this).closest("form").find(".dryIce").prop("checked", false).trigger("change").end().find("#CalcCharge").val("0");
     $("#pNotice, #dNotice, #rangeResult, #diWeightResult, #diPriceResult, #runPriceResult, #ticketPriceResult").text("");
     $("#priceResult .currencySymbol, #priceResult .weightMarker").hide();
     $("#price_calculator .elementError").removeClass("elementError");
@@ -2491,43 +2513,46 @@ $(document).ready(function() {
     }
     else {
       $(this).closest("table").find(".billTo").attr("list", "clients").val("");
-      $(this).parents("form").find(".nrEntry").hide();
-      $(this).parents("form").find(".processNewT_client").prop("disabled", true).val("0").end().find("input[name^='t_']").prop("disabled", true).val("").end();
+      $(this).closest("form").find(".nrEntry").hide();
+      $(this).closest("form").find(".processNewT_client").prop("disabled", true).val("0").end().find("input[name^='t_']").prop("disabled", true).val("").end();
       $(this).closest("table").find(".contract").prop("disabled", false);
     }
   }).change();
   //Display or hide new t_client form based on billTo field
   $(document).on("change", ".billTo", function(){
     if($(this).val() === "new") {
-      $(this).parents("form").find(".nrEntry").show();
-      $(this).parents("form").find(".processNewT_client").prop("disabled", false).val("1").end().find("input[name^='t_']").prop("disabled", false).end();
+      $(this).closest("form").find(".nrEntry").show();
+      $(this).closest("form").find(".processNewT_client").prop("disabled", false).val("1").end().find("input[name^='t_']").prop("disabled", false).end();
     }
     else {
-      $(this).parents("form").find(".nrEntry").hide();
-      $(this).parents("form").find(".processNewT_client").prop("disabled", true).val("0").end().find("input[name^='t_']").prop("disabled", true).val("").end();
+      $(this).closest("form").find(".nrEntry").hide();
+      $(this).closest("form").find(".processNewT_client").prop("disabled", true).val("0").end().find("input[name^='t_']").prop("disabled", true).val("").end();
     }
   }).change();
 
   $(document).on("change", ".dryIce", function(){
     if($(this).is(":checked")){
-      $(this).parents("fieldset").find(".diWeight").val("0").prop("disabled", false).focus();
-      $(this).parents("fieldset").find(".diWeightMarker").val("0").prop("disabled", true);
+      $(this).closest("fieldset").find(".diWeight").val("0").prop("disabled", false).focus();
+      $(this).closest("fieldset").find(".diWeightMarker").val("0").prop("disabled", true);
     }
     else{
-      $(this).parents("fieldset").find(".diWeightMarker").val("0").prop("disabled", false);
-      $(this).parents("fieldset").find(".diWeight").val("0").prop("disabled", true);
+      $(this).closest("fieldset").find(".diWeightMarker").val("0").prop("disabled", false);
+      $(this).closest("fieldset").find(".diWeight").val("0").prop("disabled", true);
     }
   }).change();
 
   $(document).on("change", ".charge", function(){
     if ($(this).val() === "6") {
-      $(this).parents("form").find(".rtMarker").show().end().find(".dedicatedNote").hide().end().find("#pSigReq, #dSigReq").removeClass("stayChecked");
+      $(this).closest("form").find(".rtMarker").show().end().find(".dedicatedNote").hide().find("input[id^='pSigReq'], input[id^='dSigReq']").trigger("change").removeClass("stayChecked");
+      $(this).closest("form").find("input[name='d2TimeStamp']").prop("disabled", false)
     }
     else if ($(this).val() === "7") {
-      $(this).parents("form").find(".rtMarker, .dedicatedNote").show().end().find("#pSigReq, #dSigReq").prop("checked", true).addClass("stayChecked");
+      $(this).closest("form").find(".rtMarker, .dedicatedNote").show().end().find("input[id^='pSigReq'], input[id^='dSigReq']").prop("checked", true).trigger("change").addClass("stayChecked");
+      $(this).closest("form").find("input[name='d2TimeStamp']").prop("disabled", false)
     }
     else {
-      $(this).parents("form").find(".rtMarker, .dedicatedNote").hide().prop("checked", false).end().find("#pSigReq, #dSigReq").prop("checked", false).trigger("change").removeClass("stayChecked");
+      $(this).closest("form").find(".rtMarker, .dedicatedNote").hide().prop("checked", false).end().find("input[id^='pSigReq'], input[id^='dSigReq']").prop("checked", false).trigger("change").removeClass("stayChecked");
+      $(this).closest("form").find("input[name='d2TimeStamp']").prop("disabled", true).val("");
     }
   }).change();
 
@@ -2537,11 +2562,11 @@ $(document).ready(function() {
 
   $(document).on("change", ".emailConfirm", function() {
     if ($(this).val() !== "0") {
-      $(this).parents("form").find(".emailAddress").prop("required", true);
-      $(this).parents("form").find(".emailNote").removeClass("hide");
+      $(this).closest("form").find(".emailAddress").prop("required", true);
+      $(this).closest("form").find(".emailNote").removeClass("hide");
     } else {
-      $(this).parents("form").find(".emailAddress").prop("required", false);
-      $(this).parents("form").find(".emailNote").addClass("hide");
+      $(this).closest("form").find(".emailAddress").prop("required", false);
+      $(this).closest("form").find(".emailNote").addClass("hide");
     }
   }).change();
 
@@ -2570,87 +2595,14 @@ $(document).ready(function() {
     let x = $("#dSigReq").is(":checked");
     let z = $("#d2SigReq").is(":checked");
     if ($(this).is(":checked")) {
-      $(this).parents("form").find(".sigNote").show();
+      $(this).closest("form").find(".sigNote").show();
     }
     else {
       if (!x && !y && !z) {
-        $(this).parents("form").find(".sigNote").hide();
+        $(this).closest("form").find(".sigNote").hide();
       }
     }
   }).change();
-
-  $(document).on("click", "#request .submitForm", function(e) {
-    e.preventDefault();
-    let $target = $(this).closest(".page");
-    let button = $(this);
-    button.prop("disabled", true);
-    let breakFunction = false;
-    let checkboxes = ["repeatClient", "fromMe", "toMe", "dryIce", "pSigReq", "dSigReq", "d2SigReq"];
-    let requiredElements = ["pClient", "pAddress1", "pAddress2", "pCountry", "dClient", "dAddress1", "dAddress2", "dCountry"]
-    let formdata = {};
-    $(this).parents("#request").find("input[name], select, textarea").each(function() {
-      if (checkboxes.indexOf($(this).attr("name")) === -1 && $(this).prop("disabled") === false) {
-        if (($(this).prop("required") === true || (requiredElements.indexOf($(this).attr("name")) !== -1 && $(this).is(":visible"))) && $(this).val() === "") {
-          let $temp = $(this).addClass("elementError");
-          setTimeout(() => { $temp.removeClass("elementError"); button.prop("disabled", false); }, 3000);
-          breakFunction = true;
-        } else {
-          $(this).removeClass("elementError");
-        }
-        formdata[$(this).attr("name")] = $(this).val();
-      } else if ($(this).prop("type") === "checkbox") {
-        formdata[$(this).attr("name")] = ($(this).attr("name") === "repeatClient") ? 1 - $(this).is(":checked") : 0 + $(this).is(":checked");
-      }
-      formdata.formKey = $("#formKey").val();
-    });
-    if (formdata.dryIce === 1) {
-      if (formdata.diWeight % 5 !== 0) {
-        let $tempMessage = $(this).parents("form").find(".ticketError").text("Dry Ice in increments of 5 only.");
-        let $tempError = $(this).parents("form").find(".diWeight").addClass("elementError");
-        breakFunction = true;
-        setTimeout(() => { $tempMessage.text(""); $tempError.removeClass("elementError"); }, 3000)
-      } else if (formdata.diWeight === "0") {
-        let $tempMessage = $(this).parents("form").find(".ticketError").text("Dry Ice must be non-zero.");
-        let $tempError = $(this).parents("form").find(".diWeight").addClass("elementError");
-        breakFunction = true;
-        setTimeout(() => { $tempMessage.text(""); $tempError.removeClass("elementError"); }, 3000)
-      }
-    }
-    if (breakFunction === true) return false;
-    let $parentElement = $(this).parents("#request").find(".ticketError");
-    $parentElement.html("<span class=\"ellipsis\">.</span>");
-    let $ele = $parentElement.find(".ellipsis");
-    let forward = true;
-    let dots = setInterval(() => {
-      if (forward === true) {
-        $ele.append("..");
-        forward = $ele.text().length < 21 && $ele.text().length != 1;
-      } else {
-        $ele.text($ele.text().substr(0,$ele.text().length - 2));
-        forward = $ele.text().length === 1;
-      }
-    }, 500);
-    let attempt = ajax_template("POST", "./enterTicket.php", "html", formdata)
-    .done((result) => {
-      clearInterval(dots);
-      if (result.indexOf("Session Error") !== -1) return showLogin();
-      $("#formKey").val(Number($("#formKey").val()) + 1);
-      if (result.indexOf("data-error") !== -1) {
-        $parentElement.html(result);
-        setTimeout(() => { $parentElement.html(""); $parentElement.closest("table").find("button").prop("disabled", false); }, 3000);
-      } else {
-        $("#deliveryRequest").remove();
-        $target.prepend(result);
-        initMap("map", coords1, address1, coords2, address2, center);
-      }
-      scrollTo(0,0);
-    })
-    .fail((jqXHR, status, error) => {
-      clearInterval(dots);
-      $parentElement.html("<span>Error: " + error + "</span>");
-      setTimeout(() => { $parentElement.html(""); }, 3000);
-    });
-  });
 
   $(document).on("click", "#deliveryConfirmation .editForm, #deliveryConfirmation .confirmed", function(e) {
     e.preventDefault();
@@ -2664,7 +2616,7 @@ $(document).ready(function() {
       formdata[$(this).attr("name")] = $(this).val();
     });
     formdata.formKey = $("#formKey").val();
-    let $parentElement = $(this).parents("#deliveryConfirmation").find(".ticketError");
+    let $parentElement = $(this).closest("#deliveryConfirmation").find(".ticketError");
     $parentElement.html("<span class=\"ellipsis\">.</span>");
     let $ele = $parentElement.find(".ellipsis");
     let forward = true;
@@ -2723,7 +2675,7 @@ $(document).ready(function() {
   });
   // Supplemental for client side page
   $(document).on("click", "#toMe, #fromMe", function() {
-    let neighbor = ($(this).parents("fieldset").prop("id") === "deliveryField") ? "pickupField" : "deliveryField";
+    let neighbor = ($(this).closest("fieldset").prop("id") === "deliveryField") ? "pickupField" : "deliveryField";
     let testVal = "";
     $("#" + neighbor).find(".clientList").each(function() {
       if (testVal += $(this).val());
@@ -2733,18 +2685,18 @@ $(document).ready(function() {
   });
 
   $(document).on("change", "#toMe, #fromMe", function() {
-    let neighbor = ($(this).parents("fieldset").prop("id") === "deliveryField") ? "pickupField" : "deliveryField";
+    let neighbor = ($(this).closest("fieldset").prop("id") === "deliveryField") ? "pickupField" : "deliveryField";
     if ($(this).is(":checked")) {
-      $(this).parents("thead").find(".onFile").prop("checked", false);
-      $(this).parents("fieldset").find(".clientList").each( function(){$(this).prop("disabled", false).prop("required", true).show();} ).end().find(".clientSelect").each( function(){$(this).prop("disabled", true).hide();} );
-      $(this).parents("fieldset").find(".clientList").each(function() {
+      $(this).closest("thead").find(".onFile").prop("checked", false);
+      $(this).closest("fieldset").find(".clientList").each( function(){$(this).prop("disabled", false).prop("required", true).show();} ).end().find(".clientSelect").each( function(){$(this).prop("disabled", true).hide();} );
+      $(this).closest("fieldset").find(".clientList").each(function() {
         $(this).prop("required", false).prop("readonly", true);
       });
       $("#" + neighbor + " .me").prop("disabled", true);
-      $(this).parents("fieldset").find("[id$='Client']").val(ClientName).end().find("[id$='Department']").val(Department).end().find("[id$='Address1']").val(ShippingAddress1).end().find("[id$='Address2']").val(ShippingAddress2);
+      $(this).closest("fieldset").find("[id$='Client']").val(ClientName).end().find("[id$='Department']").val(Department).end().find("[id$='Address1']").val(ShippingAddress1).end().find("[id$='Address2']").val(ShippingAddress2);
     }
     else {
-      $(this).parents("fieldset").find(".clientList").prop("readonly", false);
+      $(this).closest("fieldset").find(".clientList").prop("readonly", false);
       $("#" + neighbor + " .me").prop("disabled", false);
     }
   }).change();
@@ -2758,7 +2710,7 @@ $(document).ready(function() {
 
   $(document).on("change", ".clientSelect", function() {
     let listIndex = $(this).children("option").filter(":selected").attr("data-value");
-    $(this).parents("fieldset").find(".clientSelect").each(function(){
+    $(this).closest("fieldset").find(".clientSelect").each(function(){
       $(this).children().each(function(){
         if ($(this).attr("data-value") === listIndex) {
           $(this).prop("selected", true);
@@ -2769,22 +2721,22 @@ $(document).ready(function() {
 
   $(document).on("change", ".onFile", function(){
     if ($(this).is(":checked")) {
-      $(this).parents("thead").find(".me").prop("checked", false);
-      $(this).parents("fieldset").find(".clientList").each( function(){ $(this).prop("disabled", true).prop("required", false).prop("readonly", false).val("").hide();} ).end().find(".clientSelect").each( function(){$(this).prop("disabled", false).show();} );
+      $(this).closest("thead").find(".me").prop("checked", false);
+      $(this).closest("fieldset").find(".clientList").each( function(){ $(this).prop("disabled", true).prop("required", false).prop("readonly", false).val("").hide();} ).end().find(".clientSelect").each( function(){$(this).prop("disabled", false).show();} );
       if ($(this).attr("id") === "onFileP") {
-        $(this).parents("form").find("#toMe").prop("disabled", false);
+        $(this).closest("form").find("#toMe").prop("disabled", false);
       } else {
-        $(this).parents("form").find("#fromMe").prop("disabled", false);
+        $(this).closest("form").find("#fromMe").prop("disabled", false);
       }
     } else {
-      $(this).parents("fieldset").find(".clientList").each( function(){ $(this).prop("disabled", false).prop("required", true).show(); if ($(this).prop("name").substr(1) === "Department") { $(this).prop("required", false); } } ).end().find(".clientSelect").each( function(){$(this).prop("disabled", true).hide();} );
+      $(this).closest("fieldset").find(".clientList").each( function(){ $(this).prop("disabled", false).prop("required", true).show(); if ($(this).prop("name").substr(1) === "Department") { $(this).prop("required", false); } } ).end().find(".clientSelect").each( function(){$(this).prop("disabled", true).hide();} );
     }
   }).change();
   // ticket transfers page
   $(document).on("click", ".cancelTransfer, .declineTransfer, .acceptTransfer", function() {
-    let workspace = $(this).parents(".sortable");
+    let workspace = $(this).closest(".sortable");
     let formKey = $("#formKey").val();
-    let ticket_index = Number($(this).parents(".tickets").find(".tNum").text());
+    let ticket_index = Number($(this).closest(".tickets").find(".tNum").text());
     let dispatchedTo = workspace.find(".dispatchedTo").text();
     let transferState;
     if ($(this).hasClass("cancelTransfer")) {
@@ -2816,7 +2768,7 @@ $(document).ready(function() {
   });
 
   $(document).on("click", ".acceptTransferGroup, .declineTransferGroup, .cancelTransferGroup", function() {
-    let workspace = $(this).parents(".sortable");
+    let workspace = $(this).closest(".sortable");
     let formKey = $("#formKey").val();
     let dispatchedTo = workspace.find(".dispatchedTo").text();
     let multiTicket = [];
@@ -2828,7 +2780,7 @@ $(document).ready(function() {
     } else if ($(this).hasClass("acceptTransferGroup")) {
       transferState = 4;
     }
-    $(this).parents(".sortable").find(".tickets").each(function( i ) {
+    $(this).closest(".sortable").find(".tickets").each(function( i ) {
       multiTicket[ i ] = { ticket_index: Number($(this).find(".tNum").text()), transferState: transferState, pendingReceiver: Number($(this).find(".pendingReceiver").text()), notes: $(this).find(".notes").val(), DispatchedTo: dispatchedTo, action: "transfer" }
     });
     let updateTransferGroupAttempt = ajax_template("POST", "./deleteContractTicket.php", "html", { formKey: formKey, TransferState: transferState, multiTicket: multiTicket })
@@ -2868,7 +2820,7 @@ $(document).ready(function() {
     let button = $(this);
     button.prop("disabled", true);
     let postData = {};
-    $(this).parents("form").find("input").each(function() {
+    $(this).closest("form").find("input").each(function() {
       if ($(this).prop("disabled") === false) {
         if ($(this).attr("type") === "checkbox") {
           if ($(this).is(":checked")) {
