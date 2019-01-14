@@ -66,7 +66,6 @@
       $this->queryData['method'] = 'GET';
       $this->queryData['endPoint'] = 'tickets';
       $this->queryData['noSession'] = TRUE;
-      $this->queryData['formKey'] = $this->formKey;
       $this->queryData['queryParams']['include'] = [ 'Charge', 'pTimeStamp', 'dTimeStamp', 'd2TimeStamp', 'd2SigReq' ];
       $this->queryData['queryParams']['filter'] = [ [ 'Resource'=>'TicketNumber', 'Filter'=>'eq', 'Value'=>$this->ticketNumber ] ];
       $this->query = self::createQuery($this->queryData);
@@ -219,7 +218,6 @@
             return FALSE;
         }
       }
-      $this->queryData['formKey'] = $this->formKey;
       $this->query = self::createQuery($this->queryData);
       if ($this->query === FALSE) {
         echo $this->error;
@@ -240,7 +238,7 @@
       }
       switch ($this->display) {
         case 'tickets':
-          $temp = self::createTicket([ 'formKey' => $this->formKey ]);
+          $temp = self::createTicket();
           if ($temp === FALSE) {
             echo $this->error;
             if ($this->enableLogging !== FALSE) self::writeLoop();
@@ -254,7 +252,6 @@
           }
         break;
         case 'invoice':
-          $data['formKey'] = $this->formKey;
           $data['invoiceQueryResult'] = $this->result;
           $temp = self::createInvoice($data);
           if ($temp === FALSE) {
@@ -271,7 +268,7 @@
           echo $displayInvoice;
         break;
         case 'chart':
-          $chartData = [ 'formKey'=>$this->formKey, 'organizationFlag'=>$this->organizationFlag, 'clientID'=>$this->clientID, 'compare'=>$this->compare, 'compareMembers'=>$this->compareMembers, ];
+          $chartData = [ 'organizationFlag'=>$this->organizationFlag, 'clientID'=>$this->clientID, 'compare'=>$this->compare, 'compareMembers'=>$this->compareMembers, ];
           if ($this->endPoint === 'tickets') {
             if (!self::groupTickets() === FALSE) {
               if ($this->enableLogging !== FALSE) self::writeLoop();
@@ -313,7 +310,6 @@
 
     private function fetchInvoiceTickets() {
       $this->queryData = [];
-      $this->queryData['formKey'] = $this->formKey;
       $this->queryData['endPoint'] = 'tickets';
       $this->queryData['method'] = 'GET';
       $this->queryData['queryParams']['include'] = [ 'ticket_index', 'TicketNumber', 'RunNumber', 'BillTo', 'RequestedBy', 'ReceivedDate', 'pClient', 'pDepartment', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'dClient', 'dDepartment', 'dAddress1', 'dAddress2', 'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'TicketBase', 'Charge', 'Contract', 'Multiplier', 'RunPrice', 'TicketPrice', 'EmailConfirm', 'EmailAddress', 'Notes', 'DispatchTimeStamp', 'DispatchedTo', 'DispatchedBy', 'Transfers', 'TransferState', 'PendingReceiver', 'pTimeStamp', 'dTimeStamp', 'd2TimeStamp', 'pTime', 'dTime', 'd2Time', 'pSigReq', 'dSigReq', 'd2SigReq', 'pSigPrint', 'dSigPrint', 'd2SigPrint', 'pSig', 'dSig', 'd2Sig', 'pSigType', 'dSigType', 'd2SigType', 'RepeatClient', 'InvoiceNumber' ];

@@ -69,7 +69,6 @@
     private function setLastSeen() {
       $lastSeenUpdateData['endPoint'] = (array_key_exists('driver_index', $_SESSION)) ? 'drivers' : 'dispatchers';
       $lastSeenUpdateData['method'] = 'PUT';
-      $lastSeenUpdateData['formKey'] = $this->formKey;
       $lastSeenUpdateData['primaryKey'] = (array_key_exists('driver_index', $_SESSION)) ? $_SESSION['driver_index'] : $_SESSION['dispatch_index'];
       $lastSeenUpdateData['payload'] = ['LastSeen'=>$this->today];
       if (!$lastSeenUpdate = self::createQuery($lastSeenUpdateData)) {
@@ -92,7 +91,6 @@
       $this->ticketSet = $ticketQueryData = [];
       $ticketQueryData['endPoint'] = 'tickets';
       $ticketQueryData['method'] = 'GET';
-      $ticketQueryData['formKey'] = $this->formKey;
       $ticketQueryData['queryParams']['filter'] = [];
       $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>$this->backstop . ' 00:00:00,' . $this->today . ' 23:59:59'], ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'Charge', 'Filter'=>'bt', 'Value'=>'1,5'], ['Resource'=>'dTimeStamp', 'Filter'=>'is'] ];
       $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>$this->backstop . ' 00:00:00,' . $this->today . ' 23:59:59'], ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>6], ['Resource'=>'d2TimeStamp', 'Filter'=>'is'] ];
@@ -116,7 +114,6 @@
       }
       $returnData = '';
       for ($i = 0; $i < count($this->onCallTicketSet); $i++) {
-        $this->onCallTicketSet[$i]['formKey'] = $this->formKey;
         $ticket = self::createTicket($this->onCallTicketSet[$i]);
         if ($ticket === FALSE) {
           $temp = $this->error;
@@ -142,7 +139,6 @@
       // Pull Round Trip ticket
       $ticketQueryData['endPoint'] = 'tickets';
       $ticketQueryData['method'] = 'GET';
-      $ticketQueryData['formKey'] = $this->formKey;
       $ticketQueryData['queryParams']['filter'] = [];
       // Pull RoundTrip tickets
       $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>"{$this->today} 00:00:00,{$this->today} 23:59:59"], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>6], ['Resource'=>'d2TimeStamp', 'Filter'=>'is'], ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0] ];
@@ -185,7 +181,6 @@
         self::prepTickets();
         if (!empty($this->singleLocation)) {
           for ($i = 0; $i < count($this->singleLocation); $i++) {
-            $this->singleLocation[$i]['formKey'] = $this->formKey;
             $ticket = self::createTicket($this->singleLocation[$i]);
             if ($ticket === FALSE) {
               $temp = $this->error . "\n";
@@ -200,7 +195,6 @@
           foreach ($this->multiLocation as $group) {
             $temp = array();
             for ($i = 0; $i < count($group); $i++) {
-              $group[$i]['formKey'] = $this->formKey;
               $ticket = self::createTicket($group[$i]);
               if ($ticket === FALSE) {
                 $temp = $this->error . "\n";
@@ -211,7 +205,6 @@
               $temp[] = $ticket;
             }
             $ticketPrimeData = [ 'multiTicket'=>$temp ];
-            $ticketPrimeData['formKey'] = $this->formKey;
             $ticketPrime = self::createTicket($ticketPrimeData);
             if ($ticketPrime === FALSE) {
               $temp = $this->error . "\n";
@@ -252,7 +245,6 @@
       $this->processTransfer = TRUE;
       $transfersQueryData['endPoint'] = 'tickets';
       $transfersQueryData['method'] = 'GET';
-      $transfersQueryData['formKey'] = $this->formKey;
       $transfersQueryData['queryParams']['filter'] = [];
       $transfersQueryData['queryParams']['filter'][] = [ ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'Charge', 'Filter'=>'bt', 'Value'=>'1,5'], ['Resource'=>'dTimeStamp', 'Filter'=>'is'] ];
       $transfersQueryData['queryParams']['filter'][] = [ ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>6], ['Resource'=>'d2TimeStamp', 'Filter'=>'is'] ];
@@ -297,7 +289,6 @@
       }
       if (!empty($this->singleLocation)) {
         for ($i = 0; $i < count($this->singleLocation); $i++) {
-          $this->singleLocation[$i]['formKey'] = $this->formKey;
           $this->singleLocation[$i]['processTransfer'] = TRUE;
           $ticket = self::createTicket($this->singleLocation[$i]);
           if ($ticket === FALSE) {
@@ -314,7 +305,6 @@
         foreach ($this->multiLocation as $group) {
           $temp = array();
           for ($i = 0; $i < count($group); $i++) {
-            $group[$i]['formKey'] = $this->formKey;
             $ticket = self::createTicket($group[$i]);
             if ($ticket === FALSE) {
               $temp = $this->error . "\n";
@@ -325,7 +315,6 @@
             $temp[] = $ticket;
           }
           $ticketPrimeData = [ 'multiTicket'=>$temp ];
-          $ticketPrimeData['formKey'] = $this->formKey;
           $ticketPrimeData['processTransfer'] = TRUE;
           $ticketPrime = self::createTicket($ticketPrimeData);
           if ($ticketPrime === FALSE) {
@@ -404,7 +393,6 @@
       // Pull the data to make the datalists
       $driverQueryData['method'] = 'GET';
       $driverQueryData['endPoint'] = 'drivers';
-      $driverQueryData['formKey'] = $this->formKey;
       $driverQueryData['queryParams']['include'] = ['DriverID', 'FirstName', 'LastName'];
       $driverQueryData['queryParams']['filter'] = [ ['Resource'=>'Deleted', 'Filter'=>'neq', 'Value'=>1] ];
       if (!$driverQuery = self::createQuery($driverQueryData)) {
@@ -430,7 +418,6 @@
     private function fetchRunList() {
       $runListQueryData['endPoint'] = 'contract_runs';
       $runListQueryData['method'] = 'GET';
-      $runListQueryData['formKey'] = $this->formKey;
       $runListQueryData['queryParams']['include'] = ['crun_index', 'RunNumber', 'BillTo', 'PickUp', 'DropOff', 'RoundTrip', 'pTime', 'dTime', 'd2Time', 'Schedule', 'StartDate', 'LastCompleted', 'Notes', 'DryIce', 'diWeight', 'PriceOverride', 'TicketPrice'];
       $runListQueryData['queryParams']['filter'] = [ ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID] ];
       if (!$runListQuery = self::createQuery($runListQueryData)) {
@@ -446,7 +433,6 @@
       // Pull the list of reschedule events for this driver
       $rescheduledQueryData['endPoint'] = 'schedule_override';
       $rescheduledQueryData['method'] = 'GET';
-      $rescheduledQueryData['formKey'] = $this->formKey;
       $rescheduledQueryData['queryParams']['include'] = ['ID','StartDate','EndDate','RunNumber','pTime','dTime','d2Time'];
       $rescheduledQueryData['queryParams']['filter'] = [ ['Resource'=>'Cancel', 'Filter'=>'eq', 'Value'=>5], ['Resource'=>'DriverID', 'Filter'=>'eq', 'Value'=>$this->driverID] ];
       if (!$rescheduledQuery = self::createQuery($rescheduledQueryData)) {
@@ -471,7 +457,6 @@
           // Pull the ticket info
           $runQueryData['endPoint'] = 'contract_runs';
           $runQueryData['method'] = 'GET';
-          $runQueryData['formKey'] = $this->formKey;
           $runQueryData['queryParams']['include'] = ['crun_index', 'RunNumber', 'BillTo', 'PickUp', 'DropOff', 'Notes', 'DryIce', 'diWeight', 'PriceOverride', 'TicketPrice'];
           $runQueryData['queryParams']['filter'] = [ ['Resource'=>'RunNumber', 'Filter'=>'eq', 'Value'=>$event['RunNumber']] ];
           if (!$runQuery = self::createQuery($runQueryData)) {
@@ -509,7 +494,6 @@
     private function fetchContractLocations() {
       $contractLocationQueryData['endPoint'] = 'contract_locations';
       $contractLocationQueryData['method'] = 'GET';
-      $contractLocationQueryData['formKey'] = $this->formKey;
       $contractLocationQueryData['queryParams']['include'] = ['ID','ClientName','Department', 'Contact', 'Telephone', 'Address1', 'Address2', 'Country'];
       if (!$contractLocationQuery = self::createQuery($contractLocationQueryData)) {
         $temp = $this->error . "\n";
@@ -535,7 +519,6 @@
     private function fetchCancelations() {
       $cancelationQueryData['endPoint'] = 'schedule_override';
       $cancelationQueryData['method'] = 'GET';
-      $cancelationQueryData['formKey'] = $this->formKey;
       $cancelationQueryData['queryParams']['include'] = ['Cancel', 'RunNumber', 'StartDate', 'EndDate'];
       $cancelationQueryData['queryParams']['filter'] = [ ['Resource'=>'Cancel', 'Filter'=>'le', 'Value'=>4] ];
       if (!$cancelationQuery = self::createQuery($cancelationQueryData)) {
@@ -874,7 +857,6 @@
 
     private function submitRouteTickets() {
       $data['multiTicket'] = [];
-      $data['formKey'] = $this->formKey;
       foreach ($this->newTickets as $newTicket) {
         $micro_date = microtime();
         $date_array = explode(' ',$micro_date);

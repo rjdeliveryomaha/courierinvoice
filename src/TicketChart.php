@@ -189,7 +189,6 @@
                 $t = ($temp['monthTotal'] == 1) ? 'Ticket' : 'Tickets';
                 $this->groupLabels[] = "{$key}<br>
                 <form action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
-                  <input type=\"hidden\" name=\"formKey\" value=\"{$this->formKey}\" />
                   <input type=\"hidden\" name=\"method\" value=\"GET\" />
                   <input type=\"hidden\" name=\"endPoint\" value=\"tickets\" />
                   <input type=\"hidden\" name=\"startDate\" value=\"{$v}\" />

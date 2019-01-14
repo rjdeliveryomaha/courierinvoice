@@ -29,7 +29,6 @@
         throw $e;
       }
       $_SESSION['mobile'] = (array_key_exists('mobile', $data)) ? self::test_bool($data['mobile']) : FALSE;
-      if (!isset($_SESSION['formKey']) && isset($data['formKey'])) $_SESSION['formKey'] = $data['formKey'];
     }
 
     public function login() {
@@ -47,7 +46,6 @@
       if (preg_match('/^[1-9][0-9]{0,10}$/', $this->clientID) === 1 || preg_match('/^[t][1-9][0-9]{0,10}$/', $this->clientID) === 1) {
         $this->repeatFlag = (strpos($this->clientID, 't') === FALSE) ? 1 : 0;
         $this->queryData['noSession'] = TRUE;
-        $this->queryData['formKey'] = $this->formKey;
         $this->queryData['method'] = 'GET';
         $this->queryData['endPoint'] = 'clients';
         $this->queryData['queryParams']['filter'] = [ ['Resource'=>'ClientID', 'Filter'=>'eq', 'Value'=>self::test_int($this->clientID)], ['Resource'=>'RepeatClient','Filter'=>'eq','Value'=>$this->repeatFlag], ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0] ];
@@ -89,7 +87,6 @@
         $temp = self::test_int($this->clientID);
         $this->clientID = $temp;
         $this->queryData['noSession'] = TRUE;
-        $this->queryData['formKey'] = $this->formKey;
         $this->queryData['method'] = 'GET';
         $this->queryData['endPoint'] = 'dispatchers';
         $this->queryData['queryParams']['filter'] = [ ['Resource'=>'DispatchID', 'Filter'=>'eq', 'Value'=>$this->clientID], ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0] ];
@@ -109,7 +106,6 @@
         if ($this->clientID === $this->userLogin) {
           // login user 0
           $this->queryData['noSession'] = TRUE;
-          $this->queryData['formKey'] = $this->formKey;
           $this->queryData['method'] = 'GET';
           $this->queryData['endPoint'] = 'clients';
           $this->queryData['queryParams']['filter'] = [ ['Resource'=>'ClientID', 'Filter'=>'eq', 'Value'=>0] ];
@@ -118,7 +114,6 @@
           $temp = self::test_input($this->clientID);
           $this->clientID = $temp;
           $this->queryData['noSession'] = TRUE;
-          $this->queryData['formKey'] = $this->formKey;
           $this->queryData['method'] = 'GET';
           $this->queryData['endPoint'] = 'o_clients';
           $this->queryData['queryParams']['filter'] = [ ['Resource'=>'Login', 'Filter'=>'eq', 'Value'=>$this->clientID], ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0] ];
@@ -257,7 +252,6 @@
     private function fetchConfig() {
       $this->queryData = [];
       $this->queryData['noSession'] = TRUE;
-      $this->queryData['formKey'] = $this->formKey;
       $this->queryData['method'] = 'GET';
       $this->queryData['endPoint'] = 'config';
       $this->queryData['queryParams'] = [];
@@ -324,7 +318,6 @@
     private function fetchOrgClients() {
       $this->queryData = [];
       $this->queryData['noSession'] = TRUE;
-      $this->queryData['formKey'] = $this->formKey;
       $this->queryData['method'] = 'GET';
       $this->queryData['endPoint'] = 'clients';
       $this->queryData['queryParams']['filter'] = [ [ 'Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0 ] ];

@@ -329,7 +329,6 @@
       if ($this->ticket_index !== NULL) {
         $data['method'] = 'GET';
         $data['endPoint'] = 'tickets';
-        $data['formKey'] = $this->formKey;
         $data['queryParams'] = [];
         $data['queryParams']['filter'] = [ ['Resource'=>'ticket_index', 'Filter'=>'eq', 'Value'=>$this->ticket_index] ];
         if (!$ticketQuery = self::createQuery($data)) {
@@ -348,7 +347,6 @@
         if ($testTicket[0]['Contract'] === 1 && $testTicket[0]['RunNumber'] !== 0) {
           $contractRunQueryData['endPoint'] = 'contract_runs';
           $contractRunQueryData['method'] = 'GET';
-          $contractRunQueryData['formKey'] = $this->formKey;
           $contractRunQueryData['queryParams'] = [];
           $contractRunQueryData['queryParams']['filter'] = [ ['Resource'=>'RunNumber', 'Filter'=>'eq', 'Value'=>$testTicket[0]['RunNumber']] ];
           if (!$contractRunQuery = self::createQuery($contractRunQueryData)) {
@@ -629,7 +627,6 @@
       $payload['TicketPrice'] = self::number_format_drop_zero_decimals(($payload['RunPrice'] + $this->diPrice), 2);
       $updateTicketPriceData['endPoint'] = 'tickets';
       $updateTicketPriceData['method'] = 'PUT';
-      $updateTicketPriceData['formKey'] = $this->formKey;
       $updateTicketPriceData['primaryKey'] = $this->ticket_index;
       $updateTicketPriceData['payload'] = $payload;
       $updateTicketPriceData['queryParams'] = [];
@@ -656,7 +653,6 @@
       $locationQueryData['queryParams']['filter'] = ($this->ulevel === 'dispatch' || $this->ulevel === 'driver') ? [] : [ ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>$this->ClientID] ];
       $locationQueryData['method'] = 'GET';
       $locationQueryData['endPoint'] = 'tickets';
-      $locationQueryData['formKey'] = $this->formKey;
       if (!$locationQuery = self::createQuery($locationQueryData)) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -707,7 +703,6 @@
       $driverQueryData['queryParams']['filter'] = [ ['Resource'=>'Deleted', 'Filter'=>'neq', 'Value'=>1] ];
       $driverQueryData['method'] = 'GET';
       $driverQueryData['endPoint'] = 'drivers';
-      $driverQueryData['formKey'] = $this->formKey;
       if (!$driverQuery = self::createQuery($driverQueryData)) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -736,7 +731,6 @@
       $clientQueryData['queryParams']['filter'] = [ ['Resource'=>'Deleted', 'Filter'=>'neq', 'Value'=>1] ];
       $clientQueryData['method'] = 'GET';
       $clientQueryData['endPoint'] = 'clients';
-      $clientQueryData['formKey'] = $this->formKey;
       if (!$clientQuery = self::createQuery($clientQueryData)) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -936,7 +930,6 @@
     private function testTicketNumber() {
       $ticketNumberQueryData['method'] = 'GET';
       $ticketNumberQueryData['endPoint'] = 'tickets';
-      $ticketNumberQueryData['formKey'] = $this->formKey;
       $ticketNumberQueryData['queryParams']['include'] = ['TicketNumber'];
       if (!$ticketNumberQuery = self::createQuery($ticketNumberQueryData)) {
         $temp = $this->error;
@@ -984,7 +977,6 @@
       $queryFilter = (strpos($this->ticket_index, ',') === FALSE) ? 'eq' : 'in';
       $ticketQueryData['endPoint'] = 'tickets';
       $ticketQueryData['method'] = 'GET';
-      $ticketQueryData['formKey'] = $this->formKey;
       $ticketQueryData['queryParams']['filter'] = [ ['Resource'=>'ticket_index', 'Filter'=>$queryFilter, 'Value'=>$this->ticket_index] ];
       if (!$ticketQuery = self::createQuery($ticketQueryData)) {
         $temp = $this->error;
@@ -1711,7 +1703,6 @@
         <h3>{$this->TicketNumber}</h3>
         <span  class=\"hide tNum\">{$this->ticket_index}</span>
         <span class=\"hide rNum\">{$this->RunNumber}</span>
-        <span class=\"hide formKey\">{$this->formKey}</span>
         <span class=\"hide pendingReceiver\">{$this->PendingReceiver}</span>
         <h3 class=\"error floatRight\">{$this->ticketCharge($this->Charge)}</h3>
         <hr>
@@ -2044,7 +2035,6 @@
       // Pull tickets that have not been dispatched
       $ticketQueryData['endPoint'] = 'tickets';
       $ticketQueryData['method'] = 'GET';
-      $ticketQueryData['formKey'] = $this->formKey;
       $ticketQueryData['queryParams'] = [];
       if ($this->ticket_index === NULL) {
         $ticketQueryData['queryParams']['filter'] = [ ['Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>'-'], ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>$this->Contract] ];
@@ -2540,29 +2530,46 @@
       $ticketNumberInput = ($this->TicketNumber !== NULL) ? "
         <input type=\"hidden\" name=\"ticketNumber\" class=\"ticketNumber\" value=\"{$this->TicketNumber}\" form=\"request{$this->ticket_index}\" />
         " : '';
-      $timing = ($this->ticketEditor === TRUE) ? "
+      $d2TimeStampDisabled = ($this->Charge === 6 || $this->Charge === 7) ? '' : 'disabled';
+      if ($this->ticketEditor === TRUE) {
+        $dispatchTimeStamp = preg_replace('/\s/', 'T', $this->DispatchTimeStamp);
+        $pTimeStamp = preg_replace('/\s/', 'T', $this->pTimeStamp);
+        $dTimeStamp = preg_replace('/\s/', 'T', $this->dTimeStamp);
+        $d2TimeStamp = preg_replace('/\s/', 'T', $this->d2TimeStamp);
+        $timing = "
         <tr>
           <td colspan=\"2\">
             <fieldset form=\"request{$this->ticket_index}\" id=\"timing{$this->ticket_index}\">
               <legend>Timing</legend>
               <table class=\"centerDiv\">
                 <tr>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
+                  <td>
+                    <label for=\"dispatchTimeStamp{$this->ticket_index}\">Dispatch Time:</label>
+                    <input type=\"datetime-local\" name=\"dispatchTimeStamp\" id=\"dispatchTimeStamp{$this->ticket_index}\" value=\"{$dispatchTimeStamp}\" step=\"1\" />
+                  </td>
+                  <td>
+                    <label for=\"pTimeStamp{$this->ticket_index}\">Pickup Time:</label>
+                    <input type=\"datetime-local\" name=\"pTimeStamp\" id=\"pTimeStamp{$this->ticket_index}\" value=\"{$pTimeStamp}\" step=\"1\" />
+                  </td>
                 </tr>
                 <tr>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
+                  <td>
+                    <label for=\"dTimeStamp{$this->ticket_index}\">Delivery Time:</label>
+                    <input type=\"datetime-local\" name=\"dTimeStamp\" id=\"dTimeStamp{$this->ticket_index}\" value=\"{$dTimeStamp}\" step=\"1\" /></td>
+                  </td>
+                  <td>
+                    <label for=\"d2TimeStamp{$this->ticket_index}\">Return Time:</label>
+                    <input type=\"datetime-local\" name=\"d2TimeStamp\" id=\"d2TimeStamp{$this->ticket_index}\" value=\"{$d2TimeStamp}\" step=\"1\" {$d2TimeStampDisabled} /></td>
+                  </td>
                 </tr>
               </table>
             </fieldset>
           </td>
         </tr>
-      " : '';
+      ";
+      } else {
+        $timing = '';
+      }
       $returnData .= "
       <div id=\"deliveryRequest{$this->ticket_index}\" class=\"removableByEditor\">
         <form id=\"request{$this->ticket_index}\" action=\"{$this->action}\" method=\"post\">
@@ -2595,7 +2602,7 @@
                         </select>
                       </td>
                       <td>
-                        <label class=\"rtMarker\" for=\"d2SigReq{$this->ticket_index}\">Request Signature:</label>
+                        <label class=\"rtMarker\" for=\"d2SigReq{$this->ticket_index}\">Return Signature:</label>
                         <input type=\"hidden\" name=\"d2SigReq\" id=\"d2SigReqMarker{$this->ticket_index}\" class=\"d2SigReqMarker\" value=\"0\" form=\"request{$this->ticket_index}\" />
                         <input type=\"checkbox\" class=\"rtMarker\" name=\"d2SigReq\" id=\"d2SigReq{$this->ticket_index}\" class=\"d2SigReq\" value=\"1\" {$d2SigChecked} form=\"request{$this->ticket_index}\" />
                       </td>
@@ -2850,6 +2857,7 @@
           <p class=\"emailNote {$emailNoteClass}\">Please add noreply@rjdeliveryomaha.com to your contacts. This will prevent notifications from being marked as spam.</p>";
   }
   $returnData .= '
+          <p class="dedicatedNote">To indicate a round trip request return signature.</p>
 	      </form>
       </div>';
   if ($this->edit === NULL && $this->ticketEditor === FALSE) $returnData .= "
@@ -3020,7 +3028,6 @@
       $returnData = '';
       $this->queryData['method'] = 'GET';
       $this->queryData['endPoint'] = 'tickets';
-      $this->queryData['formKey'] = $this->formKey;
       $this->queryData['queryParams']['include'] = [ 'ticket_index', 'TicketNumber', 'RunNumber', 'BillTo', 'RequestedBy', 'ReceivedDate', 'pClient', 'pDepartment', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'dClient', 'dDepartment', 'dAddress1', 'dAddress2', 'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'TicketBase', 'Charge', 'Contract', 'Multiplier', 'RunPrice', 'TicketPrice', 'EmailConfirm', 'EmailAddress', 'Notes', 'DispatchTimeStamp', 'DispatchedTo', 'DispatchedBy', 'Transfers', 'TransferState', 'PendingReceiver', 'pTimeStamp', 'dTimeStamp', 'd2TimeStamp', 'pTime', 'dTime', 'd2Time', 'pSigReq', 'dSigReq', 'd2SigReq', 'pSigPrint', 'dSigPrint', 'd2SigPrint', 'pSig', 'dSig', 'd2Sig', 'pSigType', 'dSigType', 'd2SigType', 'RepeatClient', 'InvoiceNumber' ];
       $this->queryData['queryParams']['filter'] = [  [ 'Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=>(int)$_SESSION['ClientID'] ], [ 'Resource'=>'ReceivedDate', 'Filter'=>'sw', 'Value'=>$this->today->format('Y-m-d') ]  ];
       if (!$this->query = self::createQuery($this->queryData)) {
@@ -3368,7 +3375,6 @@
         }
         $ticketUpdateData['endPoint'] = 'tickets';
         $ticketUpdateData['method'] = 'PUT';
-        $ticketUpdateData['formKey'] = $this->formKey;
         $ticketUpdateData['queryParams'] = [];
         $ticketUpdateData['payload'] = $payload;
         $ticketUpdateData['primaryKey'] = $this->ticket_index;
@@ -3425,7 +3431,6 @@
       }
       $postTicketData['endPoint'] = 'tickets';
       $postTicketData['method'] = 'POST';
-      $postTicketData['formKey'] = $this->formKey;
       $postTicketData['queryParams'] = [];
       if (!$postTicket = self::createQuery($postTicketData)) {
         $temp = $this->error;
@@ -3487,7 +3492,6 @@
       // Create a new query object to post the new tickets
       $postTicketData['endPoint'] = 'tickets';
       $postTicketData['method'] = 'POST';
-      $postTicketData['formKey'] = $this->formKey;
       $postTicketData['queryParams'] = [];
       $postTicketData['payload'] = $this->multiTicket;
       if (!$postTicket = self::createQuery($postTicketData)) {
@@ -3516,7 +3520,6 @@
       }
       $updateLastCompletedDateData['endPoint'] = 'contract_runs';
       $updateLastCompletedDateData['method'] = 'PUT';
-      $updateLastCompletedDateData['formKey'] = $this->formKey;
       $updateLastCompletedDateData['queryParams'] = [];
       $updateLastCompletedDateData['primaryKey'] = implode(',', $crun_index_list);
       $updateLastCompletedDateData['payload'] = array();
@@ -3569,7 +3572,6 @@
       }
       $ticketUpdateData['endPoint'] = 'tickets';
       $ticketUpdateData['method']= 'PUT';
-      $ticketUpdateData['formKey'] = $this->formKey;
       $ticketUpdateData['queryParams'] = [];
       $ticketUpdateData['primaryKey'] = $this->ticket_index;
       if ($this->multiTicket === NULL) {
@@ -3767,7 +3769,6 @@
       $this->processTransfer = ($this->TransferState !== NULL);
       $ticketUpdateData['endPoint'] = 'tickets';
       $ticketUpdateData['method'] = 'PUT';
-      $ticketUpdateData['formKey'] = $this->formKey;
       $ticketUpdateData['queryParams'] = [];
       $ticketUpdateData['primaryKey'] = $this->ticket_index;
       switch ($this->action) {

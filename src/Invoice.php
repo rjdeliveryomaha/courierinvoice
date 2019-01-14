@@ -62,7 +62,6 @@
       $ticketQueryData['queryParams']['include'] = [ 'ticket_index', 'TicketNumber', 'RunNumber', 'BillTo', 'RequestedBy', 'ReceivedDate', 'pClient', 'pDepartment', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'dClient', 'dDepartment', 'dAddress1', 'dAddress2', 'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'TicketBase', 'Charge', 'Contract', 'Multiplier', 'RunPrice', 'TicketPrice', 'EmailConfirm', 'EmailAddress', 'Notes', 'DispatchTimeStamp', 'DispatchedTo', 'DispatchedBy', 'Transfers', 'TransferState', 'PendingReceiver', 'pTimeStamp', 'dTimeStamp', 'd2TimeStamp', 'pTime', 'dTime', 'd2Time', 'pSigReq', 'dSigReq', 'd2SigReq', 'pSigPrint', 'dSigPrint', 'd2SigPrint', 'pSig', 'dSig', 'd2Sig', 'pSigType', 'dSigType', 'd2SigType', 'RepeatClient', 'InvoiceNumber' ];
       $ticketQueryData['queryParams']['filter'] = [ ['Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=>$this->ClientID], ['Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>$this->InvoiceNumber] ];
       $ticketQueryData['queryParams']['order'] = ['ReceivedDate'];
-      $ticketQueryData['formKey'] = $this->formKey;
       if (!$ticketQuery = self::createQuery($ticketQueryData)) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -80,7 +79,6 @@
       }
       $this->Tickets = [];
       for ($i = 0; $i < count($ticketQueryResult); $i++) {
-        $ticketQueryResult[$i]['formKey'] = $this->formKey;
         if (!$this->Tickets[] = self::createTicket($ticketQueryResult[$i])) {
           $temp = $this->error . "\n";
           $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -95,7 +93,6 @@
       $returnData = '
         <p data-error="error" class="center">Multiple invoices available for ' . date('F Y', strtotime($this->invoiceQueryResult[0]['DateIssued'])) . '.</p>
         <form class="center" id="multiInvoiceForm" method="post" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '">
-          <input type="hidden" name="formKey" class="formKey" value="' . $this->formKey . '" form="multiInvoiceForm" />
           <input type="hidden" name="clientID" value="' . $this->invoiceQueryResult[0]['ClientID'] . '" form="multiInvoiceForm" />
           <input type="hidden" name="endPoint" value="invoices" form="multiInvoiceForm" />
           <input type="hidden" name="display" value="invoice" />

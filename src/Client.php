@@ -2,7 +2,7 @@
   namespace rjdeliveryomaha\courierinvoice;
 
   use rjdeliveryomaha\courierinvoice\CommonFunctions;
-
+  
   class Client extends CommonFunctions {
     protected $client_index;
     protected $RepeatClient;
@@ -38,7 +38,6 @@
     private $newPass;
     private $returnable = [ 'client_index', 'RepeatClient', 'ClientID', 'ClientName', 'Department', 'ShippingAddress1', 'ShippingAddress2', 'ShippingCountry', 'BillingName', 'BillingAddress1', 'BillingAddress2', 'BillingCountry', 'Telephone', 'EmailAddress', 'Attention', 'ContractDiscount', 'GeneralDiscount', 'Organization' ];
     private $updateValues = [ 'ShippingAddress1', 'ShippingAddress2', 'ShippingCountry', 'BillingName', 'BillingAddress1', 'BillingAddress2', 'BillingCountry', 'Telephone', 'EmailAddress', 'Attention' ];
-    private $nullable = [ 'Telephone', 'EmailAddress', 'Attention' ];
     private $clientInfo;
     private $userType;
 
@@ -65,7 +64,6 @@
           'Telephone'=>$_SESSION['Telephone'],
           'EmailAddress'=>$_SESSION['EmailAddress'],
           'Organization'=>$_SESSION['Organization'],
-          'formKey'=>$_SESSION['formKey']
         ];
       }
     }
@@ -81,7 +79,6 @@
     public function changePassword() {
       $client = self::test_int($_SESSION['ClientID']);
       $this->queryData['method'] = 'GET';
-      $this->queryData['formKey'] = $this->formKey;
       if ($this->flag === 'admin') {
         $this->resourceName = 'AdminPassword';
         $this->testAgainst = 'Password';
@@ -131,7 +128,7 @@
         return FALSE;
       }
       // Now that we have the data to test againt start building the update query
-      // queryData['endPoint'] and queryData['formKey'] do not change
+      // queryData['endPoint'] does not change
       $this->queryData['method'] = 'PUT';
       $this->queryData['primaryKey'] = $this->result[0][$this->primaryKey];
       $this->queryData['queryParams'] = [];
@@ -233,7 +230,6 @@
       }
       // clear the query data of values used i fetchClientIndex
       $this->queryData = [];
-      $this->queryData['formKey'] = $this->formKey;
       $this->queryData['method'] = 'PUT';
       $this->queryData['primaryKey'] = $this->clientInfo['client_index'];
       $this->queryData['endPoint'] = 'clients';
@@ -393,7 +389,6 @@
             <div id=\"clientUpdateForm\">
               <p id=\"clientUpdateResult\" class=\"center\"></p>
               <form id=\"clientUpdate\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
-                <input type=\"hidden\" name=\"formKey\" value=\"\" />
                 <fieldset form=\"clientUpdate\" name=\"shippingInfo\">
                   <legend>Shipping Information</legend>
                   <table class=\"centerDiv\">

@@ -57,7 +57,7 @@
     // Properties that should always be floats
     private $floats = ['diPrice', 'TicketBase', 'RunPrice', 'TicketPrice', 'Multiplier', 'timestamp', 'lat',' lng', 'maxRange'];
     // Properties that should always be boolean
-    private $bools = ['newTicket', 'compare', 'compareMembers', 'ticketEditor', 'updateTicket', 'consolidateContractTicketsOnInvoice', 'showCanceledTicketsOnInvoice', 'organizationFlag', 'noSession', 'processTransfer'];
+    private $bools = ['newTicket', 'compare', 'compareMembers', 'ticketEditor', 'updateTicket', 'consolidateContractTicketsOnInvoice', 'showCanceledTicketsOnInvoice', 'organizationFlag', 'noSession', 'processTransfer', 'mapAvailable'];
     // Properties that are passed at the end of a string value
     private $afterSemicolon = ['billTo', 'dispatchedTo', 'PendingReceiver'];
     // Properties that are json encoded strings
@@ -65,7 +65,8 @@
     // No need to filter passwords they will be hashed
     private $noFilter = ['currentPw', 'newPw1', 'newPw2'];
     // These properties should not be accessible when setting values from the $data argument
-    private $protectedProperties = [ 'username', 'publicKey', 'privateKey', 'config', 'weightMarker', 'rangeMarker', 'countryClass', 'countryInput', 'requireCountry', 'shippingCountry', 'headerLogo', 'headerLogo2', 'myInfo', 'clientNameExceptions', 'clientAddressExceptions', 'showCanceledTicketsOnInvoiceExceptions', 'ignoreValues', 'showCanceledTicketsOnInvoice', 'consolidateContractTicketsOnInvoice', 'ints', 'floats', 'bools', 'afterSemicolon', 'jsonStrings', 'noFilter', 'sanitized', 'enableLogging', 'targetFile', 'fileWriteTry', 'loggingError', 'error', 'protectedProperties', 'RangeCenter', 'lat', 'lng', 'maxRange', 'timezone', 'emailConfig', 'allTimeChartLimit', 'invoicePage1Max', 'invoicePageMax'];
+    private $protectedProperties = [ 'username', 'publicKey', 'privateKey', 'config', 'weightMarker', 'rangeMarker', 'countryClass', 'countryInput', 'requireCountry', 'shippingCountry', 'headerLogo', 'headerLogo2', 'myInfo', 'clientNameExceptions', 'clientAddressExceptions', 'showCanceledTicketsOnInvoiceExceptions', 'ignoreValues', 'showCanceledTicketsOnInvoice', 'consolidateContractTicketsOnInvoice', 'ints', 'floats', 'bools', 'afterSemicolon', 'jsonStrings', 'noFilter', 'sanitized', 'enableLogging', 'targetFile', 'fileWriteTry', 'loggingError', 'error', 'protectedProperties', 'RangeCenter', 'lat', 'lng', 'maxRange', 'timezone', 'emailConfig', 'allTimeChartLimit', 'invoicePage1Max', 'invoicePageMax' ];
+    protected $nullable = [ 'pTimeStamp', 'dTimeStamp', 'd2TimeStamp', 'Department', 'Contact', 'Telephone', 'pTime', 'dTime', 'd2Time', 'Notes', 'LastName', 'EmailAddress', 'LastSeen', 'Attention', 'RequestedBy', 'pDepartment', 'pContact', 'pTelephone', 'dDepartment', 'dContact', 'dTelephone', 'pSigPrint', 'pSig', 'dSigPrint', 'dSig', 'd2SigPrint', 'd2Sig', 'DispatchTimeStamp', 'Transfers', 'DatePaid', 'Late30Invoice', 'Late30Value', 'Late60Invoice', 'Late60Value', 'Late90Invoice', 'Late90Value', 'Over90Invoice', 'Over90Value', 'CheckNumber' ];
     private $noGetProps = [ 'error', 'loggingError', 'fileWriteTry', 'sanitized' ];
     private $customMenuItems;
     private $customPages;
@@ -132,8 +133,7 @@
             'BillingCountry'=>$_SESSION['BillingCountry'],
             'Telephone'=>$_SESSION['Telephone'],
             'EmailAddress'=>self::decode($_SESSION['EmailAddress']),
-            'Organization'=>$_SESSION['Organization'],
-            'formKey'=>$_SESSION['formKey']
+            'Organization'=>$_SESSION['Organization']
           ];
           $this->members[$this->ClientID] = self::createClient($clientData);
           if ($this->members[$this->ClientID] === FALSE) {
@@ -146,7 +146,6 @@
           $this->ClientID = $_SESSION['ClientID'];
           $this->ListBy = $_SESSION['ListBy'];
           foreach ($_SESSION['members'] as $key => $value) {
-            $value['formKey'] = $_SESSION['formKey'];
             $temp = self::createClient($value);
             if ($temp === FALSE) {
               throw new \Exception($this->error);
@@ -655,7 +654,6 @@
       $inputName = (strpos($inputID,'invoice') === FALSE) ? $inputID : substr($inputID, 7);
       $queryData = [];
       $queryData['endPoint'] = $table;
-      $queryData['formKey'] = $this->formKey;
       $queryData['method'] = 'GET';
       // Define variables based on the input type
       if ($type === 'month') {
@@ -710,7 +708,6 @@
 
     protected function createInvoiceNumberSelect($search) {
       $queryData = [];
-      $queryData['formKey'] = $this->formKey;
       $queryData['method'] = 'GET';
       $queryData['endPoint'] = 'invoices';
       $queryData['queryParams']['include'] = ['InvoiceNumber', 'Closed'];
@@ -738,7 +735,6 @@
 
     protected function getCredit() {
       $data = [];
-      $data['formKey'] = $this->formKey;
       $data['method'] = 'GET';
       $data['endPoint'] = 'invoices';
       $data['queryParams']['include'] = ['Balance', 'DatePaid'];

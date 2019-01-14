@@ -195,7 +195,6 @@
           }
           $this->groupLabels[] = '
             <form action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
-              <input type="hidden" name="formKey" value="' . $this->formKey . '" />
               <input type="hidden" name="endPoint" value="invoices" />
               <input type="hidden" name="display" value="invoice" />
               <input type="hidden" name="dateIssued" value="' . date('Y-m', strtotime($this->monthKeys[$i])) . '" />'
