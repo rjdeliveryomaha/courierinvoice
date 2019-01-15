@@ -3626,7 +3626,7 @@
             $date_array = explode(" ",$micro_date);
             $this->DispatchMicroTime = substr($date_array[0], 1, 7);
             $ticketUpdateData['payload'] = [ 'DispatchTimeStamp'=>$this->DispatchTimeStamp, 'DispatchMicroTime'=>$this->DispatchMicroTime, 'DispatchedTo'=>$this->DispatchedTo, 'DispatchedBy'=>$this->DispatchedBy ];
-            $this->stepMarker = "Dispatched";
+            $this->stepMarker = 'Dispatched';
           break;
           default:
             $this->error = __function__ . ' Error: Unknown Action Line ' . __line__;
