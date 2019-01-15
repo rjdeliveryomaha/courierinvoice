@@ -915,6 +915,8 @@ All other values are only displayed if they are not zero.
 
 [example](extras/example_images/ticketChartExample.png?raw=true "Example of ticket chart.")
 
+Properties settable in $config can be found [here](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes#chart_height)
+
 ## Usage:
 
 ```php
@@ -1006,6 +1008,8 @@ Displays a simple bar chart depicting the expense of each type of ticket over a 
 Only non-zero values are displayed.
 
 [example](extras/example_images/invoiceChartExample.png?raw=true "Example of invoice chart.")
+
+Properties settable in $config can be found [here](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes#chart_height)
 
 ## Usage:
 
