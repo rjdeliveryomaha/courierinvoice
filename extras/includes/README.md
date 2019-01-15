@@ -74,7 +74,7 @@ Indicates weather or not to log errors.
 
 String
 
-File location for logging. If enableLogging is ` true ` and this value is NULL or an empty string an error will be thrown.
+File location for logging. If enableLogging is ` true ` and this value is NULL or an empty string an exception will be thrown.
 
 ### testMode
 
@@ -94,7 +94,7 @@ If test mode is true and this value is null or empty string an exception will be
 
 Integer
 
-The maximum number of line items on the first page of an invoice. If this is equal to the total number of line items on an invoice if will be reduced by 1 to accommodate the invoice foot.
+The maximum number of line items on the first page of an invoice. If this is equal to the total number of line items on an invoice it will be reduced by 1 to accommodate the invoice foot.
 
 ### invoicePageMax
 
@@ -295,7 +295,7 @@ The top level keys are who to create the items for; all, client, org, driver, di
 
 client0 provides customization options for use when logged in as Courier Invoice user.
 
-org0 provides customization options for use with Courier Invoice use organization that contains all not deleted clients.
+org0 provides customization options for use with Courier Invoice user organization that contains all not deleted clients.
 
 Entries are indexed arrays with the following content:
 
@@ -305,9 +305,9 @@ Entries are indexed arrays with the following content:
 
 ```
 
-Index 0 will be added, as is, to the menu. It will then have any HTML tags striped, be converted to lowercase, spaces replaced with underscore and used as the id attribute of the page.
+Index 0 will be added, as is, to the menu. It will then have any HTML tags striped, be converted to lowercase, spaces replaced with underscore and used as the id attribute of a ` div.page `.
 
-Index 1, if set and not null or an empty string, will be looked for first as a method in the Ticket, Route, Invoice, and Client classes then as a function in includes/user_functions.php to populate the page. This function should return HTML content.
+Index 1, if set and not null or an empty string, will be looked for first as a method in the Ticket, Route, Invoice, and Client classes then as a function in ../../includes/user_functions.php to populate the page. This function should ` return ` __not__ ` echo ` HTML content.
 
 Index 2, if set and not null or an empty string, will be added as the src of a script element.
 
@@ -335,15 +335,15 @@ Any indices beyond 2 will be interpreted as attributes to be applied to the scri
 
     * 2: Daily user clients.
 
-    These entries are not applied to organization users.
+    These entries are _not_ applied to organization users.
 
-    These entries are not applied to Courier Invoice user client ID 0 (zero).
+    These entries are _not_ applied to Courier Invoice user client ID 0 (zero).
 
   - __org__
 
     Indexed array of settings entries as described above.
 
-    These items will be added for only organization users.
+    These items will be added for _only_ organization users.
 
   - __driver__
 

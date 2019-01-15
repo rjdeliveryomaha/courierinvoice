@@ -27,7 +27,7 @@ A set of classes for the Courier Invoice API
 
 # SecureSessionHandler
 
-Extends PHPs SessionHandler class.
+Extends PHPs [SessionHandler](https://secure.php.net/manual/en/class.sessionhandler.php) class.
 
 Provides static functions for session management.
 
@@ -35,7 +35,7 @@ Throws exception on error.
 
 ## Properties settable in $config
 
-These properties are described in [extras/includes](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes).
+These properties are described in [extras/includes](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes#session_name).
 
  - session_name
 
@@ -62,13 +62,13 @@ try {
 
 This function will try to use ` ini_set() ` to apply the following settings:
 
-- session.use_only_cookies = 1
+- [session.use_only_cookies](https://php.net/manual/en/session.configuration.php#ini.session.use-only-cookies) = 1
 
-- session.use_strict_mode = 1
+- [session.use_strict_mode](https://php.net/manual/en/session.configuration.php#ini.session.use-strict-mode) = 1
 
-- session.cookie_secure = the configured value of ` $config['secure'] `
+- [session.cookie_secure](https://php.net/manual/en/session.configuration.php#ini.session.cookie-secure) = the configured value of ` $config['secure'] `
 
-- session.use_trans_sid = 0
+- [session.use_trans_sid](https://php.net/manual/en/session.configuration.php#ini.session.use-trans-sid) = 0
 
 If these settings fail an exception will be thrown.
 
@@ -114,9 +114,9 @@ Sets and returns a new value for ` $_SESSION['formKey'] `.
 
 # CommonFunctions
 
-Utility class extended by all other classes
+Utility class with functions used throughout the project.
 
-Throws exception on error
+Throws exception on error.
 
 ## Usage:
 
@@ -128,9 +128,12 @@ try {
 }
 ```
 
-$config and $data should both be array. There is a sample config in the extras directory.
+## Properties settable in ` $data `
 
-This class expects that a session exists unless the property 'noSession' is set in $data.
+- noSession
+  * Numeric
+
+  * If set and equal to ` 1 ` the class will not try to use any session values.
 
 ## Public Methods:
 
@@ -138,31 +141,56 @@ This class expects that a session exists unless the property 'noSession' is set 
 $functions->getProperty($property);
 ```
 
-Returns a value if the property exists. False is it does not.
+Returns a value if the property exists.
+
+Returns ` false ` if the property does not exist.
 
 ```php
 $functions->updateProperty($property, $value);
 ```
 
-Sets property to new value. Returns true. False is property does not exist.
+Sets property to new value.
+
+Returns ` true ` on success.
+
+Returns ` false ` if the property does not exist.
 
 ```php
 $functions->addToProperty($property, $value);
 ```
 
-Adds value to property. Returns false if property does not exists or is not numeric.
+Adds ` $value ` to property.
+
+Returns ` true ` on success.
+
+Returns ` false ` if the property does not exists.
+
+Returns ` false ` if ` $value ` or the property is not numeric.
 
 ```php
 $functions->substractFromProperty($property, $value);
 ```
 
-Subtract value from property. Returns false if property does not exists or is not numeric.
+Subtract ` $value ` from the property.
+
+Returns ` true ` on success.
+
+Returns ` false ` if the property does not exists.
+
+Returns ` false ` if ` $value ` or the property is not numeric.
+
 
 ```php
 $functions->compareProperties($obj1, $obj2, $property, $strict=FALSE);
 ```
 
-Returns false if property does not exist in both objects. $strict compares type as well as value.
+Returns ` false ` if property does not exist in both objects.
+
+Returns ` true ` if the properties hold _equal_ values.
+
+` $strict ` compares type as well as value.
+
+Returns ` true ` is properties hold _identical_ values.
 
 ```php
 $functions->debug();
@@ -179,6 +207,11 @@ Return the last error.
 ---
 
 # Query
+
+Extends [CommonFunctions](https://github.com/rjdeliveryomaha/courierinvoice#commonfunctions)
+
+This class handles the creation and execution of calls to the API.
+
 Throws exception on error.
 
 ## Usage:
@@ -189,7 +222,6 @@ try {
   return $e->getMessage();
 }
 ```
-$config and $data should both be array. There is a sample config in the extras directory.
 
 ## Properties settable in $data:
    - primaryKey
@@ -217,7 +249,7 @@ $config and $data should both be array. There is a sample config in the extras d
      * Associative array
 
      * keys:
-       - include / exclude:
+       + include / exclude:
 
          Indexed array of resources to retrieve / ignore from the end point. Include will be favored if both are provided. If omitted all resources are returned. Ex:
 
@@ -229,8 +261,8 @@ $config and $data should both be array. There is a sample config in the extras d
          ```php
          $data['queryParams']['exclude'] = [ 'pCountry' ];
          ```
-       - filter:
-          * simple "and" query:
+       + filter:
+          - simple "and" query:
 
             Indexed array of associative arrays. Ex:
 
@@ -242,7 +274,7 @@ $config and $data should both be array. There is a sample config in the extras d
 
             $data['queryParams']['filter'][] = ['Resource'=>'BillTo', 'Filter'=>'neq', 'Value'=>1];
             ```
-          * complex "and" & "or" query:
+          - complex "and" & "or" query:
 
             Indexed array of simple "and" queries. Ex:
 
@@ -258,22 +290,22 @@ $config and $data should both be array. There is a sample config in the extras d
 
             $data['queryParams']['filter'] = [$filter1, $filter2];
             ```
-          * available filters:
+          - available filters:
 
-            + cs: contain string (string contains value)
-            + sw: start with (string starts with value)
-            + ew: end with (string end with value)
-            + eq: equal (string or number matches exactly)
-            + lt: lower than (number is lower than value)
-            + le: lower or equal (number is lower than or equal to value)
-            + ge: greater or equal (number is higher than or equal to value)
-            + gt: greater than (number is higher than value)
-            + bt: between (number is between two comma separated values)
-            + in: in (number is in comma separated list of values)
-            + is: is null (field contains "NULL" value)
-            + You can negate all filters by prepending a 'n' character, so that 'eq' becomes 'neq'.
+            * cs: contain string (string contains value)
+            * sw: start with (string starts with value)
+            * ew: end with (string end with value)
+            * eq: equal (string or number matches exactly)
+            * lt: lower than (number is lower than value)
+            * le: lower or equal (number is lower than or equal to value)
+            * ge: greater or equal (number is higher than or equal to value)
+            * gt: greater than (number is higher than value)
+            * bt: between (number is between two comma separated values)
+            * in: in (number is in comma separated list of values)
+            * is: is null (field contains "NULL" value)
+            * You can negate all filters by prepending a 'n' character, so that 'eq' becomes 'neq'.
 
-       - order
+       + order
 
          Indexed array of ordering parameters. With the "order" parameter you can sort. By default the sort is in ascending order, but by specifying "desc" this can be reversed. Ex:
          ```php
@@ -283,11 +315,11 @@ $config and $data should both be array. There is a sample config in the extras d
          ```php
          $data['queryParams']['order'] = ['BillTo', 'DispatchTimeStamp,desc'];
          ```
-       - page
+       + page
 
-          * string
+          - string
 
-          * The "page" parameter holds the requested page. The default page size is 20, but can be adjusted (e.g. to 50). Pages that are not ordered cannot be paginated. EX:
+          - The "page" parameter holds the requested page. The default page size is 20, but can be adjusted (e.g. to 50). Pages that are not ordered cannot be paginated. EX:
 
           ```php
           $data['queryParams']['page'] = '1';
@@ -320,6 +352,8 @@ try {
 
 # LoginHandler
 
+Extends [CommonFunctions](https://github.com/rjdeliveryomaha/courierinvoice#commonfunctions)
+
 Processes login credentials.
 
 Populates ` $_SESSION ` with user data.
@@ -342,11 +376,11 @@ try {
 - clientID
 
   Users login name.
-  * Repeat clients: integer
-  * Non-repeat clients: string; ` t1 `
-  * Organizations: string; ` orgLogin `
-  * Drivers: string; ` driver1 `
-  * Dispatchers: string; ` dispatch1 `
+  * Repeat clients: Integer. ClientID.
+  * Non-repeat clients: String. ClientID preceded by the letter 't'. ` t1 `
+  * Organizations: String.  ` orgLogin `
+  * Drivers: String. DriverID preceded by the word 'driver'. ` driver1 `
+  * Dispatchers: String. DispatchID preceded by the word 'dispatch'. ` dispatch23 `
 - upw
 
   Users password.
@@ -377,7 +411,7 @@ This associative array contains resources from the [config](https://rjdeliveryom
 $_SESSION['mobile']
 ```
 
-If ` true ` this Boolean value indicates that the user logged in from a portal located at domain.com/mobileLogin that passed the LoginHandler class a dataset that included the key "mobile" and will redirect there instead of domain.com upon log out.
+If ` true ` this Boolean value indicates that the user logged in from a portal located at ../mobileLogin that passed the LoginHandler class a dataset that included the key "mobile" and will redirect there instead of / upon log out.
 
 ```php
 $_SESSION['ulevel']
@@ -422,6 +456,8 @@ Organizations have ` $_SESSION['members'] ` set. This is an associative array wi
 ---
 
 # Ticket
+
+Extends [CommonFunctions](https://github.com/rjdeliveryomaha/courierinvoice#commonfunctions)
 
 Processes and displays tickets individually or batched
 
@@ -489,21 +525,21 @@ Check database for tickets that have not been dispatched.
 echo $ticket->ticketForm();
 ```
 
-Has 3 states based on $data passed to Ticket.
+Has 4 states based on $data passed to Ticket.
 
-- initial: Generates an empty ticket entry form.
+1 initial: Generates an empty ticket entry form.
 
-  This form is followed by ` <div class="mapContainer" id="map"></div> ` for use with a javascript api.
+  This form is followed by ` <div class="mapContainer" id="map"></div> ` for use with a javascript map api.
 
   This div is only generated on this step.
 
-- edit: Generates a ticket entry form populated with provided ` $data `.
+2 edit: Generates a ticket entry form populated with provided ` $data `.
 
-- confirmation: Generates a read-only form for validation.
+3 confirmation: Generates a read-only form for validation.
 
   TicketPrice is solved here.
 
-- process: Submit ticket to the server.
+4 process: Submit ticket to the server.
 
   TicketNumber is set here.
 
@@ -515,7 +551,7 @@ Generates a simplified ticket form that only accepts 2 addresses, charge, and dr
 
 The data from this form should be passed to ` $ticket->calculateRunPrice() `.
 
-This form is followed by ` <div class="mapContainer" id="map2"></div> ` for use with a javascript api.
+This form is followed by ` <div class="mapContainer" id="map2"></div> ` for use with a javascript map api.
 
 ```php
 echo $ticket->calculateRunPrice();
@@ -555,11 +591,11 @@ Process tickets generated by the Route class:
 
 - Sets TicketNumber
 
-- Solves TicketPrice
+- Solves TicketPrice or uses the resource stored at the contract_runs end point if PriceOverride is ` true `
 
 - Submits tickets
 
-- Updates LastCompleted date
+- Updates LastCompleted date at the contract_runs end point
 
 Returns true on success, false, and optionally logs an error, on failure.
 
@@ -567,7 +603,7 @@ Returns true on success, false, and optionally logs an error, on failure.
 $ticket->processReturnTicket();
 ```
 
-Processes and submits a change of charge from 5 to 6 using the values stored in TicketBase.
+Processes and submits a change of charge from 5 to 6 using the value stored in TicketBase.
 
 ```php
 echo $ticket->stepTicket();
@@ -577,7 +613,9 @@ Sets the time stamp and submits that, notes and other values for the given ` ste
 
 Sends confirmation email if indicated.
 
-Returns a string.
+Returns a string on success and error.
+
+On error the string will contain the word 'error'.
 
 Valid values:
 
@@ -614,19 +652,37 @@ Valid values:
 
 - 'delete'
 
+  The API uses a 'soft delete' method.
+
+  The ticket will not be removed from the database. Instead the Charge will be set to 0.
+
 - 'cancel'
+
+  The tickets Charge will be set to 0.
 
 - 'deadRun'
 
+  The tickets Charge will be set to 8.
+
 - 'declined'
 
+  Only available on the delivery step.
+
+  The tickets Charge will be set 6 and the TicketPrice recalculated.
+
 - 'transfer'
+
+  The tickets TransferState will be updated.
 
 ---
 
 # Route
 
-Creates tickets for a driver as defined on the Manage Runs page.
+Extends [CommonFunctions](https://github.com/rjdeliveryomaha/courierinvoice#commonfunctions)
+
+Creates contract tickets for a driver as defined on the Manage Runs page.
+
+Checks for and displays contract tickets.
 
 Updates LastSeen resource.
 
@@ -659,7 +715,7 @@ Checks drivers LastSeen resource. If it is not the current date a call is made t
 
 A call is made to fetch incomplete routine and round trip contract tickets. If this result is empty a third call is made to check if any contract tickets were created for the driver on the current day.
 
-Returns HTML content to populate the route page.
+Returns HTML content to populate the ` div.page ` with a ` data-function ` attribute of "routeTickets".
 
 ```php
 $route->onCallTickets();
@@ -667,7 +723,7 @@ $route->onCallTickets();
 
 Checks for incomplete on call tickets that have been dispatched to the current driver in the past 7 days.
 
-Returns HTML content to populate the onCall page.
+Returns HTML content to populate the ` div.page ` with a ` data-function ` attribute of "onCallTickets".
 
 ```php
 $route->transferredTickets();
@@ -675,11 +731,13 @@ $route->transferredTickets();
 
 Checks for tickets that have been transferred to or by the current driver.
 
-Returns HTML content to populate the transfers page.
+Returns HTML content to populate the ` div.page ` with a ` data-function ` attribute of "transferredTickets".
 
 ---
 
 # Invoice
+
+Extends [CommonFunctions](https://github.com/rjdeliveryomaha/courierinvoice#commonfunctions)
 
 Displays invoices for review.
 
@@ -724,6 +782,8 @@ Creates a query form for admin and organization clients. The parameters provided
 ---
 
 # SearchHandler
+
+Extends [CommonFunctions](https://github.com/rjdeliveryomaha/courierinvoice#commonfunctions)
 
 Accepts input from ticket and invoice query forms.
 
@@ -805,7 +865,7 @@ return false;
 
 - dateIssued
 
-  Moth to query for invoices for a given client. Format YYYY-mm.
+  Month to query for invoices for a given client. Format YYYY-mm.
 
 - ticketNumber
 
@@ -839,7 +899,11 @@ return false;
 
 # TicketChart
 
+Extends [CommonFunctions](https://github.com/rjdeliveryomaha/courierinvoice#commonfunctions)
+
 Receives a dataset of tickets grouped by month from the [SearchHandler](https://github.com/rjdeliveryomaha/courierinvoice#searchHandler) class.
+
+Displays a table containing the number of each type of ticket over a given period.
 
 Displays a simple bar chart depicting the number of each type of ticket over a given period.
 
@@ -931,7 +995,11 @@ Sorts data and ` echo `s table and bar chart for the given parameter.
 
 # InvoiceChart
 
+Extends [CommonFunctions](https://github.com/rjdeliveryomaha/courierinvoice#commonfunctions)
+
 Receives a dataset of tickets grouped by month from the [SearchHandler](https://github.com/rjdeliveryomaha/courierinvoice#searchHandler) class.
+
+Displays a table containing the expense of each type of ticket over a given period.
 
 Displays a simple bar chart depicting the expense of each type of ticket over a given period.
 
@@ -1017,6 +1085,8 @@ Sorts data and ` echo `s table and bar chart for the given parameter.
 ---
 
 # Client
+
+Extends [CommonFunctions](https://github.com/rjdeliveryomaha/courierinvoice#commonfunctions)
 
 Manages information for clients, drivers, and dispatchers.
 
@@ -1134,6 +1204,8 @@ Returns an contact information update form.
 ---
 
 # InvoiceCron
+
+Extends [CommonFunctions](https://github.com/rjdeliveryomaha/courierinvoice#commonfunctions)
 
 Automatically creates invoices with a [cron](https://en.wikipedia.org/wiki/Cron) job run on the day following the end of a monthly billing cycle.
 
