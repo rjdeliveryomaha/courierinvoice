@@ -70,17 +70,14 @@
       $this->queryData['queryParams']['filter'] = [ [ 'Resource'=>'TicketNumber', 'Filter'=>'eq', 'Value'=>$this->ticketNumber ] ];
       $this->query = self::createQuery($this->queryData);
       if ($this->query === FALSE) {
-        echo $this->error;
-        return FALSE;
+        return "<p class=\"center\">{$this->error}</p>";
       }
       $this->result = self::callQuery($this->query);
       if ($this->result === FALSE) {
-        echo $this->error;
-        return FALSE;
+        return "<p class=\"center\">{$this->error}</p>";
       }
       if (empty($this->result)) {
-        echo 'No Results Match Query';
-        return FALSE;
+        return '<p class="center">No Results Match Query</p>';
       }
       $rtFlag = $this->result[0]['Charge'] === 6 || ($this->result[0]['Charge'] === 7 && $this->result[0]['d2SigReq'] === 1);
 
@@ -135,7 +132,10 @@
           $this->queryData['queryParams']['include'] = [ 'invoice_index', 'InvoiceNumber', 'ClientID', 'InvoiceTotal', 'InvoiceSubTotal', 'BalanceForwarded', 'AmountDue', 'StartDate', 'EndDate', 'DateIssued', 'DatePaid', 'AmountPaid', 'Balance', 'Late30Invoice', 'Late30Value', 'Late60Invoice', 'Late60Value', 'Late90Invoice', 'Late90Value', 'Over90Invoice', 'Over90Value', 'CheckNumber', 'Closed' ];
           $this->queryData['queryParams']['filter'][] = [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>$this->repeatClient ];
         break;
-        default: $this->error = 'Invalid End Point'; return FALSE;
+        default:
+          $this->error = 'Invalid End Point ' . __line__;
+          if ($this->enableLogging !== FALSE) self::writeLoop();
+          return "<p class=\"center\">{$this->error}</p>";
       }
 
       $this->queryData['queryParams']['filter'][] = [ 'Resource'=>$billToResource, 'Filter'=>$billToFilter, 'Value'=>$billToValue ];
@@ -159,16 +159,14 @@
         } catch (Exception $e) {
           $this->error .= "\n" . __function__ . ' Line ' . __line__ . ': ' . $e->getMessage();
           if ($this->enableLogging !== FALSE) self::writeLoop();
-          echo $this->error;
-          return FALSE;
+          return "<p class=\"center\">{$this->error}</p>";
         }
         try {
           $tempEnd = new \dateTime($this->endDate, $this->timezone);
         } catch (Exception $e) {
           $this->error .= "\n" . __function__ . ' Line ' . __line__ . ': ' . $e->getMessage();
           if ($this->enableLogging !== FALSE) self::writeLoop();
-          echo $this->error;
-          return FALSE;
+          return "<p class=\"center\">{$this->error}</p>";
         }
         if ($this->compare === FALSE) {
           // Make sure the query only pulls as many months as $this->allTimeChartLimit
@@ -177,8 +175,7 @@
             $marker = ($this->allTimeChartLimit === 1) ? 'month' : 'months';
             $this->error = "Query Range to large. Please limit query range to {$this->allTimeChartLimit} {$marker}.";
             if ($this->enableLogging !== FALSE) self::writeLoop();
-            echo $this->error;
-            return FALSE;
+            return "<p class=\"center\">{$this->error}</p>";
           }
           $this->queryData['queryParams']['filter'][] = [ 'Resource'=>$dateResource, 'Filter'=>'bt', 'Value'=>"{$tempStart->format('Y-m-d')} 00:00:00,{$tempEnd->format('Y-m-t')} 23:59:59" ];
         } else {
@@ -215,96 +212,91 @@
           default:
             $this->error = 'Invalid Display Option Line ' . __line__;
             if ($this->enableLogging !== FALSE) self::writeLoop();
-            return FALSE;
+            return "<p class=\"center\">{$this->error}</p>";
         }
       }
       $this->query = self::createQuery($this->queryData);
       if ($this->query === FALSE) {
-        echo $this->error;
-        return FALSE;
+        if ($this->enableLogging !== FALSE) self::writeLoop();
+        return "<p class=\"center\">{$this->error}</p>";
       }
       try {
         $this->result = self::callQuery($this->query);
       } catch(Exception $e) {
-        throw $e;
+        $this->error = $e->getMessage();
+        if ($this->enableLogging !== FALSE) self::writeLoop();
+        return "<p class=\"center\">{$this->error}</p>";
       }
       if ($this->result === FALSE) {
-        echo $this->error;
-        return FALSE;
+        if ($this->enableLogging !== FALSE) self::writeLoop();
+        return "<p class=\"center\">{$this->error}</p>";
       }
       if (empty($this->result)) {
-        echo 'No Results Match Query';
-        return FALSE;
+        return '<p class="center">No Results Match Query</p>';
       }
       switch ($this->display) {
         case 'tickets':
+          $returnData = '';
           $temp = self::createTicket();
           if ($temp === FALSE) {
-            echo $this->error;
             if ($this->enableLogging !== FALSE) self::writeLoop();
-            return FALSE;
+            return "<p class=\"center\">{$this->error}</p>";
           }
           for ($i = 0; $i < count($this->result); $i++) {
             foreach ($this->result[$i] as $key => $value) {
               $temp->updateProperty($key, $value);
             }
-            echo $temp->regenTicket();
+            $returnData .= $temp->regenTicket();
           }
+          return $returnData;
         break;
         case 'invoice':
           $data['invoiceQueryResult'] = $this->result;
           $temp = self::createInvoice($data);
           if ($temp === FALSE) {
-            echo $this->error;
             if ($this->enableLogging !== FALSE) self::writeLoop();
-            return FALSE;
+            return "<p class=\"center\">{$this->error}</p>";
           }
           if (!$displayInvoice = $temp->regenInvoice()) {
             $this->error = $temp->getError();
             if ($this->enableLogging !== FALSE) self::writeLoop();
-            echo $this->error;
-            return FALSE;
+            return "<p class=\"center\">{$this->error}</p>";
           }
-          echo $displayInvoice;
+          return $displayInvoice;
         break;
         case 'chart':
           $chartData = [ 'organizationFlag'=>$this->organizationFlag, 'clientID'=>$this->clientID, 'compare'=>$this->compare, 'compareMembers'=>$this->compareMembers, ];
           if ($this->endPoint === 'tickets') {
             if (!self::groupTickets() === FALSE) {
               if ($this->enableLogging !== FALSE) self::writeLoop();
-              echo $this->error;
-              return FALSE;
+              return "<p class=\"center\">{$this->error}</p>";
             }
             $chartData['dataSet'] = $this->months;
             $chart = self::createTicketChart($chartData);
           } elseif ($this->endPoint === 'invoices') {
             if (self::fetchInvoiceTickets() === FALSE) {
               if ($this->enableLogging !== FALSE) self::writeLoop();
-              echo $this->error;
-              return FALSE;
+              return "<p class=\"center\">{$this->error}</p>";
             }
             if (!self::groupInvoiceTickets() === FALSE) {
               if ($this->enableLogging !== FALSE) self::writeLoop();
-              echo $this->error;
-              return FALSE;
+              return "<p class=\"center\">{$this->error}</p>";
             }
             $chartData['dataSet'] = $this->months;
             $chart = self::createInvoiceChart($chartData);
           }
           if ($chart === FALSE) {
-            echo $this->error;
             if ($this->enableLogging !== FALSE) self::writeLoop();
-            return FALSE;
+            return "<p class=\"center\">{$this->error}</p>";
           }
           if (!$displayChart = $chart->displayChart()) {
             $this->error = $chart->getError();
             if ($this->enableLogging !== FALSE) self::writeLoop();
-            echo $this->error;
-            return FALSE;
+            return "<p class=\"center\">{$this->error}</p>";
           }
-          echo $displayChart;
+          return $displayChart;
         break;
-        default: $this->error = 'Invalid Display Option'; return FALSE;
+        default: return '<p class="center">Invalid Display Option</p>';
       }
     }
 
@@ -319,13 +311,13 @@
 
       $this->query = self::createQuery($this->queryData);
       if ($this->query === FALSE) {
-        echo $this->error;
-        return FALSE;
+        if ($this->enableLogging !== FALSE) self::writeLoop();
+        return "<p class=\"center\">{$this->error}</p>";
       }
       $this->tickets = self::callQuery($this->query);
       if ($this->result === FALSE) {
-        echo $this->error;
-        return FALSE;
+        if ($this->enableLogging !== FALSE) self::writeLoop();
+        return "<p class=\"center\">{$this->error}</p>";
       }
     }
 
@@ -351,8 +343,7 @@
         } catch (Exception $e) {
           $this->error = 'Processing Error Line ' . __line__ . ': ' . $e->getMessage();
           if ($this->enableLogging !== FALSE) self::writeLoop();
-          echo $this->error;
-          return FALSE;
+          return "<p class=\"center\">{$this->error}</p>";
         }
 
         $monthLabel = $receivedDate->format('M Y');
@@ -421,8 +412,7 @@
 
     private function groupInvoiceTickets() {
       if (!is_array($this->tickets) || empty($this->tickets)) {
-        $this->error = 'No Tickets To Sort';
-        return FALSE;
+        return '<p class="center">No Tickets To Sort</p>';
       }
       // Split $this->months up by clientID if this is an organization call
       if ($this->organizationFlag === TRUE) {
@@ -452,8 +442,7 @@
       }
       foreach ($this->tickets as $ticket) {
         if (!$targetKey = self::recursive_array_search($ticket['InvoiceNumber'], $this->months)) {
-          echo $this->error;
-          return FALSE;
+          return "<p class=\"center\">{$this->error}</p>";
         }
         if ($this->organizationFlag === FALSE) {
           switch ($ticket['Charge']) {
