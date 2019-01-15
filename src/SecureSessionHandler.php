@@ -5,33 +5,16 @@ namespace rjdeliveryomaha\courierinvoice;
 class SecureSessionHandler extends \SessionHandler {
 
   public static function start_session($config) {
-    if (session_status() === PHP_SESSION_ACTIVE) return false;
-    if (ini_set('session.use_only_cookies', 1) === false) throw new \Exception('Session Error: use only cookies failed');
-    if (ini_set('session.use_strict_mode', 1) === false) throw new \Exception('Session Error: use strict mode failed');
-    $secure = $config['secure'] ?? 0;
-    if (ini_set('session.cookie_secure', $secure) === false) throw new \Exception('Session Error: cookie secure failed');
-    if (ini_set('session.use_trans_sid', 0) === false) throw new \Exception('Session Error: use trans id failed');
-    $domain = $config['domain'] ?? false;
-    if ($domain === false) throw new \Exception('Session Error: Invalid domain');
-    $session_name = $config['session_name'] ?? false;
-    if ($session_name === false) throw new \Exception('Session Error: Invalid session name');
-    $lifetime = $config['lifetime'] ?? 8 * 60 * 60;
-    $path = $config['path'] ?? '/';
-    session_name($session_name);
-    //Set session parameters
-    session_set_cookie_params(
-      $lifetime,
-      $path,
-      $domain,
-      $secure,
-      true
-    );
-    session_start();
+    try {
+      static::create_session($config);
+    } catch(Exception $e) {
+      throw $e;
+    }
     // Make sure the session hasn't expired, and destroy it if it has
     if (static::validateSession()) {
       // Check to see if the session is new or a hijacking attempt
       $bypassHijackingTest = $config['bypassHijackingTest'] ?? false;
-      if(!$bypassHijackingTest && !static::preventHijacking())	{
+      if(!filter_var($bypassHijackingTest, FILTER_VALIDATE_BOOLEAN) && !static::preventHijacking())	{
         $_SESSION['IPaddress'] = $_SERVER['REMOTE_ADDR'];
         $_SESSION['userAgent'] = $_SERVER['HTTP_USER_AGENT'];
         static::regenerate_session();
@@ -63,28 +46,10 @@ class SecureSessionHandler extends \SessionHandler {
   }
 
   static public function newKey($config) {
-    if (session_status() !== PHP_SESSION_ACTIVE) {
-      if (ini_set('session.use_only_cookies', 1) === false) throw new \Exception('Session Error: use only cookies failed');
-      if (ini_set('session.use_strict_mode', 1) === false) throw new \Exception('Session Error: use strict mode failed');
-      $https = $config['https'] ?? 0;
-      if (ini_set('session.cookie_secure', $https) === false) throw new \Exception('Session Error: cookie secure failed');
-      if (ini_set('session.use_trans_sid', 0) === false) throw new \Exception('Session Error: use trans id failed');
-      $domain = $config['domain'] ?? false;
-      if ($domain === false) throw new \Exception('Session Error: Invalid domain');
-      $session_name = $config['session_name'] ?? false;
-      if ($session_name === false) throw new \Exception('Session Error: Invalid session name');
-      $lifetime = $config['lifetime'] ?? 12 * 60 * 60;
-      $path = $config['path'] ?? '/';
-      session_name($session_name);
-      //Set session parameters
-      session_set_cookie_params(
-        $lifetime,
-        $path,
-        $domain,
-        $https,
-        true
-      );
-      session_start();
+    try {
+      static::create_session($config);
+    } catch(Exception $e) {
+      throw $e;
     }
     $_SESSION['formKey'] = mt_rand();
     return $_SESSION['formKey'];
@@ -106,6 +71,31 @@ class SecureSessionHandler extends \SessionHandler {
     session_start();
     // Now unset the obsolete and expiration values for the session we want to keep
     unset($_SESSION['OBSOLETE'], $_SESSION['EXPIRES']);
+  }
+
+  static protected function create_session($config) {
+    if (session_status() === PHP_SESSION_ACTIVE) return false;
+    if (ini_set('session.use_only_cookies', 1) === false) throw new \Exception('Session Error: use only cookies failed');
+    if (ini_set('session.use_strict_mode', 1) === false) throw new \Exception('Session Error: use strict mode failed');
+    $secure = $config['secure'] ?? 0;
+    if (ini_set('session.cookie_secure', $secure) === false) throw new \Exception('Session Error: cookie secure failed');
+    if (ini_set('session.use_trans_sid', 0) === false) throw new \Exception('Session Error: use trans id failed');
+    $domain = $config['domain'] ?? false;
+    if (!$domain || $domain === '') $domain = $_SERVER['SERVER_NAME'];
+    $session_name = $config['session_name'] ?? false;
+    if (!$session_name || $session_name === '' || is_numeric($session_name)) throw new \Exception('Session Error: Invalid session name');
+    $lifetime = $config['lifetime'] ?? 8 * 60 * 60;
+    $path = $config['path'] ?? '/';
+    session_name($session_name);
+    //Set session parameters
+    session_set_cookie_params(
+      $lifetime,
+      $path,
+      $domain,
+      $secure,
+      true
+    );
+    session_start();
   }
 
   static protected function preventHijacking() {
