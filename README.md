@@ -639,9 +639,7 @@ Valid values:
 
 - 'dispatched'
 
-  Sets DispatchTimeStamp and DispatchMicroTime.
-
-  Updates TicketPrice for charge 7.
+  Sets DispatchTimeStamp, DispatchMicroTime, DispatchedTo, and DispatchedBy.
 
 ```php
 echo $ticket->cancelTicket();
