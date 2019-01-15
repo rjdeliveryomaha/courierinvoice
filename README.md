@@ -715,7 +715,7 @@ Checks drivers LastSeen resource. If it is not the current date a call is made t
 
 A call is made to fetch incomplete routine and round trip contract tickets. If this result is empty a third call is made to check if any contract tickets were created for the driver on the current day.
 
-Returns HTML content to populate the ` div.page ` with a ` data-function ` attribute of "routeTickets".
+Returns HTML content.
 
 ```php
 $route->onCallTickets();
@@ -723,7 +723,7 @@ $route->onCallTickets();
 
 Checks for incomplete on call tickets that have been dispatched to the current driver in the past 7 days.
 
-Returns HTML content to populate the ` div.page ` with a ` data-function ` attribute of "onCallTickets".
+Returns HTML content.
 
 ```php
 $route->transferredTickets();
@@ -731,7 +731,7 @@ $route->transferredTickets();
 
 Checks for tickets that have been transferred to or by the current driver.
 
-Returns HTML content to populate the ` div.page ` with a ` data-function ` attribute of "transferredTickets".
+Returns HTML content.
 
 ---
 
