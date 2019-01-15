@@ -211,14 +211,14 @@
     }
 
     public function addToProperty($property, $value) {
-      if (property_exists($this, $property) && (in_array($property, $this->ints) || in_array($property, $this->floats))) {
+      if (property_exists($this, $property) && (in_array($property, $this->ints) || in_array($property, $this->floats)) && is_numeric($value)) {
         return $this->{$property} += $value;
       }
       return FALSE;
     }
 
     public function substractFromProperty($property, $value) {
-      if (property_exists($this, $property) && (in_array($property, $this->ints) || in_array($property, $this->floats))) {
+      if (property_exists($this, $property) && (in_array($property, $this->ints) || in_array($property, $this->floats)) && is_numeric($value)) {
         return $this->{$property} -= $value;
       }
       return FALSE;
