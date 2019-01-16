@@ -50,17 +50,13 @@
       } catch (Exception $e) {
         throw $e;
       }
-
-      $this->showCanceledTicketsOnInvoice = in_array($this->ClientID, $this->options['showCanceledTicketsOnInvoiceExceptions'], true);
-
-      $this->consolidateContractTicketsOnInvoice = !in_array($this->ClientID, $this->options['consolidateContractTicketsOnInvoiceExceptions'], true);
     }
 
     private function fetchInvoiceTickets() {
       $ticketQueryData['method'] = 'GET';
       $ticketQueryData['endPoint'] = 'tickets';
       $ticketQueryData['queryParams']['include'] = [ 'ticket_index', 'TicketNumber', 'RunNumber', 'BillTo', 'RequestedBy', 'ReceivedDate', 'pClient', 'pDepartment', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'dClient', 'dDepartment', 'dAddress1', 'dAddress2', 'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'TicketBase', 'Charge', 'Contract', 'Multiplier', 'RunPrice', 'TicketPrice', 'EmailConfirm', 'EmailAddress', 'Notes', 'DispatchTimeStamp', 'DispatchedTo', 'DispatchedBy', 'Transfers', 'TransferState', 'PendingReceiver', 'pTimeStamp', 'dTimeStamp', 'd2TimeStamp', 'pTime', 'dTime', 'd2Time', 'pSigReq', 'dSigReq', 'd2SigReq', 'pSigPrint', 'dSigPrint', 'd2SigPrint', 'pSig', 'dSig', 'd2Sig', 'pSigType', 'dSigType', 'd2SigType', 'RepeatClient', 'InvoiceNumber' ];
-      $ticketQueryData['queryParams']['filter'] = [ ['Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=>$this->ClientID], ['Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>$this->InvoiceNumber] ];
+      $ticketQueryData['queryParams']['filter'] = [ ['Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>$this->InvoiceNumber] ];
       $ticketQueryData['queryParams']['order'] = ['ReceivedDate'];
       if (!$ticketQuery = self::createQuery($ticketQueryData)) {
         $temp = $this->error . "\n";
@@ -340,10 +336,18 @@
         return self::multiInvoiceForm();
       } else {
         foreach ($this->invoiceQueryResult[0] as $key => $value) {
-          if (property_exists($this, $key)) $this->{$key} = $value;
+          if ($value !== NULL) self::updateProperty($key, $value);
         }
       }
+
+      $this->ClientID = ($this->RepeatClient === 1) ? $this->ClientID : "t{$this->ClientID}";
+
+      $this->showCanceledTicketsOnInvoice = in_array($this->ClientID, $this->options['showCanceledTicketsOnInvoiceExceptions'], true);
+
+      $this->consolidateContractTicketsOnInvoice = !in_array($this->ClientID, $this->options['consolidateContractTicketsOnInvoiceExceptions'], true);
+
       self::fetchInvoiceTickets();
+
       if ($this->Tickets === FALSE) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -360,6 +364,7 @@
           return FALSE;
         }
       }
+
       if ($this->Closed === 1) {
         // Format the payment method display
         $paymentDisplay = (is_numeric($this->CheckNumber)) ? 'Check #: ' : '';
@@ -373,6 +378,7 @@
         $closedMarker = '
           <td colspan="4" rowspan="6"></td>';
       }
+
       $this->invoiceDisplay = '
   <div id="invoice">
     <table class="wide">
