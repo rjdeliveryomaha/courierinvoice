@@ -112,7 +112,7 @@
           }
         }
       } else {
-        if (strpos($this->clientID, 't') === FALSE) {
+        if ($this->RepeatClient === 1) {
           $this->repeatClients[] = $this->clientID;
         } else {
           $this->nonRepeat[] = self::test_int($this->clientID);
