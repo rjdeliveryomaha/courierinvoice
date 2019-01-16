@@ -117,7 +117,7 @@
         if (isset($_SESSION['pwWarning'])) $this->pwWarning = $_SESSION['pwWarning'];
         if (($this->ulevel === 1 || $this->ulevel === 2) && self::after_last('\\', get_class($this)) !== 'Client') {
           $this->RepeatClient = $_SESSION['RepeatClient'];
-          $this->ClientID = $_SESSION['ClientID'];
+          $this->ClientID = ($this->RepeatClient === 1) ? $_SESSION['ClientID'] : "t{$_SESSION['ClientID']}";
           $clientData = [
             'client_index'=>$_SESSION['client_index'],
             'RepeatClient'=>$_SESSION['RepeatClient'],
