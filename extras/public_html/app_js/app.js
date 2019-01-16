@@ -1097,10 +1097,6 @@ $(document).ready(function() {
     $("#useInvoice").prop("disabled", true);
   }
 
-  if ($("#invoice_query .orgMember").length > 0) {
-    $("#invoice_query .orgMember:first").closest("tfoot").append('<tr class="noticeRow"><td colspan="2">Select member to query</td></tr>')
-  }
-
   $(document).on("click", "#single, #multi", function() {
     return ($(this).is(":checked"));
   });
@@ -1312,10 +1308,6 @@ $(document).ready(function() {
     $("#options").find("input[type='submit']").prop("disabled", true);
   }
 
-  if ($("#ticket_query .orgMember").length > 0) {
-    $("#ticketQueryResults").before('<p class="center noticeRow">Select member or ticket number to query</p>')
-  }
-
   $(document).on("touchstart", ".ticketGraphContainer", function() {
     mySwipe.disable();
   });
@@ -1385,9 +1377,6 @@ $(document).ready(function() {
 
   $(document).on("change", "#deliveryQuery #ticketNumber", function(){
     if($(this).val() !== "") {
-      if ($("#ticket_query .noticeRow").length > 0) {
-        $("#ticket_query .noticeRow").hide();
-      }
       $(this).closest("form").find("#startDate, #endDate, #chargeHistory, #type, #allTime, #display, #compareBox, #compareMembersTickets").prop("disabled", true).prop("checked", false).prop("required", false).end().find(".startDateMarker, .endDateMarker, .chargeMarker, .typeMarker, #displayMarker").prop("disabled", false);
       if ($(".submitOrgTickets").length > 0) {
         $(".submitOrgTickets").prop("disabled", false);
