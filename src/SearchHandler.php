@@ -325,7 +325,7 @@
         return "<p class=\"center\">{$this->error}</p>";
       }
       if (empty($this->result)) {
-        return '<p class="center">No Results Match Query</p>' . self::debug();
+        return '<p class="center">No Results Match Query</p>';
       }
       switch ($this->display) {
         case 'tickets':
