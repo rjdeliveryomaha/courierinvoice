@@ -146,7 +146,7 @@
         case 'invoices':
           $billToResource = 'ClientID';
           $dateResource = 'DateIssued';
-          $this->queryData['queryParams']['include'] = [ 'invoice_index', 'InvoiceNumber', 'ClientID', 'InvoiceTotal', 'InvoiceSubTotal', 'BalanceForwarded', 'AmountDue', 'StartDate', 'EndDate', 'DateIssued', 'DatePaid', 'AmountPaid', 'Balance', 'Late30Invoice', 'Late30Value', 'Late60Invoice', 'Late60Value', 'Late90Invoice', 'Late90Value', 'Over90Invoice', 'Over90Value', 'CheckNumber', 'Closed' ];
+          $this->queryData['queryParams']['include'] = [ 'invoice_index', 'InvoiceNumber', 'ClientID', 'RepeatClient', 'InvoiceTotal', 'InvoiceSubTotal', 'BalanceForwarded', 'AmountDue', 'StartDate', 'EndDate', 'DateIssued', 'DatePaid', 'AmountPaid', 'Balance', 'Late30Invoice', 'Late30Value', 'Late60Invoice', 'Late60Value', 'Late90Invoice', 'Late90Value', 'Over90Invoice', 'Over90Value', 'CheckNumber', 'Closed' ];
           if (!empty($this->repeatClients)) {
             $repeatFilter[] = [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1 ];
           }
