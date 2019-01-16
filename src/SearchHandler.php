@@ -337,7 +337,7 @@
           }
           for ($i = 0; $i < count($this->result); $i++) {
             foreach ($this->result[$i] as $key => $value) {
-              if ($value !== NULL) $temp->updateProperty($key, $value);
+              $temp->updateProperty($key, $value);
             }
             $returnData .= $temp->regenTicket();
           }
