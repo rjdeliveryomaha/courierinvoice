@@ -1430,7 +1430,7 @@ $(document).ready(function() {
           $(this).removeClass("elementError");
         }
         if ($(this).attr("type") !== "checkbox") {
-          postData[$(this).attr("name")] = $(this).val();
+          if ($(this).val() !== "") postData[$(this).attr("name")] = $(this).val();
         } else {
           if ($(this).is(":checked")) {
             postData[$(this).attr("name")] = $(this).val();
