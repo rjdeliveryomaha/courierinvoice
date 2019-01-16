@@ -12,7 +12,6 @@
     protected $compareMembers = FALSE;
     protected $clientID;
     protected $billTo;
-    protected $repeatClient;
     protected $startDate;
     protected $endDate;
     protected $invoiceNumber;
@@ -21,12 +20,13 @@
     protected $charge;
     protected $type;
     protected $allTime;
+    private $repeatClients = [];
+    private $nonRepeat = [];
     private $query;
     private $queryData = [];
     private $result;
     private $today;
     private $yesterday;
-
     private $tickets;
     private $ticketHolder;
     private $invoices;
@@ -57,8 +57,6 @@
       }
       if ($this->clientID === NULL && $this->billTo !== NULL) {
         $this->clientID = $this->billTo;
-      } elseif ($this->clientID !== NULL && $this->billTo === NULL) {
-        $this->billTo = $this->clientID;
       }
     }
 
@@ -106,46 +104,89 @@
       $this->queryData['method'] = 'GET';
       $this->queryData['endPoint'] = $this->endPoint;
       if (is_array($this->clientID)) {
-        $billToValue = implode(',', $this->clientID);
-        $billToFilter = 'in';
+        for ($i = 0; $i < count($this->clientID); $i++) {
+          if (strpos($this->clientID[$i], 't') === FALSE) {
+            $this->repeatClients[] = $this->clientID[$i];
+          } else {
+            $this->nonRepeat[] = self::test_int($this->clientID[$i]);
+          }
+        }
       } else {
-        $billToValue = $this->clientID;
-        $billToFilter = 'eq';
+        if (strpos($this->clientID, 't') === FALSE) {
+          $this->repeatClients[] = $this->clientID;
+        } else {
+          $this->nonRepeat[] = self::test_int($this->clientID);
+        }
       }
       $billToResource = 'BillTo';
       $dateResource = 'ReceivedDate';
-      $this->queryData['queryParams']['filter'] = [];
+      $repeatFilter = $nonRepeatFilter = [];
       switch ($this->endPoint) {
         case 'tickets':
           $this->queryData['queryParams']['include'] = [ 'ticket_index', 'TicketNumber', 'RunNumber', 'BillTo', 'RequestedBy', 'ReceivedDate', 'pClient', 'pDepartment', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'dClient', 'dDepartment', 'dAddress1', 'dAddress2', 'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'TicketBase', 'Charge', 'Contract', 'Multiplier', 'RunPrice', 'TicketPrice', 'EmailConfirm', 'EmailAddress', 'Notes', 'DispatchTimeStamp', 'DispatchedTo', 'DispatchedBy', 'Transfers', 'TransferState', 'PendingReceiver', 'pTimeStamp', 'dTimeStamp', 'd2TimeStamp', 'pTime', 'dTime', 'd2Time', 'pSigReq', 'dSigReq', 'd2SigReq', 'pSigPrint', 'dSigPrint', 'd2SigPrint', 'pSig', 'dSig', 'd2Sig', 'pSigType', 'dSigType', 'd2SigType', 'RepeatClient', 'InvoiceNumber' ];
-          if ($this->charge < 10) {
-            $this->queryData['queryParams']['filter'][] = [ 'Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>$this->charge ];
+          if (!empty($this->repeatClients)) {
+            if ($this->charge < 10) {
+              $repeatFilter[] = [ 'Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>$this->charge ];
+            }
+            if ($this->type < 2) {
+              $repeatFilter[] = [ 'Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>$this->type ];
+            }
+            $repeatFilter[] = [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1 ];
           }
-          if ($this->type < 2) {
-            $this->queryData['queryParams']['filter'][] = [ 'Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>$this->type ];
+          if (!empty($this->nonRepeat)) {
+            if ($this->charge < 10) {
+              $nonRepeatFilter[] = [ 'Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>$this->charge ];
+            }
+            if ($this->type < 2) {
+              $nonRepeatFilter[] = [ 'Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>$this->type ];
+            }
+            $nonRepeatFilter[] = [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0 ];
           }
-          $this->queryData['queryParams']['filter'][] = [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>$this->repeatClient ];
         break;
         case 'invoices':
           $billToResource = 'ClientID';
           $dateResource = 'DateIssued';
           $this->queryData['queryParams']['include'] = [ 'invoice_index', 'InvoiceNumber', 'ClientID', 'InvoiceTotal', 'InvoiceSubTotal', 'BalanceForwarded', 'AmountDue', 'StartDate', 'EndDate', 'DateIssued', 'DatePaid', 'AmountPaid', 'Balance', 'Late30Invoice', 'Late30Value', 'Late60Invoice', 'Late60Value', 'Late90Invoice', 'Late90Value', 'Over90Invoice', 'Over90Value', 'CheckNumber', 'Closed' ];
-          $this->queryData['queryParams']['filter'][] = [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>$this->repeatClient ];
+          if (!empty($this->repeatClients)) {
+            $repeatFilter[] = [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1 ];
+          }
+          if (!empty($this->nonRepeat)) {
+            $nonRepeatFilter[] = [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0 ];
+          }
         break;
         default:
           $this->error = 'Invalid End Point ' . __line__;
           if ($this->enableLogging !== FALSE) self::writeLoop();
           return "<p class=\"center\">{$this->error}</p>";
       }
-
-      $this->queryData['queryParams']['filter'][] = [ 'Resource'=>$billToResource, 'Filter'=>$billToFilter, 'Value'=>$billToValue ];
+      if (!empty($this->repeatClients)) {
+        $repeatFilter[] = [ 'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->repeatClients) ];
+      }
+      if (!empty($this->nonRepeat)) {
+        $repeatFilter[] = [ 'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->nonRepeat) ];
+      }
 
       if ($this->ticketNumber !== NULL) {
-        $this->queryData['queryParams']['filter'][] = [ 'Resource'=>'TicketNumber', 'Filter'=>'eq', 'Value'=>$this->ticketNumber ];
+        if (!empty($this->repeatClients)) {
+          $repeatFilter[] = [ 'Resource'=>'TicketNumber', 'Filter'=>'eq', 'Value'=>$this->ticketNumber ];
+        }
+        if (!empty($this->nonRepeat)) {
+          $nonRepeatFilter[] = [ 'Resource'=>'TicketNumber', 'Filter'=>'eq', 'Value'=>$this->ticketNumber ];
+        }
       } elseif ($this->invoiceNumber !== NULL) {
-        $this->queryData['queryParams']['filter'][] = [ 'Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>$this->invoiceNumber ];
+        if (!empty($this->repeatClients)) {
+          $repeatFilter[] = [ 'Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>$this->invoiceNumber ];
+        }
+        if (!empty($this->nonRepeat)) {
+          $nonRepeatFilter[] = [ 'Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>$this->invoiceNumber ];
+        }
       } elseif ($this->dateIssued !== NULL) {
-        $this->queryData['queryParams']['filter'][] = [ 'Resource'=>'DateIssued', 'Filter'=>'sw', 'Value'=>$this->dateIssued ];
+        if (!empty($this->repeatClients)) {
+          $repeatFilter[] = [ 'Resource'=>'DateIssued', 'Filter'=>'sw', 'Value'=>$this->dateIssued ];
+        }
+        if (!empty($this->nonRepeat)) {
+          $nonRepeatFilter[] = [ 'Resource'=>'DateIssued', 'Filter'=>'sw', 'Value'=>$this->dateIssued ];
+        }
       } elseif ($this->startDate !== NULL) {
         $this->endDate = ($this->endDate === NULL) ? $this->startDate : $this->endDate;
         if ($this->startDate > $this->endDate) {
@@ -177,43 +218,95 @@
             if ($this->enableLogging !== FALSE) self::writeLoop();
             return "<p class=\"center\">{$this->error}</p>";
           }
-          $this->queryData['queryParams']['filter'][] = [ 'Resource'=>$dateResource, 'Filter'=>'bt', 'Value'=>"{$tempStart->format('Y-m-d')} 00:00:00,{$tempEnd->format('Y-m-t')} 23:59:59" ];
+          if (!empty($this->repeatClients)) {
+            $repeatFilter[] = ['Resource'=>$dateResource, 'Filter'=>'bt', 'Value'=>"{$tempStart->format('Y-m-d')} 00:00:00,{$tempEnd->format('Y-m-t')} 23:59:59"];
+            $repeatFilter[] = ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1];
+          }
+          if (!empty($this->nonRepeat)) {
+            $nonRepeatFilter[] = ['Resource'=>$dateResource, 'Filter'=>'bt', 'Value'=>"{$tempStart->format('Y-m-d')} 00:00:00,{$tempEnd->format('Y-m-t')} 23:59:59"];
+            $nonRepeatFilter[] = ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0];
+          }
         } else {
-          $this->queryData['queryParams']['filter'] = [ [ [ 'Resource'=>$billToResource, 'Filter'=>$billToFilter, 'Value'=>$billToValue ], [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>$this->repeatClient ], [ 'Resource'=>$dateResource, 'Filter'=>'bt', 'Value'=>"{$tempStart->format('Y-m-d')} 00:00:00,{$tempStart->format('Y-m-t')} 23:59:59" ] ], [ [ 'Resource'=>$billToResource, 'Filter'=>$billToFilter, 'Value'=>$billToValue ], [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>$this->repeatClient ], [ 'Resource'=>$dateResource, 'Filter'=>'bt', 'Value'=>"{$tempEnd->format('Y-m-d')} 00:00:00,{$tempEnd->format('Y-m-t')} 23:59:59" ] ] ];
+          if (!empty($this->repeatClients)) {
+            $repeatFilter = [ [ [ 'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->repeatClients) ], [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1 ], [ 'Resource'=>$dateResource, 'Filter'=>'bt', 'Value'=>"{$tempStart->format('Y-m-d')} 00:00:00,{$tempStart->format('Y-m-t')} 23:59:59" ] ], [ [ 'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->repeatClients) ], [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1 ], [ 'Resource'=>$dateResource, 'Filter'=>'bt', 'Value'=>"{$tempEnd->format('Y-m-d')} 00:00:00,{$tempEnd->format('Y-m-t')} 23:59:59" ] ] ];
+          }
+          if (!empty($this->nonRepeat)) {
+            $nonRepeatFilter = [ [ [ 'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->nonRepeat) ], [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0 ], [ 'Resource'=>$dateResource, 'Filter'=>'bt', 'Value'=>"{$tempStart->format('Y-m-d')} 00:00:00,{$tempStart->format('Y-m-t')} 23:59:59" ] ], [ [ 'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->nonRepeat) ], [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0 ], [ 'Resource'=>$dateResource, 'Filter'=>'bt', 'Value'=>"{$tempEnd->format('Y-m-d')} 00:00:00,{$tempEnd->format('Y-m-t')} 23:59:59" ] ] ];
+          }
         }
       } elseif ($this->allTime === '0') {
         $temp = clone $this->today;
         $this->yesterday = $temp->modify('-1 day')->format('Y-m-d') . ' 23:59:59';
-        $this->queryData['queryParams']['filter'] = [ ['Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=>$this->clientID], ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>$this->repeatClient], ['Resource'=>'ReceivedDate', 'Filter'=>'gt', 'Value'=>$this->yesterday] ];
+        if (!empty($this->repeatClients)) {
+          $repeatFilter[] = [ ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>implode(',', $this->repeatClients)], ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'ReceivedDate', 'Filter'=>'gt', 'Value'=>$this->yesterday] ];
+        }
+        if (!empty($this->nonRepeat)) {
+          $nonRepeatFilter[] = [ ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>implode(',', $this->nonRepeat)], ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'ReceivedDate', 'Filter'=>'gt', 'Value'=>$this->yesterday] ];
+        }
       } elseif ($this->allTime === '1') {
         switch ($this->display) {
           case 'tickets':
-            $filterStart = [ ['Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=>$this->clientID], ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>$this->repeatClient], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>$this->charge], ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>$this->type] ];
-            // Remove the type and charge filter if they are set to their respective 'all' values
-            foreach($filterStart as $temp) {
-              if ($temp['Resource'] === 'Charge') {
-                if ($temp['Value'] !== 10) {
-                  $this->queryData['queryParams']['filter'][] = $temp;
+            if (!empty($this->repeatClients)) {
+              $filterStart = [ ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>implode(',', $this->repeatClients)], ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>$this->charge], ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>$this->type] ];
+              // Remove the type and charge filter if they are set to their respective 'all' values
+              foreach($filterStart as $temp) {
+                if ($temp['Resource'] === 'Charge') {
+                  if ($temp['Value'] !== 10) {
+                    $repeatFilter[] = $temp;
+                  }
+                } elseif ($temp['Resource'] === 'Contract') {
+                  if ($temp['Value'] !== 2) {
+                    $repeatFilter[] = $temp;
+                  }
+                } else {
+                  $repeatFilter[] = $temp;
                 }
-              } elseif ($temp['Resource'] === 'Contract') {
-                if ($temp['Value'] !== 2) {
-                  $this->queryData['queryParams']['filter'][] = $temp;
+              }
+            }
+            if (!empty($this->nonRepeat)) {
+              $filterStart = [ ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>implode(',', $this->nonRepeat)], ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>$this->charge], ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>$this->type] ];
+              // Remove the type and charge filter if they are set to their respective 'all' values
+              foreach($filterStart as $temp) {
+                if ($temp['Resource'] === 'Charge') {
+                  if ($temp['Value'] !== 10) {
+                    $nonRepeatFilter[] = $temp;
+                  }
+                } elseif ($temp['Resource'] === 'Contract') {
+                  if ($temp['Value'] !== 2) {
+                    $nonRepeatFilter[] = $temp;
+                  }
+                } else {
+                  $nonRepeatFilter[] = $temp;
                 }
-              } else {
-                $this->queryData['queryParams']['filter'][] = $temp;
               }
             }
           break;
           case 'chart':
             $this->startDate = clone $this->today;
             $this->endDate = $this->today->format('Y-m-t') . ' 23:59:59';
-            $this->queryData['queryParams']['filter'] = [ ['Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=>$this->clientID], ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>'1'], ['Resource'=>'ReceivedDate', 'Filter'=>'bt', 'Value'=>"{$this->startDate->modify('- $this->allTimeChartLimit months')->format('Y-m-d')} 00:00:00,{$this->endDate}"] ];
+            if (!empty($this->repeatClients)) {
+              $repeatFilter = [ ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>implode(',', $this->repeatClients)], ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'ReceivedDate', 'Filter'=>'bt', 'Value'=>"{$this->startDate->modify('- $this->allTimeChartLimit months')->format('Y-m-d')} 00:00:00,{$this->endDate}"] ];
+            }
+            if (!empty($this->nonRepeat)) {
+              $nonRepeatFilter = [ ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>implode(',', $this->nonRepeat)], ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'ReceivedDate', 'Filter'=>'bt', 'Value'=>"{$this->startDate->modify('- $this->allTimeChartLimit months')->format('Y-m-d')} 00:00:00,{$this->endDate}"] ];
+            }
           break;
           default:
             $this->error = 'Invalid Display Option Line ' . __line__;
             if ($this->enableLogging !== FALSE) self::writeLoop();
             return "<p class=\"center\">{$this->error}</p>";
         }
+      }
+      if (!empty($repeatFilter) && !empty($nonRepeatFilter)) {
+        $this->queryData['queryParams']['filter'] = [ $repeatFilter, $nonRepeatFilter ];
+      } elseif (empty($repeatFilter) && !empty($nonRepeatFilter)) {
+        $this->queryData['queryParams']['filter'] = $nonRepeatFilter;
+      } elseif (!empty($repeatFilter) && empty($nonRepeatFilter)) {
+        $this->queryData['queryParams']['filter'] = $repeatFilter;
+      } else {
+        $this->error = 'Empty Query Filter Line ' . __line__;
+        if ($this->enableLogging !== FALSE) self::writeLoop();
+        return "<p class=\"center\">{$this->error}</p>";
       }
       $this->query = self::createQuery($this->queryData);
       if ($this->query === FALSE) {
@@ -232,12 +325,12 @@
         return "<p class=\"center\">{$this->error}</p>";
       }
       if (empty($this->result)) {
-        return '<p class="center">No Results Match Query</p>';
+        return '<p class="center">No Results Match Query</p>' . self::debug();
       }
       switch ($this->display) {
         case 'tickets':
           $returnData = '';
-          $temp = self::createTicket();
+          $temp = self::createTicket([]);
           if ($temp === FALSE) {
             if ($this->enableLogging !== FALSE) self::writeLoop();
             return "<p class=\"center\">{$this->error}</p>";
