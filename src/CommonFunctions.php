@@ -202,6 +202,8 @@
           return $this->{$property} = self::test_float($value);
         } elseif (in_array($property, $this->bools)) {
           return $this->{$property} = self::test_bool($value);
+        } elseif (in_array($property, $this->nullable)) {
+          return $this->{$property} = ($value === NULL || $value === '') ? NULL : self::test_input($value);
         } else {
           $value = (is_array($value)) ? self::recursive_santizer($value) : self::test_input($value);
           return $this->{$property} = $value;
