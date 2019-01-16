@@ -1531,7 +1531,7 @@ $(document).ready(function() {
     }
     postData.formKey = $("#formKey").val();
     $("#startDate, #endDate, #startDateMonth, #endDateMonth, #ticketNumber").val("");
-    $("#compareBox, #compareMembersTickets").prop("checked", false).trigger("change");
+    $("#compareBox, #compareMembersTickets, #allTime").prop("checked", false).trigger("change");
     $("#ticket_query #display").val("tickets").trigger("change");
     disableButtonsTickets();
     if (breakFunction === true) return false;
