@@ -1205,12 +1205,14 @@
           } else {
             $url = 'error';
           }
+          $repeatMarker = ($this->RepeatClient === 1) ? '' : 't';
           if ($this->organizationFlag === TRUE) {
-            $this->memberInput = "<input type=\"hidden\" name=\"clientID[]\" value=\"{$this->BillTo}\" />";
+            $this->memberInput = "<input type=\"hidden\" name=\"clientID[]\" value=\"{$repeatMarker}{$this->BillTo}\" />";
+          } else {
+            $this->memberInput = "<input type=\"hidden\" name=\"clientID\" value=\"{$this->ClientID}\" />";
           }
           $billed = "
           <form class=\"noPrint\" action=\"{$url}\" method=\"post\">
-            <input type=\"hidden\" name=\"clientID\" value=\"{$this->ClientID}\" />
             <input type=\"hidden\" name=\"endPoint\" value=\"invoices\" />
             <input type=\"hidden\" name=\"display\" value=\"invoice\" />
             <input type=\"hidden\" name=\"invoiceNumber\" value=\"{$this->InvoiceNumber}\" />
