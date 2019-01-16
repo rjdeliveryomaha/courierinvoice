@@ -2494,7 +2494,9 @@
         $billingRowClass = 'hide';
         $dispatchInputType = 'type="hidden"';
         $billToType = 'type="hidden"';
-        $billToValue = $_SESSION['ClientName'] . ', ' . $_SESSION['Department'] . '; ' . $_SESSION['ClientID'];
+        $billToValue = $_SESSION['ClientName'];
+        $billToValue .= ($_SESSION['Department'] !== NULL) ? ", {$_SESSION['Department']}" : '';
+        $billToValue .= '; ' . $_SESSION['ClientID'];
         $repeatOption = $readonlyDispatch = $hideFromDriver = $hideDispatch = $requiredDispatch = $billToRequired = $dispatchedBy = '';
         $dispatchInputValue = '0';
         $transferredBy = $cancelTicketEditor = $nonRepeatChecked = '';
