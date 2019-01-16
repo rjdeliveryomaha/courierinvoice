@@ -163,7 +163,7 @@
         $repeatFilter[] = [ 'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->repeatClients) ];
       }
       if (!empty($this->nonRepeat)) {
-        $repeatFilter[] = [ 'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->nonRepeat) ];
+        $nonRepeatFilter[] = [ 'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->nonRepeat) ];
       }
 
       if ($this->ticketNumber !== NULL) {
