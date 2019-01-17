@@ -385,7 +385,7 @@
       <tbody>
         <tr>
           <td class="pullLeft" colspan="4" style="vertical-align: middle;">
-          <div class="centerDiv" style="height:5em; width: 20em; top:0; left: 0; right: 0; bottom: 0; background-image:url(\'../images/logo/' . $this->logo . '\'); background-repeat: no-repeat; background-size: contain;"></div>
+          <div>' . $this->headerLogo . '</div>
           </td>
           <td class="pullRight" colspan="4" id="invoiceLabel2">invoice</td>
         </tr>

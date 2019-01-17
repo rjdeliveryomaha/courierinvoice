@@ -164,8 +164,8 @@
           $this->headerLogo = "<div><h1>{$this->config['ClientName']}</h1></div>";
           $this->headerLogo2 = "<h5>{$this->config['ClientName']}</h5>";
         } else {
-          $this->headerLogo = "<img src=\"../images/logo/{$this->logo}\" alt=\"{$this->config['ClientName']}\" height=\"75\" width=\"300\" />";
-          $this->headerLogo2 = "<img src=\"../images/logo/{$this->logo}\" alt=\"{$this->config['ClientName']}\" height=\"30\" width=\"120\" />";
+          $this->headerLogo = "<img class=\"invoiceLogo\" src=\"../images/logo/{$this->logo}\" alt=\"{$this->config['ClientName']}\" />";
+          $this->headerLogo2 = "<img class=\"ticketLogo\" src=\"../images/logo/{$this->logo}\" alt=\"{$this->config['ClientName']}\" />";
         }
         $this->weightMarker = ($this->config['WeightsMeasures'] === 0) ? '&#35;' : 'kg';
         $this->rangeMarker = ($this->config['WeightsMeasures'] === 0) ? 'mi' : 'km';
