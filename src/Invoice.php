@@ -506,7 +506,7 @@
     public function invoiceQueryForm() {
       if ($this->ulevel === 1) {
         return '
-            <table id="queryForms" class="noPrint centerDiv">
+            <table id="invoiceQueryOptions" class="noPrint centerDiv">
               <tr>
                 <td>
                   <form id="singleInvoiceQuery" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
@@ -576,7 +576,7 @@
             <div id="invoiceQueryResults"></div>';
       }
       if ($this->ulevel === 0) {
-        return '<table id="queryForms" class="noPrint centerDiv">
+        return '<table id="invoiceQueryOptions" class="noPrint centerDiv">
               <thead>
                 <tr>
                   <td id="message" colspan="2"></td>

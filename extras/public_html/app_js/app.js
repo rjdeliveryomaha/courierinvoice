@@ -322,7 +322,7 @@ function isTarget(ele) {
 // count organization memebers for invoice page
 function disableButtonsInvoices() {
   let howMany = 0;
-  $("#invoice_query .orgMember").each(function() {
+  $("#invoiceQueryOptions .orgMember").each(function() {
     if ($(this).is(":checked")) howMany++;
   });
   $("#compareMembers").prop("disabled", howMany < 2);
@@ -330,9 +330,9 @@ function disableButtonsInvoices() {
 
   if (howMany === 0) {
     $("#range, #submitSingle").prop("disabled", true).prop("title", "Select a member to continue");
-    $("#invoice_query").find(".noticeRow").show();
+    $("#invoiceQueryOptions").find(".noticeRow").show();
   } else {
-    $("#invoice_query").find(".noticeRow").hide();
+    $("#invoiceQueryOptions").find(".noticeRow").hide();
     $("#range, #submitSingle").prop("title", "");
     if ($("#single").is(":checked")) {
       $("#submitSingle").prop("disabled", false);
@@ -939,7 +939,6 @@ $(document).ready(function() {
         setTimeout(() => { workspace.find(".ticketError").html(""); }, 3000);
       }
       formdata.ticketEditor = 1;
-      console.log(formdata);
       attempt = ajax_template("POST", "./enterTicket.php", "html", formdata)
       .done((result) => {
         if (result.indexOf("Session Error") !== -1) return showLogin();
@@ -955,7 +954,6 @@ $(document).ready(function() {
       formdata.updateTicket = 1;
       formdata.ticketEditor = 1;
       formdata.formKey = $("#formKey").val();
-      console.log(formdata);
       attempt = ajax_template("POST", "./enterTicket.php", "html", formdata)
       .done((result) => {
         if (result.indexOf("Session Error") !== -1) return showLogin();
@@ -1104,10 +1102,10 @@ $(document).ready(function() {
   $(document).on("change", "#single, #multi", function() {
     disableButtonsInvoices();
     let recheck = [];
-    $("#invoice_query .orgMember").each(function() {
+    $("#invoiceQueryOptions .orgMember").each(function() {
       if ($(this).is(":checked")) recheck.push($(this));
     });
-    $("#invoice_query .orgMember").prop("checked", false).trigger("change");
+    $("#invoiceQueryOptions .orgMember").prop("checked", false).trigger("change");
     let target = ($(this).prop("id") === "single") ? "multi" : "single";
     if ($(this).is(":checked")) {
       $("#" + target).prop("checked", false);
@@ -1115,19 +1113,19 @@ $(document).ready(function() {
     if (recheck.length > 0) recheck[0].prop("checked", true).trigger("change");
   }).change();
 
-  $(document).on("change", "#invoice_query .orgMember", function() {
+  $(document).on("change", "#invoiceQueryOptions .orgMember", function() {
     disableButtonsInvoices();
     let testVal = $(this).attr("data-value");
     if ($(this).is(":checked")) {
       if ($("#single").is(":checked")) {
-        $("#invoice_query .orgMember").each(function() { $(this).prop("checked", $(this).attr("data-value") === testVal); } );
+        $("#invoiceQueryOptions .orgMember").each(function() { $(this).prop("checked", $(this).attr("data-value") === testVal); } );
         $("#singleInvoiceQuery").find($(".removable")).remove();
         $("#submitSingle").before('<input type="hidden" class="removable" name="clientID[]" value="' + testVal + '" />');
       } else if ($("#multi").is(":checked")) {
         $("#range").before('<input type="hidden" class="removable" name="clientID[]" value="' + testVal + '" />');
       }
     } else {
-      $("#queryForms").find("input.removable[value='" + testVal + "']").remove();
+      $("#invoiceQueryOptions").find("input.removable[value='" + testVal + "']").remove();
     }
   }).change();
 
@@ -1319,24 +1317,24 @@ $(document).ready(function() {
   $(document).on("change", "#display", function() {
     switch ($(this).val()) {
       case "tickets":
-        if ($("#queryForms").find("#charge").length > 0) $("#queryForms").find("#charge").prop("disabled", false);
+        if ($("#charge").length > 0) $("#charge").prop("disabled", false);
         $("#deliveryQuery").find(".ticketDate").show().end().find(".chartDate, .compare").hide().end().find("#compareBox").prop("disabled", true).end().find("#ticketNumber").prop("readonly", false).end().find("#allTime, #chargeHistory, #type").prop("disabled", false).end().find(".startDateDate, .endDateDate").prop("required", true).prop("disabled", false).end().find(".startDateMonth, .endDateMonth").prop("required", false).prop("disabled", true).end().find("#compareBox").prop("checked", false).prop("disabled", true);
       break;
       case "chart":
-      if ($("#queryForms").find("#charge").length > 0) $("#queryForms").find("#charge").prop("disabled", true);
+      if ($("#charge").length > 0) $("#charge").prop("disabled", true);
         $("#deliveryQuery").find(".chartDate, .compare").show().end().find("#compareBox").prop("disabled", false).end().find(".ticketDate").hide().end().find("#ticketNumber").prop("readonly", true).val("").end().find("#allTime").prop("checked", false).prop("disabled", true).end().find("#chargeHistory").val("10").prop("disabled", true).end().find("#type").val("2").prop("disabled", true).end().find(".startDateDate, .endDateDate").prop("required", false).prop("disabled", true).end().find(".startDateMonth, .endDateMonth").prop("required", true).prop("disabled", false);
-        $("#deliveryQuery").find("#compareBox").prop("disabled", false);
+        $("#compareBox").prop("disabled", false);
       break;
     }
-    $("#ticket_query .orgMember").each(function() { $(this).prop("checked", false); } );
+    $("#ticketQueryOptions .orgMember").each(function() { $(this).prop("checked", false); } );
   });
 
-  $(document).on("change", "#ticket_query .orgMember", function() {
+  $(document).on("change", "#ticketQueryOptions .orgMember", function() {
     disableButtonsTickets();
     if ($(this).is(":checked")) {
-      $("#ticket_query #ticketNumber").val("").prop("readonly", true).trigger("change");
+      $("#ticketNumber").val("").prop("readonly", true).trigger("change");
     } else {
-      $("#ticket_query #ticketNumber").prop("readonly", ($("#display").val() === "chart"));
+      $("#ticketNumber").prop("readonly", ($("#display").val() === "chart"));
     }
   }).change();
 
@@ -2254,7 +2252,6 @@ $(document).ready(function() {
     let postData = { multiTicket: multiTicket, TransferState: 1, formKey: $("#formKey").val() };
     let attempt = ajax_template("POST", "./deleteContractTicket.php", "text", postData)
     .done((result) => {
-      // console.log(result);
       if (result.indexOf("Session Error") !== -1) return showLogin();
       $("#formKey").val(Number($("#formKey").val()) + 1);
       if(result.indexOf("error") === -1) {
@@ -2315,7 +2312,6 @@ $(document).ready(function() {
     }, 500);
     let attempt = ajax_template("POST", "./updateStep.php", "html", postData)
     .done((result) => {
-      console.log(result);
       clearInterval(dots);
       $(".ellipsis").remove();
       if (result.indexOf("Session Error") !== -1) return showLogin();

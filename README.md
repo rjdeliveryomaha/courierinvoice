@@ -987,10 +987,16 @@ try {
 ## Public Methods:
 
 ```php
-$ticketChart->displayChart();
+$chart = $ticketChart->displayChart();
+
+if ($chart === false) {
+  echo $ticketChart->getError();
+} else {
+  echo $chart;
+}
 ```
 
-Sorts data and ` echo `s table and bar chart for the given parameter.
+Returns html content or ` false ` on error.
 
 ---
 
@@ -1080,10 +1086,16 @@ Indicates if members are being compared of displayed separately.
 ## Public Methods:
 
 ```php
-$invoiceChart->displayChart();
+$chart = $invoiceChart->displayChart();
+
+if ($chart === false) {
+  echo $invoiceChart->getError();
+} else {
+  echo $chart;
+}
 ```
 
-Sorts data and ` echo `s table and bar chart for the given parameter.
+Returns html content or ` false ` on error.
 
 ---
 

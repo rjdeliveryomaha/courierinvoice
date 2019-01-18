@@ -61,6 +61,7 @@
     }
 
     public function displayChart() {
+      $returnData = '';
       foreach ($this->dataSet as $key => $value) {
         $this->monthKeys[] = $key;
       }
@@ -75,7 +76,10 @@
         if ($this->compareMembers === FALSE) {
           foreach ($this->orgClients as $key => $value) {
             $this->clientID = $key;
-            self::sortData();
+            $this->error = self::sortData();
+            if ($this->error !== FALSE) {
+              return FALSE;
+            }
             // Number of bars in each group
             $this->total_bars = count($this->labels);
             // Number of months with data for the given client
@@ -87,12 +91,15 @@
             $this->interval_width = ($this->options['bar_width'] * $this->total_bars) + ($this->options['bar_gap'] * $this->total_bars + 1) + (2 * $this->options['interval_border']);
             // Calculate the width of the graph
             $this->chart_width = ($this->interval_width * $this->groups) + ($this->options['interval_gap'] * ($this->groups + 1)) + 1;
-            self::displayTable();
-            self::displayBarGraph();
+            $returnData .= self::displayTable();
+            $returnData .= self::displayBarGraph();
           }
         } elseif ($this->compareMembers === TRUE) {
-          self::sortDataForMemberCompare();
-          self::displayCompareTable();
+          $this->error = self::sortDataForMemberCompare();
+          if ($this->error !== FALSE) {
+            return FALSE;
+          }
+          $returnData .= self::displayCompareTable();
           self::resortData();
           // Number of groups
           $this->groups = count($this->orderedData);
@@ -103,16 +110,19 @@
           // Calculate the width of the graph
           $this->chart_width = ($this->interval_width * $this->groups) + ($this->options['interval_gap'] * ($this->groups + 1)) + 1;
           // var_dump($this->interval_width, $this->groups, $this->options['interval_gap'], $this->chart_width);
-          self::displayCompareGraph();
+          $returnData .= self::displayCompareGraph();
         } else {
           $this->error = 'Invalid Member Compare Value Line ' . __line__;
-          self::exitWithError();
+          return FALSE;
         }
       } else {
         foreach ($this->dataSet[$this->monthKeys[0]] as $key => $value) {
           $this->clientID = $key;
         }
-        self::sortData();
+        $this->error = self::sortData();
+        if ($this->error !== FALSE) {
+          return FALSE;
+        }
         // Number of groups
         $this->groups = count($this->orderedData);
         // Number of bars in each group
@@ -121,9 +131,10 @@
         $this->interval_width = ($this->options['bar_width'] * $this->total_bars) + ($this->options['bar_gap'] * $this->total_bars + 1) + (2 * $this->options['interval_border']);
         // Calculate the width of the graph
         $this->chart_width = ($this->interval_width * $this->groups) + ($this->options['interval_gap'] * ($this->groups + 1));
-        self::displayTable();
-        self::displayBarGraph();
+        $returnData .= self::displayTable();
+        $returnData .= self::displayBarGraph();
       }
+      return $returnData;
     }
 
     private function arrayValueToChartLabel($arrayValue) {
@@ -159,9 +170,7 @@
 
     private function sortData() {
       if (count($this->dataSet) < 1) {
-        $this->error = 'Chart Data Empty';
-        echo $this->error;
-        return FALSE;
+        return 'Chart Data Empty';
       } else {
         // Reset properties to empty arrays to prevent data overlap when working with multiple organization members
         $this->totals = $this->testMax = $this->nonZero = $this->labels = $this->orderedData = $this->groupLabels = $this->nonAssocData = $this->heights = $this->margins = $this->counts = [];
@@ -227,86 +236,85 @@
         }
         $this->nonZero = array_keys($this->orderedData[$this->monthKeys[$monthKeyIndex]]);
       }
+      return FALSE;
     }
 
     private function sortDataForMemberCompare() {
       if (count($this->dataSet) < 1) {
-        $this->error = 'Chart Data Empty Line';
-        echo $this->error;
-        return FALSE;
-      } else {
-        foreach ($this->orgClients as $key => $value) {
-          foreach ($this->dataSet as $k => $v) {
-            if (!array_key_exists($key, $v)) {
-              for ($i = 0; $i < count($this->properOrder); $i++) {
-                $this->dataSet[$k][$key][$this->properOrder[$i]] = 0;
-              }
+        return 'Chart Data Empty Line';
+      }
+      foreach ($this->orgClients as $key => $value) {
+        foreach ($this->dataSet as $k => $v) {
+          if (!array_key_exists($key, $v)) {
+            for ($i = 0; $i < count($this->properOrder); $i++) {
+              $this->dataSet[$k][$key][$this->properOrder[$i]] = 0;
             }
           }
-        }
-        foreach ($this->dataSet as $key => $value) {
-          foreach ($value as $k => $v) {
-            if (!in_array($k, $this->memberList)) $this->memberList[] = $k;
-            foreach ($v as $k1 => $v1) {
-              if ((int)$v1 !== 0 && !in_array($k1, $this->nonZero) && !in_array($k1, $this->nonZeroIgnore)) {
-                $this->nonZero[] = $k1;
-              }
-            }
-          }
-        }
-        // Remove withIce and withoutIce if both are not in this->nonZero
-        if ((in_array('withIce', $this->nonZero) && !in_array('withoutIce', $this->nonZero)) || (!in_array('withIce', $this->nonZero) && in_array('withoutIce', $this->nonZero))) {
-          $temp1 = array_flip($this->nonZero);
-          if (array_key_exists('withIce', $temp1)) unset($tmep1['withIce']);
-          if (array_key_exists('withoutIce', $temp1)) unset($temp1['withoutIce']);
-          $this->nonZero = array_keys($temp1);
-        }
-        foreach ($this->dataSet as $key => $value) {
-          foreach ($value as $k => $v) {
-            $temp = array_merge(array_flip($this->properOrder), $v);
-            foreach ($temp as $k1 => $v1) {
-              if (in_array($k1, $this->nonZero)) {
-                if (!in_array($k1, $this->labels)) $this->labels[] = $k1;
-                $this->orderedData[$key][$k][$k1] = $v1;
-              }
-            }
-          }
-        }
-        foreach ($this->nonZero as $key => $value) {
-          $temp = 0;
-          $temp2 = 0;
-          for ($i = 0; $i < count($this->monthKeys); $i++) {
-            for ($j = 0; $j < count($this->memberList); $j++) {
-              if (!isset($this->totals[$this->monthKeys[$i]][$value])) $this->totals[$this->monthKeys[$i]][$value] = 0;
-              $this->totals[$this->monthKeys[$i]][$value] += $this->orderedData[$this->monthKeys[$i]][$this->memberList[$j]][$value];
-              $temp += $this->orderedData[$this->monthKeys[$i]][$this->memberList[$j]][$value];
-            }
-          }
-          $this->totals[$value] = $temp;
-        }
-        if (count($this->labels) > $this->organizationFlag) {
-          $this->split = round((count($this->labels) / 2), 0, PHP_ROUND_HALF_UP);
-          $this->tableLabelGroups[] = array_slice($this->labels, 0, $this->split);
-          $this->tableLabelGroups[] = array_slice($this->labels, $this->split);
-        } else {
-          $this->tableLabelGroups[] = $this->labels;
-        }
-        // Split $this-nonZero into groups based on the total number of values
-        if (count($this->nonZero) > 9) {
-          $this->split = round((count($this->nonZero) / 2), 0, PHP_ROUND_HALF_UP);
-          $this->firstChart = array_slice($this->nonZero, 0 , $this->split);
-          $this->secondChart = array_slice($this->nonZero, $this->split);
-          array_unshift($this->secondChart, $this->nonZero[0]);
-        } else {
-          $this->firstChart = $this->nonZero;
-        }
-        $conjunction = ($this->compare === TRUE || count($this->monthKeys) === 2) ? ' And ' : ' Through ';
-        if (count($this->monthKeys) === 1) {
-          $this->tableHead = $this->monthKeys[0];
-        } else {
-          $this->tableHead = $this->monthKeys[0] . $conjunction . $this->monthKeys[count($this->monthKeys) - 1];
         }
       }
+      foreach ($this->dataSet as $key => $value) {
+        foreach ($value as $k => $v) {
+          if (!in_array($k, $this->memberList)) $this->memberList[] = $k;
+          foreach ($v as $k1 => $v1) {
+            if ((int)$v1 !== 0 && !in_array($k1, $this->nonZero) && !in_array($k1, $this->nonZeroIgnore)) {
+              $this->nonZero[] = $k1;
+            }
+          }
+        }
+      }
+      // Remove withIce and withoutIce if both are not in this->nonZero
+      if ((in_array('withIce', $this->nonZero) && !in_array('withoutIce', $this->nonZero)) || (!in_array('withIce', $this->nonZero) && in_array('withoutIce', $this->nonZero))) {
+        $temp1 = array_flip($this->nonZero);
+        if (array_key_exists('withIce', $temp1)) unset($tmep1['withIce']);
+        if (array_key_exists('withoutIce', $temp1)) unset($temp1['withoutIce']);
+        $this->nonZero = array_keys($temp1);
+      }
+      foreach ($this->dataSet as $key => $value) {
+        foreach ($value as $k => $v) {
+          $temp = array_merge(array_flip($this->properOrder), $v);
+          foreach ($temp as $k1 => $v1) {
+            if (in_array($k1, $this->nonZero)) {
+              if (!in_array($k1, $this->labels)) $this->labels[] = $k1;
+              $this->orderedData[$key][$k][$k1] = $v1;
+            }
+          }
+        }
+      }
+      foreach ($this->nonZero as $key => $value) {
+        $temp = 0;
+        $temp2 = 0;
+        for ($i = 0; $i < count($this->monthKeys); $i++) {
+          for ($j = 0; $j < count($this->memberList); $j++) {
+            if (!isset($this->totals[$this->monthKeys[$i]][$value])) $this->totals[$this->monthKeys[$i]][$value] = 0;
+            $this->totals[$this->monthKeys[$i]][$value] += $this->orderedData[$this->monthKeys[$i]][$this->memberList[$j]][$value];
+            $temp += $this->orderedData[$this->monthKeys[$i]][$this->memberList[$j]][$value];
+          }
+        }
+        $this->totals[$value] = $temp;
+      }
+      if (count($this->labels) > $this->organizationFlag) {
+        $this->split = round((count($this->labels) / 2), 0, PHP_ROUND_HALF_UP);
+        $this->tableLabelGroups[] = array_slice($this->labels, 0, $this->split);
+        $this->tableLabelGroups[] = array_slice($this->labels, $this->split);
+      } else {
+        $this->tableLabelGroups[] = $this->labels;
+      }
+      // Split $this-nonZero into groups based on the total number of values
+      if (count($this->nonZero) > 9) {
+        $this->split = round((count($this->nonZero) / 2), 0, PHP_ROUND_HALF_UP);
+        $this->firstChart = array_slice($this->nonZero, 0 , $this->split);
+        $this->secondChart = array_slice($this->nonZero, $this->split);
+        array_unshift($this->secondChart, $this->nonZero[0]);
+      } else {
+        $this->firstChart = $this->nonZero;
+      }
+      $conjunction = ($this->compare === TRUE || count($this->monthKeys) === 2) ? ' And ' : ' Through ';
+      if (count($this->monthKeys) === 1) {
+        $this->tableHead = $this->monthKeys[0];
+      } else {
+        $this->tableHead = $this->monthKeys[0] . $conjunction . $this->monthKeys[count($this->monthKeys) - 1];
+      }
+      return FALSE;
     }
 
     private function resortData() {
@@ -427,11 +435,10 @@
     </tbody>
   </table>';
       }
-      echo $this->tableOutput;
+      return $this->tableOutput;
     }
 
     private function displayTable() {
-      if ($this->error != NULL) return FALSE;
       $this->tableHeadPrefix = ($this->compare === TRUE) ? 'Comparing Tickets Between ' : 'Tickets for the period between ';
       if ($this->organizationFlag === TRUE) {
         $this->tableHead .= "<br><span class=\"medium\">{$this->clientListBy($this->clientID)}</span>";
@@ -468,11 +475,10 @@
         </tbody>
       </table>
       </div>';
-      echo $this->tableOutput;
+      return $this->tableOutput;
     }
 
     private function displayBarGraph() {
-      if ($this->error != NULL) return FALSE;
       $this->graphOutput = "
       <div class=\"ticketGraphContainer\">
         <div class=\"centerDiv\" style=\"border:solid 0.1em #e1e1e1; background-color:#f4f4f4; height:{$this->options['chart_height']}em; width:{$this->chart_width}em; margin-top:1.25em; overflow: hidden;\">
@@ -508,15 +514,13 @@
         </div>
       </div>
       ';
-      echo $this->graphOutput;
+      return $this->graphOutput;
     }
 
     private function displayCompareGraph() {
-      if ($this->error != NULL) return FALSE;
       $this->currentChart = self::chartIndexToProperty();
       if ($this->currentChart === NULL) {
-        echo $this->graphOutput;
-        return FALSE;
+        return $this->graphOutput;
       }
       // dynamically calculate the width of the graph
       $this->groups = count($this->currentChart);  // Number of groups

@@ -363,20 +363,21 @@ button.blue {
 
 }
 
-#ticketQueryOptions, #options, #queryForms {
+#ticketQueryOptions, #options, #invoiceQueryOptions {
   margin-bottom: 1em;
 }
 
-#queryForms {
+#invoiceQueryOptions, #ticketQueryOptions {
   width: 70%;
+  margin: 0 auto;
 }
 
-#queryForms #clientList .listMember {
+#invoiceQueryOptions #clientList .listMember {
   white-space: nowrap;
   float: left;
 }
 
-#queryForms table {
+#invoiceQueryOptions table {
   margin: 0 auto;
   white-space: nowrap;
 }
@@ -1223,7 +1224,7 @@ button.blue {
   #deliveryConfirmation .ticketSpace {
     width: 15%;
   }
-  fieldset[id^="information"] > table > tbody > tr > td, .criteria, .PWform, #clientUpdate, #clientUpdate td, #queryForms td, #dropOff td, #pickUp td, #mapInfo span {
+  fieldset[id^="timing"] > table > tbody > tr > td, fieldset[id^="information"] > table > tbody > tr > td, .criteria, .PWform, #clientUpdate, #clientUpdate td, #queryForms td, #dropOff td, #pickUp td, #mapInfo span {
     padding: 0;
     margin: 0;
     display: block;

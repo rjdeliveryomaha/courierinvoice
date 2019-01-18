@@ -62,17 +62,17 @@
       } catch (Exception $e) {
         throw $e;
       }
+    }
+
+    public function displayChart() {
       if ($this->organizationFlag === TRUE && (is_array($this->clientID) && count($this->clientID) > 1)) {
         for ($i = 0; $i < count($this->clientID); $i++) {
           $this->orgClients[$this->clientID[$i]] = $this->members[$this->clientID[$i]];
         }
       }
-    }
-
-    public function displayChart() {
+      $returnData = '';
       if (empty($this->dataSet)) {
         $this->error = '<p class="center">No invoices on file</p>';
-        echo $this->error;
         return FALSE;
       }
       if ($this->organizationFlag === TRUE) {
@@ -107,25 +107,26 @@
                 }
               }
             }
-            self::sortData();
+            if (self::sortData() === FALSE) return FALSE;
             $this->total_bars = count($this->monthKeys);
-            self::displayTable();
-            self::displayBarGraph();
+            $returnData .= self::displayTable();
+            $returnData .= self::displayBarGraph();
           }
         } else {
           $this->invoiceChartRowLimit = 5;
-          self::sortDataForMemberCompare();
-          self::displayCompareTable();
+          if (!self::sortDataForMemberCompare()) return FALSE;
+          $returnData .= self::displayCompareTable();
           self::resortData();
-          self::displayBarGraph();
+          $returnData .= self::displayBarGraph();
         }
       }
       if ($this->organizationFlag === FALSE) {
-        self::sortData();
+        if (!self::sortData() === FALSE) return FALSE;
         $this->total_bars = count($this->monthKeys);
-        self::displayTable();
-        self::displayBarGraph();
+        $returnData .= self::displayTable();
+        $returnData .= self::displayBarGraph();
       }
+      return $returnData;
     }
 
     private function arrayValueToChartLabel($arrayValue) {
@@ -162,7 +163,6 @@
     private function sortData() {
       if (count($this->dataSet) < 1) {
         $this->error = 'Chart Data Empty Line ' . __line__;
-        echo $this->error;
         return FALSE;
       } else {
         if ($this->compare === TRUE) {
@@ -244,7 +244,6 @@
     private function sortDataForMemberCompare() {
       if (count($this->dataSet) < 1) {
         $this->error = 'Chart Data Empty Line ' . __line__;
-        echo $this->error;
         return FALSE;
       } else {
         foreach ($this->orgClients as $key => $value) {
@@ -429,12 +428,10 @@
     </tbody>
   </table>';
       }
-      echo $this->tableOutput;
-      return FALSE;
+      return $this->tableOutput;
     }
 
     private function displayTable() {
-      if ($this->error !== '') return FALSE;
       $this->tableHeadPrefix = ($this->compare === TRUE) ? 'Comparing Expenses For ' : 'Expenses for the period between ';
       if ($this->singleMember !== NULL) {
         $this->tableHeadAddendum = '<br>';
@@ -472,21 +469,17 @@
         }
       }
       $this->tableOutput .= '</tbody></table></div>';
-      echo $this->tableOutput;
-      return FALSE;
+      return $this->tableOutput;
     }
 
     private function displayBarGraph() {
-      if ($this->error !== '') return FALSE;
       $this->currentChart = self::chartIndexToProperty();
       if ($this->currentChart === NULL) {
-        echo $this->graphOutput;
-        return FALSE;
+        return $this->graphOutput;
       }
       // dynamically calculate the width of the graph
       $this->groups = count($this->currentChart);
       $this->graph_width = ($this->interval_width * $this->groups) + ($this->options['interval_gap'] * ($this->groups + 1));
-      $this->graphOutput .= '';
       if ($this->compareMembers === TRUE) {
         $this->graphOutput .= '
         <p class="center displayHeader">' . $this->tableHead . '</p>
@@ -532,6 +525,6 @@
       </div>
       ';
       $this->chartIndex++;
-      self::displayBarGraph();
+      return self::displayBarGraph();
     }
   }

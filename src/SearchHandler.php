@@ -248,6 +248,7 @@
           case 'tickets':
             if (!empty($this->repeatClients)) {
               $filterStart = [ ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>implode(',', $this->repeatClients)], ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>$this->charge], ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>$this->type] ];
+              $repeatFilter = [];
               // Remove the type and charge filter if they are set to their respective 'all' values
               foreach($filterStart as $temp) {
                 if ($temp['Resource'] === 'Charge') {
@@ -265,6 +266,7 @@
             }
             if (!empty($this->nonRepeat)) {
               $filterStart = [ ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>implode(',', $this->nonRepeat)], ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>$this->charge], ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>$this->type] ];
+              $nonRepeatFilter = [];
               // Remove the type and charge filter if they are set to their respective 'all' values
               foreach($filterStart as $temp) {
                 if ($temp['Resource'] === 'Charge') {
@@ -360,18 +362,24 @@
         case 'chart':
           $chartData = [ 'organizationFlag'=>$this->organizationFlag, 'clientID'=>$this->clientID, 'compare'=>$this->compare, 'compareMembers'=>$this->compareMembers, ];
           if ($this->endPoint === 'tickets') {
-            if (!self::groupTickets() === FALSE) {
+            $groupTicketsError = self::groupTickets();
+            if ($groupTicketsError !== FALSE) {
+              $this->error = $groupTicketsError;
               if ($this->enableLogging !== FALSE) self::writeLoop();
               return "<p class=\"center\">{$this->error}</p>";
             }
             $chartData['dataSet'] = $this->months;
             $chart = self::createTicketChart($chartData);
           } elseif ($this->endPoint === 'invoices') {
-            if (self::fetchInvoiceTickets() === FALSE) {
+            $fetchTicketError = self::fetchInvoiceTickets();
+            if ($fetchTicketError !== FALSE) {
+              $this->error = $fetchTicketError;
               if ($this->enableLogging !== FALSE) self::writeLoop();
               return "<p class=\"center\">{$this->error}</p>";
             }
-            if (!self::groupInvoiceTickets() === FALSE) {
+            $groupTicketsError = self::groupInvoiceTickets();
+            if ($groupTicketsError !== FALSE) {
+              $this->error = $groupTicketsError;
               if ($this->enableLogging !== FALSE) self::writeLoop();
               return "<p class=\"center\">{$this->error}</p>";
             }
@@ -404,14 +412,13 @@
 
       $this->query = self::createQuery($this->queryData);
       if ($this->query === FALSE) {
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        return "<p class=\"center\">{$this->error}</p>";
+        return $this->error;
       }
       $this->tickets = self::callQuery($this->query);
       if ($this->result === FALSE) {
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        return "<p class=\"center\">{$this->error}</p>";
+        return $this->error;
       }
+      return FALSE;
     }
 
     private function sortMonths() {
@@ -434,9 +441,7 @@
         try {
           $receivedDate = new \dateTime($ticket['ReceivedDate'], $this->timezone);
         } catch (Exception $e) {
-          $this->error = 'Processing Error Line ' . __line__ . ': ' . $e->getMessage();
-          if ($this->enableLogging !== FALSE) self::writeLoop();
-          return "<p class=\"center\">{$this->error}</p>";
+          return 'Processing Error Line ' . __line__ . ': ' . $e->getMessage();
         }
 
         $monthLabel = $receivedDate->format('M Y');
@@ -501,11 +506,12 @@
       if(count($this->months) > 1) {
         self::sortMonths();
       }
+      return FALSE;
     }
 
     private function groupInvoiceTickets() {
       if (!is_array($this->tickets) || empty($this->tickets)) {
-        return '<p class="center">No Tickets To Sort</p>';
+        return 'No Tickets To Sort';
       }
       // Split $this->months up by clientID if this is an organization call
       if ($this->organizationFlag === TRUE) {
@@ -535,7 +541,7 @@
       }
       foreach ($this->tickets as $ticket) {
         if (!$targetKey = self::recursive_array_search($ticket['InvoiceNumber'], $this->months)) {
-          return "<p class=\"center\">{$this->error}</p>";
+          return "Invoice {$ticket['InvoiceNumber']} Not Found";
         }
         if ($this->organizationFlag === FALSE) {
           switch ($ticket['Charge']) {
@@ -634,5 +640,6 @@
         }
       }
       self::sortMonths();
+      return FALSE;
     }
   }

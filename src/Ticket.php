@@ -2269,11 +2269,11 @@
       } elseif ($this->userType === 'org') {
         $array_keys = 'array_keys';
         $returnData = "
-            <div id=\"options\">
-              <form id=\"queryForms\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
+            <div id=\"ticketQueryOptions\">
+              <form action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
                 <input type=\"hidden\" name=\"endPoint\" value=\"tickets\" />
                 <input type=\"hidden\" name=\"method\" value=\"GET\" />
-                <fieldset form=\"queryForms\" id=\"deliveryQuery\">
+                <fieldset id=\"deliveryQuery\">
                   <legend>Search Parameters</legend>
                   <div>
                     <p>
