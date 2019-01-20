@@ -114,14 +114,14 @@
           }
         } else {
           $this->invoiceChartRowLimit = 5;
-          if (!self::sortDataForMemberCompare()) return FALSE;
+          if (self::sortDataForMemberCompare() === FALSE) return FALSE;
           $returnData .= self::displayCompareTable();
           self::resortData();
           $returnData .= self::displayBarGraph();
         }
       }
       if ($this->organizationFlag === FALSE) {
-        if (!self::sortData() === FALSE) return FALSE;
+        if (self::sortData() === FALSE) return FALSE;
         $this->total_bars = count($this->monthKeys);
         $returnData .= self::displayTable();
         $returnData .= self::displayBarGraph();
