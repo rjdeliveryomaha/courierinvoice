@@ -2352,8 +2352,8 @@
                 <p class=\"centerDiv\">{$this->listOrgMembers('ticket')}</p>
                 <button type=\"submit\" class=\"submitOrgTickets\" title=\"Select a member or&#10enter a ticket number to continue\">Query</button>
               </form>
-              <div id=\"ticketQueryResults\"></div>
-            </div>";
+            </div>
+            <div id=\"ticketQueryResults\"></div>";
       }
       return $returnData;
     }
