@@ -802,6 +802,10 @@ try {
 
 ## Properties settable in $data:
 
+- ticketNumber
+
+  Used by the ` ticketLookup() ` method.
+
 - endPoint
 
   + tickets
@@ -889,6 +893,41 @@ try {
   + If display is "chart" data will be displayed for the period between the current date and the pervious ` allTimeChartLimit ` months.
 
 ## Public Methods:
+
+` $handler->ticketLookup() ;`
+
+Uses a ticket number to get ticket timing information.
+
+Returns a JSON encoded string.
+
+The object will have the property ` queryError ` if there was a problem with the query or if the tickets ` Charge ` property is 0 (canceled).
+
+If no error and ` Charge ` does not equal 0 the object will have the following properties:
+
+- Charge
+
+  Integer
+
+  The values of the ` Charge ` property for the queried ticket.
+
+- pTimeStamp
+
+  String
+
+  The values of the ` pTimeStamp ` property for the queried ticket in the format ` d M Y \a\t h:i A ` or "Pending" if the value is ` NULL `.
+
+- dTimeStamp
+
+  String
+
+  The values of the ` dTimeStamp ` property for the queried ticket in the format ` d M Y \a\t h:i A ` or "Pending" if the value is ` NULL `.
+
+- d2TimeStamp
+
+  String
+
+  The values of the ` d2TimeStamp ` property for the queried ticket in the format ` d M Y \a\t h:i A `, "Pending" if the value is ` NULL ` or "Not Scheduled" if ` Charge ` is not 6 or if ` Charge ` is 7 but ` d2SigReq ` is not 1.
+
 
 ` $handler->handleSearch(); `
 

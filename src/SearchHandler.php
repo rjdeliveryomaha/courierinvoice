@@ -61,43 +61,51 @@
     }
 
     public function ticketLookup() {
+      $returnData = [];
       $this->queryData['method'] = 'GET';
       $this->queryData['endPoint'] = 'tickets';
       $this->queryData['noSession'] = TRUE;
       $this->queryData['queryParams']['include'] = [ 'Charge', 'pTimeStamp', 'dTimeStamp', 'd2TimeStamp', 'd2SigReq' ];
       $this->queryData['queryParams']['filter'] = [ [ 'Resource'=>'TicketNumber', 'Filter'=>'eq', 'Value'=>$this->ticketNumber ] ];
       $this->query = self::createQuery($this->queryData);
+
       if ($this->query === FALSE) {
-        return "<p class=\"center\">{$this->error}</p>";
+        $returnData['queryError'] =  $this->error;
+        return json_encode($returnData);
       }
+
       $this->result = self::callQuery($this->query);
+
       if ($this->result === FALSE) {
-        return "<p class=\"center\">{$this->error}</p>";
+        $returnData['queryError'] =  $this->error;
+        return json_encode($returnData);
       }
+
       if (empty($this->result)) {
-        return '<p class="center">No Results Match Query</p>';
+        $returnData['queryError'] = 'No Results Match Query';
+        return json_encode($returnData);
       }
-      $rtFlag = $this->result[0]['Charge'] === 6 || ($this->result[0]['Charge'] === 7 && $this->result[0]['d2SigReq'] === 1);
 
-      $canceledFlag = $this->result[0]['Charge'] === 0;
+      if ($this->result[0]['Charge'] === 0) {
+        $returnData['queryError'] = 'Delivery Canceled';
+        return json_encode($returnData);
+      }
 
-      $data = [];
       foreach ($this->result[0] as $key => $value) {
         if ($key !== 'Charge') {
           if ($value === '' || $value === NULL) {
-            $data[$key] = 'Pending';
+            $returnData[$key] = 'Pending';
           } else {
-            $data[$key] = date('d M Y \a\t h:i A', strtotime($value));
+            $returnData[$key] = date('d M Y \a\t h:i A', strtotime($value));
           }
         }
       }
-      if (!$rtFlag) {
-        $data['d2TimeStamp'] = 'Not Scheduled';
+
+      if ($this->result[0]['Charge'] !== 6 || ($this->result[0]['Charge'] === 7 && $this->result[0]['d2SigReq'] !== 1)) {
+        $returnData['d2TimeStamp'] = 'Not Scheduled';
       }
-      if ($canceledFlag) {
-        $data['queryError'] = 'Delivery Canceled';
-      }
-      return json_encode($data);
+
+      return json_encode($returnData);
     }
 
     public function handleSearch() {
