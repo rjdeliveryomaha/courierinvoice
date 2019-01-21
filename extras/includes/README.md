@@ -395,6 +395,6 @@ Providing your basic Courier Invoice configuration options is necessary when usi
 
 # user_functions
 
-[Return to top](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes#integration_configuration)
+[Return to top](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes#integration-configuration)
 
 This file is where functions should be located that will be called to extend the application.
