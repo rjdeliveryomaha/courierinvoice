@@ -389,7 +389,7 @@ Boolean indicates if failure of the cron job should be logged.
 
 ---
 
-Providing your basic Courier Invoice configuration options is necessary when using the these classes without a session, for example, when offering a public delivery price calculator or creating invoices with a cron job. An example is provided at the end of [api_config.php](https://github.com/rjdeliveryomaha/courierinvoice/blob/master/extras/includes/api_config.php).
+Providing your basic Courier Invoice configuration options is necessary when using these classes without a session, for example, when offering a public delivery price calculator or creating invoices with a cron job. An example is provided at the end of [api_config.php](https://github.com/rjdeliveryomaha/courierinvoice/blob/master/extras/includes/api_config.php).
 
 ---
 
