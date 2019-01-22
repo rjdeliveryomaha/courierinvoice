@@ -53,20 +53,20 @@
     protected $fileWriteTry;
     protected $loggingError = FALSE;
     protected $error = '';
-    private $ints = ['dryIce', 'DryIce', 'diWeight', 'fromMe', 'toMe', 'charge', 'Charge', 'type', 'Type', 'contract', 'Contract', 'DispatchedTo', 'emailConfirm', 'EmailConfirm', 'pSigReq', 'dSigReq', 'd2SigReq', 'repeatClient', 'RepeatClient', 'ticketNumber', 'TicketNumber', 'sigType', 'PriceOverride', 'RunNumber', 'holder', 'receiver', 'TransferState', 'ClientID', 'Organization', 'ListBy', 'same'];
+    private $ints = [ 'dryIce', 'DryIce', 'diWeight', 'fromMe', 'toMe', 'charge', 'Charge', 'type', 'Type', 'contract', 'Contract', 'DispatchedTo', 'emailConfirm', 'EmailConfirm', 'pSigReq', 'dSigReq', 'd2SigReq', 'repeatClient', 'RepeatClient', 'ticketNumber', 'TicketNumber', 'sigType', 'PriceOverride', 'RunNumber', 'holder', 'receiver', 'TransferState', 'ClientID', 'Organization', 'ListBy', 'same' ];
     // Properties that should always be floats
-    private $floats = ['diPrice', 'TicketBase', 'RunPrice', 'TicketPrice', 'Multiplier', 'timestamp', 'lat',' lng', 'maxRange'];
+    private $floats = [ 'diPrice', 'TicketBase', 'RunPrice', 'TicketPrice', 'Multiplier', 'timestamp', 'lat',' lng', 'maxRange', 'pLat', 'pLng', 'dLat', 'dLng', 'd2Lat', 'd2Lng', 'latitude', 'longitude' ];
     // Properties that should always be boolean
-    private $bools = ['newTicket', 'compare', 'compareMembers', 'ticketEditor', 'updateTicket', 'consolidateContractTicketsOnInvoice', 'showCanceledTicketsOnInvoice', 'organizationFlag', 'noSession', 'processTransfer', 'mapAvailable'];
+    private $bools = [ 'newTicket', 'compare', 'compareMembers', 'ticketEditor', 'updateTicket', 'consolidateContractTicketsOnInvoice', 'showCanceledTicketsOnInvoice', 'organizationFlag', 'noSession', 'processTransfer', 'mapAvailable' ];
     // Properties that are passed at the end of a string value
-    private $afterSemicolon = ['billTo', 'dispatchedTo', 'PendingReceiver'];
+    private $afterSemicolon = [ 'billTo', 'dispatchedTo', 'PendingReceiver' ];
     // Properties that are json encoded strings
-    private $jsonStrings = ['Transfers'];
+    private $jsonStrings = [ 'Transfers' ];
     // No need to filter passwords they will be hashed
-    private $noFilter = ['currentPw', 'newPw1', 'newPw2'];
+    private $noFilter = [ 'currentPw', 'newPw1', 'newPw2' ];
     // These properties should not be accessible when setting values from the $data argument
     private $protectedProperties = [ 'username', 'publicKey', 'privateKey', 'config', 'weightMarker', 'rangeMarker', 'countryClass', 'countryInput', 'requireCountry', 'shippingCountry', 'headerLogo', 'headerLogo2', 'myInfo', 'clientNameExceptions', 'clientAddressExceptions', 'showCanceledTicketsOnInvoiceExceptions', 'ignoreValues', 'showCanceledTicketsOnInvoice', 'consolidateContractTicketsOnInvoice', 'ints', 'floats', 'bools', 'afterSemicolon', 'jsonStrings', 'noFilter', 'sanitized', 'enableLogging', 'targetFile', 'fileWriteTry', 'loggingError', 'error', 'protectedProperties', 'RangeCenter', 'lat', 'lng', 'maxRange', 'timezone', 'emailConfig', 'allTimeChartLimit', 'invoicePage1Max', 'invoicePageMax' ];
-    protected $nullable = [ 'pTimeStamp', 'dTimeStamp', 'd2TimeStamp', 'Department', 'Contact', 'Telephone', 'pTime', 'dTime', 'd2Time', 'Notes', 'LastName', 'EmailAddress', 'LastSeen', 'Attention', 'RequestedBy', 'pDepartment', 'pContact', 'pTelephone', 'dDepartment', 'dContact', 'dTelephone', 'pSigPrint', 'pSig', 'dSigPrint', 'dSig', 'd2SigPrint', 'd2Sig', 'DispatchTimeStamp', 'Transfers', 'DatePaid', 'Late30Invoice', 'Late30Value', 'Late60Invoice', 'Late60Value', 'Late90Invoice', 'Late90Value', 'Over90Invoice', 'Over90Value', 'CheckNumber' ];
+    protected $nullable = [ 'pTimeStamp', 'dTimeStamp', 'd2TimeStamp', 'Department', 'Contact', 'Telephone', 'pTime', 'dTime', 'd2Time', 'Notes', 'LastName', 'EmailAddress', 'LastSeen', 'Attention', 'RequestedBy', 'pDepartment', 'pContact', 'pTelephone', 'dDepartment', 'dContact', 'dTelephone', 'pSigPrint', 'pSig', 'dSigPrint', 'dSig', 'd2SigPrint', 'd2Sig', 'DispatchTimeStamp', 'Transfers', 'DatePaid', 'Late30Invoice', 'Late30Value', 'Late60Invoice', 'Late60Value', 'Late90Invoice', 'Late90Value', 'Over90Invoice', 'Over90Value', 'CheckNumber', 'pLat', 'pLng', 'dLat', 'dLng', 'd2Lat', 'd2Lng', 'latitude', 'longitude' ];
     private $noGetProps = [ 'error', 'loggingError', 'fileWriteTry', 'sanitized' ];
     private $customMenuItems;
     private $customPages;
@@ -301,11 +301,23 @@
         } elseif (is_array($value)) {
           $returnData[$key] = self::recursive_santizer($value);
         } elseif (in_array($key, $this->ints, true) || substr($key, -5) === 'index') {
-          $returnData[$key] = self::test_int($value);
+          if (in_array($key, $this->nullable)) {
+            $returnData[$key] = ($value === '' || $value === NULL) ? NULL : self::test_int($value);
+          } else {
+            $returnData[$key] = self::test_int($value);
+          }
         } elseif (in_array($key, $this->bools, true)) {
-          $returnData[$key] = self::test_bool($value);
+          if (in_array($key, $this->nullable)) {
+            $returnData[$key] = ($value === '' || $value === NULL) ? NULL : self::test_bool($value);
+          } else {
+            $returnData[$key] = self::test_bool($value);
+          }
         } elseif (in_array($key, $this->floats, true)) {
-          $returnData[$key] = self::test_float($value);
+          if (in_array($key, $this->nullable)) {
+            $returnData[$key] = ($value === '' || $value === NULL) ? NULL : self::test_float($value);
+          } else {
+            $returnData[$key] = self::test_float($value);
+          }
         } elseif (in_array($key, $this->afterSemicolon, true)) {
           // Capture client name and driver name from this group
           if (strpos($value, ';') !== FALSE) {
