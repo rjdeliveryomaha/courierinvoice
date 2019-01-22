@@ -99,6 +99,12 @@
     protected $pTimeStamp;
     protected $dTimeStamp;
     protected $d2TimeStamp;
+    protected $pLat;
+    protected $pLng;
+    protected $dLat;
+    protected $dLng;
+    protected $d2Lat;
+    protected $d2Lng;
     protected $pTime;
     protected $dTime;
     protected $d2Time;
@@ -153,8 +159,8 @@
     private $adapter;
     private $dumper;
     private $chain;
-    private $dLat;
-    private $dLng;
+    private $dLatR;
+    private $dLngR;
     private $pi80 = M_PI / 180;
     private $MER = 6372.797; // Mean Earth Radius in km
     private $angle;
@@ -284,11 +290,11 @@
       $this->rangeLoc2['lat'] *= $this->pi80;
       $this->rangeLoc2['lng'] *= $this->pi80;
 
-      $this->dLat = $this->rangeLoc2['lat'] - $this->rangeLoc1['lat'];
+      $this->dLatR = $this->rangeLoc2['lat'] - $this->rangeLoc1['lat'];
 
-      $this->dLng = $this->rangeLoc2['lng'] - $this->rangeLoc1['lng'];
+      $this->dLngR = $this->rangeLoc2['lng'] - $this->rangeLoc1['lng'];
 
-      $this->angle = sin($this->dLat / 2) * sin($this->dLat / 2) + cos($this->rangeLoc1['lat']) * cos($this->rangeLoc2['lat']) * sin($this->dLng / 2) * sin($this->dLng / 2);
+      $this->angle = sin($this->dLatR / 2) * sin($this->dLatR / 2) + cos($this->rangeLoc1['lat']) * cos($this->rangeLoc2['lat']) * sin($this->dLngR / 2) * sin($this->dLngR / 2);
 
       $this->greatCircleDistance = 2 * atan2(sqrt($this->angle), sqrt(1 - $this->angle));
       // Distance in km
