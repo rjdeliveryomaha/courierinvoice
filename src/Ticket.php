@@ -202,9 +202,11 @@
     private $pRangeError;
     private $dRangeError;
     // Variables for the function stepTicket
-    public $sigImage;
-    public $sigType;
-    public $printName;
+    protected $sigImage;
+    protected $sigType;
+    protected $printName;
+    protected $latitude;
+    protected $longitude;
 
     public function __construct($options, $data=[]) {
       try {
@@ -1521,34 +1523,20 @@
           break;
         }
       }
-      //Define whether the signature capture should be active for the given step of the run.
-      if ($this->pSigReq === 0) {
-        $pSigClass = $pSigActive = $pSigPlaceholder = '';
-      } else {
-        $pSigClass = 'pulse';
-        $pSigActive = 'required';
-        $pSigPlaceholder = 'REQUIRED';
-      }
-      if ($this->dSigReq === 0) {
-        $dSigClass = $dSigActive = $dSigPlaceholder = '';
-      } else {
-        $dSigClass =  'pulse';
-        $dSigActive = 'required';
-        $dSigPlaceholder = 'REQUIRED';
-      }
-      if ($this->d2SigReq === 0) {
-        $d2SigClass = $d2SigActive = $d2SigPlaceholder = '';
-      } else {
-        $d2SigClass = 'pulse';
-        $d2SigActive = 'required';
-        $d2SigPlaceholder = 'REQUIRED';
-      }
       /***
       * Set the confirmation form and the display time for the stop based on
       * charge and timestamps.
       ***/
+      $sigClass = $sigActive = $sigPlaceholder = $sigName = $buttonName = '';
       if ($this->pTimeStamp === $this->tTest) {
+        $sigName = 'pSig';
+        if ($this->pSigReq === 1) {
+          $sigClass = 'pulse';
+          $sigActive = 'required';
+          $sigPlaceholder = 'REQUIRED';
+        }
         $buttonClass = '';
+        $buttonName = 'Pick Up';
         $button2Class = 'deadRun';
         $button2Name = 'Dead Run';
         $label1 = ($this->Contract === 0) ? 'Deadline: ' : 'Pick Up: ';
@@ -1557,32 +1545,16 @@
         $this->pTime = date('g:i a', $temp);
         $temp2 = ($this->Contract === 0) ? '' : strtotime($this->dTime);
         $this->dTime = ($this->Contract === 0) ? '' : date('g:i a', $temp2);
-        $confirm = "
-            <table class=\"wide confirm\">
-              <tbody>
-                <tr>
-                  <td colspan=\"2\">
-                    <form id=\"ticketForm{$this->ticket_index}\" class=\"routeStop\">
-                      <input type=\"hidden\" name=\"sigImage\" class=\"sigImage\" form=\"ticketForm{$this->ticket_index}\" />
-                      <input type=\"hidden\" name=\"step\" class=\"step\" value=\"pickedUp\" form=\"ticketForm{$this->ticket_index}\" />
-                      <input type=\"hidden\" name=\"ticket_index\" class=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"ticketForm{$this->ticket_index}\" />
-                      <input type=\"hidden\" name=\"charge\" class=\"charge\" value=\"{$this->Charge}\" form=\"ticketForm{$this->ticket_index}\" />
-                      <input type=\"hidden\" name=\"emailConfirm\" class=\"emailConfirm\" value=\"{$this->EmailConfirm}\" form=\"ticketForm{$this->ticket_index}\" />
-                      <input type=\"hidden\" name=\"emailAddress\" class=\"emailAddress\" value=\"{$this->EmailAddress}\" form=\"ticketForm{$this->ticket_index}\" />
-                      <label for=\"pSigPrint{$this->ticket_index}\">Signer</label><br><input type=\"text\" name=\"pSigPrint\" id=\"pSigPrint{$this->ticket_index}\" class=\"pSigPrint printName\" placeholder=\"{$pSigPlaceholder}\" {$pSigActive} form=\"ticketForm{$this->ticket_index}\" />
-                    </form>
-                  </td>
-                  <td colspan=\"2\" class=\"center\" style=\"vertical-align:bottom;\">
-                    <button type=\"button\" class=\"pGetSig {$pSigClass}\"><img src=\"../images/sign.png\" height=\"24\" width=\"24\" alt=\"Open Signature Box\" /></button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <button type=\"button\" class=\"dTicket\" form=\"ticketForm{$this->ticket_index}\">Pick Up</button>
-                  </td>";
       } else {
         if ($this->dTimeStamp === $this->tTest) {
+          $sigName = 'dSig';
+          if ($this->dSigReq === 1) {
+            $sigClass =  'pulse';
+            $sigActive = 'required';
+            $sigPlaceholder = 'REQUIRED';
+          }
           $buttonClass = 'hide';
+          $buttonName = 'Deliver';
           $button2Class = 'declined';
           $button2Name = 'Declined';
           $label1 = ($this->Contract === 0) ? 'Deadline: ' : 'Deliver: ';
@@ -1621,62 +1593,48 @@
           $this->dAddress1 = $tempAddy1;
           $this->dAddress2 = $tempAddy2;
           $this->dCountry = $tempCountry;
-          $confirm = "
-            <table class=\"wide confirm\">
-              <tbody>
-                <tr>
-                  <td colspan=\"2\">
-                    <form id=\"ticketForm{$this->ticket_index}\" class=\"routeStop\">
-                      <input type=\"hidden\" name=\"sigImage\" class=\"sigImage\" form=\"ticketForm{$this->ticket_index}\" />
-                      <input type=\"hidden\" name=\"step\" class=\"step\" value=\"delivered\" form=\"ticketForm{$this->ticket_index}\" />
-                      <input type=\"hidden\" name=\"ticket_index\" class=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"ticketForm{$this->ticket_index}\" />
-                      <input type=\"hidden\" name=\"charge\" class=\"charge\" value=\"{$this->Charge}\" form=\"ticketForm{$this->ticket_index}\" />
-                      <input type=\"hidden\" name=\"emailConfirm\" class=\"emailConfirm\" value=\"{$this->EmailConfirm}\" form=\"ticketForm{$this->ticket_index}\" />
-                      <input type=\"hidden\" name=\"emailAddress\" class=\"emailAddress\" value=\"{$this->EmailAddress}\" form=\"ticketForm{$this->ticket_index}\" />
-                      <label for=\"dSigPrint{$this->ticket_index}\">Signer</label><br><input type=\"text\" name=\"dSigPrint\" id=\"dSigPrint{$this->ticket_index}\" class=\"dSigPrint printName\" placeholder=\"{$dSigPlaceholder}\" {$dSigActive} form=\"ticketForm{$this->ticket_index}\" />
-                    </form>
-                  </td>
-                  <td colspan=\"2\" class=\"center\" style=\"vertical-align:bottom;\">
-                    <button type=\"button\" class=\"dGetSig {$dSigClass}\"><img src=\"../images/sign.png\" height=\"24\" width=\"24\" alt=\"Open Signature Box\" /></button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <button type=\"button\" class=\"dTicket\" form=\"ticketForm{$this->ticket_index}\">Deliver</button>
-                  </td>";
         } elseif ($this->dTimeStamp !== $this->tTest) {
+          $sigName = 'd2Sig';
+          if ($this->d2SigReq === 1) {
+            $sigClass = 'pulse';
+            $sigActive = 'required';
+            $sigPlaceholder = 'REQUIRED';
+          }
           $buttonClass = $button2Class = 'hide';
+          $buttonName = 'Return';
           $button2Name = '';
           $label1 = 'Return: ';
           $label2 = '-';
           $temp = strtotime($this->d2Time);
           $this->pTime = date('g:i a', $temp);
           $this->dTime = '-';
-          $confirm = "
+        }
+      }
+      $confirm = "
             <table class=\"wide confirm\">
               <tbody>
                 <tr>
                   <td colspan=\"2\">
                     <form id=\"ticketForm{$this->ticket_index}\" class=\"routeStop\">
                       <input type=\"hidden\" name=\"sigImage\" class=\"sigImage\" form=\"ticketForm{$this->ticket_index}\" />
-                      <input type=\"hidden\" name=\"step\" class=\"step\" value=\"returned\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"latitude\" class=\"latitude\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"longitude\" class=\"longitude\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"step\" class=\"step\" value=\"{$this->step}\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"ticket_index\" class=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"charge\" class=\"charge\" value=\"{$this->Charge}\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"emailConfirm\" class=\"emailConfirm\" value=\"{$this->EmailConfirm}\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"emailAddress\" class=\"emailAddress\" value=\"{$this->EmailAddress}\" form=\"ticketForm{$this->ticket_index}\" />
-                      <label for=\"d2SigPrint{$this->ticket_index}\">Signer</label><br><input type=\"text\" name=\"d2SigPrint\" id=\"d2SigPrint{$this->ticket_index}\" class=\"d2SigPrint printName\" placeholder=\"{$d2SigPlaceholder}\" {$d2SigActive} form=\"ticketForm{$this->ticket_index}\" />
+                      <label for=\"{$sigName}Print{$this->ticket_index}\">Signer</label><br><input type=\"text\" name=\"{$sigName}Print\" id=\"{$sigName}Print{$this->ticket_index}\" class=\"{$sigName}Print printName\" placeholder=\"{$sigPlaceholder}\" {$sigActive} form=\"ticketForm{$this->ticket_index}\" />
                     </form>
                   </td>
                   <td colspan=\"2\" class=\"center\" style=\"vertical-align:bottom;\">
-                    <button type=\"button\" class=\"d2GetSig {$d2SigClass}\"><img src=\"../images/sign.png\" height=\"24\" width=\"24\" alt=\"Open Signature Box\" /></button>
+                    <button type=\"button\" class=\"getSig {$sigClass}\"><img src=\"../images/sign.png\" height=\"24\" width=\"24\" alt=\"Open Signature Box\" /></button>
                   </td>
                 </tr>
                 <tr>
                   <td>
-                    <button type=\"button\" class=\"dTicket\" form=\"ticketForm{$this->ticket_index}\">Return</button>
+                    <button type=\"button\" class=\"dTicket\" form=\"ticketForm{$this->ticket_index}\">{$buttonName}</button>
                   </td>";
-        }
-      }
       if ($this->processTransfer === TRUE) {
         $confirm = '
             <table class="wide confirm">
@@ -1989,7 +1947,9 @@
         $multiTicket .= "
           <p class=\"center\">
             <input type=\"hidden\" name=\"sigImage\" id=\"sigImage{$this->multiTicket[0]->ticket_index}\" class=\"sigImage\" />
-            <label for=\"pSigPrint{$this->ticket_index}\">Signer</label><br><input type=\"text\" name=\"pSigPrint\" id=\"pSigPrint{$this->multiTicket[0]->ticket_index}\" class=pSigPrint printName\" form=form=\"ticketForm{$this->multiTicket[0]->ticket_index}\" /><button type=\"button\" style=\"vertical-align:middle;\" class=\"pGetSig\"><img src=\"../images/sign.png\" height=\"24\" width=\"24\" alt=\"Open Signature Box\" /></button>
+            <input type=\"hidden\" name=\"latitude\" class=\"latitude\" form=\"ticketForm{$this->ticket_index}\" />
+            <input type=\"hidden\" name=\"longitude\" class=\"longitude\" form=\"ticketForm{$this->ticket_index}\" />
+            <label for=\"pSigPrint{$this->ticket_index}\">Signer</label><br><input type=\"text\" name=\"pSigPrint\" id=\"pSigPrint{$this->multiTicket[0]->ticket_index}\" class=pSigPrint printName\" form=\"ticketForm{$this->multiTicket[0]->ticket_index}\" /><button type=\"button\" style=\"vertical-align:middle;\" class=\"getSig\"><img src=\"../images/sign.png\" height=\"24\" width=\"24\" alt=\"Open Signature Box\" /></button>
           </p>
           <div class=\"signature-pad sigField\"></div>
           <button type=\"button\" class=\"confirmAll\">Confirm {$count($this->multiTicket)}</button> <button type=\"button\" class=\"transferGroup\">Transfer {$count($this->multiTicket)}</button></div>";
@@ -3599,6 +3559,10 @@
               $ticketUpdateData['payload']['pSig'] = base64_encode($dataPieces[1]);
               $ticketUpdateData['payload']['pSigReq'] = 1;
             }
+            if ($this->latitude !== NULL && $this->longitude !== NULL) {
+              $ticketUpdateData['payload']['pLat'] = $this->latitude;
+              $ticketUpdateData['payload']['pLng'] = $this->longitude;
+            }
             $this->stepMarker = 'Picked Up';
           break;
           case 'delivered':
@@ -3614,6 +3578,10 @@
               $ticketUpdateData['payload']['dSig'] = base64_encode($dataPieces[1]);
               $ticketUpdateData['payload']['dSigReq'] = 1;
             }
+            if ($this->latitude !== NULL && $this->longitude !== NULL) {
+              $ticketUpdateData['payload']['dLat'] = $this->latitude;
+              $ticketUpdateData['payload']['dLng'] = $this->longitude;
+            }
             $this->stepMarker = 'Delivered';
           break;
           case 'returned':
@@ -3627,6 +3595,10 @@
               $ticketUpdateData['payload']['d2SigType'] = between('/',';',$dataPieces[0]);
               $ticketUpdateData['payload']['d2Sig'] = base64_encode($dataPieces[1]);
               $ticketUpdateData['payload']['d2SigReq'] = 1;
+            }
+            if ($this->latitude !== NULL && $this->longitude !== NULL) {
+              $ticketUpdateData['payload']['d2Lat'] = $this->latitude;
+              $ticketUpdateData['payload']['d2Lng'] = $this->longitude;
             }
             $this->stepMarker = 'Returned';
           break;
@@ -3661,6 +3633,10 @@
                 $tempObj->pSig = base64_encode($dataPieces[1]);
                 $tempObj->pSigReq = 1;
               }
+              if ($this->latitude !== NULL && $this->longitude !== NULL) {
+                $tempObj->pLat = $this->latitude;
+                $tempObj->pLng = $this->longitude;
+              }
               if ($this->printName !== NULL && $this->printName !== '') $tempObj->pSigReq = 1;
               $ticketUpdateData['payload'][] = $tempObj;
             break;
@@ -3677,6 +3653,10 @@
                 $tempObj->dSig = base64_encode($dataPieces[1]);
                 $tempObj->dSigReq = 1;
               }
+              if ($this->latitude !== NULL && $this->longitude !== NULL) {
+                $tempObj->dLat = $this->latitude;
+                $tempObj->dLng = $this->longitude;
+              }
               if ($this->printName !== NULL && $this->printName !== '') $tempObj->dSigReq = 1;
               $ticketUpdateData['payload'][] = $tempObj;
             break;
@@ -3692,6 +3672,10 @@
                 $tempObj->d2SigType = self::between('/',';',$dataPieces[0]);
                 $tempObj->d2Sig = base64_encode($dataPieces[1]);
                 $tempObj->d2SigReq = 1;
+              }
+              if ($this->latitude !== NULL && $this->longitude !== NULL) {
+                $tempObj->d2Lat = $this->latitude;
+                $tempObj->d2Lng = $this->longitude;
               }
               if ($this->printName !== NULL && $this->printName !== '') $tempObj->d2SigReq = 1;
               $ticketUpdateData['payload'][] = $tempObj;
