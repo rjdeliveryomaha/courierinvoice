@@ -1572,7 +1572,7 @@ $(document).ready(function() {
     //Request transfer confirmation
     $(this).closest(".tickets").find(".message2").html("Confirm Transfer:<br><input list=\"receivers\" class=\"pendingReceiver\" name=\"pendingReceiver\" id=\"pendingReceiver" + $(this).closest(".tickets").find(".tNum").text() + "\" /><br><button type=\"button\" class=\"confirmTransfer\">Confirm</button>  <button type=\"button\" class=\"cancelThis\">Go Back</button>");
     //Disable other buttons in the ticket form
-    $(this).closest(".tickets").find(".transferTicket, .cancelRun, .deadRun, .dTicket, .declined, input[type='text'], .pGetSig, .dGetSig, .d2GetSig").prop("disabled", true);
+    $(this).closest(".tickets").find(".transferTicket, .cancelRun, .deadRun, .dTicket, .declined, input[type='text'], .getSig").prop("disabled", true);
   });
 
   $(document).on("click", "#on_call .confirmTransfer", function() {
@@ -1632,7 +1632,7 @@ $(document).ready(function() {
     //Request cancellation confirmation
     $(this).closest(".tickets").find(".message2").html('Confirm Decline:<br><button type="button" class="confirmDecline">Confirm</button>  <button type="button" class="cancelThis">Go Back</button>');
     //Disable other buttons in the ticket form
-    $(this).closest(".tickets").find(".transferTicket, .cancelRun, .deadRun, .dTicket, .declined, input[type='text'], .pGetSig, .dGetSig, .d2GetSig").prop("disabled", true);
+    $(this).closest(".tickets").find(".transferTicket, .cancelRun, .deadRun, .dTicket, .declined, input[type='text'], .getSig").prop("disabled", true);
   })
 
   $(document).on("click", "#on_call .cancelRun", function(){
@@ -1641,7 +1641,7 @@ $(document).ready(function() {
     //Request cancellation confirmation
     $(this).closest(".tickets").find(".message2").html('Confirm Cancel:<br><button type="button" class="confirmCancel">Confirm</button>  <button type="button" class="cancelThis">Go Back</button>');
     //Disable other buttons in the ticket form
-    $(this).closest(".tickets").find(".transferTicket, .cancelRun, .deadRun, .dTicket, .declined, input[type='text'], .pGetSig, .dGetSig, .d2GetSig").prop("disabled", true);
+    $(this).closest(".tickets").find(".transferTicket, .cancelRun, .deadRun, .dTicket, .declined, input[type='text'], .getSig").prop("disabled", true);
   });
 
   $(document).on("click", "#on_call .deadRun", function(){
@@ -1650,7 +1650,7 @@ $(document).ready(function() {
     //Request dead run confirmation
     $(this).closest(".tickets").find(".message2").html('Confirm Dead Run:<br><button type="button" class="confirmDeadRun">Confirm</button>  <button type="button" class="cancelThis">Go Back</button>');
     //Disable other buttons in the ticket form
-    $(this).closest(".tickets").find(".transferTicket, .cancelRun, .deadRun, .dTicket, .declined, input[type='text'], .pGetSig, .dGetSig, .d2GetSig").prop("disabled", true);
+    $(this).closest(".tickets").find(".transferTicket, .cancelRun, .deadRun, .dTicket, .declined, input[type='text'], .getSig").prop("disabled", true);
   });
 
   $(document).on("click", "#on_call .cancelThis", function(){
@@ -1790,8 +1790,42 @@ $(document).ready(function() {
     $(this).closest("#on_call").find(".message2").html("");
     //Disable other buttons in the ticket form
     $(this).closest(".tickets").find("button").prop("disabled", true);
-    //Request step confirmation
     $(this).closest(".tickets").find(".message2").html("Confirm " + $(this).text() + ':<br><button type="button" class="stepTicket" form="' + $(this).attr("form") + '">Confirm</button>  <button type="button" class="cancelThis">Go Back</button>');
+    if (typeof navigator.permissions !== "undefined" && typeof navigator.geolocation !== "undefined") {
+      $(this).closest(".tickets").find(".stepTicket").prop("disabled", true);
+      navigator.permissions.query({name: 'geolocation'}).then(PermissionStatus=>{
+        let options = { enableHighAccuracy: true, timeout: 5000, maximumAge: 0},
+            success = pos => {
+              // set the location coordinates
+              $(this).closest(".tickets").find(".latitude").val(pos.coords.latitude);
+              $(this).closest(".tickets").find(".longitude").val(pos.coords.longitude);
+              $(this).closest(".tickets").find(".stepTicket").prop("disabled", false);
+            },
+            error = err => {
+              $(this).closest(".tickets").find(".message2").append('<p>Location Not Available ' + err.message + '</p>');
+            };
+        if (PermissionStatus.state == 'granted') {
+          navigator.geolocation.getCurrentPosition(success, error, options);
+        } else if (PermissionStatus.state == 'prompt') {
+          $(this).closest(".tickets").find(".stepTicket").prop("disabled", false);
+        } else if (PermissionStatus.state == 'denied') {
+          $(this).closest(".tickets").find(".message2").append('<p>Location Not Available</p>');
+          $(this).prop("disabled", false);
+        }
+        PermissionStatus.onchange = () => {
+          if (PermissionStatus.state === "granted") {
+            navigator.geolocation.getCurrentPosition(success, error, options);
+          } else if (PermissionStatus.state == 'prompt') {
+            $(this).closest(".tickets").find(".stepTicket").prop("disabled", false);
+          } else if (PermissionStatus.state == 'denied') {
+            $(this).closest(".tickets").find(".message2").append("<p>Location Not Available</p>");
+            $(this).closest(".tickets").find(".stepTicket").prop("disabled", false);
+          }
+        }
+      });
+    } else {
+      $(this).closest(".tickets").find(".message2").append("<p>Location Not Available</p>");
+    }
   });
 
   $(document).on("click", "#on_call .stepTicket", function( e ) {
@@ -2173,9 +2207,44 @@ $(document).ready(function() {
     $(this).closest("#route").find(".message2").html("");
     //Disable other buttons in the ticket form
     $(this).closest(".tickets").find("button").prop("disabled", true);
-    //Request step confirmation
     $(this).closest(".tickets").find(".message2").html("Confirm " + $(this).text() + ':<br><button type="button" class="stepTicket" form="' + $(this).attr("form") + '">Confirm</button>  <button type="button" class="cancelThis">Go Back</button>');
-
+    if (typeof navigator.permissions !== "undefined" && typeof navigator.geolocation !== "undefined") {
+      $(this).closest(".tickets").find(".stepTicket").prop("disabled", true);
+      navigator.permissions.query({name: 'geolocation'}).then(PermissionStatus=>{
+        let options = { enableHighAccuracy: true, timeout: 25000, maximumAge: 0},
+            success = pos => {
+              $("#coordsTest").append("<p>Lat: " + pos.coords.latitude + ", Lng: " + pos.coords.longitude + "</p>");
+              $(this).closest(".tickets").find(".cancelThis").attr("data-timestamp", pos.timestamp);
+              // set the location coordinates
+              $(this).closest(".tickets").find(".latitude").val(pos.coords.latitude);
+              $(this).closest(".tickets").find(".longitude").val(pos.coords.longitude);
+              $(this).closest(".tickets").find(".stepTicket").prop("disabled", false);
+            },
+            error = err => {
+              $(this).closest(".tickets").find(".message2").append('<p>Location Not Available ' + err.message + '</p>');
+              $(this).closest(".tickets").find(".stepTicket").prop("disabled", false);
+            };
+        if (PermissionStatus.state == 'granted') {
+          navigator.geolocation.getCurrentPosition(success, error, options);
+        } else if (PermissionStatus.state == 'prompt') {
+          $(this).closest(".tickets").find(".stepTicket").prop("disabled", false);
+        } else if (PermissionStatus.state == 'denied') {
+          $(this).closest(".tickets").find(".message2").append("<p>Location Not Available</p>");
+          $(this).closest(".tickets").find(".stepTicket").prop("disabled", false);
+        }
+        PermissionStatus.onchange = () => {
+          if (PermissionStatus.state === "granted") {
+            navigator.geolocation.getCurrentPosition(success, error, options);
+          } else if (PermissionStatus.state == 'prompt') {
+            $(this).closest(".tickets").find(".stepTicket").prop("disabled", false);
+          } else if (PermissionStatus.state == 'denied') {
+            $(this).closest(".tickets").find(".stepTicket").prop("disabled", false);
+          }
+        }
+      });
+    } else {
+      $(this).closest(".tickets").find(".message2").append("<p>Location Not Available</p>");
+    }
   });
 
   $(document).on("click", "#route .stepTicket", function( e ) {
@@ -2272,11 +2341,47 @@ $(document).ready(function() {
   $(document).on("click", ".confirmAll", function( e ) {
     e.preventDefault();
     //Clear all 'message2' containers
-    $("#route").find(".message2").html("");
+    $(this).closest("#route").find(".message2").html("");
     //Disable other buttons in the ticket form
     $(this).closest(".sortable").find("button").prop("disabled", true);
-    //Request step confirmation
-    $(this).closest(".sortable").find(".message2:last").html("Confirm Group Update: <br><button type=\"button\" class=\"stepAll\">Confirm</button>  <button type=\"button\" class=\"cancelThis\">Go Back</button>");
+    $(this).closest(".sortable").find(".message2:last").html('Confirm Group Update: <br><button type="button" class="stepAll">Confirm</button>  <button type="button" class="cancelThis">Go Back</button><p>Location Not Available</p>');
+    if (typeof navigator.permissions !== "undefined" && typeof navigator.geolocation !== "undefined") {
+      $(this).closest(".sortable").find(".stepAll").prop("disabled", true);
+      navigator.permissions.query({name: 'geolocation'}).then(PermissionStatus=>{
+        console.log(PermissionStatus.state);
+        let options = { enableHighAccuracy: true, timeout: 5000, maximumAge: 0},
+            success = pos => {
+              // set the location coordinates
+              $(this).closest(".sortable").find(".latitude").val(pos.coords.latitude);
+              $(this).closest(".sortable").find(".longitude").val(pos.coords.longitude);
+              $(this).closest(".sortable").find(".stepAll").prop("disabled", false);
+            },
+            error = err => {
+              $(this).closest(".sortable").find(".message2:last").append('<p>Location Not Available ' + err.message + '</p>');
+              $(this).closest(".sortable").find(".stepAll").prop("disabled", false);
+            };
+        if (PermissionStatus.state == 'granted') {
+          navigator.geolocation.getCurrentPosition(success, error, options);
+        } else if (PermissionStatus.state == 'prompt') {
+          $(this).closest(".sortable").find(".stepAll").prop("disabled", false);
+        } else if (PermissionStatus.state == 'denied') {
+          $(this).closest(".sortable").find(".message2:last").append('<p>Location Not Available</p>');
+          $(this).closest(".sortable").find(".stepAll").prop("disabled", false);
+        }
+        PermissionStatus.onchange = () => {
+          if (PermissionStatus.state === "granted") {
+            navigator.geolocation.getCurrentPosition(success, error, options);
+          } else if (PermissionStatus.state == 'prompt') {
+            $(this).closest(".sortable").find(".stepAll").prop("disabled", false);
+          } else if (PermissionStatus.state == 'denied') {
+            $(this).closest(".sortable").find(".message2:last").html("<p>Location Not Available</p>");
+            $(this).closest(".sortable").find(".stepAll").prop("disabled", false);
+          }
+        }
+      });
+    } else {
+      $(this).closest(".sortable").find(".message2:last").html("<p>Location Not Available</p>");
+    }
   });
 
   $(document).on("click", "#route .stepAll", function(){
@@ -2296,7 +2401,7 @@ $(document).ready(function() {
       $(this).closest(".message2").find("button").prop("disabled", false);
       return false;
     }
-    let postData = { multiTicket: multiTicket, formKey: $("#formKey").val(), printName: $(this).closest(".sortable").find(".printName").val(), sigImage: $(this).closest(".sortable").find(".sigImage").val() };
+    let postData = { multiTicket: multiTicket, formKey: $("#formKey").val(), printName: $(this).closest(".sortable").find(".printName").val(), sigImage: $(this).closest(".sortable").find(".sigImage").val(), latitude: $(this).closest(".sortable").find(".latitude").val(), longitude: $(this).closest(".sortable").find(".longitude").val() };
     let $parentElement = $(this).closest(".message2");
     $parentElement.html("<span class=\"ellipsis\">.</span>");
     let $ele = $parentElement.find(".ellipsis");
