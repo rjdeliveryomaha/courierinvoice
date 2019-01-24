@@ -87,10 +87,10 @@
       $ticketQueryData['queryParams']['include'] = array('ticket_index', 'TicketPrice', 'Charge', 'RepeatClient', 'BillTo');
       // Create filter for repeat clients
       $repeatFilter = [ [ 'Resource'=>'ReceivedDate', 'Filter'=>'bt', 'Value'=>"{$this->startDate} 00:00:00, {$this->endDate} 11:59:59" ], [ 'Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>'-' ], [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1 ] ];
-      if (!empty($this->ignoreClients)) $repeatFilter[] = [ 'Resource'=>'ClientID', 'Filter'=>'nin', 'Value'=>implode(',', $this->ignoreClients) ];
+      if (!empty($this->options['invoiceCronIgnoreClients'])) $repeatFilter[] = [ 'Resource'=>'BillTo', 'Filter'=>'nin', 'Value'=>implode(',', $this->options['invoiceCronIgnoreClients']) ];
       // Create filter for non-repeat clients
       $nonrepeatFilter = [ [ 'Resource'=>'ReceivedDate', 'Filter'=>'bt', 'Value'=>"{$this->startDate} 00:00:00, {$this->endDate} 11:59:59" ], [ 'Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>'-' ], [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0 ] ];
-      if (!empty($this->ignoreNonRepeat)) $repeatFilter[] = [ 'Resource'=>'ClientID', 'Filter'=>'nin', 'Value'=>implode(',', $this->ignoreNonRepeat) ];
+      if (!empty($this->options['invoiceCronIgnoreNonRepeat'])) $repeatFilter[] = [ 'Resource'=>'BillTo', 'Filter'=>'nin', 'Value'=>implode(',', $this->options['invoiceCronIgnoreNonRepeat']) ];
       $ticketQueryData['queryParams']['filter'] = [ $repeatFilter, $nonrepeatFilter ];
       if (!$ticketQuery = self::createQuery($ticketQueryData)) {
         $this->error = __function__ . ' Line ' . __line__;
