@@ -1,6 +1,6 @@
 // open signature pad
 $(document).ready(function() {
-  $(document).on("click", ".pGetSig, .dGetSig, .d2GetSig", function() {
+  $(document).on("click", ".getSig", function() {
     let target,
         canvas,
         canvasWidth,
@@ -26,11 +26,11 @@ $(document).ready(function() {
       clearButton = wrapper.querySelector("[data-action='clear']"),
       saveButton = wrapper.querySelector("[data-action='save']"),
       canvas = wrapper.querySelector("#sig"),
-      signaturePad;
+      signaturePad.velocityFilterWeight = 0.7;
       signaturePad.minWidth = .5;
       signaturePad.maxWidth = 2;
       signaturePad.penColor = "red";
-      signaturePad.backgroundColor = "black";
+      signaturePad.backgroundColor = "rgba(0,0,0,1)";
     };
 
     function resizeCanvas() {
