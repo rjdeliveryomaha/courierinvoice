@@ -846,7 +846,7 @@ $(document).ready(function() {
     let breakFunction = false,
         checkboxes = ["repeatClient", "fromMe", "toMe", "dryIce", "pSigReq", "dSigReq", "d2SigReq"],
         requiredElements = ["pClient", "pAddress1", "pAddress2", "dClient", "dAddress1", "dAddress2", "dispatchedTo"],
-        formdata = {};
+        postData = {};
     $(this).closest("form").find("input[name], select, textarea").each(function() {
       if (checkboxes.indexOf($(this).attr("name")) === -1 && $(this).prop("disabled") === false) {
         if ((($(this).prop("required") === true && $(this).attr("name") !== "requestedBy") || requiredElements.indexOf($(this).attr("name")) !== -1) && $(this).val() === "") {
@@ -856,24 +856,24 @@ $(document).ready(function() {
         } else {
           $(this).removeClass("elementError");
         }
-        formdata[$(this).attr("name")] = $(this).val();
+        postData[$(this).attr("name")] = $(this).val();
       } else if ($(this).prop("type") === "checkbox") {
         if ($(this).attr("name") === "repeatClient") {
-          formdata[$(this).attr("name")] = 1 - $(this).is(":checked");
+          postData[$(this).attr("name")] = 1 - $(this).is(":checked");
         } else {
-          formdata[$(this).attr("name")] = 0 + $(this).is(":checked");
+          postData[$(this).attr("name")] = 0 + $(this).is(":checked");
         }
       }
     });
-    formdata.formKey = $("#formKey").val();
-    formdata.mapAvailable = ($(this).closest(".page").find(".mapContainer").length > 0) ? 1 : 0;
-    if (formdata.dryIce === 1) {
-      if (formdata.diWeight % 5 !== 0) {
+    postData.formKey = $("#formKey").val();
+    postData.mapAvailable = ($(this).closest(".page").find(".mapContainer").length > 0) ? 1 : 0;
+    if (postData.dryIce === 1) {
+      if (postData.diWeight % 5 !== 0) {
         let $tempMessage = $(this).closest("form").find(".ticketError").text("Dry Ice in increments of 5 only.");
         let $tempError = $(this).closest("form").find(".diWeight").addClass("elementError");
         breakFunction = true;
         setTimeout(() => { $tempMessage.text(""); $tempError.removeClass("elementError"); }, 3000)
-      } else if (formdata.diWeight === "0") {
+      } else if (postData.diWeight === "0") {
         let $tempMessage = $(this).closest("form").find(".ticketError").text("Dry Ice must be non-zero.");
         let $tempError = $(this).closest("form").find(".diWeight").addClass("elementError");
         breakFunction = true;
@@ -881,12 +881,12 @@ $(document).ready(function() {
       }
     }
     // Replace html entity &quot; with double quote for JSON parsing
-    if (formdata.transfers !== null && formdata.transfers !== "" && typeof formdata.transfers !== "undefined") formdata.transfers = JSON.parse(formdata.transfers.replace(/&quot;/g,'"'));
-    if (typeof formdata.holder !== "undefined" && formdata.dispatchedTo.substr(formdata.dispatchedTo.lastIndexOf(" ") + 1) !== formdata.holder) {
-      if (typeof formdata.transfers === "object") {
-        formdata.transfers.push({ "holder":Number(formdata.holder), "receiver": Number(formdata.dispatchedTo.substr(formdata.dispatchedTo.lastIndexOf(" ") + 1)), "transferredBy": formdata.transferredBy, "timestamp": null });
+    if (postData.transfers !== null && postData.transfers !== "" && typeof postData.transfers !== "undefined") postData.transfers = JSON.parse(postData.transfers.replace(/&quot;/g,'"'));
+    if (typeof postData.holder !== "undefined" && postData.dispatchedTo.substr(postData.dispatchedTo.lastIndexOf(" ") + 1) !== postData.holder) {
+      if (typeof postData.transfers === "object") {
+        postData.transfers.push({ "holder":Number(postData.holder), "receiver": Number(postData.dispatchedTo.substr(postData.dispatchedTo.lastIndexOf(" ") + 1)), "transferredBy": postData.transferredBy, "timestamp": null });
       } else {
-        formdata.transfers = [ { "holder":Number(formdata.holder), "receiver": Number(formdata.dispatchedTo.substr(formdata.dispatchedTo.lastIndexOf(" ") + 1)), "transferredBy": formdata.transferredBy, "timestamp": null } ];
+        postData.transfers = [ { "holder":Number(postData.holder), "receiver": Number(postData.dispatchedTo.substr(postData.dispatchedTo.lastIndexOf(" ") + 1)), "transferredBy": postData.transferredBy, "timestamp": null } ];
       }
     }
     if (breakFunction === true) {
@@ -895,7 +895,7 @@ $(document).ready(function() {
       $(this).prop("disabled", false);
       return false;
     }
-    let attempt = ajax_template("POST", "./enterTicket.php", "html", formdata)
+    let attempt = ajax_template("POST", "./enterTicket.php", "html", postData)
     .done((result) => {
       clearInterval(dots);
       if (result.indexOf("Session Error") !== -1) return showLogin();
@@ -926,20 +926,20 @@ $(document).ready(function() {
     targetForm = "#" + $(this).attr("form"),
     tempError,
     attempt,
-    formdata = {};
+    postData = {};
     $(this).closest(".tickets").find(targetForm + " input").each(function() {
-      formdata[$(this).attr("name")] = ($(this).attr("type") === "checkbox") ? (($(this).is(":checked")) ? 1 : 0) : $(this).val();
+      postData[$(this).attr("name")] = ($(this).attr("type") === "checkbox") ? (($(this).is(":checked")) ? 1 : 0) : $(this).val();
     });
     if ($(this).hasClass("editForm")) {
-      formdata.formKey = $("#formKey").val();
-      formdata.ticket_index = $(this).attr("form").match(/\d+/)[0];
-      if (formdata.ticket_index === "" || formdata.ticket_index === null) {
+      postData.formKey = $("#formKey").val();
+      postData.ticket_index = $(this).attr("form").match(/\d+/)[0];
+      if (postData.ticket_index === "" || postData.ticket_index === null) {
         tempError = '<p class="center">Invalid Ticket Index</p>';
         workspace.find(".ticketError").html(tempError);
         setTimeout(() => { workspace.find(".ticketError").html(""); }, 3000);
       }
-      formdata.ticketEditor = 1;
-      attempt = ajax_template("POST", "./enterTicket.php", "html", formdata)
+      postData.ticketEditor = 1;
+      attempt = ajax_template("POST", "./enterTicket.php", "html", postData)
       .done((result) => {
         if (result.indexOf("Session Error") !== -1) return showLogin();
         $("#formKey").val(Number($("#formKey").val()) + 1);
@@ -951,10 +951,10 @@ $(document).ready(function() {
         setTimeout(() => { workspace.find(".ticketError").html(""); }, 3000);
       });
     } else if ($(this).hasClass("confirmed")) {
-      formdata.updateTicket = 1;
-      formdata.ticketEditor = 1;
-      formdata.formKey = $("#formKey").val();
-      attempt = ajax_template("POST", "./enterTicket.php", "html", formdata)
+      postData.updateTicket = 1;
+      postData.ticketEditor = 1;
+      postData.formKey = $("#formKey").val();
+      attempt = ajax_template("POST", "./enterTicket.php", "html", postData)
       .done((result) => {
         if (result.indexOf("Session Error") !== -1) return showLogin();
         $("#formKey").val(Number($("#formKey").val()) + 1);
@@ -1626,15 +1626,6 @@ $(document).ready(function() {
     });
   });
 
-  $(document).on("click", "#on_call .declined", function(){
-    //Clear all 'message2' containers
-    $(this).closest(".tickets").find(".message2").html("");
-    //Request cancellation confirmation
-    $(this).closest(".tickets").find(".message2").html('Confirm Decline:<br><button type="button" class="confirmDecline">Confirm</button>  <button type="button" class="cancelThis">Go Back</button>');
-    //Disable other buttons in the ticket form
-    $(this).closest(".tickets").find(".transferTicket, .cancelRun, .deadRun, .dTicket, .declined, input[type='text'], .getSig").prop("disabled", true);
-  })
-
   $(document).on("click", "#on_call .cancelRun", function(){
     //Clear all 'message2' containers
     $(this).closest(".tickets").find(".message2").html("");
@@ -1742,14 +1733,61 @@ $(document).ready(function() {
     });
   });
 
+  $(document).on("click", "#on_call .declined", function(){
+    //Clear all 'message2' containers
+    $(this).closest(".tickets").find(".message2").html("");
+    //Request cancellation confirmation
+    $(this).closest(".tickets").find(".message2").html('Confirm Decline:<br><button type="button" class="confirmDecline">Confirm</button>  <button type="button" class="cancelThis">Go Back</button>');
+    //Disable other buttons in the ticket form
+    $(this).closest(".sortable").find(".transferTicket, .cancelRun, .deadRun, .dTicket, .declined, input[type='text'], .getSig").prop("disabled", true);
+    if (typeof navigator.permissions !== "undefined" && typeof navigator.geolocation !== "undefined") {
+      $(this).closest(".sortable").find(".stepTicket").prop("disabled", true);
+      navigator.permissions.query({name: 'geolocation'}).then(PermissionStatus=>{
+        let options = { enableHighAccuracy: true, timeout: 25000, maximumAge: 0},
+            success = pos => {
+              // set the location coordinates
+              $(this).closest(".sortable").find(".latitude").val(pos.coords.latitude);
+              $(this).closest(".sortable").find(".longitude").val(pos.coords.longitude);
+              $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
+            },
+            error = err => {
+              $(this).closest(".tickets").find(".message2").append('<p>Location Not Available ' + err.message + '</p>');
+              $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
+            };
+        if (PermissionStatus.state == 'granted') {
+          navigator.geolocation.getCurrentPosition(success, error, options);
+        } else if (PermissionStatus.state == 'prompt') {
+          $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
+        } else if (PermissionStatus.state == 'denied') {
+          $(this).closest(".tickets").find(".message2").append("<p>Location Not Available</p>");
+          $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
+        }
+        PermissionStatus.onchange = () => {
+          if (PermissionStatus.state === "granted") {
+            navigator.geolocation.getCurrentPosition(success, error, options);
+          } else if (PermissionStatus.state == 'prompt') {
+            $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
+          } else if (PermissionStatus.state == 'denied') {
+            $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
+          }
+        }
+      });
+    } else {
+      $(this).closest(".tickets").find(".message2").append("<p>Location Not Available</p>");
+    }
+  });
+
   $(document).on("click", "#on_call .confirmDecline", function(){
+    let postData = {};
     //Get the ticket number to be removed from the data base
-    let tNum = $(this).closest(".tickets").find(".ticket_index").val();
+    postData.tNum = $(this).closest(".tickets").find(".ticket_index").val();
     //Get the notes for the ticket
-    let notes = $(this).closest(".tickets").find(".notes").val();
+    postData.notes = $(this).closest(".tickets").find(".notes").val();
     //Set a flag to mark the ticket for deletion
-    let action = "declined";
-    let formKey = $("#formKey").val();
+    postData.action = "declined";
+    postData.formKey = $("#formKey").val();
+    postData.latitude = $(this).closest(".sortable").find(".latitude").val();
+    postData.longitude = $(this).closest(".sortable").find(".longitude").val();
     let $parentElement = $(this).closest(".message2");
     $parentElement.html("<span class=\"ellipsis\">.</span>");
     let $ele = $parentElement.find(".ellipsis");
@@ -1763,7 +1801,7 @@ $(document).ready(function() {
         forward = $ele.text().length === 1;
       }
     }, 500);
-    let attempt = ajax_template("POST", "./deleteContractTicket.php", "html", { ticket_index: tNum, action: action, notes: notes, formKey: formKey })
+    let attempt = ajax_template("POST", "./deleteContractTicket.php", "html", postData)
     .done((result) => {
       clearInterval(dots);
       $(".ellipsis").remove();
@@ -1792,14 +1830,14 @@ $(document).ready(function() {
     $(this).closest(".tickets").find("button").prop("disabled", true);
     $(this).closest(".tickets").find(".message2").html("Confirm " + $(this).text() + ':<br><button type="button" class="stepTicket" form="' + $(this).attr("form") + '">Confirm</button>  <button type="button" class="cancelThis">Go Back</button>');
     if (typeof navigator.permissions !== "undefined" && typeof navigator.geolocation !== "undefined") {
-      $(this).closest(".tickets").find(".stepTicket").prop("disabled", true);
+      $(this).closest(".sortable").find(".stepTicket").prop("disabled", true);
       navigator.permissions.query({name: 'geolocation'}).then(PermissionStatus=>{
         let options = { enableHighAccuracy: true, timeout: 5000, maximumAge: 0},
             success = pos => {
               // set the location coordinates
-              $(this).closest(".tickets").find(".latitude").val(pos.coords.latitude);
-              $(this).closest(".tickets").find(".longitude").val(pos.coords.longitude);
-              $(this).closest(".tickets").find(".stepTicket").prop("disabled", false);
+              $(this).closest(".sortable").find(".latitude").val(pos.coords.latitude);
+              $(this).closest(".sortable").find(".longitude").val(pos.coords.longitude);
+              $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
             },
             error = err => {
               $(this).closest(".tickets").find(".message2").append('<p>Location Not Available ' + err.message + '</p>');
@@ -1807,7 +1845,7 @@ $(document).ready(function() {
         if (PermissionStatus.state == 'granted') {
           navigator.geolocation.getCurrentPosition(success, error, options);
         } else if (PermissionStatus.state == 'prompt') {
-          $(this).closest(".tickets").find(".stepTicket").prop("disabled", false);
+          $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
         } else if (PermissionStatus.state == 'denied') {
           $(this).closest(".tickets").find(".message2").append('<p>Location Not Available</p>');
           $(this).prop("disabled", false);
@@ -1816,10 +1854,10 @@ $(document).ready(function() {
           if (PermissionStatus.state === "granted") {
             navigator.geolocation.getCurrentPosition(success, error, options);
           } else if (PermissionStatus.state == 'prompt') {
-            $(this).closest(".tickets").find(".stepTicket").prop("disabled", false);
+            $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
           } else if (PermissionStatus.state == 'denied') {
             $(this).closest(".tickets").find(".message2").append("<p>Location Not Available</p>");
-            $(this).closest(".tickets").find(".stepTicket").prop("disabled", false);
+            $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
           }
         }
       });
@@ -1985,20 +2023,22 @@ $(document).ready(function() {
 
   $(document).on("click", "#route .confirmTransfer", function() {
     $(this).closest(".message2").find("button").prop("disabled", true);
-    let pendingReceiver = $(this).closest(".message2").find(".pendingReceiver").val();
-    if (pendingReceiver === null || pendingReceiver === "") {
+    let postData = {};
+    postData.pendingReceiver = $(this).closest(".message2").find(".pendingReceiver").val();
+    if (postData.pendingReceiver === null || postData.pendingReceiver === "") {
       let $temp = $(this).closest(".message2").find(".pendingReceiver").addClass("elementError");
       setTimeout(() => { $temp.removeClass("elementError"); $temp.closest(".message2").find("button").prop("disabled", false); }, 3000 );
       return false;
     }
     // Get the ticket number to be removed from the data base
-    let tNum = $(this).closest(".tickets").find(".tNum").text();
+    postData.tNum = $(this).closest(".tickets").find(".tNum").text();
     // Get the notes for the ticket
-    let notes = $(this).closest(".tickets").find(".notes").val();
+    postData.notes = $(this).closest(".tickets").find(".notes").val();
     //Set a flag to mark the ticket for deletion
-    let action = "transfer";
+    postData.action = "transfer";
     // Get the form key
-    let formKey = $("#formKey").val();
+    postData.formKey = $("#formKey").val();
+    postData.TransferState = 1;
     let $parentElement = $(this).closest(".message2");
     $parentElement.html("<span class=\"ellipsis\">.</span>");
     let $ele = $parentElement.find(".ellipsis");
@@ -2012,7 +2052,7 @@ $(document).ready(function() {
         forward = $ele.text().length === 1;
       }
     }, 500);
-    let attempt = ajax_template("POST", "./deleteContractTicket.php", "html", { ticket_index: tNum, action: action, TransferState: 1, PendingReceiver: pendingReceiver, notes: notes, formKey: formKey })
+    let attempt = ajax_template("POST", "./deleteContractTicket.php", "html", postData)
     .done((result) => {
       clearInterval(dots);
       $(".ellipsis").remove();
@@ -2038,21 +2078,60 @@ $(document).ready(function() {
     //Clear all 'message2' containers
     $(this).closest("#route").find(".message2").html("");
     //Disable other buttons in the ticket form
-    $(this).closest(".tickets").find("button").prop("disabled", true);
+    $(this).closest(".sortable").find("button").prop("disabled", true);
     //Request cancellation confirmation
     $(this).closest(".tickets").find(".message2").html("Confirm Decline:<br><button type=\"button\" class=\"confirmDecline\">Confirm</button>  <button type=\"button\" class=\"cancelThis\">Go Back</button>");
+    if (typeof navigator.permissions !== "undefined" && typeof navigator.geolocation !== "undefined") {
+      $(this).closest(".sortable").find(".stepTicket").prop("disabled", true);
+      navigator.permissions.query({name: 'geolocation'}).then(PermissionStatus=>{
+        let options = { enableHighAccuracy: true, timeout: 25000, maximumAge: 0},
+            success = pos => {
+              $("#coordsTest").append("<p>Lat: " + pos.coords.latitude + ", Lng: " + pos.coords.longitude + "</p>");
+              // set the location coordinates
+              $(this).closest(".sortable").find(".latitude").val(pos.coords.latitude);
+              $(this).closest(".sortable").find(".longitude").val(pos.coords.longitude);
+              $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
+            },
+            error = err => {
+              $(this).closest(".tickets").find(".message2").append('<p>Location Not Available ' + err.message + '</p>');
+              $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
+            };
+        if (PermissionStatus.state == 'granted') {
+          navigator.geolocation.getCurrentPosition(success, error, options);
+        } else if (PermissionStatus.state == 'prompt') {
+          $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
+        } else if (PermissionStatus.state == 'denied') {
+          $(this).closest(".tickets").find(".message2").append("<p>Location Not Available</p>");
+          $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
+        }
+        PermissionStatus.onchange = () => {
+          if (PermissionStatus.state === "granted") {
+            navigator.geolocation.getCurrentPosition(success, error, options);
+          } else if (PermissionStatus.state == 'prompt') {
+            $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
+          } else if (PermissionStatus.state == 'denied') {
+            $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
+          }
+        }
+      });
+    } else {
+      $(this).closest(".tickets").find(".message2").append("<p>Location Not Available</p>");
+    }
   });
 
   $(document).on("click", "#route .confirmDecline", function(){
     $(this).closest(".message2").find("button").prop("disabled", true);
     // Get the ticket number to be removed from the data base
-    let tNum = $(this).closest(".tickets").find(".tNum").text();
+    let postData = {};
+    postData.tNum = $(this).closest(".tickets").find(".tNum").text();
     // Get the notes for the ticket
-    let notes = $(this).closest(".tickets").find(".notes").val();
+    postData.notes = $(this).closest(".tickets").find(".notes").val();
     // Set a flag to mark the ticket for deletion
-    let action = "declined";
+    postData.action = "declined";
     // Get the form key
-    let formKey = $("#formKey").val();
+    postData.formKey = $("#formKey").val();
+    postData.latitude = $(this).closest(".sortable").find(".latitude").val();
+    postData.longitude = $(this).closest(".sortable").find(".longitude").val();
     let $parentElement = $(this).closest(".message2");
     $parentElement.html("<span class=\"ellipsis\">.</span>");
     let $ele = $parentElement.find(".ellipsis");
@@ -2067,7 +2146,7 @@ $(document).ready(function() {
         forward = $ele.text().length === 1;
       }
     }, 500);
-    let attempt = ajax_template("POST", "./deleteContractTicket.php", "html", { ticket_index: tNum, action: action, notes: notes, formKey: formKey })
+    let attempt = ajax_template("POST", "./deleteContractTicket.php", "html", postData)
     .done((result) => {
       clearInterval(dots);
       $(".ellipsis").remove();
@@ -2108,19 +2187,20 @@ $(document).ready(function() {
   });
 
   $(document).on("click", "#route .cancelThis", function(){
-    $(this).closest(".tickets").find("button, .notes").prop("disabled", false);
+    $(this).closest(".sortable").find("button, .notes").prop("disabled", false);
     $(this).parent(".message2").html("");
   });
 
   $(document).on("click", "#route .confirmCancel", function(){
+    let postData = {};
     // Get the ticket number to be removed from the data base
-    let tNum = $(this).closest(".tickets").find(".tNum").text();
+    postData.tNum = $(this).closest(".tickets").find(".tNum").text();
     // Get the notes for the ticket
-    let notes = $(this).closest(".tickets").find(".notes").val();
+    postData.notes = $(this).closest(".tickets").find(".notes").val();
     //Set a flag to mark the ticket for deletion
-    let action = "cancel";
+    postData.action = "cancel";
     // Get the form key
-    let formKey = $("#formKey").val();
+    postData.formKey = $("#formKey").val();
     let $parentElement = $(this).closest(".message2");
     $parentElement.html("<span class=\"ellipsis\">.</span>");
     let $ele = $parentElement.find(".ellipsis");
@@ -2134,7 +2214,7 @@ $(document).ready(function() {
         forward = $ele.text().length === 1;
       }
     }, 500);
-    let attempt = ajax_template("POST", "./deleteContractTicket.php", "html", { ticket_index: tNum, action: action, notes: notes, formKey: formKey })
+    let attempt = ajax_template("POST", "./deleteContractTicket.php", "html", postData)
     .done((result) => {
       clearInterval(dots);
       $(".ellipsis").remove();
@@ -2158,14 +2238,15 @@ $(document).ready(function() {
 
   $(document).on("click", "#route .confirmDeadRun", function(){
     $(this).closest(".message2").find("button").prop("disabled", true);
+    let postData = {};
     // Get the ticket number to be marked as dead run
-    let tNum = $(this).closest(".tickets").find(".tNum").html();
+    postData.tNum = $(this).closest(".tickets").find(".tNum").html();
     // Get the notes for the ticket
-    let notes = $(this).closest(".tickets").find(".notes").val();
+    postData.notes = $(this).closest(".tickets").find(".notes").val();
     // Set a flag to mark the ticket for charge change
-    let action = "deadRun";
+    postData.action = "deadRun";
     // Get the form key
-    let formKey = $("#formKey").val();
+    postData.formKey = $("#formKey").val();
     let $parentElement = $(this).closest(".message2");
     $parentElement.html("<span class=\"ellipsis\">.</span>");
     let $ele = $parentElement.find(".ellipsis");
@@ -2179,7 +2260,7 @@ $(document).ready(function() {
         forward = $ele.text().length === 1;
       }
     }, 500);
-    let attempt = ajax_template("POST", "./deleteContractTicket.php", "html", { ticket_index: tNum, action: action, notes: notes, formKey: formKey })
+    let attempt = ajax_template("POST", "./deleteContractTicket.php", "html", postData)
     .done((result) => {
       clearInterval(dots);
       $(".ellipsis").remove();
@@ -2309,7 +2390,7 @@ $(document).ready(function() {
   });
 
   $(document).on("click", ".transferGroup", function() {
-    $(this).closest(".sortable").find("p.message2").html("Confirm Transfer: <input list=\"receivers\" class=\"pendingReceiver\" name=\"pendingReceiver\" id=\"pendingReceiver\" /> <button type=\"button\" class=\"confirmTransferGroup\">Confirm</button>  <button type=\"button\" class=\"cancelThis\">Go Back</button>");
+    $(this).closest(".sortable").find("button").prop("disabled", true).end().find("p.message2").html("Confirm Transfer: <input list=\"receivers\" class=\"pendingReceiver\" name=\"pendingReceiver\" id=\"pendingReceiver\" /> <button type=\"button\" class=\"confirmTransferGroup\">Confirm</button>  <button type=\"button\" class=\"cancelThis\">Go Back</button>");
   });
 
   $(document).on("click", "#route .confirmTransferGroup", function() {
@@ -2701,11 +2782,11 @@ $(document).ready(function() {
     let elementToReturn = $(".subContainer");
     let $target = $(this).closest(".page");
     let targetForm = ($(this).hasClass("editForm")) ? "#editForm" : "#submitTicket";
-    let formdata = {};
+    let postData = {};
     $(targetForm + " input").each(function() {
-      formdata[$(this).attr("name")] = $(this).val();
+      postData[$(this).attr("name")] = $(this).val();
     });
-    formdata.formKey = $("#formKey").val();
+    postData.formKey = $("#formKey").val();
     let $parentElement = $(this).closest("#deliveryConfirmation").find(".ticketError");
     $parentElement.html("<span class=\"ellipsis\">.</span>");
     let $ele = $parentElement.find(".ellipsis");
@@ -2720,7 +2801,7 @@ $(document).ready(function() {
         forward = $ele.text().length === 1;
       }
     }, 500);
-    let attempt = ajax_template("POST", "./enterTicket.php", "html", formdata)
+    let attempt = ajax_template("POST", "./enterTicket.php", "html", postData)
     .done((result) => {
       clearInterval(dots);
       if (result.indexOf("Session Error") !== -1) return showLogin();
