@@ -882,8 +882,8 @@ $(document).ready(function() {
     }
     // Replace html entity &quot; with double quote for JSON parsing
     if (formdata.transfers !== null && formdata.transfers !== "" && typeof formdata.transfers !== "undefined") formdata.transfers = $.parseJSON(formdata.transfers.replace(/&quot;/g,'"'));
-    if (formdata.dispatchedTo.substr(formdata.dispatchedTo.lastIndexOf(" ") + 1) !== formdata.holder) {
-      if (typeof(formdata.transfers) === "object") {
+    if (typeof formdata.holder !== "undefined" && formdata.dispatchedTo.substr(formdata.dispatchedTo.lastIndexOf(" ") + 1) !== formdata.holder) {
+      if (typeof formdata.transfers === "object") {
         formdata.transfers.push({ "holder":Number(formdata.holder), "receiver": Number(formdata.dispatchedTo.substr(formdata.dispatchedTo.lastIndexOf(" ") + 1)), "transferredBy": formdata.transferredBy, "timestamp": null });
       } else {
         formdata.transfers = [ { "holder":Number(formdata.holder), "receiver": Number(formdata.dispatchedTo.substr(formdata.dispatchedTo.lastIndexOf(" ") + 1)), "transferredBy": formdata.transferredBy, "timestamp": null } ];
