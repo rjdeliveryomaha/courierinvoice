@@ -866,7 +866,7 @@ $(document).ready(function() {
       }
     });
     formdata.formKey = $("#formKey").val();
-    formdata.mapAvailable = ($(this).closest(".page").attr("data-function") === "ticketForm") ? 1 : 0;
+    formdata.mapAvailable = ($(this).closest(".page").find(".mapContainer").length > 0) ? 1 : 0;
     if (formdata.dryIce === 1) {
       if (formdata.diWeight % 5 !== 0) {
         let $tempMessage = $(this).closest("form").find(".ticketError").text("Dry Ice in increments of 5 only.");
