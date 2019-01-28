@@ -143,6 +143,8 @@ Associative array
 
 Setting to use with [PHPMailer](https://github.com/PHPMailer/PHPMailer/tree/6.0).
 
+Setting this value to an empty array or ` null ` will cancel any attempt to send email notifications.
+
 Keys:
 
   - fromAddress
