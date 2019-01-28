@@ -1023,7 +1023,7 @@
     }
 
     private function processEmail() {
-      if (!isset($this->emailConfig)) {
+      if ($this->options['emailConfig'] === NULL || $this->options['emailConfig'] === '' || (is_array($this->options['emailConfig']) && empty($this->options['emailConfig']))) {
         return FALSE;
       }
       $mail = new PHPMailer(TRUE);
@@ -1031,24 +1031,16 @@
         //Server settings
         $mail->SMTPDebug = 0; // Enable verbose debug output
         $mail->isSMTP(); // Set mailer to use SMTP
-        $mail->Host = $this->emailConfig['smtpHost'];  // Specify main and backup SMTP servers
+        $mail->Host = $this->options['emailConfig']['smtpHost'];  // Specify main and backup SMTP servers
         $mail->SMTPAuth = TRUE; // Enable SMTP authentication
-        $mail->Username = $this->emailConfig['fromAddress']; // SMTP username
-        $mail->Password = $this->emailConfig['password']; // SMTP password
+        $mail->Username = $this->options['emailConfig']['fromAddress']; // SMTP username
+        $mail->Password = $this->options['emailConfig']['password']; // SMTP password
         $mail->SMTPSecure = 'tls'; // Enable TLS encryption, `ssl` also accepted
-        $mail->Port = $this->emailConfig['port']; // TCP port to connect to
+        $mail->Port = $this->options['emailConfig']['port']; // TCP port to connect to
         //Recipients
-        $mail->setFrom($this->emailConfig['emailAddress'], $this->emailConfig['fromName']);
+        $mail->setFrom($this->options['emailConfig']['emailAddress'], $this->options['emailConfig']['fromName']);
         $mail->addAddress($this->EmailAddress);     // Add a recipient
-        $mail->addBCC($this->emailConfig['BCCAddress']);
-        /* $mail->addAddress('ellen@example.com');               // Name is optional
-        $mail->addReplyTo('info@example.com', 'Information');
-        $mail->addCC('cc@example.com');
-        $mail->addBCC('bcc@example.com');
-        //Attachments
-        $mail->addAttachment('/var/tmp/file.tar.gz');         // Add attachments
-        $mail->addAttachment('/tmp/image.jpg', 'new.jpg');    // Optional name
-        //Content */
+        $mail->addBCC($this->options['emailConfig']['BCCAddress']);
         $mail->isHTML(TRUE);                                  // Set email format to HTML
         $mail->Subject = 'Update';
         $mail->Body    = "Delivery {$this->TicketNumber} has been {$this->stepMarker}.<br><br>This message is automatically generated. Please do not respond.<br><br>If you believe that you've received this message in error or have questions or comments please contact {$this->myInfo['Name']} by phone at <a href=\"tel:{$this->myInfo['Telephone']}\">{$this->myInfo['Telephone']}</a> or by email at <a href=\"mailto:{$this->myInfo['EmailAddress']}\">{$this->myInfo['EmailAddress']}</a>";
