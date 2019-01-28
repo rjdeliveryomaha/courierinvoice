@@ -1612,8 +1612,8 @@
                   <td colspan=\"2\">
                     <form id=\"ticketForm{$this->ticket_index}\" class=\"routeStop\">
                       <input type=\"hidden\" name=\"sigImage\" class=\"sigImage\" form=\"ticketForm{$this->ticket_index}\" />
-                      <input type=\"hidden\" name=\"latitude\" class=\"latitude\" form=\"ticketForm{$this->ticket_index}\" />
-                      <input type=\"hidden\" name=\"longitude\" class=\"longitude\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"latitude\" class=\"latitude\" form=\"ticketForm{$this->ticket_index}\" value=\"\" />
+                      <input type=\"hidden\" name=\"longitude\" class=\"longitude\" form=\"ticketForm{$this->ticket_index}\" value=\"\" />
                       <input type=\"hidden\" name=\"step\" class=\"step\" value=\"{$this->step}\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"ticket_index\" class=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"charge\" class=\"charge\" value=\"{$this->Charge}\" form=\"ticketForm{$this->ticket_index}\" />
@@ -1942,8 +1942,8 @@
         $multiTicket .= "
           <p class=\"center\">
             <input type=\"hidden\" name=\"sigImage\" id=\"sigImage{$this->multiTicket[0]->ticket_index}\" class=\"sigImage\" />
-            <input type=\"hidden\" name=\"latitude\" class=\"latitude\" form=\"ticketForm{$this->ticket_index}\" />
-            <input type=\"hidden\" name=\"longitude\" class=\"longitude\" form=\"ticketForm{$this->ticket_index}\" />
+            <input type=\"hidden\" name=\"latitude\" class=\"latitude\" form=\"ticketForm{$this->ticket_index}\" value=\"\" />
+            <input type=\"hidden\" name=\"longitude\" class=\"longitude\" form=\"ticketForm{$this->ticket_index}\" value=\"\" />
             <label for=\"pSigPrint{$this->ticket_index}\">Signer</label><br><input type=\"text\" name=\"pSigPrint\" id=\"pSigPrint{$this->multiTicket[0]->ticket_index}\" class=pSigPrint printName\" form=\"ticketForm{$this->multiTicket[0]->ticket_index}\" /><button type=\"button\" style=\"vertical-align:middle;\" class=\"getSig\"><img src=\"../images/sign.png\" height=\"24\" width=\"24\" alt=\"Open Signature Box\" /></button>
           </p>
           <div class=\"signature-pad sigField\"></div>

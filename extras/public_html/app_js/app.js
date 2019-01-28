@@ -1757,6 +1757,7 @@ $(document).ready(function() {
         if (PermissionStatus.state == 'granted') {
           navigator.geolocation.getCurrentPosition(success, error, options);
         } else if (PermissionStatus.state == 'prompt') {
+          navigator.geolocation.getCurrentPosition(success, error, options);
           $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
         } else if (PermissionStatus.state == 'denied') {
           $(this).closest(".tickets").find(".message2").append("<p>Location Not Available</p>");
@@ -1764,7 +1765,7 @@ $(document).ready(function() {
         }
         PermissionStatus.onchange = () => {
           if (PermissionStatus.state === "granted") {
-            navigator.geolocation.getCurrentPosition(success, error, options);
+            if ($(this).closest(".sortable").find(".latitude").val() === "" || $(this).closest(".sortable").find(".longitude").val() === "") navigator.geolocation.getCurrentPosition(success, error, options);
           } else if (PermissionStatus.state == 'prompt') {
             $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
           } else if (PermissionStatus.state == 'denied') {
@@ -1845,6 +1846,7 @@ $(document).ready(function() {
         if (PermissionStatus.state == 'granted') {
           navigator.geolocation.getCurrentPosition(success, error, options);
         } else if (PermissionStatus.state == 'prompt') {
+          navigator.geolocation.getCurrentPosition(success, error, options);
           $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
         } else if (PermissionStatus.state == 'denied') {
           $(this).closest(".tickets").find(".message2").append('<p>Location Not Available</p>');
@@ -1852,7 +1854,7 @@ $(document).ready(function() {
         }
         PermissionStatus.onchange = () => {
           if (PermissionStatus.state === "granted") {
-            navigator.geolocation.getCurrentPosition(success, error, options);
+            if ($(this).closest(".sortable").find(".latitude").val() === "" || $(this).closest(".sortable").find(".longitude").val() === "") navigator.geolocation.getCurrentPosition(success, error, options);
           } else if (PermissionStatus.state == 'prompt') {
             $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
           } else if (PermissionStatus.state == 'denied') {
@@ -2099,6 +2101,7 @@ $(document).ready(function() {
         if (PermissionStatus.state == 'granted') {
           navigator.geolocation.getCurrentPosition(success, error, options);
         } else if (PermissionStatus.state == 'prompt') {
+          navigator.geolocation.getCurrentPosition(success, error, options);
           $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
         } else if (PermissionStatus.state == 'denied') {
           $(this).closest(".tickets").find(".message2").append("<p>Location Not Available</p>");
@@ -2106,7 +2109,7 @@ $(document).ready(function() {
         }
         PermissionStatus.onchange = () => {
           if (PermissionStatus.state === "granted") {
-            navigator.geolocation.getCurrentPosition(success, error, options);
+            if ($(this).closest(".sortable").find(".latitude").val() === "" || $(this).closest(".sortable").find(".longitude").val() === "") navigator.geolocation.getCurrentPosition(success, error, options);
           } else if (PermissionStatus.state == 'prompt') {
             $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
           } else if (PermissionStatus.state == 'denied') {
@@ -2308,6 +2311,7 @@ $(document).ready(function() {
         if (PermissionStatus.state == 'granted') {
           navigator.geolocation.getCurrentPosition(success, error, options);
         } else if (PermissionStatus.state == 'prompt') {
+          navigator.geolocation.getCurrentPosition(success, error, options);
           $(this).closest(".tickets").find(".stepTicket").prop("disabled", false);
         } else if (PermissionStatus.state == 'denied') {
           $(this).closest(".tickets").find(".message2").append("<p>Location Not Available</p>");
@@ -2315,7 +2319,7 @@ $(document).ready(function() {
         }
         PermissionStatus.onchange = () => {
           if (PermissionStatus.state === "granted") {
-            navigator.geolocation.getCurrentPosition(success, error, options);
+            if ($(this).closest(".sortable").find(".latitude").val() === "" || $(this).closest(".sortable").find(".longitude").val() === "") navigator.geolocation.getCurrentPosition(success, error, options);
           } else if (PermissionStatus.state == 'prompt') {
             $(this).closest(".tickets").find(".stepTicket").prop("disabled", false);
           } else if (PermissionStatus.state == 'denied') {
@@ -2444,6 +2448,7 @@ $(document).ready(function() {
         if (PermissionStatus.state == 'granted') {
           navigator.geolocation.getCurrentPosition(success, error, options);
         } else if (PermissionStatus.state == 'prompt') {
+          navigator.geolocation.getCurrentPosition(success, error, options);
           $(this).closest(".sortable").find(".stepAll").prop("disabled", false);
         } else if (PermissionStatus.state == 'denied') {
           $(this).closest(".sortable").find(".message2:last").append('<p>Location Not Available</p>');
@@ -2451,7 +2456,7 @@ $(document).ready(function() {
         }
         PermissionStatus.onchange = () => {
           if (PermissionStatus.state === "granted") {
-            navigator.geolocation.getCurrentPosition(success, error, options);
+            if ($(this).closest(".sortable").find(".latitude").val() === "" || $(this).closest(".sortable").find(".longitude").val() === "") navigator.geolocation.getCurrentPosition(success, error, options);
           } else if (PermissionStatus.state == 'prompt') {
             $(this).closest(".sortable").find(".stepAll").prop("disabled", false);
           } else if (PermissionStatus.state == 'denied') {
