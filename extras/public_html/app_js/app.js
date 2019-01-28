@@ -2429,11 +2429,10 @@ $(document).ready(function() {
     $(this).closest("#route").find(".message2").html("");
     //Disable other buttons in the ticket form
     $(this).closest(".sortable").find("button").prop("disabled", true);
-    $(this).closest(".sortable").find(".message2:last").html('Confirm Group Update: <br><button type="button" class="stepAll">Confirm</button>  <button type="button" class="cancelThis">Go Back</button><p>Location Not Available</p>');
+    $(this).closest(".sortable").find(".message2:last").html('Confirm Group Update: <br><button type="button" class="stepAll">Confirm</button>  <button type="button" class="cancelThis">Go Back</button>');
     if (typeof navigator.permissions !== "undefined" && typeof navigator.geolocation !== "undefined") {
       $(this).closest(".sortable").find(".stepAll").prop("disabled", true);
       navigator.permissions.query({name: 'geolocation'}).then(PermissionStatus=>{
-        console.log(PermissionStatus.state);
         let options = { enableHighAccuracy: true, timeout: 5000, maximumAge: 0},
             success = pos => {
               // set the location coordinates
