@@ -1529,6 +1529,7 @@
       ***/
       $sigClass = $sigActive = $sigPlaceholder = $sigName = $buttonName = '';
       if ($this->pTimeStamp === $this->tTest) {
+        $this->step = $this->step ?? 'pickedUp';
         $sigName = 'pSig';
         if ($this->pSigReq === 1) {
           $sigClass = 'pulse';
@@ -1547,6 +1548,7 @@
         $this->dTime = ($this->Contract === 0) ? '' : date('g:i a', $temp2);
       } else {
         if ($this->dTimeStamp === $this->tTest) {
+          $this->step = $this->step ?? 'delivered';
           $sigName = 'dSig';
           if ($this->dSigReq === 1) {
             $sigClass =  'pulse';
@@ -1594,6 +1596,7 @@
           $this->dAddress2 = $tempAddy2;
           $this->dCountry = $tempCountry;
         } elseif ($this->dTimeStamp !== $this->tTest) {
+          $this->step = $this->step ?? 'returned';
           $sigName = 'd2Sig';
           if ($this->d2SigReq === 1) {
             $sigClass = 'pulse';
