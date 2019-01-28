@@ -2,13 +2,6 @@
   require_once '../includes/APIToolsConfig.php';
   require_once '../vendor/autoload.php';
   use rjdeliveryomaha\courierinvoice\SecureSessionHandler;
-
-  try {
-    SecureSessionHandler::start_session($config);
-  } catch (Exception $e) {
-    echo $e->getMessage();
-    exit;
-  }
 ?>
 <form id="loginForm" class="fright" style="display:none;">
   <input type="hidden" name="formKey" id="formKey" value="<?php echo SecureSessionHandler::outputKey(); ?>" />

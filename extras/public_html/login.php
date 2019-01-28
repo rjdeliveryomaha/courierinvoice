@@ -1,11 +1,11 @@
 <?php
+  include_once '../includes/user_function.php';
   include_once '../includes/APIToolsConfig.php';
   include_once '../vendor/autoload.php';
-  include_once '../includes/sip_secSession.php';
-  
+
   use rjdeliveryomaha\courierinvoice\LoginHandler;
   use rjdeliveryomaha\courierinvoice\SecureSessionHandler;
-  
+
   if ($_SERVER['REQUEST_METHOD'] !== 'POST') return false;
   if (isset($_POST['brute'])) {
     $uname = $_POST['clientID'];
@@ -25,14 +25,14 @@
       return false;
     }
   }
-  
+
   try {
     SecureSessionHandler::start_session($config);
   } catch(Exception $e) {
     echo $e->getMessage();
     return false;
   }
-  
+
   if (isset($_SESSION['brute']) && in_array($_POST['clientID'], json_decode($_SESSION['brute'], TRUE), TRUE)) {
     echo '<span data-value="break" class="error">Account locked.<br>Too many failed login attempts.</span>';
     return false;
