@@ -1348,6 +1348,9 @@
           </tr>";
       }
       extract($tokenSet,EXTR_IF_EXISTS);
+      $pLoc = ($this->pLat === NULL || $this->pLng === NULL) ? 'Not On File' : "<span class=\"coordinates\">{$this->pLat}, {$this->pLng}</span>";
+      $dLoc = ($this->dLat === NULL || $this->dLng === NULL) ? 'Not On File' : "<span class=\"coordinates\">{$this->dLat}, {$this->dLng}</span>";
+      $d2Loc = ($this->d2Lat === NULL || $this->d2Lng === NULL) ? 'Not On File': "<span class=\"coordinates\">{$this->d2Lat}, {$this->d2Lng}</span>";
       $returnData =
         $this->driverDatalist .
         "<div class=\"tickets sortable\">
@@ -1480,6 +1483,20 @@
             <table class=\"wide sigTable\">
               {$pSigDisplay} {$dSigDisplay} {$d2SigDisplay}
             </table>
+          </td>
+        </tr>
+        <tr>
+          <td colspan=\"2\">
+            <fieldset>
+              <legend>Coordinates</legend>
+              <table class=\"wide\">
+                <tr>
+                  <td class=\"center\"><span class=\"bold line\">Pick Up</span> {$pLoc}</td>
+                  <td class=\"center\"><span class=\"bold line\">Delivery</span> {$dLoc}</td>
+                  <td class=\"center\"><span class=\"bold line\">Return</span> {$d2Loc}</td>
+                </tr>
+              </table>
+            </fieldset>
           </td>
         </tr>
       </table>";
@@ -2993,7 +3010,7 @@
       $returnData = '';
       $this->queryData['method'] = 'GET';
       $this->queryData['endPoint'] = 'tickets';
-      $this->queryData['queryParams']['include'] = [ 'ticket_index', 'TicketNumber', 'RunNumber', 'BillTo', 'RequestedBy', 'ReceivedDate', 'pClient', 'pDepartment', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'dClient', 'dDepartment', 'dAddress1', 'dAddress2', 'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'TicketBase', 'Charge', 'Contract', 'Multiplier', 'RunPrice', 'TicketPrice', 'EmailConfirm', 'EmailAddress', 'Notes', 'DispatchTimeStamp', 'DispatchedTo', 'DispatchedBy', 'Transfers', 'TransferState', 'PendingReceiver', 'pTimeStamp', 'dTimeStamp', 'd2TimeStamp', 'pTime', 'dTime', 'd2Time', 'pSigReq', 'dSigReq', 'd2SigReq', 'pSigPrint', 'dSigPrint', 'd2SigPrint', 'pSig', 'dSig', 'd2Sig', 'pSigType', 'dSigType', 'd2SigType', 'RepeatClient', 'InvoiceNumber' ];
+      $this->queryData['queryParams']['include'] = [ 'ticket_index', 'TicketNumber', 'RunNumber', 'BillTo', 'RequestedBy', 'ReceivedDate', 'pClient', 'pDepartment', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'dClient', 'dDepartment', 'dAddress1', 'dAddress2', 'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'TicketBase', 'Charge', 'Contract', 'Multiplier', 'RunPrice', 'TicketPrice', 'EmailConfirm', 'EmailAddress', 'Notes', 'DispatchTimeStamp', 'DispatchedTo', 'DispatchedBy', 'Transfers', 'TransferState', 'PendingReceiver', 'pTimeStamp', 'dTimeStamp', 'd2TimeStamp', 'pLat', 'pLng', 'dLat', 'dLng', 'd2Lat', 'd2Lng', 'pTime', 'dTime', 'd2Time', 'pSigReq', 'dSigReq', 'd2SigReq', 'pSigPrint', 'dSigPrint', 'd2SigPrint', 'pSig', 'dSig', 'd2Sig', 'pSigType', 'dSigType', 'd2SigType', 'RepeatClient', 'InvoiceNumber' ];
       $this->queryData['queryParams']['filter'] = [  [ 'Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=>(int)$_SESSION['ClientID'] ], [ 'Resource'=>'ReceivedDate', 'Filter'=>'sw', 'Value'=>$this->today->format('Y-m-d') ]  ];
       if (!$this->query = self::createQuery($this->queryData)) {
         $temp = $this->error;

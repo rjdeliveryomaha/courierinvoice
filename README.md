@@ -505,6 +505,8 @@ echo $ticket->regenTicket();
 
 Display single ticket for client review or for dispatch.
 
+If coordinates are available for pick up, delivery, or return step the will be displayed in a span with the class coordinates.
+
 ```php
 echo $ticket->displaySingleTicket();
 ```
@@ -623,17 +625,29 @@ Valid values:
 
 - 'pickedUp'
 
-  Checks for ` $ticket->sigImage ` and submits pSigPrint, pSig, and pSigType.
+  Checks for ` $ticket->sigImage `
+
+  Checks for ` $ticket->latitude ` and ` $ticket->longitude `
+
+  Submits pSigPrint, pSig, pSigType, pLat, and pLng
 
 - 'delivered'
 
-  Checks for ` $ticket->sigImage ` and submits dSigPrint, dSig, and dSigType.
+  Checks for ` $ticket->sigImage `
+
+  Checks for ` $ticket->latitude ` and ` $ticket->longitude `
+
+  Submits dSigPrint, dSig, dSigType, dLat, and dLng
 
   Solves for TicketPrice is Charge is 7 and d2SigReq is 0.
 
 - 'returned'
 
-  Checks for ` $ticket->sigImage ` and submits d2SigPrint, d2Sig, and d2SigType.
+  Checks for ` $ticket->sigImage `
+
+  Checks for ` $ticket->latitude ` and ` $ticket->longitude `
+
+  Submits d2SigPrint, d2Sig, d2SigType, d2Lat, and d2Lng
 
   Solves for TicketPrice if Charge is 7 and d2SigReq is 1.
 
