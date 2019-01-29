@@ -2088,7 +2088,6 @@ $(document).ready(function() {
       navigator.permissions.query({name: 'geolocation'}).then(PermissionStatus=>{
         let options = { enableHighAccuracy: true, timeout: 25000, maximumAge: 0},
             success = pos => {
-              $("#coordsTest").append("<p>Lat: " + pos.coords.latitude + ", Lng: " + pos.coords.longitude + "</p>");
               // set the location coordinates
               $(this).closest(".sortable").find(".latitude").val(pos.coords.latitude);
               $(this).closest(".sortable").find(".longitude").val(pos.coords.longitude);
@@ -2297,7 +2296,6 @@ $(document).ready(function() {
       navigator.permissions.query({name: 'geolocation'}).then(PermissionStatus=>{
         let options = { enableHighAccuracy: true, timeout: 25000, maximumAge: 0},
             success = pos => {
-              $("#coordsTest").append("<p>Lat: " + pos.coords.latitude + ", Lng: " + pos.coords.longitude + "</p>");
               $(this).closest(".tickets").find(".cancelThis").attr("data-timestamp", pos.timestamp);
               // set the location coordinates
               $(this).closest(".tickets").find(".latitude").val(pos.coords.latitude);
