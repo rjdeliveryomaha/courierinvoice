@@ -3799,7 +3799,15 @@
         case 'deadRun':
           if ($this->multiTicket === NULL) {
             $newPrice = self::number_format_drop_zero_decimals($this->TicketBase * $this->config['DeadRun'], 2);
-            $ticketUpdateData['payload'] = array('Charge'=>'8', 'pTimeStamp'=>$this->today->format('Y-m-d H:i:s'), 'RunPrice'=>$newPrice, 'TicketPrice'=>$newPrice, 'Notes'=>$this->Notes);
+            $ticketUpdateData['payload'] = [
+                                             'Charge'=>'8',
+                                             'pTimeStamp'=>$this->today->format('Y-m-d H:i:s'),
+                                             'pLat'=>$this->latitude,
+                                             'pLng'=>$this->longitude,
+                                             'RunPrice'=>$newPrice,
+                                             'TicketPrice'=>$newPrice,
+                                             'Notes'=>$this->Notes
+                                           ];
           } else {
             $ticketUpdateData['payload'] = [];
             for ($i = 0; $i < count($this->multiTicket); $i++) {
@@ -3810,6 +3818,8 @@
               $tempObj->TicketPrice = $newPrice;
               $tempObj->RunPrice = $newPrice;
               $tempObj->pTimeStamp = $this->today->format('Y-m-d H:i:s');
+              $tempObj->pLat = $this->latitude;
+              $tempObj->pLng = $this->longitude;
               $tempObj->Notes = $this->multiTicket[$i]['Notes'];
               $ticketUpdateData['payload'][] = $tempObj;
             }
@@ -3825,7 +3835,17 @@
               case 4:
               case 5:
                 $newPrice = self::number_format_drop_zero_decimals(($this->TicketBase * 2), 2);
-                $ticketUpdateData['payload'] = [ 'dryIce'=>0, 'diPrice'=>0, 'Charge'=>6, 'dTimeStamp'=>$this->today->format('Y-m-d H:i:s'), 'RunPrice'=>$newPrice, 'TicketPrice'=>$newPrice, 'Notes'=>"Delivery declined.\n" . $this->Notes ];
+                $ticketUpdateData['payload'] = [
+                                                 'dryIce'=>0,
+                                                 'diPrice'=>0,
+                                                 'Charge'=>6,
+                                                 'dTimeStamp'=>$this->today->format('Y-m-d H:i:s'),
+                                                 'dLat'=>$this->latitude,
+                                                 'dLng'=>$this->longitude,
+                                                 'RunPrice'=>$newPrice,
+                                                 'TicketPrice'=>$newPrice,
+                                                 'Notes'=>"Delivery declined.\n" . $this->Notes
+                                               ];
               break;
             }
           } else {
@@ -3844,6 +3864,8 @@
                   $tempObj->diPrice = 0;
                   $tempObj->Charge = 6;
                   $tempObj->dTimeStamp = $this->today->format('Y-m-d H:i:s');
+                  $tempObj->dLat = $this->latitude;
+                  $tempObj->dLng = $this->longitude;
                   $tempObj->RunPrice = $newPrice;
                   $tempObj->TicketPrice = $newPrice;
                   $tempObj->Notes = $this->sanitized[$multiTicketIndex]['Notes'];
