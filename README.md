@@ -1366,6 +1366,8 @@ Setting the order of menu items as well as adding custom menu items (with or wit
 
 ### Drivers
 
+If the user agent supports both the [permissions](https://developer.mozilla.org/en-US/docs/Web/API/Permissions_API) and [geolocation](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API) APIs an attempt will be made to get the coordinates when a ticket is picked up, delivered, returned, declined, or marked as a dead run.
+
 * Route
 
   + Uses Route class to create or fetch contract tickets for a given driver.
