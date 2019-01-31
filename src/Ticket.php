@@ -1679,7 +1679,6 @@
       $dAddressEndoded = urlencode($this->dAddress1 . ', ' . $this->dAddress2 . ', ' . $this->countryFromAbbr($this->dCountry));
       $singleTicket .= "<div class=\"tickets sortable\">
         <h3>{$this->TicketNumber}</h3>
-        <span  class=\"hide tNum\">{$this->ticket_index}</span>
         <span class=\"hide rNum\">{$this->RunNumber}</span>
         <span class=\"hide pendingReceiver\">{$this->PendingReceiver}</span>
         <h3 class=\"error floatRight\">{$this->ticketCharge($this->Charge)}</h3>
