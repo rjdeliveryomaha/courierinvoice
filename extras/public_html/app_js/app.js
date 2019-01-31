@@ -68,6 +68,14 @@ function reloadPage() {
   location.reload();
 }
 
+function enableApp() {
+  $("header").removeClass("loggedout");
+  $(".menu__header").removeClass("loggedoutHeader");
+  $("#appContainer").find("button").each(function() {
+    $(this).prop("disabled", false);
+  });
+}
+
 function disableApp() {
   let header = document.querySelector("header"),
       menuHeader = document.querySelector(".menu__header");
@@ -650,13 +658,51 @@ function populatePage() {
   });
 }
 
-function enableApp() {
-  $("header").removeClass("loggedout");
-  $(".menu__header").removeClass("loggedoutHeader");
-  $("#appContainer").find("button").each(function() {
-    $(this).prop("disabled", false);
+function deliveryLocation() {
+  return new Promise((resolve, reject) => {
+    if (typeof navigator.permissions === "undefined" || typeof navigator.geolocation === "undefined") {
+      resolve(false);
+    }
+    let attempt_count = 0,
+      watch_id = null,
+      result = false;
+    navigator.permissions.query({name: 'geolocation'}).then(PermissionStatus=>{
+      let options = { enableHighAccuracy: true, timeout: 25000, maximumAge: 0},
+          success = pos => {
+              attempt_count++;
+              result = pos;
+              if (attempt_count > 3) {
+                navigator.geolocation.clearWatch(watch_id);
+                resolve(result);
+              }
+        },
+        error = err => {
+              console.error('Location Not Available ' + err.message);
+              if (attempt_count > 3) {
+                navigator.geolocation.clearWatch(watch_id);
+                resolve(result);
+              }
+        };
+      if (PermissionStatus.state == 'granted') {
+        watch_id = navigator.geolocation.watchPosition(success, error, options);
+      } else if (PermissionStatus.state == 'prompt') {
+        navigator.geolocation.getCurrentPosition(pos => {return});
+      } else if (PermissionStatus.state == 'denied') {
+        resolve(false);
+      }
+      PermissionStatus.onchange = () => {
+        if (PermissionStatus.state === "granted") {
+          watch_id = navigator.geolocation.watchPosition(success, error, options);
+        } else if (PermissionStatus.state == 'prompt') {
+          resolve(false);
+        } else if (PermissionStatus.state == 'denied') {
+          resolve(false);
+        }
+      }
+    });
   });
 }
+
 $(document).ready(function() {
   let noData = false;
   // assign data-values to navigation links
@@ -1566,13 +1612,19 @@ $(document).ready(function() {
     mySwipe.slide($("a.nav:contains('Invoice')").attr("data-value"), 300);
   });
   // on call tickets page
+  $(document).on("click", "#on_call .cancelThis", function(){
+    if ($(this).attr("data-watch_id")) navigator.geolocation.clearWatch($(this).attr("data-watch_id"));
+    $(this).closest(".tickets").find("button, .dTicket, input[type='text'], textarea").prop("disabled", false);
+    $(this).parent("p").html("");
+  });
+
   $(document).on("click", "#on_call .transferTicket", function() {
     //Clear all 'message2' containers
-    $(this).closest(".tickets").find(".message2").html("");
-    //Request transfer confirmation
-    $(this).closest(".tickets").find(".message2").html("Confirm Transfer:<br><input list=\"receivers\" class=\"pendingReceiver\" name=\"pendingReceiver\" id=\"pendingReceiver" + $(this).closest(".tickets").find(".tNum").text() + "\" /><br><button type=\"button\" class=\"confirmTransfer\">Confirm</button>  <button type=\"button\" class=\"cancelThis\">Go Back</button>");
+    $(this).closest(".page").find(".cancelThis").trigger("click");
     //Disable other buttons in the ticket form
-    $(this).closest(".tickets").find(".transferTicket, .cancelRun, .deadRun, .dTicket, .declined, input[type='text'], .getSig").prop("disabled", true);
+    $(this).closest(".tickets").find("button").prop("disabled", true);
+    //Request transfer confirmation
+    $(this).closest(".tickets").find(".message2").html("Confirm Transfer:<br><input list=\"receivers\" class=\"pendingReceiver\" name=\"pendingReceiver\" id=\"pendingReceiver" + $(this).closest(".tickets").find(".ticket_index").val() + "\" /><br><button type=\"button\" class=\"confirmTransfer\">Confirm</button>  <button type=\"button\" class=\"cancelThis\">Go Back</button>");
   });
 
   $(document).on("click", "#on_call .confirmTransfer", function() {
@@ -1585,7 +1637,7 @@ $(document).ready(function() {
       return false;
     }
     // Get the ticket number to be removed from the data base
-    let tNum = $(this).closest(".tickets").find(".tNum").text();
+    let ticket_index = $(this).closest(".tickets").find(".ticket_index").val();
     // Get the notes for the ticket
     let notes = $(this).closest(".tickets").find(".notes").val();
     //Set a flag to mark the ticket for deletion
@@ -1605,7 +1657,7 @@ $(document).ready(function() {
         forward = $ele.text().length === 1;
       }
     }, 500);
-    let attempt = ajax_template("POST", "./deleteContractTicket.php", "html", { ticket_index: tNum, action: action, TransferState: 1, PendingReceiver: pendingReceiver, notes: notes, formKey: formKey })
+    let attempt = ajax_template("POST", "./deleteContractTicket.php", "html", { ticket_index: ticket_index, action: action, TransferState: 1, PendingReceiver: pendingReceiver, notes: notes, formKey: formKey })
     .done((result) => {
       clearInterval(dots);
       $(".ellipsis").remove();
@@ -1628,30 +1680,16 @@ $(document).ready(function() {
 
   $(document).on("click", "#on_call .cancelRun", function(){
     //Clear all 'message2' containers
-    $(this).closest(".tickets").find(".message2").html("");
+    $(this).closest(".page").find(".cancelThis").trigger("click");
+    //Disable other buttons in the ticket form
+    $(this).closest(".tickets").find("button").prop("disabled", true);
     //Request cancellation confirmation
     $(this).closest(".tickets").find(".message2").html('Confirm Cancel:<br><button type="button" class="confirmCancel">Confirm</button>  <button type="button" class="cancelThis">Go Back</button>');
-    //Disable other buttons in the ticket form
-    $(this).closest(".tickets").find(".transferTicket, .cancelRun, .deadRun, .dTicket, .declined, input[type='text'], .getSig").prop("disabled", true);
-  });
-
-  $(document).on("click", "#on_call .deadRun", function(){
-    //Clear all 'message2' containers
-    $(this).closest(".tickets").find(".message2").html("");
-    //Request dead run confirmation
-    $(this).closest(".tickets").find(".message2").html('Confirm Dead Run:<br><button type="button" class="confirmDeadRun">Confirm</button>  <button type="button" class="cancelThis">Go Back</button>');
-    //Disable other buttons in the ticket form
-    $(this).closest(".tickets").find(".transferTicket, .cancelRun, .deadRun, .dTicket, .declined, input[type='text'], .getSig").prop("disabled", true);
-  });
-
-  $(document).on("click", "#on_call .cancelThis", function(){
-    $(this).closest(".tickets").find("button, .dTicket, input[type='text'], textarea").prop("disabled", false);
-    $(this).parent("p").html("");
   });
 
   $(document).on("click", "#on_call .confirmCancel", function(){
     //Get the ticket number to be removed from the data base
-    let tNum = $(this).closest(".tickets").find(".ticket_index").val();
+    let ticket_index = $(this).closest(".tickets").find(".ticket_index").val();
     //Get the notes for the ticket
     let notes = $(this).closest(".tickets").find(".notes").val();
     //Set a flag to mark the ticket for deletion
@@ -1670,7 +1708,7 @@ $(document).ready(function() {
         forward = $ele.text().length === 1;
       }
     }, 500);
-    let attempt = ajax_template("POST", "./deleteContractTicket.php", "html", { ticket_index: tNum, action: action, notes: notes, formKey: formKey })
+    let attempt = ajax_template("POST", "./deleteContractTicket.php", "html", { ticket_index: ticket_index, action: action, notes: notes, formKey: formKey })
     .done((result) => {
       clearInterval(dots);
       $(".ellipsis").remove();
@@ -1691,14 +1729,24 @@ $(document).ready(function() {
     });
   });
 
+  $(document).on("click", "#on_call .deadRun", function(){
+    //Clear all 'message2' containers
+    $(this).closest(".page").find(".cancelThis").html("click");
+    //Disable other buttons in the ticket form
+    $(this).closest(".tickets").find("button").prop("disabled", true);
+    //Request dead run confirmation
+    $(this).closest(".tickets").find(".message2").html('Confirm Dead Run:<br><button type="button" class="confirmDeadRun">Confirm</button>  <button type="button" class="cancelThis">Go Back</button>');
+  });
+
   $(document).on("click", "#on_call .confirmDeadRun", function(){
+    let postData = {};
     // Get the ticket number to be marked as dead run
-    let tNum = $(this).closest(".tickets").find(".ticket_index").val();
+    postData.ticket_index = $(this).closest(".tickets").find(".ticket_index").val();
     // Get the notes for the ticket
-    let notes = $(this).closest(".tickets").find(".notes").val();
+    postData.notes = $(this).closest(".tickets").find(".notes").val();
     // Set a flag to mark the ticket for charge change
-    let action = "deadRun";
-    let formKey = $("#formKey").val();
+    postData.action = "deadRun";
+    postData.formKey = $("#formKey").val();
     let $parentElement = $(this).closest(".message2");
     $parentElement.html("<span class=\"ellipsis\">.</span>");
     let $ele = $parentElement.find(".ellipsis");
@@ -1712,83 +1760,51 @@ $(document).ready(function() {
         forward = $ele.text().length === 1;
       }
     }, 500);
-    let attempt = ajax_template("POST", "./deleteContractTicket.php", "html", { ticket_index: tNum, action: action, notes: notes, formKey: formKey })
-    .done((result) => {
-      clearInterval(dots);
-      $(".ellipsis").remove();
-      if (result.indexOf("Session Error") !== -1) return showLogin();
-      $("#formKey").val(Number($("#formKey").val()) + 1);
-      if(result.indexOf("error") === - 1) {
-        $parentElement.html(result);
-        setTimeout(() => { refreshOnCall(Number($(".ticketCount:first").text()) - 1) }, 3000);
-      } else {
-        $parentElement.html('<span class="center">' + result + "</span>");
-        setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
+    deliveryLocation().then(position => {
+      if (position !== false) {
+        postData.latitude = position.coords.latitude;
+        postData.longitude = position.coords.longitude;
       }
-    })
-    .fail((jqXHR, status, error) => {
-      clearInterval(dots);
-      $parentElement.html("<span>" + error + "</span>");
-      setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
+      let attempt = ajax_template("POST", "./deleteContractTicket.php", "html", postData)
+      .done((result) => {
+        clearInterval(dots);
+        $(".ellipsis").remove();
+        if (result.indexOf("Session Error") !== -1) return showLogin();
+        $("#formKey").val(Number($("#formKey").val()) + 1);
+        if(result.indexOf("error") === - 1) {
+          $parentElement.html(result);
+          setTimeout(() => { refreshOnCall(Number($(".ticketCount:first").text()) - 1) }, 3000);
+        } else {
+          $parentElement.html('<span class="center">' + result + "</span>");
+          setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
+        }
+      })
+      .fail((jqXHR, status, error) => {
+        clearInterval(dots);
+        $parentElement.html("<span>" + error + "</span>");
+        setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
+      });
     });
   });
 
   $(document).on("click", "#on_call .declined", function(){
     //Clear all 'message2' containers
-    $(this).closest(".tickets").find(".message2").html("");
+    $(this).closest(".page").find(".cancelThis").trigger("click");
+    //Disable other buttons in the ticket form
+    $(this).closest(".sortable").find("button").prop("disabled", true);
     //Request cancellation confirmation
     $(this).closest(".tickets").find(".message2").html('Confirm Decline:<br><button type="button" class="confirmDecline">Confirm</button>  <button type="button" class="cancelThis">Go Back</button>');
-    //Disable other buttons in the ticket form
-    $(this).closest(".sortable").find(".transferTicket, .cancelRun, .deadRun, .dTicket, .declined, input[type='text'], .getSig").prop("disabled", true);
-    if (typeof navigator.permissions !== "undefined" && typeof navigator.geolocation !== "undefined") {
-      $(this).closest(".sortable").find(".stepTicket").prop("disabled", true);
-      navigator.permissions.query({name: 'geolocation'}).then(PermissionStatus=>{
-        let options = { enableHighAccuracy: true, timeout: 25000, maximumAge: 0},
-            success = pos => {
-              // set the location coordinates
-              $(this).closest(".sortable").find(".latitude").val(pos.coords.latitude);
-              $(this).closest(".sortable").find(".longitude").val(pos.coords.longitude);
-              $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
-            },
-            error = err => {
-              $(this).closest(".tickets").find(".message2").append('<p>Location Not Available ' + err.message + '</p>');
-              $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
-            };
-        if (PermissionStatus.state == 'granted') {
-          navigator.geolocation.getCurrentPosition(success, error, options);
-        } else if (PermissionStatus.state == 'prompt') {
-          navigator.geolocation.getCurrentPosition(success, error, options);
-          $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
-        } else if (PermissionStatus.state == 'denied') {
-          $(this).closest(".tickets").find(".message2").append("<p>Location Not Available</p>");
-          $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
-        }
-        PermissionStatus.onchange = () => {
-          if (PermissionStatus.state === "granted") {
-            if ($(this).closest(".sortable").find(".latitude").val() === "" || $(this).closest(".sortable").find(".longitude").val() === "") navigator.geolocation.getCurrentPosition(success, error, options);
-          } else if (PermissionStatus.state == 'prompt') {
-            $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
-          } else if (PermissionStatus.state == 'denied') {
-            $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
-          }
-        }
-      });
-    } else {
-      $(this).closest(".tickets").find(".message2").append("<p>Location Not Available</p>");
-    }
   });
 
   $(document).on("click", "#on_call .confirmDecline", function(){
     let postData = {};
     //Get the ticket number to be removed from the data base
-    postData.tNum = $(this).closest(".tickets").find(".ticket_index").val();
+    postData.ticket_index = $(this).closest(".tickets").find(".ticket_index").val();
     //Get the notes for the ticket
     postData.notes = $(this).closest(".tickets").find(".notes").val();
     //Set a flag to mark the ticket for deletion
     postData.action = "declined";
     postData.formKey = $("#formKey").val();
-    postData.latitude = $(this).closest(".sortable").find(".latitude").val();
-    postData.longitude = $(this).closest(".sortable").find(".longitude").val();
     let $parentElement = $(this).closest(".message2");
     $parentElement.html("<span class=\"ellipsis\">.</span>");
     let $ele = $parentElement.find(".ellipsis");
@@ -1802,70 +1818,40 @@ $(document).ready(function() {
         forward = $ele.text().length === 1;
       }
     }, 500);
-    let attempt = ajax_template("POST", "./deleteContractTicket.php", "html", postData)
-    .done((result) => {
-      clearInterval(dots);
-      $(".ellipsis").remove();
-      if (result.indexOf("Session Error") !== -1) return showLogin();
-      $("#formKey").val(Number($("#formKey").val()) + 1);
-      if(result.indexOf("error") === - 1) {
-        $parentElement.html(result);
-        setTimeout(() => { refreshOnCall(Number($(".ticketCount:first").text()) - 1) }, 3000);
-      } else {
-        $parentElement.html('<span class="center">' + result + "</span>");
-        setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
+    deliveryLocation().then(position => {
+      if (position !== false) {
+        postData.latitude = position.coords.latitude;
+        postData.longitude = position.coords.longitude;
       }
-    })
-    .fail((jqXHR, status, error) => {
-      clearInterval(dots);
-      $parentElement.html("<span>" + error + "</span>");
-      setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
+      let attempt = ajax_template("POST", "./deleteContractTicket.php", "html", postData)
+      .done((result) => {
+        clearInterval(dots);
+        $(".ellipsis").remove();
+        if (result.indexOf("Session Error") !== -1) return showLogin();
+        $("#formKey").val(Number($("#formKey").val()) + 1);
+        if(result.indexOf("error") === - 1) {
+          $parentElement.html(result);
+          setTimeout(() => { refreshOnCall(Number($(".ticketCount:first").text()) - 1) }, 3000);
+        } else {
+          $parentElement.html('<span class="center">' + result + "</span>");
+          setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
+        }
+      })
+      .fail((jqXHR, status, error) => {
+        clearInterval(dots);
+        $parentElement.html("<span>" + error + "</span>");
+        setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
+      });
     });
   });
 
   $(document).on("click", "#on_call .dTicket", function( e ) {
     e.preventDefault();
     //Clear all 'message2' containers
-    $(this).closest("#on_call").find(".message2").html("");
+    $(this).closest(".page").find(".cancelThis").trigger("click");
     //Disable other buttons in the ticket form
     $(this).closest(".tickets").find("button").prop("disabled", true);
     $(this).closest(".tickets").find(".message2").html("Confirm " + $(this).text() + ':<br><button type="button" class="stepTicket" form="' + $(this).attr("form") + '">Confirm</button>  <button type="button" class="cancelThis">Go Back</button>');
-    if (typeof navigator.permissions !== "undefined" && typeof navigator.geolocation !== "undefined") {
-      $(this).closest(".sortable").find(".stepTicket").prop("disabled", true);
-      navigator.permissions.query({name: 'geolocation'}).then(PermissionStatus=>{
-        let options = { enableHighAccuracy: true, timeout: 5000, maximumAge: 0},
-            success = pos => {
-              // set the location coordinates
-              $(this).closest(".sortable").find(".latitude").val(pos.coords.latitude);
-              $(this).closest(".sortable").find(".longitude").val(pos.coords.longitude);
-              $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
-            },
-            error = err => {
-              $(this).closest(".tickets").find(".message2").append('<p>Location Not Available ' + err.message + '</p>');
-            };
-        if (PermissionStatus.state == 'granted') {
-          navigator.geolocation.getCurrentPosition(success, error, options);
-        } else if (PermissionStatus.state == 'prompt') {
-          navigator.geolocation.getCurrentPosition(success, error, options);
-          $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
-        } else if (PermissionStatus.state == 'denied') {
-          $(this).closest(".tickets").find(".message2").append('<p>Location Not Available</p>');
-          $(this).prop("disabled", false);
-        }
-        PermissionStatus.onchange = () => {
-          if (PermissionStatus.state === "granted") {
-            if ($(this).closest(".sortable").find(".latitude").val() === "" || $(this).closest(".sortable").find(".longitude").val() === "") navigator.geolocation.getCurrentPosition(success, error, options);
-          } else if (PermissionStatus.state == 'prompt') {
-            $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
-          } else if (PermissionStatus.state == 'denied') {
-            $(this).closest(".tickets").find(".message2").append("<p>Location Not Available</p>");
-            $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
-          }
-        }
-      });
-    } else {
-      $(this).closest(".tickets").find(".message2").append("<p>Location Not Available</p>");
-    }
   });
 
   $(document).on("click", "#on_call .stepTicket", function( e ) {
@@ -1909,26 +1895,32 @@ $(document).ready(function() {
       postData.printName = postData.d2SigPrint;
       delete postData.d2SigPrint;
     }
-    let attempt = ajax_template("POST", "./updateStep.php", "text", postData)
-    .done((result) => {
-      clearInterval(dots);
-      $(".ellipsis").remove();
-      if (result.indexOf("Session Error") !== -1) return showLogin();
-      $("#formKey").val(Number($("#formKey").val()) + 1);
-      if(result.indexOf("error") === - 1) {
-        $parentElement.html(result);
-        let currentTicketCount = $(".ticketCount:first").text();
-        currentTicketCount -= (postData.step === "returned" || (postData.step === "delivered" && charge < 6) || (charge === "7" && x.closest(".tickets").find(".timing").parent("td").text().indexOf("Return") !== -1)) ? 1 : 0;
-        setTimeout(() => { refreshOnCall(currentTicketCount) }, 3000);
-      } else {
-        $parentElement.html('<span class="center">' + result + "</span>");
-        setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
+    deliveryLocation().then(position => {
+      if (position !== false) {
+        postData.latitude = position.coords.latitude;
+        postData.longitude = position.coords.longitude;
       }
-    })
-    .fail((jqXHR, status, error) => {
-      clearInterval(dots);
-      $parentElement.html('<span class="center">' + error + "</span>");
-      setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
+      let attempt = ajax_template("POST", "./updateStep.php", "text", postData)
+      .done((result) => {
+        clearInterval(dots);
+        $(".ellipsis").remove();
+        if (result.indexOf("Session Error") !== -1) return showLogin();
+        $("#formKey").val(Number($("#formKey").val()) + 1);
+        if(result.indexOf("error") === - 1) {
+          $parentElement.html(result);
+          let currentTicketCount = $(".ticketCount:first").text();
+          currentTicketCount -= (postData.step === "returned" || (postData.step === "delivered" && charge < 6) || (charge === "7" && x.closest(".tickets").find(".timing").parent("td").text().indexOf("Return") !== -1)) ? 1 : 0;
+          setTimeout(() => { refreshOnCall(currentTicketCount) }, 3000);
+        } else {
+          $parentElement.html('<span class="center">' + result + "</span>");
+          setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
+        }
+      })
+      .fail((jqXHR, status, error) => {
+        clearInterval(dots);
+        $parentElement.html('<span class="center">' + error + "</span>");
+        setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
+      });
     });
   });
   // change password page
@@ -2014,13 +2006,19 @@ $(document).ready(function() {
     }
   }).change();
   // route page
+  $(document).on("click", "#route .cancelThis", function(){
+    if ($(this).attr("data-watch_id")) navigator.geolocation.clearWatch($(this).attr("data-watch_id"));
+    $(this).closest(".sortable").find("button").prop("disabled", false);
+    $(this).parent(".message2").html("");
+  });
+
   $(document).on("click", "#route .transferTicket", function() {
     //Clear all 'message2' containers
-    $(this).closest("#route").find(".message2").html("");
+    $(this).closest(".page").find(".cancelThis").trigger("click");
     //Disable other buttons in the ticket form
     $(this).closest(".tickets").find("button").prop("disabled", true);
     //Request cancellation confirmation
-    $(this).closest(".tickets").find(".message2").html("Confirm Transfer:<br><input list=\"receivers\" class=\"pendingReceiver\" name=\"pendingReceiver\" id=\"pendingReceiver" + $(this).closest(".tickets").find(".tNum").text() + "\" /><br><button type=\"button\" class=\"confirmTransfer\">Confirm</button>  <button type=\"button\" class=\"cancelThis\">Go Back</button>");
+    $(this).closest(".tickets").find(".message2").html("Confirm Transfer:<br><input list=\"receivers\" class=\"pendingReceiver\" name=\"pendingReceiver\" id=\"pendingReceiver" + $(this).closest(".tickets").find(".ticket_index").val() + "\" /><br><button type=\"button\" class=\"confirmTransfer\">Confirm</button>  <button type=\"button\" class=\"cancelThis\">Go Back</button>");
   });
 
   $(document).on("click", "#route .confirmTransfer", function() {
@@ -2033,7 +2031,7 @@ $(document).ready(function() {
       return false;
     }
     // Get the ticket number to be removed from the data base
-    postData.tNum = $(this).closest(".tickets").find(".tNum").text();
+    postData.ticket_index = $(this).closest(".tickets").find(".ticket_index").val();
     // Get the notes for the ticket
     postData.notes = $(this).closest(".tickets").find(".notes").val();
     //Set a flag to mark the ticket for deletion
@@ -2078,62 +2076,24 @@ $(document).ready(function() {
 
   $(document).on("click", "#route .declined", function(){
     //Clear all 'message2' containers
-    $(this).closest("#route").find(".message2").html("");
+    $(this).closest(".page").find(".cancelThis").trigger("click");
     //Disable other buttons in the ticket form
     $(this).closest(".sortable").find("button").prop("disabled", true);
     //Request cancellation confirmation
     $(this).closest(".tickets").find(".message2").html("Confirm Decline:<br><button type=\"button\" class=\"confirmDecline\">Confirm</button>  <button type=\"button\" class=\"cancelThis\">Go Back</button>");
-    if (typeof navigator.permissions !== "undefined" && typeof navigator.geolocation !== "undefined") {
-      $(this).closest(".sortable").find(".stepTicket").prop("disabled", true);
-      navigator.permissions.query({name: 'geolocation'}).then(PermissionStatus=>{
-        let options = { enableHighAccuracy: true, timeout: 25000, maximumAge: 0},
-            success = pos => {
-              // set the location coordinates
-              $(this).closest(".sortable").find(".latitude").val(pos.coords.latitude);
-              $(this).closest(".sortable").find(".longitude").val(pos.coords.longitude);
-              $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
-            },
-            error = err => {
-              $(this).closest(".tickets").find(".message2").append('<p>Location Not Available ' + err.message + '</p>');
-              $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
-            };
-        if (PermissionStatus.state == 'granted') {
-          navigator.geolocation.getCurrentPosition(success, error, options);
-        } else if (PermissionStatus.state == 'prompt') {
-          navigator.geolocation.getCurrentPosition(success, error, options);
-          $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
-        } else if (PermissionStatus.state == 'denied') {
-          $(this).closest(".tickets").find(".message2").append("<p>Location Not Available</p>");
-          $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
-        }
-        PermissionStatus.onchange = () => {
-          if (PermissionStatus.state === "granted") {
-            if ($(this).closest(".sortable").find(".latitude").val() === "" || $(this).closest(".sortable").find(".longitude").val() === "") navigator.geolocation.getCurrentPosition(success, error, options);
-          } else if (PermissionStatus.state == 'prompt') {
-            $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
-          } else if (PermissionStatus.state == 'denied') {
-            $(this).closest(".sortable").find(".stepTicket").prop("disabled", false);
-          }
-        }
-      });
-    } else {
-      $(this).closest(".tickets").find(".message2").append("<p>Location Not Available</p>");
-    }
   });
 
   $(document).on("click", "#route .confirmDecline", function(){
     $(this).closest(".message2").find("button").prop("disabled", true);
     // Get the ticket number to be removed from the data base
     let postData = {};
-    postData.tNum = $(this).closest(".tickets").find(".tNum").text();
+    postData.ticket_index = $(this).closest(".tickets").find(".ticket_index").val();
     // Get the notes for the ticket
     postData.notes = $(this).closest(".tickets").find(".notes").val();
     // Set a flag to mark the ticket for deletion
     postData.action = "declined";
     // Get the form key
     postData.formKey = $("#formKey").val();
-    postData.latitude = $(this).closest(".sortable").find(".latitude").val();
-    postData.longitude = $(this).closest(".sortable").find(".longitude").val();
     let $parentElement = $(this).closest(".message2");
     $parentElement.html("<span class=\"ellipsis\">.</span>");
     let $ele = $parentElement.find(".ellipsis");
@@ -2148,55 +2108,47 @@ $(document).ready(function() {
         forward = $ele.text().length === 1;
       }
     }, 500);
-    let attempt = ajax_template("POST", "./deleteContractTicket.php", "html", postData)
-    .done((result) => {
-      clearInterval(dots);
-      $(".ellipsis").remove();
-      if (result.indexOf("Session Error") !== -1) return showLogin();
-      $("#formKey").val(Number($("#formKey").val()) + 1);
-      if(result.indexOf("error") === - 1) {
-        $parentElement.html(result);
-        setTimeout(refreshRoute, 3000);
-      } else {
-        $parentElement.html('<span class="center">' + result + "</span>");
-        setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
-        if (result.indexOf("Session Error") !== - 1) return showLogin();
+    deliveryLocation().then(position => {
+      if (position !== false) {
+        postData.latitude = position.coords.latitude;
+        postData.longitude = position.coords.longitude;
       }
-    })
-    .fail((jqXHR, status, error) => {
-      clearInterval(dots);
-      $parentElement.html("<span>" + error + "</span>");
-      setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
+      let attempt = ajax_template("POST", "./deleteContractTicket.php", "html", postData)
+      .done((result) => {
+        clearInterval(dots);
+        $(".ellipsis").remove();
+        if (result.indexOf("Session Error") !== -1) return showLogin();
+        $("#formKey").val(Number($("#formKey").val()) + 1);
+        if(result.indexOf("error") === - 1) {
+          $parentElement.html(result);
+          setTimeout(refreshRoute, 3000);
+        } else {
+          $parentElement.html('<span class="center">' + result + "</span>");
+          setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
+          if (result.indexOf("Session Error") !== - 1) return showLogin();
+        }
+      })
+      .fail((jqXHR, status, error) => {
+        clearInterval(dots);
+        $parentElement.html("<span>" + error + "</span>");
+        setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
+      });
     });
   });
 
   $(document).on("click", "#route .cancelRun", function(){
     //Clear all 'message2' containers
-    $(this).closest("#route").find(".message2").html("");
+    $(this).closest(".page").find(".cancelThis").trigger("click");
     //Disable other buttons in the ticket form
     $(this).closest(".tickets").find("button").prop("disabled", true);
     //Request cancellation confirmation
     $(this).closest(".tickets").find(".message2").html("Confirm Cancellation:<br><button type=\"button\" class=\"confirmCancel\">Confirm</button>  <button type=\"button\" class=\"cancelThis\">Go Back</button>");
   });
 
-  $(document).on("click", "#route .deadRun", function(){
-    //Clear all 'message2' containers
-    $(this).closest("#route").find(".message2").html("");
-    //Disable other buttons in the ticket form
-    $(this).closest(".tickets").find("button").prop("disabled", true);
-    //Request dead run confirmation
-    $(this).closest(".tickets").find(".message2").html("Confirm Dead Run:<br><button type=\"button\" class=\"confirmDeadRun\">Confirm</button>  <button type=\"button\" class=\"cancelThis\">Go Back</button>");
-  });
-
-  $(document).on("click", "#route .cancelThis", function(){
-    $(this).closest(".sortable").find("button, .notes").prop("disabled", false);
-    $(this).parent(".message2").html("");
-  });
-
   $(document).on("click", "#route .confirmCancel", function(){
     let postData = {};
     // Get the ticket number to be removed from the data base
-    postData.tNum = $(this).closest(".tickets").find(".tNum").text();
+    postData.ticket_index = $(this).closest(".tickets").find(".ticket_index").val();
     // Get the notes for the ticket
     postData.notes = $(this).closest(".tickets").find(".notes").val();
     //Set a flag to mark the ticket for deletion
@@ -2238,11 +2190,19 @@ $(document).ready(function() {
     });
   });
 
+  $(document).on("click", "#route .deadRun", function(){
+    //Clear all 'message2' containers
+    $(this).closest(".page").find(".cancelThis").trigger("click");
+    //Disable other buttons in the ticket form
+    $(this).closest(".tickets").find("button").prop("disabled", true);
+    //Request dead run confirmation
+    $(this).closest(".tickets").find(".message2").html("Confirm Dead Run:<br><button type=\"button\" class=\"confirmDeadRun\">Confirm</button>  <button type=\"button\" class=\"cancelThis\">Go Back</button>");
+  });
+
   $(document).on("click", "#route .confirmDeadRun", function(){
-    $(this).closest(".message2").find("button").prop("disabled", true);
     let postData = {};
     // Get the ticket number to be marked as dead run
-    postData.tNum = $(this).closest(".tickets").find(".tNum").html();
+    postData.ticket_index = $(this).closest(".tickets").find(".ticket_index").val();
     // Get the notes for the ticket
     postData.notes = $(this).closest(".tickets").find(".notes").val();
     // Set a flag to mark the ticket for charge change
@@ -2262,86 +2222,53 @@ $(document).ready(function() {
         forward = $ele.text().length === 1;
       }
     }, 500);
-    let attempt = ajax_template("POST", "./deleteContractTicket.php", "html", postData)
-    .done((result) => {
-      clearInterval(dots);
-      $(".ellipsis").remove();
-      if (result.indexOf("Session Error") !== -1) return showLogin();
-      $("#formKey").val(Number($("#formKey").val()) + 1);
-      if(result.indexOf("error") === - 1) {
-        $parentElement.html(result);
-        setTimeout(refreshRoute, 3000);
-      } else {
-        $parentElement.html('<span class="center">' + result + "</span>");
-        setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
-        if (result.indexOf("Session Error") !== - 1) return showLogin();
+    deliveryLocation().then(position => {
+      if (position !== false) {
+        postData.latitude = position.coords.latitude;
+        postData.longitude = position.coords.longitude;
       }
-    })
-    .fail((jqXHR, status, error) => {
-      clearInterval(dots);
-      $parentElement.html('<span class="center">' + error + "</span>");
-      setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
+      let attempt = ajax_template("POST", "./deleteContractTicket.php", "html", postData)
+      .done((result) => {
+        clearInterval(dots);
+        $(".ellipsis").remove();
+        if (result.indexOf("Session Error") !== -1) return showLogin();
+        $("#formKey").val(Number($("#formKey").val()) + 1);
+        if(result.indexOf("error") === - 1) {
+          $parentElement.html(result);
+          setTimeout(refreshRoute, 3000);
+        } else {
+          $parentElement.html('<span class="center">' + result + "</span>");
+          setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
+          if (result.indexOf("Session Error") !== - 1) return showLogin();
+        }
+      })
+      .fail((jqXHR, status, error) => {
+        clearInterval(dots);
+        $parentElement.html('<span class="center">' + error + "</span>");
+        setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
+      });
     });
   });
 
   $(document).on("click", "#route .dTicket", function( e ) {
     e.preventDefault();
     //Clear all 'message2' containers
-    $(this).closest("#route").find(".message2").html("");
+    $(this).closest(".page").find(".cancelThis").trigger("click");
     //Disable other buttons in the ticket form
     $(this).closest(".tickets").find("button").prop("disabled", true);
     $(this).closest(".tickets").find(".message2").html("Confirm " + $(this).text() + ':<br><button type="button" class="stepTicket" form="' + $(this).attr("form") + '">Confirm</button>  <button type="button" class="cancelThis">Go Back</button>');
-    if (typeof navigator.permissions !== "undefined" && typeof navigator.geolocation !== "undefined") {
-      $(this).closest(".tickets").find(".stepTicket").prop("disabled", true);
-      navigator.permissions.query({name: 'geolocation'}).then(PermissionStatus=>{
-        let options = { enableHighAccuracy: true, timeout: 25000, maximumAge: 0},
-            success = pos => {
-              $(this).closest(".tickets").find(".cancelThis").attr("data-timestamp", pos.timestamp);
-              // set the location coordinates
-              $(this).closest(".tickets").find(".latitude").val(pos.coords.latitude);
-              $(this).closest(".tickets").find(".longitude").val(pos.coords.longitude);
-              $(this).closest(".tickets").find(".stepTicket").prop("disabled", false);
-            },
-            error = err => {
-              $(this).closest(".tickets").find(".message2").append('<p>Location Not Available ' + err.message + '</p>');
-              $(this).closest(".tickets").find(".stepTicket").prop("disabled", false);
-            };
-        if (PermissionStatus.state == 'granted') {
-          navigator.geolocation.getCurrentPosition(success, error, options);
-        } else if (PermissionStatus.state == 'prompt') {
-          navigator.geolocation.getCurrentPosition(success, error, options);
-          $(this).closest(".tickets").find(".stepTicket").prop("disabled", false);
-        } else if (PermissionStatus.state == 'denied') {
-          $(this).closest(".tickets").find(".message2").append("<p>Location Not Available</p>");
-          $(this).closest(".tickets").find(".stepTicket").prop("disabled", false);
-        }
-        PermissionStatus.onchange = () => {
-          if (PermissionStatus.state === "granted") {
-            if ($(this).closest(".sortable").find(".latitude").val() === "" || $(this).closest(".sortable").find(".longitude").val() === "") navigator.geolocation.getCurrentPosition(success, error, options);
-          } else if (PermissionStatus.state == 'prompt') {
-            $(this).closest(".tickets").find(".stepTicket").prop("disabled", false);
-          } else if (PermissionStatus.state == 'denied') {
-            $(this).closest(".tickets").find(".stepTicket").prop("disabled", false);
-          }
-        }
-      });
-    } else {
-      $(this).closest(".tickets").find(".message2").append("<p>Location Not Available</p>");
-    }
   });
 
   $(document).on("click", "#route .stepTicket", function( e ) {
     e.preventDefault();
-    let x = $(this);
-    x.closest(".message2").find("button").prop("disabled", true);
     let postData = {};
     $(this).closest(".tickets").find("input[form='" + $(this).attr("form") + "'], textarea[form='" + $(this).attr("form") + "']").each(function() {
       postData[$(this).prop("name")] = $(this).val();
     });
     if ($(".printName[form='" + $(this).attr("form") + "']").prop("required") === true && $(".printName[form='" + $(this).attr("form") + "']").val() === "") {
-      $temp = x.closest(".sortable").find(".printName").addClass("elementError");
+      $temp = $(this).closest(".sortable").find(".printName").addClass("elementError");
       setTimeout(() => { $temp.removeClass("elementError"); }, 3000);
-      x.closest(".message2").find("button").prop("disabled", false);
+      $(this).closest(".message2").find("button").prop("disabled", false);
       return false;
     }
     let $parentElement = $(this).closest(".message2");
@@ -2370,24 +2297,30 @@ $(document).ready(function() {
       postData.printName = postData.d2SigPrint;
       delete postData.d2SigPrint;
     }
-    let attempt = ajax_template("POST", "./updateStep.php", "text", postData)
-    .done((result) => {
-      clearInterval(dots);
-      $(".ellipsis").remove();
-      if (result.indexOf("Session Error") !== -1) return showLogin();
-      $("#formKey").val(Number($("#formKey").val()) + 1);
-      if(result.indexOf("error") === - 1) {
-        $parentElement.html(result);
-        setTimeout(refreshRoute, 3000);
-      } else {
-        $parentElement.html('<span class="center">' + result + "</span>");
-        setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
+    deliveryLocation().then(position => {
+      if (position !== false) {
+        postData.latitude = position.coords.latitude;
+        postData.longitude = position.coords.longitude;
       }
-    })
-    .fail((jqXHR, status, error) => {
-      clearInterval(dots);
-      $parentElement.html('<span class="center">' + error + "</span>");
-      setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
+      let attempt = ajax_template("POST", "./updateStep.php", "text", postData)
+      .done((result) => {
+        clearInterval(dots);
+        $(".ellipsis").remove();
+        if (result.indexOf("Session Error") !== -1) return showLogin();
+        $("#formKey").val(Number($("#formKey").val()) + 1);
+        if(result.indexOf("error") === - 1) {
+          $parentElement.html(result);
+          setTimeout(refreshRoute, 3000);
+        } else {
+          $parentElement.html('<span class="center">' + result + "</span>");
+          setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
+        }
+      })
+      .fail((jqXHR, status, error) => {
+        clearInterval(dots);
+        $parentElement.html('<span class="center">' + error + "</span>");
+        setTimeout(() => { $parentElement.html(""); $parentElement.closest(".tickets").find("button").prop("disabled", false); }, 5000);
+      });
     });
   });
 
@@ -2399,7 +2332,7 @@ $(document).ready(function() {
     let multiTicket = [];
     let pendingReceiver = $(this).closest(".message2").find(".pendingReceiver").val();
     $(this).closest(".sortable").find(".tickets").each(function( i ) {
-      multiTicket[ i ] = { ticket_index: $(this).find(".tNum").text(), notes: $(this).find(".notes").val(), pendingReceiver: pendingReceiver, action: "transfer", transferState: 1 };
+      multiTicket[ i ] = { ticket_index: $(this).find(".ticket_index").val(), notes: $(this).find(".notes").val(), pendingReceiver: pendingReceiver, action: "transfer", transferState: 1 };
     });
     let postData = { multiTicket: multiTicket, TransferState: 1, formKey: $("#formKey").val() };
     let attempt = ajax_template("POST", "./deleteContractTicket.php", "text", postData)
@@ -2428,43 +2361,6 @@ $(document).ready(function() {
     //Disable other buttons in the ticket form
     $(this).closest(".sortable").find("button").prop("disabled", true);
     $(this).closest(".sortable").find(".message2:last").html('Confirm Group Update: <br><button type="button" class="stepAll">Confirm</button>  <button type="button" class="cancelThis">Go Back</button>');
-    if (typeof navigator.permissions !== "undefined" && typeof navigator.geolocation !== "undefined") {
-      $(this).closest(".sortable").find(".stepAll").prop("disabled", true);
-      navigator.permissions.query({name: 'geolocation'}).then(PermissionStatus=>{
-        let options = { enableHighAccuracy: true, timeout: 5000, maximumAge: 0},
-            success = pos => {
-              // set the location coordinates
-              $(this).closest(".sortable").find(".latitude").val(pos.coords.latitude);
-              $(this).closest(".sortable").find(".longitude").val(pos.coords.longitude);
-              $(this).closest(".sortable").find(".stepAll").prop("disabled", false);
-            },
-            error = err => {
-              $(this).closest(".sortable").find(".message2:last").append('<p>Location Not Available ' + err.message + '</p>');
-              $(this).closest(".sortable").find(".stepAll").prop("disabled", false);
-            };
-        if (PermissionStatus.state == 'granted') {
-          navigator.geolocation.getCurrentPosition(success, error, options);
-        } else if (PermissionStatus.state == 'prompt') {
-          navigator.geolocation.getCurrentPosition(success, error, options);
-          $(this).closest(".sortable").find(".stepAll").prop("disabled", false);
-        } else if (PermissionStatus.state == 'denied') {
-          $(this).closest(".sortable").find(".message2:last").append('<p>Location Not Available</p>');
-          $(this).closest(".sortable").find(".stepAll").prop("disabled", false);
-        }
-        PermissionStatus.onchange = () => {
-          if (PermissionStatus.state === "granted") {
-            if ($(this).closest(".sortable").find(".latitude").val() === "" || $(this).closest(".sortable").find(".longitude").val() === "") navigator.geolocation.getCurrentPosition(success, error, options);
-          } else if (PermissionStatus.state == 'prompt') {
-            $(this).closest(".sortable").find(".stepAll").prop("disabled", false);
-          } else if (PermissionStatus.state == 'denied') {
-            $(this).closest(".sortable").find(".message2:last").html("<p>Location Not Available</p>");
-            $(this).closest(".sortable").find(".stepAll").prop("disabled", false);
-          }
-        }
-      });
-    } else {
-      $(this).closest(".sortable").find(".message2:last").html("<p>Location Not Available</p>");
-    }
   });
 
   $(document).on("click", "#route .stepAll", function(){
@@ -2484,7 +2380,7 @@ $(document).ready(function() {
       $(this).closest(".message2").find("button").prop("disabled", false);
       return false;
     }
-    let postData = { multiTicket: multiTicket, formKey: $("#formKey").val(), printName: $(this).closest(".sortable").find(".printName").val(), sigImage: $(this).closest(".sortable").find(".sigImage").val(), latitude: $(this).closest(".sortable").find(".latitude").val(), longitude: $(this).closest(".sortable").find(".longitude").val() };
+    let postData = { multiTicket: multiTicket, formKey: $("#formKey").val(), printName: $(this).closest(".sortable").find(".printName").val(), sigImage: $(this).closest(".sortable").find(".sigImage").val() };
     let $parentElement = $(this).closest(".message2");
     $parentElement.html("<span class=\"ellipsis\">.</span>");
     let $ele = $parentElement.find(".ellipsis");
@@ -2498,24 +2394,30 @@ $(document).ready(function() {
         forward = $ele.text().length === 1;
       }
     }, 500);
-    let attempt = ajax_template("POST", "./updateStep.php", "html", postData)
-    .done((result) => {
-      clearInterval(dots);
-      $(".ellipsis").remove();
-      if (result.indexOf("Session Error") !== -1) return showLogin();
-      $("#formKey").val(Number($("#formKey").val()) + 1);
-      if (result.indexOf("error") === -1) {
-        $parentElement.html(result);
-        setTimeout(refreshRoute, 3000);
-      } else {
-        $parentElement.html("<span>" + result + "</span>");
-        setTimeout(() => { $parentElement.html(""); $parentElement.closest(".sortable").find("button").prop("disabled", false); }, 3000);
+    deliveryLocation().then(position => {
+      if (position !== false) {
+        postData.latitude = position.coords.latitude;
+        postData.longitude = position.coords.longitude;
       }
-    })
-    .fail((jqXHR, status, error) => {
-      clearInterval(dots);
-      $parentElement.html('<span class="center">' + error + "</span>");
-      setTimeout(() => { $parentElement.html(""); $parentElement.closest(".sortable").find("button").prop("disabled", false); }, 5000);
+      let attempt = ajax_template("POST", "./updateStep.php", "html", postData)
+      .done((result) => {
+        clearInterval(dots);
+        $(".ellipsis").remove();
+        if (result.indexOf("Session Error") !== -1) return showLogin();
+        $("#formKey").val(Number($("#formKey").val()) + 1);
+        if (result.indexOf("error") === -1) {
+          $parentElement.html(result);
+          setTimeout(refreshRoute, 3000);
+        } else {
+          $parentElement.html("<span>" + result + "</span>");
+          setTimeout(() => { $parentElement.html(""); $parentElement.closest(".sortable").find("button").prop("disabled", false); }, 3000);
+        }
+      })
+      .fail((jqXHR, status, error) => {
+        clearInterval(dots);
+        $parentElement.html('<span class="center">' + error + "</span>");
+        setTimeout(() => { $parentElement.html(""); $parentElement.closest(".sortable").find("button").prop("disabled", false); }, 5000);
+      });
     });
   });
   // price calculator page
@@ -2909,7 +2811,7 @@ $(document).ready(function() {
   $(document).on("click", ".cancelTransfer, .declineTransfer, .acceptTransfer", function() {
     let workspace = $(this).closest(".sortable");
     let formKey = $("#formKey").val();
-    let ticket_index = Number($(this).closest(".tickets").find(".tNum").text());
+    let ticket_index = $(this).closest(".tickets").find(".ticket_index").val();
     let dispatchedTo = workspace.find(".dispatchedTo").text();
     let transferState;
     if ($(this).hasClass("cancelTransfer")) {
@@ -2954,7 +2856,7 @@ $(document).ready(function() {
       transferState = 4;
     }
     $(this).closest(".sortable").find(".tickets").each(function( i ) {
-      multiTicket[ i ] = { ticket_index: Number($(this).find(".tNum").text()), transferState: transferState, pendingReceiver: Number($(this).find(".pendingReceiver").text()), notes: $(this).find(".notes").val(), DispatchedTo: dispatchedTo, action: "transfer" }
+      multiTicket[ i ] = { ticket_index: $(this).find(".ticket_index").val(), transferState: transferState, pendingReceiver: Number($(this).find(".pendingReceiver").text()), notes: $(this).find(".notes").val(), DispatchedTo: dispatchedTo, action: "transfer" }
     });
     let updateTransferGroupAttempt = ajax_template("POST", "./deleteContractTicket.php", "html", { formKey: formKey, TransferState: transferState, multiTicket: multiTicket })
     .done((result) => {
