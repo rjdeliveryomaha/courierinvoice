@@ -663,20 +663,22 @@ function deliveryLocation() {
     if (typeof navigator.permissions === "undefined" || typeof navigator.geolocation === "undefined") {
       resolve(false);
     }
-    let attempt_count = 0,
+    let success_count = 0,
       error_count = 0,
+      max_attempt = 7,
+      min_accuracy = 100,
       watch_id = null,
       result = false;
     navigator.permissions.query({name: 'geolocation'}).then(PermissionStatus=>{
       let options = { enableHighAccuracy: true, timeout: 25000, maximumAge: 0},
           success = pos => {
-              attempt_count++;
-              if (result) {
+              success_count++;
+              if (success_count > 2) {
                 result = (result.coords.accuracy < pos.coords.accuracy) ? result : pos;
               } else {
                 result = pos;
               }
-              if (attempt_count > 3) {
+              if (success_count > max_attempt || (success_count > 2 && result.coords.accuracy < min_accuracy)) {
                 navigator.geolocation.clearWatch(watch_id);
                 resolve(result);
               }
@@ -684,7 +686,7 @@ function deliveryLocation() {
         error = err => {
               error_count++;
               console.error('Location Not Available ' + err.message);
-              if (attempt_count > 3 || error_count > 3) {
+              if (success_count > max_attempt || error_count > max_attempt) {
                 navigator.geolocation.clearWatch(watch_id);
                 resolve(result);
               }
