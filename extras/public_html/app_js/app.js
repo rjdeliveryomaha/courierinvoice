@@ -664,21 +664,27 @@ function deliveryLocation() {
       resolve(false);
     }
     let attempt_count = 0,
+      error_count = 0,
       watch_id = null,
       result = false;
     navigator.permissions.query({name: 'geolocation'}).then(PermissionStatus=>{
       let options = { enableHighAccuracy: true, timeout: 25000, maximumAge: 0},
           success = pos => {
               attempt_count++;
-              result = pos;
+              if (result) {
+                result = (result.coords.accuracy < pos.coords.accuracy) ? result : pos;
+              } else {
+                result = pos;
+              }
               if (attempt_count > 3) {
                 navigator.geolocation.clearWatch(watch_id);
                 resolve(result);
               }
         },
         error = err => {
+              error_count++;
               console.error('Location Not Available ' + err.message);
-              if (attempt_count > 3) {
+              if (attempt_count > 3 || error_count > 3) {
                 navigator.geolocation.clearWatch(watch_id);
                 resolve(result);
               }
