@@ -946,7 +946,8 @@
         } elseif ($id === 'on_call' || $id === 'transfers' || $id === 'dispatch') {
           $alert = ($id === 'on_call') ? '<span class="ticketCount"></span>' : "<span class=\"{$id}Count\"></span>";
         }
-        $this->customMenuItems .= "<li><a data-id=\"{$id}\" class=\"nav\">{$totalWithPage[$i]}{$alert}</a></li>
+        $this->customMenuItems .= ($i === 0) ? "<li class=\"menu__list__active\"><a data-id=\"{$id}\" class=\"nav\">{$totalWithPage[$i]}{$alert}</a></li>
+        " : "<li><a data-id=\"{$id}\" class=\"nav\">{$totalWithPage[$i]}{$alert}</a></li>
         ";
         $this->customPages .= "<div id=\"{$id}\" data-function=\"{$totalPages[$i]}\" class=\"page\">{$spinner}</div>
         ";
