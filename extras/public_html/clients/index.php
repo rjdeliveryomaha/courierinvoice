@@ -75,7 +75,13 @@
     header('refresh:5;url=/');
     exit;
   }
-  $initialTitle = ($_SESSION['ulevel'] > 0) ? 'Delivery Request' : '<span class="mobileHide">Run </span>Price Calc<span class="mobileHide">ulator</span>';
+  if ($_SESSION['ulevel'] > 0) {
+    $initialTitle = 'Delivery Request';
+    $loginName = $_SESSION['ClientID'];
+  } else {
+    $initialTitle = '<span class="mobileHide">Run </span>Price Calc<span class="mobileHide">ulator</span>';
+    $loginName = $_SESSION['Login'];
+  }
   $mobileMarker = (isset($_SESSION['mobile']) && $_SESSION['mobile'] === TRUE) ? 1 : 0;
 ?>
   <div id="confirmLogin" class="hide">
@@ -95,12 +101,11 @@
         </tfoot>
         <tbody>
           <tr>
-            <td class="pullRight bold"><label for="uid">Login ID:</label></td>
-            <td class="pullLeft"><input type="text" name="uid" id="uid" /></td>
-          </tr>
-          <tr>
             <td class="pullRight bold"><label for="upw">Password:</label></td>
-            <td class="pullLeft"><input type="password" name="upw" id="upw" /></td>
+            <td class="pullLeft">
+              <input type="password" name="upw" id="upw" />
+              <input type="hidden" name="uid" id="uid" value="<?php echo $loginName; ?>" />
+            </td>
           </tr>
           <tr>
             <td><button type="submit" id="confirm" form="login">Login</button></td>

@@ -240,6 +240,7 @@
         $_SESSION['pwWarning'] += 4;
       }
       unset($_SESSION['error']);
+      $_SESSION['Login'] = $this->result[0]['Login'];
       $_SESSION['ClientName'] = $this->result[0]['Name'];
       $_SESSION['ClientID'] = $this->result[0]['id'];
       $_SESSION['ListBy'] = $this->result[0]['ListBy'];

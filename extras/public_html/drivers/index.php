@@ -58,7 +58,13 @@
     header("refresh:5;url=../mobileLogin");
     exit;
   }
-  $initialTitle = ($_SESSION['ulevel'] === "driver") ? '<button type="button" id="refreshRoute">Route</button>' : '<button type="button" id="refreshDispatch">Dispatch</button><span class="medium dispatchCount"></span>';
+  if ($_SESSION['ulevel'] === 'driver') {
+    $initialTitle = '<button type="button" onclick="rjdci.refreshRoute()">Route</button>';
+    $loginName = "driver{$_SESSION['DriverID']}";
+  } else {
+    $initialTitle = '<button type="button" onclick="rjdci.refreshDispatch()">Dispatch</button><span class="medium dispatchCount"></span>';
+    $loginName = "dispatch{$_SESSION['DispatchID']}";
+  }
   $mobileMarker = (isset($_SESSION['mobile']) && $_SESSION['mobile'] === TRUE) ? 1 : 0;
 ?>
   <div id="confirmLogout" class="hide">
@@ -82,12 +88,11 @@
         </tfoot>
         <tbody>
           <tr>
-            <td class="pullRight bold"><label for="uid">Login ID:</label></td>
-            <td class="pullLeft"><input type="text" name="uid" id="uid" /></td>
-          </tr>
-          <tr>
             <td class="pullRight bold"><label for="upw">Password:</label></td>
-            <td class="pullLeft"><input type="password" name="upw" id="upw" /></td>
+            <td class="pullLeft">
+              <input type="password" name="upw" id="upw" />
+              <input type="hidden" name="uid" id="uid" value="<?php echo $loginName; ?>" />
+            </td>
           </tr>
           <tr>
             <td><button type="submit" id="confirm" form="login">Login</button></td>
