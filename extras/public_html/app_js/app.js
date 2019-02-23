@@ -1105,7 +1105,7 @@ $(document).ready(function() {
     }
   }).change();
   // dispatch tickets
-  $(document).on("click", "#dispatch .dTicket", function(e){
+  $(document).on("click", "#dispatch .stepTicket", function(e){
     e.preventDefault();
     let button = $(this);
     button.prop("disabled", true);
