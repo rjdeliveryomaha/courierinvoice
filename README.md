@@ -610,6 +610,52 @@ $ticket->processReturnTicket();
 Processes and submits a change of charge from 5 to 6 using the value stored in TicketBase.
 
 ```php
+echo $ticket->updateTicketProperty();
+```
+
+Updates values in ` $ticket->updateTicketDatabaseKeys ` if provided.
+
+```php
+$ticket->updateTicketDatabaseKeys = ['BillTo',
+                                     'Charge',
+                                     'EmailAddress',
+                                     'EmailConfirm',
+                                     'Telephone',
+                                     'RequestedBy',
+                                     'pClient',
+                                     'pAddress1',
+                                     'pAddress2',
+                                     'pCountry',
+                                     'pContact',
+                                     'pTelephone',
+                                     'dClient',
+                                     'dAddress1',
+                                     'dAddress2',
+                                     'dCountry',
+                                     'dContact',
+                                     'dTelephone',
+                                     'dryIce',
+                                     'diWeight',
+                                     'diPrice',
+                                     'DispatchedTo',
+                                     'Transfers',
+                                     'TicketBase',
+                                     'RunPrice',
+                                     'TicketPrice',
+                                     'Notes',
+                                     'pSigReq',
+                                     'dSigReq',
+                                     'd2SigReq',
+                                     'pLat',
+                                     'pLng',
+                                     'dLat',
+                                     'dLng',
+                                     'd2Lat',
+                                     'd2Lng'
+                                   ];
+```
+
+```php
 echo $ticket->stepTicket();
 ```
 

@@ -142,7 +142,7 @@
     // Define the type of form to create charge options for
     private $formType;
     private $newTicketDatabaseKeys = ['Contract', 'RunNumber', 'TicketNumber', 'TicketBase', 'BillTo', 'RepeatClient', 'RequestedBy', 'pClient', 'dClient', 'pDepartment', 'dDepartment', 'pAddress1', 'dAddress1', 'pAddress2', 'dAddress2', 'pCountry', 'dCountry', 'pContact', 'dContact', 'pTelephone', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'Charge', 'RunPrice', 'TicketPrice', 'EmailConfirm', 'EmailAddress', 'Telephone', 'pTime', 'dTime', 'd2Time', 'pSigReq', 'dSigReq', 'd2SigReq', 'DispatchedTo', 'ReceivedDate', 'DispatchTimeStamp', 'DispatchMicroTime', 'DispatchedBy', 'Notes'];
-    private $updateTicketDatabaseKeys = ['BillTo', 'Charge', 'EmailAddress', 'EmailConfirm', 'Telephone', 'RequestedBy', 'pClient', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'dClient', 'dAddress1', 'dAddress2', 'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'DispatchedTo', 'Transfers', 'TicketBase', 'RunPrice', 'TicketPrice', 'Notes', 'pSigReq', 'dSigReq', 'd2SigReq'];
+    private $updateTicketDatabaseKeys = ['BillTo', 'Charge', 'EmailAddress', 'EmailConfirm', 'Telephone', 'RequestedBy', 'pClient', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'dClient', 'dAddress1', 'dAddress2', 'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'DispatchedTo', 'Transfers', 'TicketBase', 'RunPrice', 'TicketPrice', 'Notes', 'pSigReq', 'dSigReq', 'd2SigReq', 'pLat', 'pLng', 'dLat', 'dLng', 'd2Lat', 'd2Lng'];
     private $postableKeys = ['repeatClient', 'fromMe', 'pClient', 'pDepartment', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'pSigReq', 'toMe', 'dClient', 'dDepartment', 'dAddress1', 'dAddress2', 'dCountry', 'dContact', 'dTelephone', 'dSigReq', 'dryIce', 'diWeight', 'Notes', 'Charge', 'DispatchedTo', 'd2SigReq', 'EmailAddress', 'EmailConfirm', 'Telephone', 'RequestedBy', 'locationList', 'clientList', 'tClientList', 'driverList'];
     private $javascriptKeys = ['ClientName', 'Department', 'ShippingAddress1', 'ShippingAddress2', 'ShippingCountry'];
     // Results form geocoder
@@ -3529,6 +3529,53 @@
       $this->mapAvailable = FALSE;
       self::solveTicketPrice();
       self::processTicket();
+    }
+
+    public function updateTicketProperty() {
+      if ($this->multiTicket !== NULL) {
+        $tempIndex = array();
+        for ($i = 0; $i < count($this->multiTicket); $i++) {
+          foreach ($this->multiTicket[$i] as $key => $value) {
+            if ($key === 'ticket_index') $tempIndex[] = (int)$value;
+          }
+        }
+        $this->ticket_index = implode(',', $tempIndex);
+      }
+      $ticketUpdateData['endPoint'] = 'tickets';
+      $ticketUpdateData['method']= 'PUT';
+      $ticketUpdateData['queryParams'] = [];
+      $ticketUpdateData['primaryKey'] = $this->ticket_index;
+      $ticketUpdateData['payload'] = [];
+      if ($this->multiTicket === NULL) {
+        foreach($this->updateTicketDatabaseKeys as $key => $value) {
+          if ($this->{$key} !== NULL) $ticketUpdateData[$key] = $value;
+        }
+      } else {
+        for ($i = 0; $i < count($this->multiTicket); $i++) {
+          $tempObj = new \stdClass();
+          foreach($this->updateTicketDatabaseKeys as $key => $value) {
+            if (isset($this->multiTicket[$i][$key])) $tempObj->$key = $value;
+          }
+          $ticketUpdateData['payload'][] = $tempObj;
+        }
+      }
+      if (!$ticketUpdate = self::createQuery($ticketUpdateData)) {
+        $temp = $this->error;
+        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        if ($this->enableLogging !== FALSE) self::writeLoop();
+        return $this->error;
+        return FALSE;
+      }
+      $updateResult = self::callQuery($ticketUpdate);
+      if ($updateResult === FALSE) {
+        $temp = $this->error;
+        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        if ($this->enableLogging !== FALSE) self::writeLoop();
+        return $this->error;
+        return FALSE;
+      }
+      $marker = ($this->multiTicket === NULL) ? $this->TicketNumber : 'group';
+      return "<p class=\"center\">Ticket {$marker} updated.</p>";
     }
 
     public function stepTicket() {
