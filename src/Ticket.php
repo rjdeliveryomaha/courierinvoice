@@ -1649,10 +1649,18 @@
                     <button type=\"button\" class=\"dTicket\" form=\"ticketForm{$this->ticket_index}\">{$buttonName}</button>
                   </td>";
       if ($this->processTransfer === TRUE) {
-        $confirm = '
-            <table class="wide confirm">
+        $confirm = "
+            <table class=\"wide confirm\">
               <tbody>
-                <tr>';
+                <tr>
+                  <td colspan=\"2\">
+                    <form id=\"ticketForm{$this->ticket_index}\" class=\"routeStop\">
+                      <input type=\"hidden\" name=\"ticket_index\" class=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"dispatchedTo\" class=\"dispatchedTo\" value=\"{$this->DispatchedTo}\" form=\"ticketForm{$this->ticket_index}\" />
+                    </form>
+                  </td>
+                </tr>
+                <tr>";
         $confirm .= ($this->PendingReceiver !== $this->driverID) ? '
                   <td>Pending</td>
                   <td><button type="button" class="cancelTransfer">Cancel Transfer</button></td>' :
