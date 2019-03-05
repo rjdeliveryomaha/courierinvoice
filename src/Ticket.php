@@ -2397,7 +2397,7 @@
                 </span>
                 <span class=\"item\">
                   <label for=\"ticketEditorDate\">Date</label>
-                  <input type=\"date\" name=\"searchDate\" class=\"searchDate\" value=\"{$this->today->format('Y-m-d')}\" />
+                  <input type=\"date\" name=\"ticketEditorSearchDate\" class=\"ticketEditorSearchDate\" value=\"{$this->today->format('Y-m-d')}\" />
                 </span>
                 <span class=\"item\">
                   <button type=\"submit\" id=\"ticketEditorSubmit\">Submit</button>
