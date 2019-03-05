@@ -1005,7 +1005,7 @@
           foreach ($this as $k => $v) {
             if (strtolower($key) === strtolower($k) && $k !== 'sanitized') {
               if (strtolower($key) === 'transfers') {
-                $this->$k = ($value === NULL || $value === '') ? NULL : json_decode(html_entity_decode($value));
+                $this->$k = ($value === NULL || $value === '') ? NULL : $value;
               } elseif (strtolower($key) === 'transferstate' || strtolower($key) === 'pendingreceiver') {
                 $this->$k = ($this->processTransfer === TRUE) ? $v : $value;
                 $tempkey = strtolower(substr($k, 0, 1)) . substr($k, 1) . 'Old';
@@ -1622,6 +1622,7 @@
           $this->dTime = '-';
         }
       }
+      $transfersFormValue = ($this->Transfers) ? htmlspecialchars($this->Transfers) : '';
       $confirm = "
             <table class=\"wide confirm\">
               <tbody>
@@ -1637,6 +1638,7 @@
                       <input type=\"hidden\" name=\"charge\" class=\"charge\" value=\"{$this->Charge}\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"emailConfirm\" class=\"emailConfirm\" value=\"{$this->EmailConfirm}\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"emailAddress\" class=\"emailAddress\" value=\"{$this->EmailAddress}\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"transfers\" class=\"transfers\" value=\"{$transfersFormValue}\" form=\"ticketForm{$this->ticket_index}\" />
                       <label for=\"{$sigName}Print{$this->ticket_index}\">Signer</label><br><input type=\"text\" name=\"{$sigName}Print\" id=\"{$sigName}Print{$this->ticket_index}\" class=\"{$sigName}Print printName\" placeholder=\"{$sigPlaceholder}\" {$sigActive} form=\"ticketForm{$this->ticket_index}\" />
                     </form>
                   </td>
@@ -1657,6 +1659,7 @@
                     <form id=\"ticketForm{$this->ticket_index}\" class=\"routeStop\">
                       <input type=\"hidden\" name=\"ticket_index\" class=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"dispatchedTo\" class=\"dispatchedTo\" value=\"{$this->DispatchedTo}\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"transfers\" class=\"transfers\" value=\"{$transfersFormValue}\" form=\"ticketForm{$this->ticket_index}\" />
                     </form>
                   </td>
                 </tr>
@@ -1779,7 +1782,7 @@
               <td></td>
               <td></td>
               <td></td>';
-          }
+      }
       $singleTicket .= '
             </tr>
           </tbody>
@@ -1887,7 +1890,7 @@
             $label = 'Deliver From';
             $buttonName = 'Not Used';
             $buttonClass = 'hide';
-            $button2Class = 'declined';
+            $button2Class = ($this->processTransfer) ? 'hide' : 'declined';
             $button2Name = 'Declined';
           break;
           case 'returned':
@@ -1897,6 +1900,7 @@
             $button2Name = '';
           break;
         }
+        $transfersFormValue = ($this->multiTicket[$i]->Transfers) ? htmlspecialchars($this->multiTicket[$i]->Transfers) : '';
         $multiTicket .= "<table class=\"tickets center\">
           <tfoot>
             <tr>
@@ -1920,6 +1924,7 @@
                   <input type=\"hidden\" name=\"charge\" class=\"charge\" value=\"{$this->multiTicket[$i]->Charge}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                   <input type=\"hidden\" name=\"emailConfirm\" class=\"emailConfirm\" value=\"{$this->multiTicket[$i]->EmailConfirm}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                   <input type=\"hidden\" name=\"emailAddress\" class=\"emailAddress\" value=\"{$this->multiTicket[$i]->EmailAddress}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
+                  <input type=\"hidden\" name=\"transfers\" class=\"transfers\" value=\"{$transfersFormValue}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                   <input type=\"hidden\" name=\"pendingReceiver\" class=\"pendingReceiver\" value=\"{$this->multiTicket[$i]->PendingReceiver}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                   <input type=\"hidden\" name=\"step\" class=\"step\" value=\"{$this->multiTicket[$i]->step}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                 </form>
@@ -1954,7 +1959,7 @@
                     <th class=\"pullLeft\">Notes:</th>
                   </tr>
                   <tr>
-                    <td><textarea class=\"wide notes\" rows=\"4\" name=\"notes\">{$this->decode($this->multiTicket[$i]->Notes)}</textarea></td>
+                    <td><textarea class=\"wide notes\" rows=\"4\" name=\"notes\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\">{$this->decode($this->multiTicket[$i]->Notes)}</textarea></td>
                   </tr>
                 </table>
               </td>
@@ -1976,11 +1981,11 @@
           <button type=\"button\" class=\"confirmAll\">Confirm {$count($this->multiTicket)}</button> <button type=\"button\" class=\"transferGroup\">Transfer {$count($this->multiTicket)}</button></div>";
       } else {
         if ($this->PendingReceiver === $this->driverID) {
-          $multiTicket .= '<button type="button" class="acceptTransferGroup floatLeft">Accept Transfer Group</button>
-                <button type="button" class="declineTransferGroup floatRight">Decline Transfer Group</button>
+          $multiTicket .= '<button type="button" class="acceptTransferGroup">Accept Transfer Group</button>
+                <button type="button" class="declineTransferGroup">Decline Transfer Group</button>
                 ';
         } else {
-          $multiTicket .= '<button type="button" class="cancelTransferGroup">Cancel Transfer Group</button>';
+          $multiTicket .= 'Pending <button type="button" class="cancelTransferGroup">Cancel Transfer Group</button>';
         }
       }
       return $multiTicket;
@@ -3137,7 +3142,6 @@
       // Generate the hidden form
       // Add the values that we just solved for
       $newTicketInput = ($this->ticket_index === NULL) ? "<input type=\"hidden\" name=\"newTicket\" value=\"1\" form=\"submitTicket{$this->ticket_index}\" />" : "<input type=\"hidden\" name=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"submitTicket{$this->ticket_index}\" />";
-      $transfersFormValue = ($this->Transfers == NULL) ? '' : htmlentities(json_encode($this->Transfers), ENT_QUOTES);
       $submitForm = "
             <form id=\"submitTicket{$this->ticket_index}\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
               {$newTicketInput}
@@ -3151,8 +3155,7 @@
               <input type=\"hidden\" name=\"multiplier\" value=\"1\" form=\"submitTicket{$this->ticket_index}\" />
               <input type=\"hidden\" name=\"runPrice\" value=\"{$this->RunPrice}\" form=\"submitTicket{$this->ticket_index}\" />
               <input type=\"hidden\" name=\"ticketPrice\" value=\"{$this->TicketPrice}\" form=\"submitTicket{$this->ticket_index}\" />
-              <input type=\"hidden\" name=\"dispatchedTo\" value=\"{$this->DispatchedTo}\" form=\"submitTicket{$this->ticket_index}\" />
-              <input type=\"hidden\" name=\"transfers\" value=\"{$transfersFormValue}\" form=\"submitTicket{$this->ticket_index}\" />";
+              <input type=\"hidden\" name=\"dispatchedTo\" value=\"{$this->DispatchedTo}\" form=\"submitTicket{$this->ticket_index}\" />";
       // Set the form name to  submitTicket
       $this->formName = "submitTicket{$this->ticket_index}";
       // Add values in the $postableKeys array
@@ -3942,11 +3945,17 @@
             */
             case 1:
               if ($this->multiTicket === NULL) {
-                $ticketUpdateData['payload'] = [ 'TransferState'=>(int)$this->TransferState, 'PendingReceiver'=>(int)$this->PendingReceiver, 'Notes'=>$this->Notes ];
+                $ticketUpdateData['payload'] = [ 'TransferState'=>(int)$this->TransferState, 'PendingReceiver'=>(int)self::after_last(';', $this->pendingReceiver), 'Notes'=>$this->Notes ];
+                $this->receiverName = self::test_input(self::before_last(';', $this->pendingReceiver));
               } else {
                 $ticketUpdateData['payload'] = [];
+                $this->receiverName = self::test_input(self::before_last(';', $this->multiTicket[0]['pendingReceiver']));
+                if (!$this->receiverName) {
+                  $this->error = '<span class="error">Error</span>: Transfer Receiver Not Defined.';
+                  if ($this->enableLogging !== FALSE) self::writeLoop();
+                  return $this->error;
+                }
                 for ($i = 0; $i < count($this->multiTicket); $i++) {
-                  $this->receiverName = self::test_input(self::before_last(';', $this->multiTicket[$i]['pendingReceiver']));
                   $tempObj = new \stdClass();
                   $tempObj->TransferState = (int)$this->multiTicket[$i]['transferState'];
                   $tempObj->PendingReceiver = self::test_int(self::after_last(';', $this->multiTicket[$i]['pendingReceiver']));
@@ -3958,14 +3967,13 @@
             break;
             case 2:
               if ($this->multiTicket === NULL) {
-                $ticketUpdateData['payload'] = [ 'TransferState'=>0, 'PendingReceiver'=>(int)$this->PendingReceiver, 'Notes'=>$this->Notes, 'DispatchedTo'=>$this->DispatchedTo ];
+                $ticketUpdateData['payload'] = [ 'TransferState'=>0, 'PendingReceiver'=>0, 'Notes'=>$this->Notes ];
               } else {
                 $ticketUpdateData['payload'] = [];
                 for ($i = 0; $i < count($this->multiTicket); $i++) {
-                  $multiTicketIndex = self::recursive_array_search($this->multiTicket[$i]['ticket_index'], $this->sanitized);
                   $tempObj = new \stdClass();
                   $tempObj->TransferState = 0;
-                  $tempObj->PendingReceiver =self::test_int(self::after_last(';', $this->multiTicket[$i]['pendingReceiver']));
+                  $tempObj->PendingReceiver = 0;
                   $tempObj->Notes = $this->multiTicket[$i]['notes'];
                   $ticketUpdateData['payload'][] = $tempObj;
                 }
@@ -3974,16 +3982,15 @@
             break;
             case 3:
               if ($this->multiTicket === NULL) {
-                $ticketUpdateData['payload'] = [ 'TransferState'=>0, 'PendingReceiver'=>(int)$this->driverID, 'Notes'=>$this->Notes, 'DispatchedTo'=>$this->DispatchedTo ];
+                $ticketUpdateData['payload'] = [ 'TransferState'=>0, 'PendingReceiver'=>0, 'Notes'=>$this->Notes, 'DispatchedTo'=>$this->DispatchedTo ];
               } else {
                 $ticketUpdateData['payload'] = [];
                 for ($i = 0; $i < count($this->multiTicket); $i++) {
                   $multiTicketIndex = self::recursive_array_search($this->multiTicket[$i]['ticket_index'], $this->sanitized);
                   $tempObj = new \stdClass();
                   $tempObj->TransferState = 0;
-                  $tempObj->PendingReceiver = (int)$this->driverID;
+                  $tempObj->PendingReceiver = 0;
                   $tempObj->Notes = $this->multiTicket[$i]['notes'];
-                  $tempObj->DispatchedTo = $this->sanitized[$multiTicketIndex]['DispatchedTo'];
                   $ticketUpdateData['payload'][] = $tempObj;
                 }
               }
@@ -3996,30 +4003,37 @@
                 $tempTransfer->receiver = (int)$this->driverID;
                 $tempTransfer->transferredBy = "2.{$this->DispatchedTo}";
                 $tempTransfer->timestamp = time();
-                if ($this->Transfers === NULL || $this->Transfers === '') {
-                  $this->Transfers = [ $tempTransfer ];
+                if ($this->Transfers) {
+                  $testTransfers = json_decode(html_entity_decode($this->Transfers));
+                  if (json_last_error() !== JSON_ERROR_NONE) {
+                    $this->Transfers = [ $tempTransfer ];
+                  } else {
+                    $testTransfers[] = $tempTransfer;
+                    $this->Transfers = $testTransfers;
+                  }
                 } else {
-                  $tempArray = json_decode($this->Transfers);
-                  $tempArray[] = $tempTransfer;
-                  $this->Transfers = $tempArray;
+                  $this->Transfers = [ $tempTransfer ];
                 }
-                $ticketUpdateData['payload'] = [ 'TransferState'=>0, 'PendingReceiver'=>0, 'Notes'=>$this->Notes, 'DispatchedTo'=>$this->driverID, "Transfers"=>$this->Transfers ];
+                $ticketUpdateData['payload'] = [ 'TransferState'=>0, 'PendingReceiver'=>0, 'Notes'=>$this->Notes, 'DispatchedTo'=>$this->driverID, 'Transfers'=>$this->Transfers ];
               } else {
                 $ticketUpdateData['payload'] = [];
                 for ($i = 0; $i < count($this->multiTicket); $i++) {
-                  $multiTicketIndex = self::recursive_array_search($this->multiTicket[$i]['ticket_index'], $this->sanitized);
                   $tempObj = new \stdClass();
                   $tempTransfer = new \stdClass();
-                  $tempTransfer->holder = (int)$this->sanitized[$multiTicketIndex]['DispatchedTo'];
+                  $tempTransfer->holder = (int)$this->multiTicket[$i]['dispatchedTo'];
                   $tempTransfer->receiver = (int)$this->driverID;
-                  $tempTransfer->transferredBy = "2.{$this->sanitized[$multiTicketIndex]['DispatchedTo']}";
+                  $tempTransfer->transferredBy = "2.{$this->multiTicket[$i]['dispatchedTo']}";
                   $tempTransfer->timestamp = time();
-                  if ($this->sanitized[$multiTicketIndex]['Transfers'] === NULL || $this->sanitized[$multiTicketIndex]['Transfers'] === '') {
+                  if (!$this->multiTicket[$i]['transfers']) {
                     $tempObj->Transfers = [ $tempTransfer ];
                   } else {
-                    $tempArray = json_decode($this->sanitized[$multiTicketIndex]['Transfers']);
-                    $tempArray[] = $tempTransfer;
-                    $tempObj->Transfers = $tempArray;
+                    $testTransfers = json_decode(html_entity_decode($this->multiTicket[$i]['transfers']));
+                    if (json_last_error() !== JSON_ERROR_NONE) {
+                      $tempObj->Transfers = [ $tempTransfer ];
+                    } else {
+                      $testTransfers[] = $tempTransfer;
+                      $tempObj->Transfers = $testTransfers;
+                    }
                   }
                   $tempObj->TransferState = 0;
                   $tempObj->PendingReceiver = 0;
@@ -4038,10 +4052,9 @@
           }
         break;
         default:
-          $this->error = __function__ . ' Line ' . __line__ . ": Action {$this->action} not recognised.";
+          $this->error = __function__ . ' Line ' . __line__ . ": Action {$this->action} not recognized.";
           if ($this->enableLogging !== FALSE) self::writeLoop();
-          echo $this->error;
-          return FALSE;
+          return $this->error;
         break;
       }
       if (!$ticketUpdate = self::createQuery($ticketUpdateData)) {
