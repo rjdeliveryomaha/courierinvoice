@@ -34,29 +34,14 @@
 
     private function responseError() {
       switch (self::test_int($this->result)) {
-        case 400:
-          $this->error = "<span class=\"error\">Server Error</span>: Invalid Request URI.\n";
-        break;
-        case 401:
-          $this->error = "<span class=\"error\">Server Error</span>: Invalid API credentials.\n";
-        break;
-        case 403:
-          $this->error = "<span class=\"error\">Server Error</span>: API credentials not defined.\n";
-        break;
-        case 404:
-          $this->error = "<span class=\"error\">Server Error</span>: Failed to locate record.\n";
-        break;
-        case 422:
-          $this->error = "<span class=\"error\">Server Error</span>: Failed Data Validation. {$this->after('422', $this->result)}\n";
-        break;
-        case 500:
-          $this->error = "<span class=\"error\">Server Error</span>: Internal Error.\n";
-        break;
-        case 503:
-          $this->error = "<span class=\"error\">Server Error</span>: Service temporarily unavailable.\n";
-        default:
-          $this->error = "<span class=\"error\">Server Error</span>: {$this->result}.\n";
-        break;
+        case 400: $this->error = 'Invalid Request URI.'; break;
+        case 401: $this->error = 'Invalid API credentials.'; break;
+        case 403: $this->error = 'API credentials not defined.'; break;
+        case 404: $this->error = 'Server Failed to locate record.'; break;
+        case 422: $this->error = "Failed Data Validation. {$this->after('422', $this->result)}"; break;
+        case 500: $this->error = 'Internal Server Error.'; break;
+        case 503: $this->error = 'Service temporarily unavailable.'; break;
+        default: $this->error = "{$this->result}.";
       }
       if ($this->enableLogging !== false) self::writeLoop();
     }
