@@ -2566,12 +2566,16 @@
       } else {
         $timing = '';
       }
+      $ticketEditorValues = ($this->ticket_index === NULL) ? '' : "<input type=\"hidden\" name=\"ticketBase\" value=\"{$this->TicketBase}\" form=\"request{$this->ticket_index}\" />
+          <input type=\"hidden\" name=\"runPrice\" value=\"{$this->RunPrice}\" form=\"request{$this->ticket_index}\" />
+          ";
       $returnData .= "
       <div id=\"deliveryRequest{$this->ticket_index}\" class=\"removableByEditor\">
         <form id=\"request{$this->ticket_index}\" action=\"{$this->action}\" method=\"post\">
           {$indexInput} {$dispatchedBy} {$transferredBy} {$ticketNumberInput} {$ticketEditor}
           <input type=\"hidden\" name=\"runNumber\" value=\"{$this->RunNumber}\" form=\"request{$this->ticket_index}\" />
           <input type=\"hidden\" name=\"contract\" value=\"{$this->Contract}\" form=\"request{$this->ticket_index}\" />
+          {$ticketEditorValues}
           <table class=\"ticketContainer\">
             <tr>
               <td colspan=\"2\">
