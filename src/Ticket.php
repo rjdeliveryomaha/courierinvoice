@@ -2522,7 +2522,9 @@
       // Display the ticket form
       $indexInput = ($this->ticket_index == NULL) ? '' : "<input type=\"hidden\" name=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"request{$this->ticket_index}\" />
       ";
-      $ticketEditor = ($this->ticketEditor === TRUE) ? "<input type=\"hidden\" name=\"ticketEditor\" value=\"1\" form=\"request{$this->ticket_index}\" />" : '';
+      $ticketEditor = ($this->ticketEditor === TRUE) ? "
+        <input type=\"hidden\" name=\"ticketEditor\" value=\"1\" form=\"request{$this->ticket_index}\" />
+        <input type=\"hidden\" name=\"edit\" value=\"0\" form=\"request{$this->ticket_index}\" />" : '';
       $ticketNumberInput = ($this->TicketNumber !== NULL) ? "
         <input type=\"hidden\" name=\"ticketNumber\" class=\"ticketNumber\" value=\"{$this->TicketNumber}\" form=\"request{$this->ticket_index}\" />
         " : '';
@@ -2824,7 +2826,7 @@
                       <td title=\"Increments of 5 please\">
                         <label for=\"diWeight{$this->ticket_index}\">Weight:</label>
                         <input type=\"hidden\" name=\"diWeight\" id=\"diWeightMarker{$this->ticket_index}\" class=\"diWeightMarker\" value=\"0\" {$diWeightMarkerDisabled} form=\"request{$this->ticket_index}\" />
-                        <input type=\"number\" name=\"diWeight\" id=\"diWeight{$this->ticket_index}\" class=\"diWeight\" form=\"request{$this->ticket_index}\" min=\"0\" step=\"5\" value=\"{$this->diWeight}\" {$diWeightDisabled} />{$this->weightMarker}
+                        <input type=\"number\" name=\"diWeight\" id=\"diWeight{$this->ticket_index}\" class=\"diWeight\" form=\"request{$this->ticket_index}\" min=\"0\" step=\"5\" value=\"{$this->number_format_drop_zero_decimals($this->diWeight, 3)}\" {$diWeightDisabled} />{$this->weightMarker}
                       </td>
                     </tr>
                     <tr>
@@ -3202,7 +3204,7 @@
         <table class=\"ticketContainer\">
           <thead>
             <tr>
-              <td colspan=\"2\"><span class=\"bold\">Dry Ice:</span>{$this->diWeight}{$this->weightMarker} {$iceChargeDisplay}</td>
+              <td colspan=\"2\"><span class=\"bold\">Dry Ice:</span>{$this->number_format_drop_zero_decimals($this->diWeight, 3)}{$this->weightMarker} {$iceChargeDisplay}</td>
             </tr>
             <tr>
               <td colspan=\"2\"><span class=\"bold\">Requested By:</span>{$this->RequestedBy}</td>
@@ -3347,7 +3349,7 @@
         $payload = array();
         foreach ($this as $key => $value) {
           if (in_array($key, $this->updateTicketDatabaseKeys)) {
-            if ($key === 'Transfers') {
+            if ($key === 'Transfers' && $value) {
               $tempArray = json_decode(html_entity_decode($value));
               $target = array();
               for ($i=0;$i<count($tempArray); $i++) {
@@ -3365,7 +3367,11 @@
               }
               $payload[$key] = $target;
             } else {
-              $payload[$key] = self::decode($value);
+              if (in_array($key, $this->nullable) && !$value) {
+                $payload[$key] = NULL;
+              } else {
+                $payload[$key] = self::decode($value);
+              }
             }
           }
         }
