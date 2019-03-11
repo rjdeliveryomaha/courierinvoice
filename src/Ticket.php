@@ -1140,6 +1140,7 @@
             <button type=\"submit\" class=\"stepTicket\" form=\"dispatchForm{$this->ticket_index}\">Dispatch</button>
             <label for=\"dispatch{$this->ticket_index}\" class=\"hide\">Dispatch To: </label>
             <input list=\"drivers\" id=\"dispatch{$this->ticket_index}\" name=\"dispatchedTo\" class=\"dispatchedTo\" value=\"{$dispatchValue}\" form=\"dispatchForm{$this->ticket_index}\" />
+            <p class=\"message2\"></p>
           </form>
         ";
         $this->driverDatalist = '<datalist id="drivers">';
