@@ -2524,8 +2524,7 @@
       $indexInput = ($this->ticket_index == NULL) ? '' : "<input type=\"hidden\" name=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"request{$this->ticket_index}\" />
       ";
       $ticketEditor = ($this->ticketEditor === TRUE) ? "
-        <input type=\"hidden\" name=\"ticketEditor\" value=\"1\" form=\"request{$this->ticket_index}\" />
-        <input type=\"hidden\" name=\"edit\" value=\"0\" form=\"request{$this->ticket_index}\" />" : '';
+        <input type=\"hidden\" name=\"ticketEditor\" value=\"1\" form=\"request{$this->ticket_index}\" />" : '';
       $ticketNumberInput = ($this->TicketNumber !== NULL) ? "
         <input type=\"hidden\" name=\"ticketNumber\" class=\"ticketNumber\" value=\"{$this->TicketNumber}\" form=\"request{$this->ticket_index}\" />
         " : '';
@@ -2849,7 +2848,7 @@
                 <input type=\"hidden\" name=\"driverList\" value=\"{$this->driverList}\" form=\"request{$this->ticket_index}\" />
                 <input type=\"hidden\" name=\"clientList\" value=\"{$this->clientList}\" form=\"request{$this->ticket_index}\" />
                 <input type=\"hidden\" name=\"tClientList\" value=\"{$this->tClientList}\" form=\"request{$this->ticket_index}\" />
-                <input type=\"hidden\" name=\"edit\" value=\"0\" />
+                <input type=\"hidden\" name=\"edit\" value=\"0\" form=\"request{$this->ticket_index}\" />
 	              <button class=\"submitForm floatLeft\" type=\"submit\" form=\"request{$this->ticket_index}\">Submit</button> {$cancelTicketEditor}</td>
             </tr>
           </table>
