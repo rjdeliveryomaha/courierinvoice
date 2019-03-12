@@ -2908,8 +2908,8 @@
                       <tr class=\"{$this->countryClass}\">
                         <td>
                           <label for=\"pCountryCalc\">Country</label>:
-                          <input type=\"hidden\" name=\"pCountry\" id=\"pCountryMarkerCalc\" value=\"{$this->countryFromAbbr($this->shippingCountry)}\" form=\"request\" />
-                          <input list=\"countries\" name=\"pCountry\" class=\"pCountry\" id=\"pCountryCalc\" value=\"{$this->countryFromAbbr($this->pCountry)}\" {$this->countryInput} form=\"request{$this->requireCountry}\" /></td>
+                          <input type=\"hidden\" name=\"pCountry\" id=\"pCountryMarkerCalc\" value=\"{$this->shippingCountry}\" form=\"priceCalc\" />
+                          <input list=\"countries\" name=\"pCountry\" class=\"pCountry\" id=\"pCountryCalc\" value=\"{$this->countryFromAbbr($this->pCountry)}\" {$this->countryInput} form=\"priceCalc\" {$this->requireCountry} /></td>
                       </tr>
                     </tbody>
                   </table>
@@ -2935,8 +2935,8 @@
                       <tr class=\"{$this->countryClass}\">
                         <td>
                           <label for=\"dCountryCalc\">Country</label>:
-                          <input type=\"hidden\" name=\"dCountry\" id=\"dCountryMarkerCalc\" value=\"{$this->countryFromAbbr($this->shippingCountry)}\" form=\"request\" />
-                          <input list=\"countries\" name=\"dCountry\" class=\"dCountry\" id=\"dCountryCalc\" value=\"{$this->countryFromAbbr($this->dCountry)}\" {$this->countryInput} form=\"request\" {$this->requireCountry} /></td>
+                          <input type=\"hidden\" name=\"dCountry\" id=\"dCountryMarkerCalc\" value=\"{$this->shippingCountry}\" form=\"priceCalc\" />
+                          <input list=\"countries\" name=\"dCountry\" class=\"dCountry\" id=\"dCountryCalc\" value=\"{$this->countryFromAbbr($this->dCountry)}\" {$this->countryInput} form=\"priceCalc\" {$this->requireCountry} /></td>
                       </tr>
                     </tbody>
                   </table>
