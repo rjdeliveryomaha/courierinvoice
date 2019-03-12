@@ -287,6 +287,12 @@ By default the Charge property is null when the ticket entry form is initialized
 
 This setting selects a Charge value when the ticket entry form is initialized.
 
+### dryIceStep
+
+Float
+
+Defines the step attribute of number elements for dry ice weight (diWeight) on ticket entry forms.
+
 ### extend
 
 Associative array

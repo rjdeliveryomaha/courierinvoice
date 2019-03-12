@@ -76,6 +76,8 @@
 
     'initialCharge' => 5,
 
+    'dryIceStep' => 0.01,
+
     'extend' => [
       'all' => [
         [null, null, '../app_js/jQuery.ajaxRetry.min.js'],

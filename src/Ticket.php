@@ -1678,7 +1678,7 @@
       if ($this->dDepartment != NULL) {
         $this->dClient .= "<br>{$this->dDepartment}";
       }
-      if ($this->diWeight === 0) {
+      if ($this->diWeight == 0) {
         $iceWeight = '-';
       } else {
         $iceWeight = self::number_format_drop_zero_decimals($this->diWeight, 3);
@@ -2826,7 +2826,7 @@
                       <td title=\"Increments of 5 please\">
                         <label for=\"diWeight{$this->ticket_index}\">Weight:</label>
                         <input type=\"hidden\" name=\"diWeight\" id=\"diWeightMarker{$this->ticket_index}\" class=\"diWeightMarker\" value=\"0\" {$diWeightMarkerDisabled} form=\"request{$this->ticket_index}\" />
-                        <input type=\"number\" name=\"diWeight\" id=\"diWeight{$this->ticket_index}\" class=\"diWeight\" form=\"request{$this->ticket_index}\" min=\"0\" step=\"5\" value=\"{$this->number_format_drop_zero_decimals($this->diWeight, 3)}\" {$diWeightDisabled} />{$this->weightMarker}
+                        <input type=\"number\" name=\"diWeight\" id=\"diWeight{$this->ticket_index}\" class=\"diWeight\" form=\"request{$this->ticket_index}\" min=\"0\" step=\"{$this->dryIceStep}\" value=\"{$this->number_format_drop_zero_decimals($this->diWeight, 3)}\" {$diWeightDisabled} />{$this->weightMarker}
                       </td>
                     </tr>
                     <tr>
@@ -2956,7 +2956,7 @@
                 <span class=\"floatRight\">
                   <label for=\"CalcDryIce\">Dry Ice:</label>
                   <input name=\"dryIce\" id=\"CalcDryIce\" type=\"checkbox\" class=\"dryIce\" value=\"1\" form=\"priceCalc\" />
-                  <input type=\"number\" class=\"diWeight diRow\" name=\"diWeight\" id=\"CalcWeight\" value=\"0\" min=\"0\" step=\"5\" title=\"Increments of 5\" form=\"priceCalc\" disabled />{$this->weightMarker}
+                  <input type=\"number\" class=\"diWeight diRow\" name=\"diWeight\" id=\"CalcWeight\" value=\"0\" min=\"0\" step=\"{$this->dryIceStep}\" title=\"Increments of 5\" form=\"priceCalc\" disabled />{$this->weightMarker}
                 </span>
               </td>
             </tr>

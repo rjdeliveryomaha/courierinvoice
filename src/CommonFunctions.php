@@ -47,6 +47,7 @@
     protected $clientNameExceptions = [];
     // Addresses that should be ignored for example due to change of address
     protected $clientAddressExceptions = [];
+    protected $dryIceStep;
     protected $sanitized;
     protected $enableLogging = FALSE;
     protected $targetFile;
@@ -65,7 +66,7 @@
     // No need to filter passwords they will be hashed
     private $noFilter = [ 'currentPw', 'newPw1', 'newPw2' ];
     // These properties should not be accessible when setting values from the $data argument
-    private $protectedProperties = [ 'username', 'publicKey', 'privateKey', 'config', 'weightMarker', 'rangeMarker', 'countryClass', 'countryInput', 'requireCountry', 'shippingCountry', 'headerLogo', 'headerLogo2', 'myInfo', 'clientNameExceptions', 'clientAddressExceptions', 'showCanceledTicketsOnInvoiceExceptions', 'ignoreValues', 'showCanceledTicketsOnInvoice', 'consolidateContractTicketsOnInvoice', 'ints', 'floats', 'bools', 'afterSemicolon', 'jsonStrings', 'noFilter', 'sanitized', 'enableLogging', 'targetFile', 'fileWriteTry', 'loggingError', 'error', 'protectedProperties', 'RangeCenter', 'lat', 'lng', 'maxRange', 'timezone', 'emailConfig', 'allTimeChartLimit', 'invoicePage1Max', 'invoicePageMax' ];
+    private $protectedProperties = [ 'username', 'publicKey', 'privateKey', 'config', 'weightMarker', 'rangeMarker', 'countryClass', 'countryInput', 'requireCountry', 'shippingCountry', 'headerLogo', 'headerLogo2', 'myInfo', 'clientNameExceptions', 'clientAddressExceptions', 'showCanceledTicketsOnInvoiceExceptions', 'ignoreValues', 'showCanceledTicketsOnInvoice', 'consolidateContractTicketsOnInvoice', 'ints', 'floats', 'bools', 'afterSemicolon', 'jsonStrings', 'noFilter', 'sanitized', 'enableLogging', 'targetFile', 'fileWriteTry', 'loggingError', 'error', 'protectedProperties', 'RangeCenter', 'lat', 'lng', 'maxRange', 'timezone', 'emailConfig', 'allTimeChartLimit', 'invoicePage1Max', 'invoicePageMax', 'dryIceStep' ];
     protected $nullable = [ 'pTimeStamp', 'dTimeStamp', 'd2TimeStamp', 'Department', 'Contact', 'Telephone', 'pTime', 'dTime', 'd2Time', 'Notes', 'LastName', 'EmailAddress', 'LastSeen', 'Attention', 'RequestedBy', 'pDepartment', 'pContact', 'pTelephone', 'dDepartment', 'dContact', 'dTelephone', 'pSigPrint', 'pSig', 'dSigPrint', 'dSig', 'd2SigPrint', 'd2Sig', 'DispatchTimeStamp', 'Transfers', 'DatePaid', 'Late30Invoice', 'Late30Value', 'Late60Invoice', 'Late60Value', 'Late90Invoice', 'Late90Value', 'Over90Invoice', 'Over90Value', 'CheckNumber', 'pLat', 'pLng', 'dLat', 'dLng', 'd2Lat', 'd2Lng', 'latitude', 'longitude' ];
     private $noGetProps = [ 'error', 'loggingError', 'fileWriteTry', 'sanitized' ];
     private $customMenuItems;
