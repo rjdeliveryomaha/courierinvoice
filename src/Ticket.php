@@ -2966,6 +2966,9 @@
                 <button type=\"reset\" class=\"clear floatRight\" form=\"priceCalc\">Clear Form</button>
               </td>
             </tr>
+            <tr>
+              <td colspan=\"2\" class=\"ticketError center\"></td>
+            </tr>
           </tfoot>
         </table>
       <div id=\"priceResult\">
