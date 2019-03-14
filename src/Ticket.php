@@ -3203,11 +3203,11 @@
       }
       // Generate the confirmation display
       $jsVar = '
-      <input type="hidden" class="coords1" value="' . htmlentities(json_encode($this->loc1)) . '" />
-      <input type="hidden" class="address1" value="' . htmlentities($this->pAddress1 . ' ' . $this->pAddress2, ENT_QUOTES) . '" />
-      <input type="hidden" class="coords2" value="' . htmlentities(json_encode($this->loc2)) . '" />
-      <input type="hidden" class="address2" value="' . htmlentities($this->dAddress1 . ' ' . $this->dAddress2, ENT_QUOTES) . '" />
-      <input type="hidden" class="center" value="' . htmlentities(json_encode($this->center)) . '" />';
+      <input type="hidden" class="coords1" value="' . htmlentities(json_encode($this->loc1)) . '" form="coordinates" />
+      <input type="hidden" class="address1" value="' . htmlentities($this->pAddress1 . ' ' . $this->pAddress2, ENT_QUOTES) . '" form="coordinates" />
+      <input type="hidden" class="coords2" value="' . htmlentities(json_encode($this->loc2)) . '" form="coordinates" />
+      <input type="hidden" class="address2" value="' . htmlentities($this->dAddress1 . ' ' . $this->dAddress2, ENT_QUOTES) . '" form="coordinates" />
+      <input type="hidden" class="center" value="' . htmlentities(json_encode($this->center)) . '" form="coordinates" />';
       $output .= "
         <table class=\"ticketContainer\">
           <thead>
