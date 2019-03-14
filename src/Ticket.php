@@ -3202,7 +3202,12 @@
         }
       }
       // Generate the confirmation display
-      $jsVar = 'coords1=' . json_encode($this->loc1) . ',address1="' . htmlentities($this->pAddress1 . ' ' . $this->pAddress2, ENT_QUOTES) . '", coords2=' . json_encode($this->loc2) . ',address2="' . htmlentities($this->dAddress1 . ' ' . $this->dAddress2, ENT_QUOTES) . '",center=' . json_encode($this->center) . ';';
+      $jsVar = '
+      <input type="hidden" class="coords1" value="' . htmlentities(json_encode($this->loc1)) . '" />
+      <input type="hidden" class="address1" value="' . htmlentities($this->pAddress1 . ' ' . $this->pAddress2, ENT_QUOTES) . '" />
+      <input type="hidden" class="coords2" value="' . htmlentities(json_encode($this->loc2)) . '" />
+      <input type="hidden" class="address2" value="' . htmlentities($this->dAddress1 . ' ' . $this->dAddress2, ENT_QUOTES) . '" />
+      <input type="hidden" class="center" value="' . htmlentities(json_encode($this->center)) . '" />';
       $output .= "
         <table class=\"ticketContainer\">
           <thead>
@@ -3331,7 +3336,7 @@
             </tr>
           </tbody>
         </table>
-        <script>{$jsVar}</script>
+        {$jsVar}
       </div>";
       return $output;
     }
