@@ -2763,7 +2763,7 @@ $(document).ready(function() {
     $("#" + neighbor).find(".clientList").each(function() {
       if (testVal += $(this).val());
     });
-    let homeAddress = ClientName + Department + ShippingAddress1 + ShippingAddress2;
+    let homeAddress = $("input[name='ClientName'][form='javascriptVars']").val() + $("input[name='Department'][form='javascriptVars']").val() + $("input[name='ShippingAddress1'][form='javascriptVars']").val() + $("input[name='ShippingAddress2'][form='javascriptVars']").val();
     return !(testVal === homeAddress);
   });
 
@@ -2776,7 +2776,7 @@ $(document).ready(function() {
         $(this).prop("required", false).prop("readonly", true);
       });
       $("#" + neighbor + " .me").prop("disabled", true);
-      $(this).closest("fieldset").find("[id$='Client']").val(ClientName).end().find("[id$='Department']").val(Department).end().find("[id$='Address1']").val(ShippingAddress1).end().find("[id$='Address2']").val(ShippingAddress2);
+      $(this).closest("fieldset").find("[id$='Client']").val($("input[name='ClientName'][form='javascriptVars']").val()).end().find("[id$='Department']").val($("input[name='Department'][form='javascriptVars']").val()).end().find("[id$='Address1']").val($("input[name='ShippingAddress1'][form='javascriptVars']").val()).end().find("[id$='Address2']").val($("input[name='ShippingAddress2'][form='javascriptVars']").val());
     }
     else {
       $(this).closest("fieldset").find(".clientList").prop("readonly", false);

@@ -1993,7 +1993,7 @@
     }
 
     private function javascriptVars() {
-      $returnData = '';
+      $returnData = '<form id="javascriptVars">';
       $keyList = ['ShippingAddress1', 'ShippingAddress2', 'ClientName', 'Department'];
       foreach($_SESSION as $key => $value) {
         if (in_array($key, $this->javascriptKeys)) {
@@ -2001,9 +2001,10 @@
             $value = $this->clientNameExceptions[$value];
           }
           $returnData .= "
-            <script>var {$key} = \"{$this->decode($value)}\"</script>";
+            <input type=\"hidden\" name=\"{$key}\" value=\"{$this->decode($value)}\" form=\"javascriptVars\" />";
         }
       }
+      $returnData .= '</form>';
       return $returnData;
     }
 
