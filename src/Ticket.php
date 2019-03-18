@@ -2264,10 +2264,10 @@
         $array_keys = 'array_keys';
         $returnData = "
             <div id=\"ticketQueryOptions\">
-              <form action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
+              <form id=\"deliveryQuery\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
                 <input type=\"hidden\" name=\"endPoint\" value=\"tickets\" />
                 <input type=\"hidden\" name=\"method\" value=\"GET\" />
-                <fieldset id=\"deliveryQuery\">
+                <fieldset form=\"deliveryQuery\">
                   <legend>Search Parameters</legend>
                   <div>
                     <p>
