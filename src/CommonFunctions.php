@@ -198,13 +198,23 @@
     public function updateProperty($property, $value) {
       if (property_exists($this, $property) && !in_array($property, $this->noGetProps)) {
         if (in_array($property, $this->ints)) {
-          return $this->{$property} = self::test_int($value);
+          if (in_array($property, $this->nullable)) {
+            return $this->{$property} = ($value === '' || $value === NULL) ? NULL : self::test_int($value);
+          } else {
+            return $this->{$property} = self::test_int($value);
+          }
         } elseif (in_array($property, $this->floats)) {
-          return $this->{$property} = self::test_float($value);
+          if (in_array($property, $this->nullable)) {
+            return $this->{$property} = ($value === '' || $value === NULL) ? NULL : self::test_float($value);
+          } else {
+            return $this->{$property} = self::test_float($value);
+          }
         } elseif (in_array($property, $this->bools)) {
-          return $this->{$property} = self::test_bool($value);
-        } elseif (in_array($property, $this->nullable)) {
-          return $this->{$property} = ($value === NULL || $value === '') ? NULL : self::test_input($value);
+          if (in_array($property, $this->nullable)) {
+            return $this->{$property} = ($value === '' || $value === NULL) ? NULL : self::test_bool($value);
+          } else {
+            return $this->{$property} = self::test_bool($value);
+          }
         } else {
           $value = (is_array($value)) ? self::recursive_santizer($value) : self::test_input($value);
           return $this->{$property} = $value;
