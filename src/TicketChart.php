@@ -444,8 +444,7 @@
         $this->tableHead .= "<br><span class=\"medium\">{$this->clientListBy($this->clientID)}</span>";
       }
       $count = 'count';
-      $this->tableOutput = "
-      <div class=\"break ticketTable\">
+      $this->tableOutput = "<div class=\"break ticketTable\">
       <table class=\"center\">
         <thead>
           <th class=\"displayHeader\" colspan=\"{$count($this->tableLabelGroups[0])}\">{$this->tableHeadPrefix}{$this->tableHead}</th>
