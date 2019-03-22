@@ -510,17 +510,17 @@
               <tr>
                 <td>
                   <form id="singleInvoiceQuery" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
-                    <input type="hidden" name="clientID" value="' . $_SESSION['ClientID'] . '" />
-                    <input type="hidden" name="repeatClient" value="' . $this->RepeatClient . '" />
-                    <input type="hidden" name="method" value="GET" />
-                    <input type="hidden" name="endPoint" value="invoices" />
-                    <input type="hidden" name="display" value="invoice" />
-                    <fieldset form="invoiceQuery" name="dateRange">
+                    <input type="hidden" name="clientID" value="' . $_SESSION['ClientID'] . '" form="singleInvoiceQuery" />
+                    <input type="hidden" name="repeatClient" value="' . $this->RepeatClient . '" form="singleInvoiceQuery" />
+                    <input type="hidden" name="method" value="GET" form="singleInvoiceQuery" />
+                    <input type="hidden" name="endPoint" value="invoices" form="singleInvoiceQuery" />
+                    <input type="hidden" name="display" value="invoice" form="singleInvoiceQuery" />
+                    <fieldset form="singleInvoiceQuery" name="dateRange">
                       <legend>Single Invoice Query</legend>
                       <table>
                         <tr>
                           <td><label for="dateIssued">Date Issued:  </label></td>
-                          <td class="pullLeft">' . self::createLimitedMonthInput($_SESSION['ClientID'], 'dateIssued', FALSE, 'month', 'invoices', TRUE) . '</td>
+                          <td class="pullLeft">' . self::createLimitedMonthInput([ 'clientIDs' => $_SESSION['ClientID'], 'inputID' => 'dateIssued', 'type' => 'month', 'required' => TRUE, 'form' => 'singleInvoiceQuery' ]) . '</td>
                         </tr>
                         <tr>
                           <td><label for="invoiceNumber">Invoice Number:  </label></td>
@@ -531,7 +531,7 @@
                         </tr>
                         <tr>
                           <td><span class="medium">*Open Invoice</span></td>
-                          <td class="pullRight"><button type="submit" id="singleInvoice">Query</button></td>
+                          <td class="pullRight"><button type="submit" id="singleInvoice" form="singleInvoiceQuery">Query</button></td>
                         </tr>
                       </table>
                     </fieldset>
@@ -539,35 +539,35 @@
                 </td>
                 <td>
                   <form id="multiInvoiceQuery" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
-                    <input type="hidden" name="clientID" value="' . $_SESSION['ClientID'] . '" />
-                    <input type="hidden" name="repeatClient" value="' . $this->RepeatClient . '" />
-                    <input type="hidden" name="method" value="GET" />
-                    <input type="hidden" name="endPoint" value="invoices" />
-                    <input type="hidden" name="display" value="chart" />
-                    <fieldset>
+                    <input type="hidden" name="clientID" value="' . $_SESSION['ClientID'] . '" form="multiInvoiceQuery" />
+                    <input type="hidden" name="repeatClient" value="' . $this->RepeatClient . '" form="multiInvoiceQuery" />
+                    <input type="hidden" name="method" value="GET" form="multiInvoiceQuery" />
+                    <input type="hidden" name="endPoint" value="invoices" form="multiInvoiceQuery" />
+                    <input type="hidden" name="display" value="chart" form="multiInvoiceQuery" />
+                    <fieldset form="multiInvoiceQuery">
                       <legend>Multi Invoice Query</legend>
                       <table>
                         <tr>
                           <td><label for="startDate">Start Date:</label></td>
-                          <td>' . self::createLimitedMonthInput($_SESSION['ClientID'], 'startDate', FALSE, 'month', 'invoices', TRUE) . '</td>
+                          <td>' . self::createLimitedMonthInput([ 'clientIDs' => $_SESSION['ClientID'], 'inputID' => 'startDate', 'type' => 'month', 'required' => TRUE, 'form' => 'multiInvoiceQuery' ]) . '</td>
                         </tr>
                         <tr>
                           <td><label for="endDate">End Date:</label></td>
-                          <td>' . self::createLimitedMonthInput($_SESSION['ClientID'], 'endDate', FALSE, 'month', 'invoices', TRUE). '</td>
+                          <td>' . self::createLimitedMonthInput([ 'clientIDs' => $_SESSION['ClientID'], 'inputID' => 'endDate', 'type' => 'month', 'required' => TRUE, 'form' => 'multiInvoiceQuery' ]). '</td>
                         </tr>
                         <tr>
                           <td colspan="2" title="Range limited to 6 months.">
                             <label for="compareInvoices">Compare:  </label>
-                            <select id="compareInvoices" name="compare">
+                            <select id="compareInvoices" name="compare" form="multiInvoiceQuery">
                               <option value="0">Date Range</option>
                               <option value="1">Two Months</option>
                             </select>
-                            <button type="submit" id="rangeInvoice">Query</button>
+                            <button type="submit" id="rangeInvoice" form="multiInvoiceQuery">Query</button>
                           </td>
                         </tr>
                       </table>
                     </fieldset>
-                    <input type="hidden" name="compareMembers" value="0" />
+                    <input type="hidden" name="compareMembers" value="0" form="multiInvoiceQuery" />
                   </form>
                   <span id="message2" class="error"></span>
                 </td>
@@ -591,22 +591,22 @@
                 <tr>
                   <td>
                     <form id="singleInvoiceQuery" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
-                      <fieldset form="invoiceQuery" name="dateRange">
-                        <input type="hidden" name="method" value="GET" />
-                        <input type="hidden" name="endPoint" value="invoices" />
-                        <input type="hidden" name="display" value="invoice" />
-                        <input type="hidden" name="single" value="0" />
-                        <legend><label for="single">Single Invoice Query </label><input title="Regenerate an invoice as issued" type="checkbox" name="single" id="single" value="1" checked /></legend>
+                      <fieldset form="singleInvoiceQuery" name="dateRange">
+                        <input type="hidden" name="method" value="GET" form="singleInvoiceQuery" />
+                        <input type="hidden" name="endPoint" value="invoices" form="singleInvoiceQuery" />
+                        <input type="hidden" name="display" value="invoice" form="singleInvoiceQuery" />
+                        <input type="hidden" name="single" value="0" form="singleInvoiceQuery" />
+                        <legend><label for="single">Single Invoice Query </label><input title="Regenerate an invoice as issued" type="checkbox" name="single" id="single" value="1" form="singleInvoiceQuery" checked /></legend>
                         <table>
                           <tr>
                             <td><label for="dateIssued">Date Issued:</label></td>
-                            <td class="pullLeft">' . self::createLimitedMonthInput(array_keys($_SESSION['members']), 'dateIssued', FALSE, 'month', 'invoices', TRUE) . '</td>
+                            <td class="pullLeft">' . self::createLimitedMonthInput([ 'clientIDs' => array_keys($_SESSION['members']), 'inputID' => 'dateIssued', 'type' => 'month', 'required' => TRUE, 'form' => 'singleInvoiceQuery' ]) . '</td>
                           </tr>
                           <tr>
                             <td colspan="2">&nbsp;</td>
                           </tr>
                           <tr>
-                            <td><button type="submit" id="submitSingle" disabled>Query</button></td>
+                            <td><button type="submit" id="submitSingle" form="singleInvoiceQuery">Query</button></td>
                           </tr>
                         </table>
                       </fieldset>
@@ -614,35 +614,35 @@
                   </td>
                   <td>
                     <form id="multiInvoiceQuery" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
-                      <fieldset>
-                        <input type="hidden" name="method" value="GET" />
-                        <input type="hidden" name="endPoint" value="invoices" />
-                        <input type="hidden" name="display" value="chart" />
-                        <input type="hidden" name="multi" value="0" />
-                        <legend><label for="multi">Multi Invoice Query </label><input title="Generate charts comparing data points&#10;For any 2 months or 6 month range." type="checkbox" name="multi" id="multi" value="1" /></legend>
+                      <fieldset form="multiInvoiceQuery">
+                        <input type="hidden" name="method" value="GET" form="multiInvoiceQuery" />
+                        <input type="hidden" name="endPoint" value="invoices" form="multiInvoiceQuery" />
+                        <input type="hidden" name="display" value="chart" form="multiInvoiceQuery" />
+                        <input type="hidden" name="multi" value="0" form="multiInvoiceQuery" />
+                        <legend><label for="multi">Multi Invoice Query </label><input title="Generate charts comparing data points&#10;For any 2 months or 6 month range." type="checkbox" name="multi" id="multi" value="1" form="multiInvoiceQuery" /></legend>
                         <table>
                           <tr>
-                            <td class="pullLeft"><label for="invoiceStartDateMonth">Start Date:  </label></td>
-                            <td>' . self::createLimitedMonthInput(array_keys($_SESSION['members']), 'invoiceStartDate'). '</td>
+                            <td class="pullLeft"><label for="invoiceStartDateMonth">Start Date:</label></td>
+                            <td>' . self::createLimitedMonthInput([ 'clientIDs' => array_keys($_SESSION['members']), 'inputID' => 'invoiceStartDate', 'form' => 'multiInvoiceQuery', 'required' => TRUE ]). '</td>
                             <td colspan="2" class="center bold">Compare</td>
                           </tr>
                           <tr>
-                            <td class="pullLeft"><label for="invoiceEndDateMonth">End Date:  </label></td>
-                            <td class="pullLeft">' . self::createLimitedMonthInput(array_keys($_SESSION['members']), 'invoiceEndDate') . '</td>
+                            <td class="pullLeft"><label for="invoiceEndDateMonth">End Date:</label></td>
+                            <td class="pullLeft">' . self::createLimitedMonthInput([ 'clientIDs' => array_keys($_SESSION['members']), 'inputID' => 'invoiceEndDate', 'form' => 'multiInvoiceQuery', 'required' => TRUE ]) . '</td>
                             <td class="center">
                               <label for="compareInvoices">Months:</label>
-                              <input type="hidden" name="compare" value="0" />
-                              <input type="checkbox" name="compare" id="compareInvoices" value="1" />
+                              <input type="hidden" name="compare" value="0" form="multiInvoiceQuery" />
+                              <input type="checkbox" name="compare" id="compareInvoices" value="1" form="multiInvoiceQuery" />
                             </td>
                             <td class="center">
                               <label for="compareMembers">Members:</label>
-                              <input type="hidden" name="compareMembers" value="0" />
-                              <input type="checkbox" name="compareMembers" id="compareMembers" value="1" disabled />
+                              <input type="hidden" name="compareMembers" value="0" form="multiInvoiceQuery" />
+                              <input type="checkbox" name="compareMembers" id="compareMembers" value="1" form="multiInvoiceQuery" disabled />
                             </td>
                           </tr>
                           <tr>
                             <td colspan="4">
-                              <button type="submit" id="range" disabled>Query</button>
+                              <button type="submit" id="range" form="multiInvoiceQuery" disabled>Query</button>
                             </td>
                           </tr>
                         </table>
