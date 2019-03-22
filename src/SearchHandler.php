@@ -175,6 +175,31 @@
       }
 
       if ($this->ticketNumber !== NULL) {
+        $repeatFilter = $nonRepeatFilter = [];
+        if ($this->ulevel === 0) {
+          $members = array_keys($this->members);
+          $this->repeatClients = $this->nonRepeat = [];
+          for ($i = 0; $i < count($members); $i++) {
+            if (strpos($members[$i], 't') === FALSE) {
+              $this->repeatClients[] = $members[$i];
+            } else {
+              $this->nonRepeat[] = self::test_int($members[$i]);
+            }
+          }
+          if (!empty($this->repeatClients)) {
+            $repeatFilter[] = [ 'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->repeatClients) ];
+          }
+          if (!empty($this->nonRepeat)) {
+            $nonRepeatFilter[] = [ 'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->nonRepeat) ];
+          }
+        } else {
+          if (!empty($this->repeatClients)) {
+            $repeatFilter[] = [ 'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->repeatClients) ];
+          }
+          if (!empty($this->nonRepeat)) {
+            $nonRepeatFilter[] = [ 'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->nonRepeat) ];
+          }
+        }
         if (!empty($this->repeatClients)) {
           $repeatFilter[] = [ 'Resource'=>'TicketNumber', 'Filter'=>'eq', 'Value'=>$this->ticketNumber ];
         }
