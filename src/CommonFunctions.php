@@ -686,7 +686,7 @@
         $clientIDs = [ $temp ];
       }
       // Return an error if no clients are listed
-      if (!$clientIDs[0]) {
+      if (!isset($clientIDs[0])) {
         $returnData = "No Clients In Organization";
         return $returnData;
       }
