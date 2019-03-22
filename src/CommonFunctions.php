@@ -672,7 +672,7 @@
 
     protected function createLimitedMonthInput($clientIDs, $inputID, $disabled=FALSE, $type='month', $table='invoices', $required=FALSE) {
       $sql = $min = $max = $returnData = '';
-      $dates = $data = array();
+      $dates = $data = $repeatFilter = $nonRepeatFilter = $repeatClients = $nonRepeatClients = [];
       $disableInput = ($disabled === FALSE) ? '' : 'disabled';
       $requireInput = ($required === FALSE) ? '' : 'required';
       $id = ($type === "month") ? $inputID . 'Month' : $inputID;
@@ -680,34 +680,54 @@
       $queryData = [];
       $queryData['endPoint'] = $table;
       $queryData['method'] = 'GET';
+      // Make sure that $clientIDs is an array
+      if (!is_array($clientIDs)) {
+        $temp = $clientIDs;
+        $clientIDs = [ $temp ];
+      }
+      // Return an error if no clients are listed
+      if (!$clientIDs[0]) {
+        $returnData = "No Clients In Organization";
+        return $returnData;
+      }
+      for ($i = 0; $i < count($clientIDs); $i++) {
+        if (strpos($clientIDs[$i], 't') === FALSE) {
+          $repeatClients[] = $clientIDs[$i];
+        } else {
+          $nonRepeatClients[] = self::test_int($clientIDs[$i]);
+        }
+      }
       // Define variables based on the input type
       if ($type === 'month') {
         $format = 'Y-m';
         $when = 'DateIssued';
         $queryData['queryParams']['include'] = ['DateIssued'];
-        $queryData['queryParams']['filter'] = ($this->RepeatClient === 0) ? [ ['Resource'=>'InvoiceNumber', 'Filter'=>'cs', 'Value'=>'t'] ] : [ ['Resource'=>'InvoiceNumber', 'Filter'=>'ncs', 'Value'=>'t'] ];
-        $who = 'ClientID';
+        if (!empty($repeatClients)) {
+          $repeatFilter = [ ['Resource'=>'InvoiceNumber', 'Filter'=>'ncs', 'Value'=>'t'], ['Resource'=>'ClientID', 'Filter'=>'in', 'Value'=>implode(',', $repeatClients)] ];
+        }
+        if (!empty($nonRepeatClients)) {
+          $nonRepeatFilter = [ ['Resource'=>'InvoiceNumber', 'Filter'=>'cs', 'Value'=>'t'], ['Resource'=>'ClientID', 'Filter'=>'in', 'Value'=>implode(',', $nonRepeatClients)] ];
+        }
         $placeholder = 'JAN 2000';
       } elseif ($type === 'date') {
         $format = 'Y-m-d';
         $when = 'ReceivedDate';
         $queryData['queryParams']['include'] = ['ReceivedDate'];
-        $queryData['queryParams']['filter'] = [ ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>$this->RepeatClient] ];
-        $who = 'BillTo';
+        if (!empty($repeatClients)) {
+          $repeatFilter = [ ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>implode(',', $repeatClients)] ];
+        }
+        if (!empty($nonRepeatClients)) {
+          $nonRepeatFilter = [ ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>implode(',', $nonRepeatClients)] ];
+        }
         $placeholder = '';
       }
-      // Make sure that $clientIDs is an array
-      if ($clientIDs !== NULL && !is_array($clientIDs)) {
-        $temp = $clientIDs;
-        $clientIDs = [];
-        $clientIDs[] = $temp;
+      if (!empty($repeatFilter) && !empty($nonRepeatFilter)) {
+        $queryData['queryParams']['filter'] = [ $repeatFilter, $nonRepeatFilter ];
+      } elseif (empty($repeatFilter) && !empty($nonRepeatFilter)) {
+        $queryData['queryParams']['filter'] = $nonRepeatFilter;
+      } elseif (!empty($repeatFilter) && empty($nonRepeatFilter)) {
+        $queryData['queryParams']['filter'] = $repeatFilter;
       }
-      // Return an error if no clients are listed
-      if (count($clientIDs) === 0){
-        $returnData = "No Clients In Organization";
-        return $returnData;
-      }
-      $queryData['queryParams']['filter'][] = ['Resource'=>$who, 'Filter'=>'in', 'Value'=> implode(',', $clientIDs)];
       if (!$query = self::createQuery($queryData)) {
         return $this->error;
       }
