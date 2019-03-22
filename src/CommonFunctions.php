@@ -677,7 +677,7 @@
       $type = $params['type'] ?? 'month';
       $table = $params['table'] ?? 'invoices';
       $required = $params['required'] ?? FALSE;
-      $form = "form=\"{$params['form']}\"" ?? '';
+      $form = $params['form'] ?? '';
       $sql = $min = $max = $returnData = '';
       $dates = $data = $repeatFilter = $nonRepeatFilter = $repeatClients = $nonRepeatClients = [];
       $disableInput = ($disabled === FALSE) ? '' : 'disabled';
@@ -750,7 +750,7 @@
         $max = max($testData);
         $min = min($testData);
         //Define the input
-        $returnData = '<input type="' . $type . '" min="' . $min . '" max="' . $max . '" name="' . lcfirst($inputName) . '" class="' . $inputID . ucfirst($type) . '" placeholder="' . $placeholder . '" ' . $disableInput . ' ' . $requireInput . ' ' . $form . ' />';
+        $returnData = '<input type="' . $type . '" min="' . $min . '" max="' . $max . '" name="' . lcfirst($inputName) . '" class="' . $inputID . ucfirst($type) . '" placeholder="' . $placeholder . '" ' . $disableInput . ' ' . $requireInput . ' form="' . $form . '" />';
       } else {
         $returnData = 'No Data On File';
       }
