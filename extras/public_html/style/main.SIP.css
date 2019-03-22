@@ -1223,7 +1223,7 @@ button.blue {
   #deliveryConfirmation .ticketSpace {
     width: 15%;
   }
-  fieldset[id^="timing"] > table > tbody > tr > td, fieldset[id^="information"] > table > tbody > tr > td, .criteria, .PWform, #clientUpdate, #clientUpdate td, #queryForms td, #dropOff td, #pickUp td, #mapInfo span {
+  fieldset[id^="timing"] > table > tbody > tr > td, fieldset[id^="information"] > table > tbody > tr > td, .criteria, .PWform, #clientUpdate, #clientUpdate td, #queryForms td, #dropOff td, #pickUp td, #mapInfo span, #invoiceQueryOptions td {
     padding: 0;
     margin: 0;
     display: block;

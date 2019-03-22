@@ -2269,78 +2269,80 @@
                 <input type=\"hidden\" name=\"method\" value=\"GET\" />
                 <fieldset form=\"deliveryQuery\">
                   <legend>Search Parameters</legend>
-                  <div>
-                    <p>
-                      <label for=\"allTime\">All Time:</label>
-                      <input type=\"hidden\" name=\"allTime\" value=\"0\" />
-                      <input type=\"checkbox\" name=\"allTime\" id=\"allTime\" value=\"1\" />
-                    </p>
-                    <p>
-                      <label for=\"ticketNumber\" class=\"switchable\">Ticket<span class=\"mobileHide\"> Number</span>:</label>
-                      <input type=\"hidden\" class=\"ticketNumberMarker\" name=\"ticketNumber\" />
-                      <input type=\"number\" min=\"1\" name=\"ticketNumber\" id=\"ticketNumber\" />
-                    </p>
-                  </div>
-                  <div>
-                    <p>
-                      <label for=\"startDate\">Start Date:</label>
-                      <input type=\"hidden\" name=\"startDate\" id=\"startDateMarker\" disabled />
-                      <span class=\"chartDate\" style=\"display:none;\" title=\"Query Range Limited To 6 Month Periods\">
-                        {$this->createLimitedMonthInput($array_keys($_SESSION['members']), 'startDate', TRUE)}
-                      </span>
-                      <span class=\"ticketDate\">
-                        {$this->createLimitedMonthInput($array_keys($_SESSION['members']), 'startDate', FALSE, 'date', 'tickets')}
-                      </span>
-                    </p>
-                    <p>
-                      <label for=\"endDate\">End Date:</label>
-                      <input type=\"hidden\" name=\"endDate\" id=\"endDateMarker\" />
-                      <span class=\"chartDate\" style=\"display:none;\" title=\"Query Range Limited To 6 Month Periods\">
-                        {$this->createLimitedMonthInput($array_keys($_SESSION['members']), 'endDate', TRUE)}
-                      </span>
-                      <span class=\"ticketDate\">
-                        {$this->createLimitedMonthInput($array_keys($_SESSION['members']), 'endDate', FALSE, 'date', 'tickets')}
-                      </span>
-                    </p>
-                  </div>
-                  <div>
-                    <p>
-                      <label for=\"charge\">Charge:</label>
-                      <input type=\"hidden\" name=\"charge\" id=\"chargeMarker\" value=\"10\" />
-                      <select name=\"charge\" id=\"charge\">
-                        {$this->createChargeSelectOptions()}
-                      </select>
-                    </p>
-                    <p>
-                      <label for=\"type\">Type:</label>
-                      <input type=\"hidden\" name=\"type\" id=\"typeMarker\" value=\"2\" />
-                      <select name=\"type\" id=\"type\">
-                        <option value=\"2\">All</option>
-                        <option value=\"1\">Contract</option>
-                        <option value=\"0\">On Call</option>
-                      </select>
-                    </p>
-                  </div>
-                  <div>
-                    <p>
-                      <label for=\"display\">Display:  </label>
-                      <input type=\"hidden\" name=\"display\" id=\"displayMarker\" value=\"tickets\" />
-                      <select name=\"display\" id=\"display\">
-                        <option value=\"tickets\">Tickets</option>
-                        <option value=\"chart\">Chart</option>
-                      </select>
-                    </p>
-                  </div>
-                  <div style=\"clear:both\">
-                    <p>
-                      <span>Compare:</span>
-                      <input type=\"hidden\" name=\"compare\" value=\"0\" />
-                      <input type=\"checkbox\" name=\"compare\" id=\"compareBox\" value=\"1\" disabled />
-                      <label for=\"compareBox\">Months</label>
-                      <input type=\"hidden\" name=\"compareMembers\" value=\"0\" />
-                      <input type=\"checkbox\" name=\"compareMembers\" id=\"compareMembersTickets\" value=\"1\" disabled />
-                      <label for=\"compareMembersTickets\">Members</label>
-                    </p>
+                  <div id=\"orgInputContainer\">
+                    <div>
+                      <p>
+                        <label for=\"allTime\">All Time:</label>
+                        <input type=\"hidden\" name=\"allTime\" value=\"0\" />
+                        <input type=\"checkbox\" name=\"allTime\" id=\"allTime\" value=\"1\" />
+                      </p>
+                      <p>
+                        <label for=\"ticketNumber\" class=\"switchable\">Ticket<span class=\"mobileHide\"> Number</span>:</label>
+                        <input type=\"hidden\" class=\"ticketNumberMarker\" name=\"ticketNumber\" />
+                        <input type=\"number\" min=\"1\" name=\"ticketNumber\" id=\"ticketNumber\" />
+                      </p>
+                    </div>
+                    <div>
+                      <p>
+                        <label for=\"startDate\">Start Date:</label>
+                        <input type=\"hidden\" name=\"startDate\" id=\"startDateMarker\" disabled />
+                        <span class=\"chartDate\" style=\"display:none;\" title=\"Query Range Limited To 6 Month Periods\">
+                          {$this->createLimitedMonthInput($array_keys($_SESSION['members']), 'startDate', TRUE)}
+                        </span>
+                        <span class=\"ticketDate\">
+                          {$this->createLimitedMonthInput($array_keys($_SESSION['members']), 'startDate', FALSE, 'date', 'tickets')}
+                        </span>
+                      </p>
+                      <p>
+                        <label for=\"endDate\">End Date:</label>
+                        <input type=\"hidden\" name=\"endDate\" id=\"endDateMarker\" />
+                        <span class=\"chartDate\" style=\"display:none;\" title=\"Query Range Limited To 6 Month Periods\">
+                          {$this->createLimitedMonthInput($array_keys($_SESSION['members']), 'endDate', TRUE)}
+                        </span>
+                        <span class=\"ticketDate\">
+                          {$this->createLimitedMonthInput($array_keys($_SESSION['members']), 'endDate', FALSE, 'date', 'tickets')}
+                        </span>
+                      </p>
+                    </div>
+                    <div>
+                      <p>
+                        <label for=\"charge\">Charge:</label>
+                        <input type=\"hidden\" name=\"charge\" id=\"chargeMarker\" value=\"10\" />
+                        <select name=\"charge\" id=\"charge\">
+                          {$this->createChargeSelectOptions()}
+                        </select>
+                      </p>
+                      <p>
+                        <label for=\"type\">Type:</label>
+                        <input type=\"hidden\" name=\"type\" id=\"typeMarker\" value=\"2\" />
+                        <select name=\"type\" id=\"type\">
+                          <option value=\"2\">All</option>
+                          <option value=\"1\">Contract</option>
+                          <option value=\"0\">On Call</option>
+                        </select>
+                      </p>
+                    </div>
+                    <div>
+                      <p>
+                        <label for=\"display\">Display:  </label>
+                        <input type=\"hidden\" name=\"display\" id=\"displayMarker\" value=\"tickets\" />
+                        <select name=\"display\" id=\"display\">
+                          <option value=\"tickets\">Tickets</option>
+                          <option value=\"chart\">Chart</option>
+                        </select>
+                      </p>
+                    </div>
+                    <div>
+                      <p>
+                        <span>Compare:</span>
+                        <input type=\"hidden\" name=\"compare\" value=\"0\" />
+                        <input type=\"checkbox\" name=\"compare\" id=\"compareBox\" value=\"1\" disabled />
+                        <label for=\"compareBox\">Months</label>
+                        <input type=\"hidden\" name=\"compareMembers\" value=\"0\" />
+                        <input type=\"checkbox\" name=\"compareMembers\" id=\"compareMembersTickets\" value=\"1\" disabled />
+                        <label for=\"compareMembersTickets\">Members</label>
+                      </p>
+                    </div>
                   </div>
                 </fieldset>
                 <p class=\"centerDiv\">{$this->listOrgMembers('ticket')}</p>
