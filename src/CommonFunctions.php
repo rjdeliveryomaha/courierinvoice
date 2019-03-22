@@ -670,12 +670,18 @@
       return (strtoupper($query->getProperty('method')) === 'GET') ? $returnData['records'] : $returnData;
     }
 
-    protected function createLimitedMonthInput($clientIDs, $inputID, $disabled=FALSE, $type='month', $table='invoices', $required=FALSE) {
+    protected function createLimitedMonthInput($params) {
+      $clientIDs = $params['clientIDs'] ?? [];
+      $inputID = $params['inputID'] ?? '';
+      $disabled = $params['disabled'] ?? FALSE;
+      $type = $params['type'] ?? 'month';
+      $table = $params['table'] ?? 'invoices';
+      $required = $params['required'] ?? FALSE;
+      $form = "form=\"{$params['form']}\"" ?? '';
       $sql = $min = $max = $returnData = '';
       $dates = $data = $repeatFilter = $nonRepeatFilter = $repeatClients = $nonRepeatClients = [];
       $disableInput = ($disabled === FALSE) ? '' : 'disabled';
       $requireInput = ($required === FALSE) ? '' : 'required';
-      $id = ($type === "month") ? $inputID . 'Month' : $inputID;
       $inputName = (strpos($inputID,'invoice') === FALSE) ? $inputID : substr($inputID, 7);
       $queryData = [];
       $queryData['endPoint'] = $table;
@@ -687,7 +693,7 @@
       }
       // Return an error if no clients are listed
       if (!isset($clientIDs[0])) {
-        $returnData = "No Clients In Organization";
+        $returnData = 'No Clients Passed';
         return $returnData;
       }
       for ($i = 0; $i < count($clientIDs); $i++) {
@@ -744,7 +750,7 @@
         $max = max($testData);
         $min = min($testData);
         //Define the input
-        $returnData = '<input type="' . $type . '" min="' . $min . '" max="' . $max . '" name="' . lcfirst($inputName) . '" class="' . $inputID . ucfirst($type) . '" placeholder="' . $placeholder . '" ' . $disableInput . ' ' . $requireInput . ' />';
+        $returnData = '<input type="' . $type . '" min="' . $min . '" max="' . $max . '" name="' . lcfirst($inputName) . '" class="' . $inputID . ucfirst($type) . '" placeholder="' . $placeholder . '" ' . $disableInput . ' ' . $requireInput . ' ' . $form . ' />';
       } else {
         $returnData = 'No Data On File';
       }
