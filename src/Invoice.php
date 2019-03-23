@@ -606,7 +606,7 @@
                             <td colspan="2">&nbsp;</td>
                           </tr>
                           <tr>
-                            <td><button type="submit" id="submitSingle" form="singleInvoiceQuery">Query</button></td>
+                            <td><button type="submit" id="singleInvoice" form="singleInvoiceQuery">Query</button></td>
                           </tr>
                         </table>
                       </fieldset>
@@ -642,7 +642,7 @@
                           </tr>
                           <tr>
                             <td colspan="4">
-                              <button type="submit" id="range" form="multiInvoiceQuery" disabled>Query</button>
+                              <button type="submit" id="rangeInvoice" form="multiInvoiceQuery" disabled>Query</button>
                             </td>
                           </tr>
                         </table>
