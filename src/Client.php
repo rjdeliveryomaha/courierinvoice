@@ -387,7 +387,6 @@
       $hideCountry = $_SESSION['config']['InternationalAddressing'] === 1 ? '' : 'hide';
       return "
             <div id=\"clientUpdateForm\">
-              <p id=\"clientUpdateResult\" class=\"center\"></p>
               <form id=\"clientUpdate\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
                 <fieldset form=\"clientUpdate\" name=\"shippingInfo\">
                   <legend>Shipping Information</legend>
@@ -519,6 +518,7 @@
                   </tr>
                 </table>
 	            </form>
+              <p id=\"clientUpdateResult\" class=\"center\"></p>
             </div>";
     }
   }
