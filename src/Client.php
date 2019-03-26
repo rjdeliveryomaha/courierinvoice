@@ -476,7 +476,7 @@
                         <td></td>
                         <td>
                           <lable for=\"billingCountry\">Billing Country:</label>
-                          <input list=\"countries\" name=\"BillingCountry\" class=\"billingCountry\" value=\"{$billingCountry}\" {$requireCountry2} form=\"clientUpdate\" /><span class=\"error . {$hideClass}\">*</span>
+                          <input list=\"countries\" name=\"BillingCountry\" class=\"billingCountry\" value=\"{$billingCountry}\" {$requireCountry2} form=\"clientUpdate\" /><span class=\"error {$hideClass}\">*</span>
                         </td>
                       </tr>
                     <tr>
