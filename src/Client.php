@@ -372,7 +372,7 @@
 
     public function updateInfoForm() {
       $requireCountry = $requireCountry2 = $_SESSION['config']['InternationalAddressing'] === 1 ? 'required' : '';
-      if ($_SESSION['ClientName'] === $_SESSION['BillingName'] && $_SESSION['ShippingAddress1'] === $_SESSION['BillingAddress1'] && $_SESSION['ShippingAddress2'] === $_SESSION['BillingAddress2']) {
+      if ($_SESSION['Same'] === 1) {
         $sameChecked = 'checked';
         $sameDisabled = $requireCountry2 = 'disabled';
         $hideClass = 'hide';
