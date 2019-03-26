@@ -2,7 +2,7 @@
   namespace rjdeliveryomaha\courierinvoice;
 
   use rjdeliveryomaha\courierinvoice\CommonFunctions;
-  
+
   class Client extends CommonFunctions {
     protected $client_index;
     protected $RepeatClient;
@@ -499,7 +499,7 @@
                       <input type=\"hidden\" name=\"update\" value=\"0\" form=\"clientUpdate\" />
                       <input type=\"checkbox\" name=\"update\" id=\"enableInfoUpdate\" value=\"1\" form=\"clientUpdate\" />
                     </td>
-                    <td class=\"pullLeft\"><button type=\"submit\" class=\"submitInfoUpdate\" form=\"clientUpdate\" disabled>Submit</button></td>
+                    <td class=\"pullLeft\"><button type=\"submit\" id=\"submitInfoUpdate\" form=\"clientUpdate\" disabled>Submit</button></td>
                     <td></td>
                     <td></td>
                     <td></td>
