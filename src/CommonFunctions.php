@@ -775,7 +775,7 @@
       if (empty($invoiceList)) {
         return 'No Invoice On File';
       }
-      $returnData = '<select name="invoiceNumber" id="invoiceNumber" form="singleInvoiceQuerys" disabled>';
+      $returnData = '<select name="invoiceNumber" id="invoiceNumber" form="singleInvoiceQuery" disabled>';
       foreach ($invoiceList as $invoice) {
         $flag = ($invoice['Closed'] === 0) ? '*' : '';
         $returnData .= "<option value=\"{$invoice['InvoiceNumber']}\">{$invoice['InvoiceNumber']}{$flag}</option>";
