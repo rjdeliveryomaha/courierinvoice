@@ -1994,7 +1994,6 @@
 
     private function javascriptVars() {
       $returnData = '<form id="javascriptVars">';
-      $keyList = ['ShippingAddress1', 'ShippingAddress2', 'ClientName', 'Department'];
       foreach($_SESSION as $key => $value) {
         if (in_array($key, $this->javascriptKeys)) {
           if (array_key_exists($value, $this->clientNameExceptions)) {
