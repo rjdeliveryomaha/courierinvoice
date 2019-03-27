@@ -203,7 +203,7 @@
             $plusThreeMonth = clone $tempDate;
             $plusThreeMonth->modify('+ 3 month');
             $diff = $tempDate->diff($this->today);
-            if ($diff->days > $tempDate->format('t') && $diff->days < ($tempDate->format('t') + $plusOneMonth->format('t'))) {
+            if ($diff->days >= $tempDate->format('t') && $diff->days < ($tempDate->format('t') + $plusOneMonth->format('t'))) {
               $tempInvoice->InvoiceTotal += $value['openInvoices'][$i]['InvoiceSubTotal'];
               if (property_exists($tempInvoice, 'Late30Invoice')) {
                 $tempInvoice->Late30Invoice .= (strpos($tempInvoice->Late30Invoice, '+') === FALSE) ? '+' : '';
