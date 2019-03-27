@@ -356,7 +356,7 @@ button.blue {
 }
 
 #ticketQueryOptions {
-  display: flex;
+
 }
 
 #options {
@@ -368,6 +368,7 @@ button.blue {
 }
 
 #invoiceQueryOptions, #ticketQueryOptions {
+  width: 90%;
   margin: 0 auto;
 }
 
