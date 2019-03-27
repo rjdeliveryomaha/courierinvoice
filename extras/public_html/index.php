@@ -8,9 +8,9 @@
   require_once '../includes/user_functions.php';
   require_once '../includes/APIToolsConfig.php';
   require_once '../vendor/autoload.php';
-  
+
   use rjdeliveryomaha\courierinvoice\SecureSessionHandler;
-  
+
   try {
     SecureSessionHandler::start_session($config);
   } catch (Exception $e) {
@@ -26,17 +26,14 @@
   <meta name="viewport" content="width=device-width">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-	
+
   <title>HOME | Company Name</title>
-  
+
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <?php
   include_once './loginForm.php';
 ?>
-<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-<script>window.jQuery || document.write('<script src="./app_js/jquery-3.3.1.min.js"><\/script>')</script>
-<script src="./js/user_scripts.js"></script>
 </body>
 </html>

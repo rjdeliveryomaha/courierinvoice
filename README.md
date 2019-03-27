@@ -1359,34 +1359,89 @@ Checks for past due invoices.
 
 # extras
 
-This is an extendable drop-in implementation of this set of classes using jQuery v3.3.1.
+This is an extendable drop-in implementation of this set of classes using vanilla javascript.
 
-[jQuery.ajaxRetry](https://github.com/dcherman/jQuery.ajaxRetry) is used to implement a simple backoff.
+Functionality is contained in an module called ` rjdci `.
 
-A templet for ajax calls with this backoff built in is also included. This will retry a failed call 20 times waiting ` n * 250 ` milliseconds between calls where n is the retry count. The function returns the jQuery ajax object.
+The [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API#Browser_compatibility) is used extensively and a template is provided. This will retry a failed call 20 times waiting ` n * 250 ` milliseconds between calls where n is the retry count. The Content-Type header is left generic for versatility. As a result the PHP ``` $_POST ``` super global is not populated; data must be read from the stream.
+
+Ex:
+
+```php
+  if (empty($_POST)) $_POST = json_decode(file_get_contents('php://input'),true);
+```
 
 ```javascript
-  ajax_template(callMethod, url, returnType, postData=false)
+  rjdci.fetch_template = async ({ url, postData = {}, method = "POST", retry = 0 }) => {
+    if (!url) throw new Error("URL not defined");
+    let fetchOptions = {
+        method: method.toUpperCase()
+      };
+    if (Object.keys(postData).length > 0) {
+      fetchOptions.headers = { "Content-Type": "application/json" }
+      fetchOptions.body = JSON.stringify(postData);
+    }
+    try {
+      return await fetch(url, fetchOptions);
+    } catch(err) {
+      retry++;
+      if (retry === 20) throw err;
+      await pause(250 * retry)
+      return await rjdci.fetch_template({ url, postData, method, retry });
+    }
+  }
+```
+
+The ``` pause ``` function is setTimeout turned into a promise.
+
+```javascript
+  pause = (duration) => { return new Promise(resolve => setTimeout(resolve, duration)) };
 ```
 
 Usage:
 
 ```javascript
-  let postData =  { "formKey": $("#formKey").val(), "ticket_index": $(".ticket_index").val() }
-  let attempt = ajax_template("post", "../ajax/doSomething.php", "html", postData)
-  .done((result)=>{
-    // SecureSessionHandler iterates the value of the session formKey so it must be iterated here as well.
-    $("#formKey").val(Number($("#formKey").val()) + 1);
-    // do something with the returned html
+  // example taken from rjdci.refreshRoute()
+  let postData =  { "formKey": document.querySelector("#formKey").value };
+  await rjdci.fetch_templet({ url: "./refreshRoute.php", postData: postData })
+  .then(result => {
+    if (typeof result === "undefined") throw new Error("Result Undefined");
+    if (result.ok) {
+      return result.text();
+    } else {
+      throw new Error(result.status + " " + result.statusText);
+    }
   })
-  .fail((jqXHR, status, error)=>{
-    // display error
+  .then(data => {
+    document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
+    if (data.indexOf("error") !== -1) throw new Error(data);
+    let parser = new DOMParser(),
+      newDom = parser.parseFromString(data, "text/html"),
+      docFrag = document.createDocumentFragment();
+    Array.from(newDom.querySelectorAll(".sortable")).forEach(element => {
+      docFrag.appendChild(element);
+    });
+    setTimeout(() => {
+      document.querySelector("#route").appendChild(docFrag);
+      rjdci.assignListeners();
+      rjdci.fixDeadRunButton();
+      sortRoute();
+    }, 2000);
+  })
+  .catch(error => {
+    document.querySelector("#route").innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + "</p>";
   });
+```
+
+A place holder for a map function is provided and should be redefined if a map api is implemented.
+
+```javascript
+  rjdci.updateMap = ({ coords1, address1, coords2, address2, center, mapDivID }) => { return false; }
 ```
 
 [Signature Pad v2.3.2](https://github.com/szimek/signature_pad) is preconfigured with [extras/public_html/app_js/sigPad.js](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/public_html/app_js/sigPad.js) to collect signatures in conjunction with the functions ` $ticket->displaySingleTicket() ` and ` $ticket->displayMultiTicket() `.
 
-The function ` toast(msg, options) ` is exported to the global scope. It creates and deletes a toast-like div to show messages to the user.
+The method ` rjdci.toast(msg, options) ` is available. It creates and deletes a toast-like div to show messages to the user.
 
 Usage:
 
@@ -1397,16 +1452,18 @@ Usage:
   options.time = 3000; // milliseconds to show toast div. div will be removed 1 second after it is hidden. default 4000
   options.eleClass = "ticketOncallReceived"; // custom class for the toast div. The function will display only the newest of a custom class, removing previous messages. All default class divs will be displayed for the configured time. default "toast__msg"
   options.datatime = 1512574797926; // unix time stamp to parse for display with message. default new Date().getTime();
-  toast(msg, options);
+  rjdci.toast(msg, options);
 ```
 
 ### Features
 
 Uses ticket information from database to populate datalist elements to assist form completion.
 
-Single page design navigated by either swipe or menu. Offers unique features based upon user type.
+Single page design navigated by either swipe or menu. Offers unique features based upon user type. Once each page has been loaded a window event ` rjdci_loaded ` is triggered.
 
-At the end of the transition between pages ` scroll(0,0) ` is called and a window event named 'pageChange' is triggered.
+[Swipe](https://github.com/lyfeyaj/swipe) is used for navigation. [Public methods](https://github.com/lyfeyaj/swipe#api)  can be accessed via the ` rjdciSwipe ` instance.
+
+At the end of the transition between pages ` scroll(0,0) ` is called and a window event  ` rjdci_pageChange ` is triggered.
 
 Setting the order of menu items as well as adding custom menu items (with or without matching pages), and javascript files is handled in the config file located at [extras/includes](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes).
 

@@ -80,8 +80,6 @@
 
     'extend' => [
       'all' => [
-        [null, null, '../app_js/jQuery.ajaxRetry.min.js'],
-        [null, null, '../app_js/ajaxTemplate.js'],
         [null, null, '../app_js/app.js']
       ],
       'client' => [

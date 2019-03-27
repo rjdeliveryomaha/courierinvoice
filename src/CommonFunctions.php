@@ -1046,8 +1046,6 @@
       <script>
         var myInfo = [\"{$_SESSION['config']['ClientName']}\",\"{$_SESSION['config']['EmailAddress']}\",\"{$_SESSION['config']['Telephone']}\"]
       </script>
-      <script src=\"https://code.jquery.com/jquery-3.3.1.min.js\"></script>
-      <script>window.jQuery || document.write('<script src=\"../app_js/jquery-3.3.1.min.js\"><\/script>')</script>
       {$this->customScripts}";
     }
 

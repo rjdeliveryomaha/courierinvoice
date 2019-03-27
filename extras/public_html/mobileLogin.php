@@ -71,8 +71,5 @@
       </table>
     </form>
   </main>
-  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-  <script>window.jQuery || document.write('<script src="js/jquery-3.3.1.min.js"><\/script>')</script>
-  <script src="./js/user_scripts.min.js"></script>
 </body>
 </html>
