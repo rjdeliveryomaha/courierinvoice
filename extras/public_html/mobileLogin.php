@@ -32,12 +32,12 @@
   <main>
     <div class="logoContainer">
       <a href="/">
-        <img src="../images/logo/logo2.png" alt="Company Logo">
+        <img src="../images/logo.png" alt="Company Logo">
       </a>
     </div>
-    <form class="wide" name="login" action="/" method="post">
-      <input type="hidden" name="formKey" id="formKey" value="<?php echo SecureSessionHandler::outputKey(); ?>" />
-      <input type="hidden" class="mobile" name="mobile" value="1" />
+    <form style="margin:0 auto;" id="login" action="/" method="post">
+      <input type="hidden" name="formKey" id="formKey" value="<?php echo SecureSessionHandler::outputKey(); ?>" form="login" />
+      <input type="hidden" id="mobile" name="mobile" value="1" />
       <table class="centerDiv" id="driverLoginForm">
         <tfoot>
           <tr>
@@ -59,7 +59,7 @@
           </tr>
           <tr>
             <td>
-              <button type="submit" id="submit" class="login">Login</button>
+              <button type="submit" id="login" class="login">Login</button>
             </td>
           </tr>
           <tr>
@@ -71,5 +71,6 @@
       </table>
     </form>
   </main>
+  <script src="./js/user_scripts.js"></script>
 </body>
 </html>

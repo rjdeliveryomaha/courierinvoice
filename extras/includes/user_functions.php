@@ -13,6 +13,29 @@ function getLoginConnection() {
 }
 //Check for brute force attempt
 function checkbrute($data) {
+  /*
+  * The expected table structure
+  * Rename as desired
+  --
+  -- Table structure for table `attempt`
+  --
+  CREATE TABLE `attempt` (
+    `id` int(11) NOT NULL,
+    `user` varchar(40) NOT NULL,
+    `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+  ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  --
+  -- Indexes for table `attempt`
+  --
+  ALTER TABLE `attempt`
+    ADD PRIMARY KEY (`id`);
+  --
+  -- AUTO_INCREMENT for table `attempt`
+  --
+  ALTER TABLE `attempt`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  COMMIT;
+  */
   // Create connection
   $conn = getLoginConnection();
   if (!is_object($conn)) {
@@ -36,7 +59,7 @@ function checkbrute($data) {
   if ($conn->error != NULL) {
     return true;
   }
-  if ($stmt = $conn->prepare("SELECT id FROM attempt WHERE user = ? AND time > '$valid_attempts'")) {
+  if ($stmt = $conn->prepare("SELECT id FROM attempt WHERE user = ? AND time > '{$valid_attempts}'")) {
     $stmt->bind_param('s', $uname);
     $stmt->execute();
     $stmt->store_result();

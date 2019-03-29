@@ -5,7 +5,8 @@
 ?>
 <form id="loginForm" class="fright" style="display:none;">
   <input type="hidden" name="formKey" id="formKey" value="<?php echo SecureSessionHandler::outputKey(); ?>" />
-  <input type="hidden" class="mobile" value="0" />
+  <input type="hidden" name="noSession" id="noSession" value="1" />
+  <input type="hidden" name="mobile" id="mobile" value="0" />
   <table>
     <tfoot>
       <!-- <tr>
@@ -15,14 +16,14 @@
         <td colspan="3">*Located in the upper right hand area of your latest invoice.</td>
       </tr>
       <tr>
-        <td class="message" colspan="3"></td>
+        <td id="message" colspan="3"></td>
       </tr>
     </tfoot>
     <tbody>
       <tr>
-        <td><input type="text" class="clientID" autocomplete="off" placeholder="ID Number*" /></td>
-        <td><input type="password" class="upw" placeholder="password" /></td>
-        <td><button type="submit" class="login">Login</button></td>
+        <td><input type="text" name="clientID" id="clientID" autocomplete="off" placeholder="ID Number*" /></td>
+        <td><input type="password" name="upw" id="upw" placeholder="password" /></td>
+        <td><button type="submit" id="login">Login</button></td>
       </tr>
     </tbody>
   </table>

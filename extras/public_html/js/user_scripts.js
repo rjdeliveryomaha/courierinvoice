@@ -1,123 +1,125 @@
-let deferredPrompt;
-const btnAdd = document.getElementById("btnAdd");
-window.addEventListener('beforeinstallprompt', (e) => {
-  // Prevent Chrome 67 and earlier from automatically showing the prompt
-  e.preventDefault();
-  // Stash the event so it can be triggered later.
-  deferredPrompt = e;
-  // show the button
-  btnAdd.style.display = "block";
-  return false;
-});
-
-document.getElementById("btnAdd").addEventListener("click", (e) => {
-  e.preventDefault();
-  deferredPrompt.prompt();
-  // Wait for the user to respond to the prompt
-  deferredPrompt.userChoice
-    .then((choiceResult) => {
-      if (choiceResult.outcome === 'accepted') {
-        btnAdd.style.display = "none";
-        console.log('User accepted the A2HS prompt');
-      } else {
-        console.log('User dismissed the A2HS prompt');
-        btnAdd.style.display = "block";
-      }
-      deferredPrompt = null;
-    });
-});
-
-function ajax_template(callMethod, url, returnType, postData=false) {
-  if (postData === false) {
-    return $.ajax({
-      method: callMethod.toUpperCase(),
-      url: url,
-      dataType: returnType,
-      shouldRetry: function( jqXHR, retryCount, requestMethod ) {
-        if (retryCount < 20) {
-          return $.Deferred(function(jqXHR) {
-            setTimeout(function() {
-                jqXHR.resolve(true);
-            }, (250 * retryCount));
-          }).promise();
-        }
-      }
-    });
-  } else {
-    return $.ajax({
-      method: callMethod.toUpperCase(),
-      url: url,
-      data: postData,
-      dataType: returnType,
-      shouldRetry: function( jqXHR, retryCount, requestMethod ) {
-        if (retryCount < 20) {
-          return $.Deferred(function(jqXHR) {
-            setTimeout(function() {
-                jqXHR.resolve(true);
-            }, (250 * retryCount));
-          }).promise();
-        }
-      }
-    });
-  }
-}
-
-$(document).ready(function() {
-  // Login function
-  $(".login").click(function(e){
-    e.preventDefault();
-    $(this).prop("disabled", true);
-    $(".message").html("");
-    if ($(this).parents("form").find(".clientID").val() != '' && $(this).parents("form").find(".upw").val() != ''){
-      $(this).parents("form").find(".message").append('<span class="ellipsis">.</span>');
-      let clientID = $(this).parents("form").find(".clientID").val(),
-          upw = $(this).parents("form").find(".upw").val(),
-          mobile = $(this).parents("form").find(".mobile").val(),
-          $ele =  $(this).parents("form").find(".ellipsis"),
-          forward = true,
-          dots = window.setInterval(function() {
-            if (forward === true) {
-              $ele.append("..");
-              forward = $ele.text().length < 21 && $ele.text().length != 1;
-            }
-            if (forward === false) {
-              $ele.text($ele.text().substr(0,$ele.text().length - 2));
-              forward = $ele.text().length === 1;
-            }
-          }, 500),
-          loginAttempt = ajax_template("POST", "./login.php", "html", { clientID:clientID, upw:upw, mobile:mobile, noSession:'1', formKey:$("#formKey").val() })
-      .done(result => {
-        $("#formKey").val(Number($("#formKey").val()) + 1);
-        if (result.search("clients") === -1 && result.search("drivers") === -1) {
-          $(this).parents("form").find(".message").append(result);
-          let bruteCheck  = ajax_template("POST", "./login.php", "html", { clientID:clientID, brute:1 })
-          .done(result2 => {
-            clearInterval(dots);
-            $(".ellipsis").remove();
-            $(this).parents("form").find(".message").append(result2);
-            $(this).prop("disabled", false);
-            $(this).removeClass("red");
-          })
-          .fail((jqXHR, status, error) => {
-            clearInterval(dots);
-            $(".ellipsis").remove();
-            $(this).parents("form").find(".message").text(error);
-            $(this).prop("disabled", false);
-            $(this).removeClass("red");
-          });
-        } else {
-          clearInterval(dots);
-          window.location = result;
-        }
-      })
-      .fail((jqXHR, status, error) => {
-        clearTimeout(dots);
-        $(".ellipsis").remove();
-        $(this).parents("form").find(".message").text(error);
-        $(this).prop("disabled", false);
-        $(this).removeClass("red");
-      });
-      return false;
+(function(user_scripts, undefined) {
+  user_scripts.fetch_template = async({ url, postData = {}, method = "POST", retry = 0 }) => {
+    if (!url) throw new Error("URL not defined");
+    let fetchOptions = {
+        method: method.toUpperCase()
+      };
+    if (Object.keys(postData).length > 0) {
+      fetchOptions.headers = { "Content-Type": "application/json" }
+      fetchOptions.body = JSON.stringify(postData);
     }
+    try {
+      return await fetch(url, fetchOptions);
+    } catch(err) {
+      retry++;
+      if (retry === 20) throw err;
+      await pause(250 * retry)
+      return await rjdci.fetch_template({ url, postData, method, retry });
+    }
+  }
+}(window.user_scripts = window.user_scripts || {}));
+/*!
+* domready (c) Dustin Diaz 2014 - License MIT
+* https://github.com/ded/domready
+*/
+!function(e,t){typeof module!="undefined"?module.exports=t():typeof define=="function"&&typeof define.amd=="object"?define(t):this[e]=t()}("domready",function(){var e=[],t,n=typeof document=="object"&&document,r=n&&n.documentElement.doScroll,i="DOMContentLoaded",s=n&&(r?/^loaded|^c/:/^loaded|^i|^c/).test(n.readyState);return!s&&n&&n.addEventListener(i,t=function(){n.removeEventListener(i,t),s=1;while(t=e.shift())t()}),function(t){s?setTimeout(t,0):e.push(t)}})
+
+domready(() => {
+  let deferredPrompt;
+  const btnAdd = document.getElementById("btnAdd");
+  window.addEventListener('beforeinstallprompt', eve => {
+    // Prevent Chrome 67 and earlier from automatically showing the prompt
+    eve.preventDefault();
+    // Stash the event so it can be triggered later.
+    deferredPrompt = eve;
+    // show the button
+    btnAdd.style.display = "block";
+    return false;
+  });
+
+  document.getElementById("btnAdd").addEventListener("click", e => {
+    e.preventDefault();
+    deferredPrompt.prompt();
+    // Wait for the user to respond to the prompt
+    deferredPrompt.userChoice
+      .then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          btnAdd.style.display = "none";
+          console.log('User accepted the A2HS prompt');
+        } else {
+          console.log('User dismissed the A2HS prompt');
+          btnAdd.style.display = "block";
+        }
+        deferredPrompt = null;
+      });
+  });
+  if (document.querySelector("#showLogin")) {
+    document.querySelector("#showLogin").addEventListener("click", eve => {
+      e.preventDefault();
+      let form = document.querySelector("#loginForm");
+      if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent)) {
+        window.location = "/mobileLogin";
+      } else {
+        form.style.display = (form.style.display === "none") ? "inline" : "none";
+      }
+    })
+  }
+  // Login function
+  document.querySelector("#login").addEventListener("click", async eve => {
+    eve.preventDefault();
+    if (document.querySelector("#clientID").value === "" || document.querySelector("#upw").value === "") return false;
+    eve.target.disabled = true;
+    document.querySelector("#message").innerHTML = '<span class="ellipsis">.</span>';
+    let postData = {},
+      ele =  document.querySelector("#message .ellipsis"),
+      forward = true,
+      dots = setInterval(() => {
+        if (forward === true) {
+          ele.innerHTML += "..";
+          forward = ele.innerHTML.length < 21 && ele.innerHTML.length != 1;
+        }
+        if (forward === false) {
+          ele.innerHTML = ele.innerHTML.slice(0, -2);
+          forward = ele.innerHTML.length === 1;
+        }
+      }, 500);
+    Array.from(document.querySelectorAll("#loginForm input")).forEach(input => {
+      postData[input.getAttribute("name")] = input.value;
+    });
+    await user_scripts.fetch_template({ url: "./login.php", postData: postData })
+    .then(result => {
+      if (typeof result === "undefined") throw new Error("Result Undefined");
+      if (result.ok) {
+        return result.text();
+      } else {
+        throw new Error(result.status + " " + result.statusText);
+      }
+    })
+    .then(async data => {
+      document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
+      if (data === "/clients" || data === "/drivers") {
+        window.location = data;
+        throw new Error("Login Successful");
+      } else {
+        let bruteCheck = { clientID: postData.clientID, brute: 1 };
+        return await user_scripts.fetch_template({ url: "./login.php", postData: bruteCheck });
+      }
+    })
+    .then(bruteCall => {
+      if (typeof bruteCall === "undefined") throw new Error("Result Undefined");
+      if (bruteCall.ok) {
+        return bruteCall.text();
+      } else {
+        throw new Error(bruteCall.status + " " + bruteCall.statusText);
+      }
+    })
+    .then(bruteResult => {
+      throw new Error(bruteResult);
+    })
+    .catch(error => {
+      clearInterval(dots);
+      document.querySelector("#message").innerHTML = error.message;
+      eve.target.disabled = false;
+    });
   });
 });

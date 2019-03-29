@@ -6,7 +6,7 @@
   // header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
 
   require_once '../includes/user_functions.php';
-  require_once '../includes/APIToolsConfig.php';
+  require_once '../includes/api_config.php';
   require_once '../vendor/autoload.php';
 
   use rjdeliveryomaha\courierinvoice\SecureSessionHandler;
@@ -28,12 +28,33 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
 
   <title>HOME | Company Name</title>
-
-  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<?php
-  include_once './loginForm.php';
-?>
+  <div class="container">
+	  <header id="navtop">
+      <a href="/" class="logo" style="float:left;">
+			  <img src="./img/logo.png" alt="Company Logo">
+		  </a>
+		  <nav style="float:right;">
+		    <ul>
+          <li><button type="button" style="display:none;" id="btnAdd">Add To Home Screen</button></li>
+			  </ul>
+			  <ul>
+  				<li><a href="/" class="navactive">Home</a></li>
+			  </ul>
+			  <ul>
+  				<li><a href="about">About Us</a></li>
+			  </ul>
+			  <ul>
+  				<li><a href="contact">Contact</a></li>
+			  </ul>
+        <ul>
+          <li><a href="#" id="showLogin">Client Login</a></li>
+        </ul>
+		  </nav>
+      <?php require_once "./loginForm.php"; ?>
+	  </header>
+  </div>
+  <script src="./js/user_scripts.js"></script>
 </body>
 </html>
