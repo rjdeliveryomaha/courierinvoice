@@ -713,7 +713,7 @@
       }
       let success_count = 0,
         error_count = 0,
-        max_attempt = 3,
+        max_attempt = 6,
         min_accuracy = 10,
         watch_id = null,
         result = false;
@@ -721,7 +721,7 @@
         let options = { enableHighAccuracy: true, timeout: 25000, maximumAge: 0},
            success = pos => {
               success_count++;
-              if (success_count > 2) {
+              if (success_count > 1) {
                 result = (result.coords.accuracy < pos.coords.accuracy) ? result : pos;
               } else {
                 result = pos;
