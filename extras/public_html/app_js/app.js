@@ -408,11 +408,12 @@
   countOnCallTickets = (oldCount) => {
     let newCount = Array.from(document.querySelectorAll("#on_call .tickets")).length;
     if (newCount > oldCount) {
-      document.querySelector(".alert").classList.add("onCallAlert").innerHTML = "!";
+      document.querySelector(".alert").classList.add("onCallAlert");
+      document.querySelector(".alert").innerHTML = "!";
       document.querySelector("#newUpdate").classList.remove("hide");
     }
     if (newCount === 0) document.querySelector(".alert").classList.remove("onCallAlert");
-    let cList = $(".alert").attr("class").split(/\s+/);
+    let cList = document.querySelector(".alert").getAttribute("class").split(/\s+/);
     if (cList.length === 1) document.querySelector(".alert").innerHTML = "";
     Array.from(document.querySelectorAll(".ticketCount")).forEach(element => { element.innerHTML = newCount; });
   }
@@ -428,10 +429,12 @@
     container.appendChild(docFrag);
   }
 
-  rjdci.refreshOnCall = async(ticketCount = document.querySelector(".ticketCount").innerHTML) => {
-    let spinner = document.createElement("div");
+  rjdci.refreshOnCall = async () => {
+    let ticketCount = document.querySelector(".ticketCount").innerHTML,
+      spinner = document.createElement("div");
     spinner.classList.add("showbox");
     spinner.innerHTML = '<!-- New spinner from http://codepen.io/collection/HtAne/ --><div class="loader"><svg class="circular" viewBox="25 25 50 50"><circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/></svg></div>';
+    document.querySelector("#on_call").innerHTML = "";
     document.querySelector("#on_call").appendChild(spinner);
     scrollTo(0,0);
     await rjdci.fetch_template({ url: "./refreshOnCall.php", postData: { formKey: document.querySelector("#formKey").value } })
@@ -466,6 +469,7 @@
       }, 2000);
     })
     .catch(error => {
+      console.log(error);
       document.querySelector("#on_call").innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + "</p>";
     });
   }
@@ -599,10 +603,12 @@
     Array.from(document.querySelectorAll(".transfersCount")).forEach(element => { element.innerHTML = newCount; } );
   }
 
-  rjdci.refreshTransfers = async(transferCount = document.querySelector(".transfersCount").innerHTML) => {
-    let spinner = document.createElement("div");
+  rjdci.refreshTransfers = async () => {
+    let transferCount = document.querySelector(".transfersCount").innerHTML,
+      spinner = document.createElement("div");
     spinner.classList.add("showbox");
     spinner.innerHTML = '<!-- New spinner from http://codepen.io/collection/HtAne/ --><div class="loader"><svg class="circular" viewBox="25 25 50 50"><circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/></svg></div>';
+    document.querySelector("#transfers").innerHTML = "";
     document.querySelector("#transfers").appendChild(spinner);
     scrollTo(0,0);
     await rjdci.fetch_template({ url: "./refreshTransfers.php", postData: { formKey: document.querySelector("#formKey").value } })
@@ -2946,7 +2952,6 @@
         Array.from(workspace.querySelectorAll("input[form='" + eve.target.getAttribute("form") + "']")).forEach(input => {
           postData[input.getAttribute("name")] = input.value;
         });
-        console.log(/\d/.test(eve.target.getAttribute("form")));
         if (eve.target.classList.contains("editForm") && /\d/.test(eve.target.getAttribute("form"))) {
           postData.ticket_index = eve.target.getAttribute("form").match(/\d+/)[0];
         } else {
