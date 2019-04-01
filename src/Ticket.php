@@ -2139,14 +2139,14 @@
                     <p>
                       <label for=\"startDate\">Start Date:</label>
                       <input type=\"hidden\" name=\"startDate\" class=\"startDateMarker\" disabled />
-                      <span style=\"display:none;\" class=\"chartDate\" title=\"Query Range Limited To 6 Month Periods\">{$this->createLimitedMonthInput($_SESSION['ClientID'], 'startDate', TRUE)}</span>
-                      <span class=\"ticketDate\">{$this->createLimitedMonthInput($_SESSION['ClientID'], 'startDate', FALSE, 'date', 'tickets')}</span>
+                      <span style=\"display:none;\" class=\"chartDate\" title=\"Query Range Limited To 6 Month Periods\">{$this->createLimitedMonthInput([ 'clientIDs' => $_SESSION['ClientID'], 'inputID' => 'startDate', 'disabled' => TRUE ])}</span>
+                      <span class=\"ticketDate\">{$this->createLimitedMonthInput([ 'clientIDs' => $_SESSION['ClientID'], 'inputID' => 'startDate', 'type' => 'date', 'table' => 'tickets' ])}</span>
                     </p>
                     <p>
                       <label for=\"endDate\">End Date:</label>
                       <input type=\"hidden\" name=\"endDate\" class=\"endDateMarker\" disabled />
-                      <span style=\"display:none;\" class=\"chartDate\" title=\"Query Range Limited To 6 Month Periods\">{$this->createLimitedMonthInput($_SESSION['ClientID'], 'endDate', TRUE)}</span>
-                      <span class=\"ticketDate\">{$this->createLimitedMonthInput($_SESSION['ClientID'], 'endDate', FALSE, 'date', 'tickets')}</span>
+                      <span style=\"display:none;\" class=\"chartDate\" title=\"Query Range Limited To 6 Month Periods\">{$this->createLimitedMonthInput([ 'clientIDs' => $_SESSION['ClientID'], 'inputID' => 'endDate', 'disabled' => TRUE ])}</span>
+                      <span class=\"ticketDate\">{$this->createLimitedMonthInput([ 'clientIDs' => $_SESSION['ClientID'], 'inputID' => 'endDate', 'type' => 'date', 'table' => 'tickets' ])}</span>
                     </p>
                   </div>
                   <div>
@@ -2205,14 +2205,14 @@
                     <p>
                       <label for=\"startDate\">Start Date:</label>
                       <input type=\"hidden\" name=\"startDate\" class=\"startDateMarker\" disabled />
-                      <span style=\"display:none;\" class=\"chartDate\" title=\"Query Range Limited To 6 Month Periods\">{$this->createLimitedMonthInput($_SESSION['ClientID'], 'startDate', TRUE)}</span>
-                      <span class=\"ticketDate\">{$this->createLimitedMonthInput($_SESSION['ClientID'], 'startDate', FALSE, 'date', 'tickets')}</span>
+                      <span style=\"display:none;\" class=\"chartDate\" title=\"Query Range Limited To 6 Month Periods\">{$this->createLimitedMonthInput([ 'clientIDs' => $_SESSION['ClientID'], 'inputID' => 'startDate', 'disabled' => TRUE ])}</span>
+                      <span class=\"ticketDate\">{$this->createLimitedMonthInput([ 'clientIDs' => $_SESSION['ClientID'], 'inputID' => 'startDate', 'type' => 'date', 'table' => 'tickets' ])}</span>
                     </p>
                     <p>
                       <label for=\"endDate\">End Date:</label>
                       <input type=\"hidden\" name=\"endDate\" class=\"endDateMarker\" disabled />
-                      <span style=\"display:none;\" class=\"chartDate\" title=\"Query Range Limited To 6 Month Periods\">{$this->createLimitedMonthInput($_SESSION['ClientID'], 'endDate', TRUE)}</span>
-                      <span class=\"ticketDate\">{$this->createLimitedMonthInput($_SESSION['ClientID'], 'endDate', FALSE, 'date', 'tickets')}</span>
+                      <span style=\"display:none;\" class=\"chartDate\" title=\"Query Range Limited To 6 Month Periods\">{$this->createLimitedMonthInput([ 'clientIDs' => $_SESSION['ClientID'], 'inputID' => 'endDate', 'disabled' => TRUE ])}</span>
+                      <span class=\"ticketDate\">{$this->createLimitedMonthInput([ 'clientIDs' => $_SESSION['ClientID'], 'inputID' => 'endDate', 'type' => 'date', 'table' => 'tickets' ])}</span>
                     </p>
                   </div>
                   <div>
@@ -2286,20 +2286,20 @@
                         <label for=\"startDate\">Start Date:</label>
                         <input type=\"hidden\" name=\"startDate\" id=\"startDateMarker\" disabled />
                         <span class=\"chartDate\" style=\"display:none;\" title=\"Query Range Limited To 6 Month Periods\">
-                          {$this->createLimitedMonthInput($array_keys($_SESSION['members']), 'startDate', TRUE)}
+                          {$this->createLimitedMonthInput([ 'clientIDS' => $array_keys($_SESSION['members']), 'inputID' => 'startDate', 'disabled' => TRUE ])}
                         </span>
                         <span class=\"ticketDate\">
-                          {$this->createLimitedMonthInput($array_keys($_SESSION['members']), 'startDate', FALSE, 'date', 'tickets')}
+                          {$this->createLimitedMonthInput([ 'clientIDs' => $array_keys($_SESSION['members']), 'inputID' => 'startDate', 'type' => 'date', 'table' => 'tickets' ])}
                         </span>
                       </p>
                       <p>
                         <label for=\"endDate\">End Date:</label>
                         <input type=\"hidden\" name=\"endDate\" id=\"endDateMarker\" />
                         <span class=\"chartDate\" style=\"display:none;\" title=\"Query Range Limited To 6 Month Periods\">
-                          {$this->createLimitedMonthInput($array_keys($_SESSION['members']), 'endDate', TRUE)}
+                          {$this->createLimitedMonthInput([ 'clientIDs' => $array_keys($_SESSION['members']), 'inputID' => 'endDate', 'disabled' => TRUE ])}
                         </span>
                         <span class=\"ticketDate\">
-                          {$this->createLimitedMonthInput($array_keys($_SESSION['members']), 'endDate', FALSE, 'date', 'tickets')}
+                          {$this->createLimitedMonthInput([ 'clientIDs' => $array_keys($_SESSION['members']), 'inputID' => 'endDate', 'type' => 'date', 'table' => 'tickets' ])}
                         </span>
                       </p>
                     </div>
