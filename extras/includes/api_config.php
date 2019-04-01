@@ -16,7 +16,7 @@
 
     'https' => 0,
 
-    'bypassHijackingTest' => false,
+    'alternateHijackingTest' => false,
 
     'enableLogging' => false,
 

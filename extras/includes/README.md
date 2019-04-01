@@ -54,7 +54,7 @@ If TRUE cookie will only be sent over secure connections.
 
 Default ` false `.
 
-### bypassHijackingTest
+### alternateHijackingTest
 
 Boolean
 
@@ -63,6 +63,8 @@ Bypass test of HTTP_USER_AGENT and REMOTE_ADDR.
 Default ` false `.
 
 It is not recommended that this value be set to ` true ` however, it may be necessary in situations where a users IP address is frequently changed due to network instability or service provider issues.
+
+Making this setting ` true ` will instead test for a POST variable named 'formKey' and compare it to a SESSION variable of the same name. While effective this method is less than desirable because of the timing involved. If requests are made in rapid succession errors will result as the value isn't updated until a call is completed. The default test allows a 10 second window when calls can access the same session.
 
 ### enableLogging
 

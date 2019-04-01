@@ -13,8 +13,7 @@ class SecureSessionHandler extends \SessionHandler {
     // Make sure the session hasn't expired, and destroy it if it has
     if (static::validateSession()) {
       // Check to see if the session is new or a hijacking attempt
-      $bypassHijackingTest = $config['bypassHijackingTest'] ?? false;
-      if(!filter_var($bypassHijackingTest, FILTER_VALIDATE_BOOLEAN) && !static::preventHijacking())	{
+      if(!static::preventHijacking())	{
         $_SESSION['IPaddress'] = $_SERVER['REMOTE_ADDR'];
         $_SESSION['userAgent'] = $_SERVER['HTTP_USER_AGENT'];
         static::regenerate_session();
@@ -109,16 +108,19 @@ class SecureSessionHandler extends \SessionHandler {
   }
 
   static protected function validateSession() {
-    if (isset($_SESSION['OBSOLETE']) && !isset($_SESSION['EXPIRES'])) return false;
+    $alternateHijackingTest = $config['alternateHijackingTest'] ?? false;
 
-    if (isset($_SESSION['EXPIRES']) && $_SESSION['EXPIRES'] < time()) return false;
+    if (filter_var($alternateHijackingTest, FILTER_VALIDATE_BOOLEAN) === true) {
+      if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (!isset($_POST['formKey']) || ((int)$_POST['formKey'] !== $_SESSION['formKey'])) return false;
+      }
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-      if (!isset($_POST['formKey']) || ((int)$_POST['formKey'] !== $_SESSION['formKey'])) return false;
+      if (isset($_SESSION['formKey'])) $_SESSION['formKey']++;
+    } else {
+      if (isset($_SESSION['OBSOLETE']) && !isset($_SESSION['EXPIRES'])) return false;
+
+      if (isset($_SESSION['EXPIRES']) && $_SESSION['EXPIRES'] < time()) return false;
     }
-
-    if (isset($_SESSION['formKey'])) $_SESSION['formKey']++;
-
     return true;
   }
 }
