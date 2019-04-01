@@ -354,25 +354,18 @@ button.blue {
 #clientUpdateForm label {
   font-weight: bold;
 }
-
-#ticketQueryOptions {
-
-}
-
-#options {
-
 }
 
 #ticketQueryOptions, #options, #invoiceQueryOptions {
   margin-bottom: 1em;
 }
 
-#invoiceQueryOptions, #ticketQueryOptions {
-  width: 90%;
-  margin: 0 auto;
+#ticketQueryOptions {
+  display: flex;
+  justify-content: space-around;
 }
 
-#invoiceQueryOptions #clientList .listMember {
+#clientList .listMember {
   white-space: nowrap;
   float: left;
 }
@@ -380,10 +373,6 @@ button.blue {
 #invoiceQueryOptions table {
   margin: 0 auto;
   white-space: nowrap;
-}
-
-#ticketQueryOptions form, #options form {
-  margin: 0 auto;
 }
 
 #ticketQueryOptions table, #options table {
@@ -1182,7 +1171,13 @@ button.blue {
   .mobileHide {
     display: none;
   }
-  .subContainer, #map, #map2, #priceContainer, #priceContainerFoot, #priceContainerFoot > div:first-of-type, #deliveryRequest, .PWcontainer, .tickets:not(.sortable) {
+  .ticketContainer {
+    width: 100%;
+  }
+  .ticketContainer >tbody > tr > td {
+    display: block;
+  }
+  .subContainer, #map, #map2, #priceContainer, #priceContainerFoot, #priceContainerFoot > div:first-of-type, .PWcontainer, .tickets:not(.sortable) {
     width: 100%;
   }
   #terms {
