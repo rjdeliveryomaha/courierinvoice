@@ -1694,7 +1694,7 @@
         <h3>{$this->TicketNumber}</h3>
         <span class=\"hide rNum\">{$this->RunNumber}</span>
         <span class=\"hide pendingReceiver\">{$this->PendingReceiver}</span>
-        <h3 class=\"error floatRight\">{$this->ticketCharge($this->Charge)}</h3>
+        <h3 class=\"ticketCharge floatRight\">{$this->ticketCharge($this->Charge)}</h3>
         <hr>
         <table class=\"wide\">
           <thead>
@@ -1929,7 +1929,7 @@
                   <input type=\"hidden\" name=\"pendingReceiver\" class=\"pendingReceiver\" value=\"{$this->multiTicket[$i]->PendingReceiver}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                   <input type=\"hidden\" name=\"step\" class=\"step\" value=\"{$this->multiTicket[$i]->step}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                 </form>
-                <h3 class=\"floatLeft\">{$this->multiTicket[$i]->TicketNumber}</h3>{$label}<h3 class=\"floatRight error\">{$this->ticketCharge($this->Charge)}</h3>
+                <h3 class=\"floatLeft\">{$this->multiTicket[$i]->TicketNumber}</h3>{$label}<h3 class=\"ticketCharge floatRight\">{$this->ticketCharge($this->Charge)}</h3>
               </td>
             </tr>
             <tr>

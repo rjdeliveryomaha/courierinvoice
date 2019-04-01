@@ -80,7 +80,7 @@ table {
   font-weight: bold;
 }
 
-.error, .currentDay {
+.error, .currentDay, .ticketCharge {
   color: red;
 }
 
