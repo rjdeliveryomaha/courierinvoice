@@ -234,7 +234,7 @@
       $this->queryData['primaryKey'] = $this->clientInfo['client_index'];
       $this->queryData['endPoint'] = 'clients';
       for ($i = 0; $i < count($this->updateValues); $i++) {
-        $this->queryData['payload'][$this->updateValues[$i]] = (strpos($this->updateValues[$i], 'Country') !== FALSE) ? self::countryFromAbbr($this->{$this->updateValues[$i]}) : $this->{$this->updateValues[$i]};
+        $this->queryData['payload'][$this->updateValues[$i]] = (strpos($this->updateValues[$i], 'Country') !== FALSE) ? self::countryFromAbbr($this->{$this->updateValues[$i]}) : self::test_input($this->{$this->updateValues[$i]});
       }
       // Build the update query
       $this->query = self::createQuery($this->queryData);
@@ -378,7 +378,8 @@
         $hideClass = 'hide';
         $billingName = $billingAddress1 = $billingAddress2 = $billingCountry = '';
       } else {
-        $sameChecked = $sameDisabled = $hideClass = '';
+        $sameChecked = $hideClass = '';
+         $sameDisabled = 'required';
         $billingName = $_SESSION['BillingName'];
         $billingAddress1 = $_SESSION['BillingAddress1'];
         $billingAddress2 = $_SESSION['BillingAddress2'];
@@ -476,7 +477,7 @@
                         <td></td>
                         <td>
                           <lable for=\"billingCountry\">Billing Country:</label>
-                          <input list=\"countries\" name=\"BillingCountry\" class=\"billingCountry\" value=\"{$billingCountry}\" {$requireCountry2} form=\"clientUpdate\" /><span class=\"error {$hideClass}\">*</span>
+                          <input list=\"countries\" name=\"BillingCountry\" class=\"billingCountry\" value=\"{$billingCountry}\" {$requireCountry2} form=\"clientUpdate\" /><span class=\"error . {$hideClass}\">*</span>
                         </td>
                       </tr>
                     <tr>
