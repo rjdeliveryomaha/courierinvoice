@@ -2286,7 +2286,7 @@
                         <label for=\"startDate\">Start Date:</label>
                         <input type=\"hidden\" name=\"startDate\" id=\"startDateMarker\" disabled />
                         <span class=\"chartDate\" style=\"display:none;\" title=\"Query Range Limited To 6 Month Periods\">
-                          {$this->createLimitedMonthInput([ 'clientIDS' => $array_keys($_SESSION['members']), 'inputID' => 'startDate', 'disabled' => TRUE ])}
+                          {$this->createLimitedMonthInput([ 'clientIDs' => $array_keys($_SESSION['members']), 'inputID' => 'startDate', 'disabled' => TRUE ])}
                         </span>
                         <span class=\"ticketDate\">
                           {$this->createLimitedMonthInput([ 'clientIDs' => $array_keys($_SESSION['members']), 'inputID' => 'startDate', 'type' => 'date', 'table' => 'tickets' ])}
