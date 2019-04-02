@@ -368,6 +368,7 @@
     let spinner = document.createElement("div");
     spinner.classList.add("showbox");
     spinner.innerHTML = '<!-- New spinner from http://codepen.io/collection/HtAne/ --><div class="loader"><svg class="circular" viewBox="25 25 50 50"><circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/></svg></div>';
+    document.querySelector("#route").innerHTML = "";
     document.querySelector("#route").appendChild(spinner);
     scrollTo(0,0);
     await rjdci.fetch_template({ url: "./refreshRoute.php", postData: { formKey: document.querySelector("#formKey").value } })
