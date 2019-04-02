@@ -243,6 +243,7 @@
           return "<p class=\"center\">{$this->error}</p>";
         }
         if ($this->compare === FALSE) {
+          $endDateMarker = ($this->display === 'chart') ? 'Y-m-t' : 'Y-m-d';
           // Make sure the query only pulls as many months as $this->allTimeChartLimit
           $diff = $tempStart->diff($tempEnd);
           if ($diff->m > $this->allTimeChartLimit) {
@@ -252,11 +253,11 @@
             return "<p class=\"center\">{$this->error}</p>";
           }
           if (!empty($this->repeatClients)) {
-            $repeatFilter[] = ['Resource'=>$dateResource, 'Filter'=>'bt', 'Value'=>"{$tempStart->format('Y-m-d')} 00:00:00,{$tempEnd->format('Y-m-t')} 23:59:59"];
+            $repeatFilter[] = ['Resource'=>$dateResource, 'Filter'=>'bt', 'Value'=>"{$tempStart->format('Y-m-d')} 00:00:00,{$tempEnd->format($endDateMarker)} 23:59:59"];
             $repeatFilter[] = ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1];
           }
           if (!empty($this->nonRepeat)) {
-            $nonRepeatFilter[] = ['Resource'=>$dateResource, 'Filter'=>'bt', 'Value'=>"{$tempStart->format('Y-m-d')} 00:00:00,{$tempEnd->format('Y-m-t')} 23:59:59"];
+            $nonRepeatFilter[] = ['Resource'=>$dateResource, 'Filter'=>'bt', 'Value'=>"{$tempStart->format('Y-m-d')} 00:00:00,{$tempEnd->format($endDateMarker)} 23:59:59"];
             $nonRepeatFilter[] = ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0];
           }
         } else {
