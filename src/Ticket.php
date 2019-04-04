@@ -2066,7 +2066,7 @@
       }
 
       if (empty($ticketQueryResult)) {
-        return '<p class="center">No Tickets Available.</p>';
+        return '<p class="center sortable">No Tickets Available.</p>';
       }
       if ($this->driverList === NULL) {
         self::fetchDrivers();
