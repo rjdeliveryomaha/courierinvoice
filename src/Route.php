@@ -107,7 +107,7 @@
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== FALSE) self::writeLoop();
-        return "<p class=\"center\"><span class=\"error\>Error</span>: {$this->error}</p>";
+        return "<p class=\"center result\"><span class=\"error\>Error</span>: {$this->error}</p>";
       }
       if (count($this->onCallTicketSet) === 0) {
         return '<p class="center">No On Call Tickets On File</p>';
@@ -119,7 +119,7 @@
           $temp = $this->error;
           $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
           if ($this->enableLogging !== FALSE) self::writeLoop();
-          $returnData .= "<p class=\"center\"><span class=\"error\">Error</span>: {$this->error}</p>";
+          $returnData .= "<p class=\"center result\"><span class=\"error\">Error</span>: {$this->error}</p>";
         } else {
           $returnData .= $ticket->displaySingleTicket();
         }
@@ -155,7 +155,7 @@
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== FALSE) self::writeLoop();
-        return "<p class=\"center\"><span class=\"error\>Error</span>: {$this->error}</p>";
+        return "<p class=\"center result\"><span class=\"error\>Error</span>: {$this->error}</p>";
       }
       // Check for completed contract tickets
       if (empty($this->activeTicketSet)) {
@@ -173,10 +173,10 @@
           $temp = $this->error . "\n";
           $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
           if ($this->enableLogging !== FALSE) self::writeLoop();
-          return "<p class=\"center\"><span class=\"error\>Error</span>: {$this->error}</p>";
+          return "<p class=\"center result\"><span class=\"error\>Error</span>: {$this->error}</p>";
         }
         $state = (count($tempTicketSet) > 0) ? 'Complete' : 'Empty';
-        return "<p class=\"center\">{$this->dateObject->format('d M Y')} Route {$state}.</p>";
+        return "<p class=\"center result\">{$this->dateObject->format('d M Y')} Route {$state}.</p>";
       } else {
         self::prepTickets();
         if (!empty($this->singleLocation)) {
@@ -186,7 +186,7 @@
               $temp = $this->error . "\n";
               $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
               if ($this->enableLogging !== FALSE) self::writeLoop();
-              return "<p class=\"center\"><span class=\"error\>Error</span>: {$this->error}</p>";
+              return "<p class=\"center result\"><span class=\"error\>Error</span>: {$this->error}</p>";
             }
             $output .= $ticket->displaySingleTicket();
           }
@@ -200,7 +200,7 @@
                 $temp = $this->error . "\n";
                 $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
                 if ($this->enableLogging !== FALSE) self::writeLoop();
-                return "<p class=\"center\"><span class=\"error\>Error</span>: {$this->error}</p>";
+                return "<p class=\"center result\"><span class=\"error\>Error</span>: {$this->error}</p>";
               }
               $temp[] = $ticket;
             }
@@ -210,7 +210,7 @@
               $temp = $this->error . "\n";
               $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
               if ($this->enableLogging !== FALSE) self::writeLoop();
-              return "<p class=\"center\"><span class=\"error\>Error</span>: {$this->error}</p>";
+              return "<p class=\"center result\"><span class=\"error\>Error</span>: {$this->error}</p>";
             }
             $output .= $ticketPrime->displayMultiTicket();
           }
@@ -268,7 +268,7 @@
         return $this->error;
       }
       if (empty($this->activeTicketSet)) {
-        $returnData .= '<p class="center">No Pending Transfers On File.</p>';
+        $returnData .= '<p class="center result">No Pending Transfers On File.</p>';
         return $returnData;
       }
       foreach ($this->activeTicketSet as $test) {
@@ -280,7 +280,7 @@
         }
       }
       if (empty($this->contractTicketSet) && empty($this->singleLocation)) {
-        $returnData .= '<p class="center">No Pending Transfers On File.</p>';
+        $returnData .= '<p class="center result">No Pending Transfers On File.</p>';
         return $returnData;
       }
       if (!empty($this->contractTicketSet)) {
@@ -295,7 +295,7 @@
             $temp = $this->error;
             $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
             if ($this->enableLogging !== FALSE) self::writeLoop();
-            $returnData .= "<p class=\"center\"><span class=\"error\">Error</span>: {$this->error}</p>";
+            $returnData .= "<p class=\"center result\"><span class=\"error\">Error</span>: {$this->error}</p>";
           } else {
             $returnData .= $ticket->displaySingleTicket();
           }
@@ -310,7 +310,7 @@
               $temp = $this->error . "\n";
               $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
               if ($this->enableLogging !== FALSE) self::writeLoop();
-              $returnData .= "<p class=\"center\"><span class=\"error\>Error</span>: {$this->error}</p>";
+              $returnData .= "<p class=\"center result\"><span class=\"error\>Error</span>: {$this->error}</p>";
             }
             $temp[] = $ticket;
           }
@@ -321,7 +321,7 @@
             $temp = $this->error . "\n";
             $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
             if ($this->enableLogging !== FALSE) self::writeLoop();
-            $returnData .= "<p class=\"center\"><span class=\"error\>Error</span>: {$this->error}</p>";
+            $returnData .= "<p class=\"center result\"><span class=\"error\>Error</span>: {$this->error}</p>";
           }
           $returnData .= $ticketPrime->displayMultiTicket();
         }
