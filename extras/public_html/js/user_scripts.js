@@ -114,7 +114,8 @@ domready(() => {
       }
     })
     .then(bruteResult => {
-      throw new Error(bruteResult);
+      let message = bruteResult || document.querySelector("#message").innerHTML;
+      throw new Error(message);
     })
     .catch(error => {
       clearInterval(dots);
