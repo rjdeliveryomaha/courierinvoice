@@ -100,6 +100,10 @@
 })(window);
 
 (function(rjdci, undefined) {
+  // loading animation
+  const spinner = document.createElement("div");
+    spinner.classList.add("showbox");
+    spinner.innerHTML = '<!-- New spinner from http://codepen.io/collection/HtAne/ --><div class="loader"><svg class="circular" viewBox="25 25 50 50"><circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/></svg></div>'
 // Start custom events
   rjdci.loggedout = new Event("rjdci_loggedout");
   rjdci.loggedin = new Event("rjdci_loggedin");
@@ -208,9 +212,6 @@
     setTimeout(() => {
       if (toastMsg.classList.contains("toast__msg")) toastMsg.classList.add("toast__msg--hide");
     }, options.time);
-
-    // add onclick event to remove toastMsg
-    toastMsg.onclick = function( eve ) { eve.target.parentNode.removeChild(eve.target); };
 
     //Remove the element after hiding
     // Wait one second longer than the passed value and loop over all of the children.
@@ -365,9 +366,6 @@
   }
 
   rjdci.refreshRoute = async() => {
-    let spinner = document.createElement("div");
-    spinner.classList.add("showbox");
-    spinner.innerHTML = '<!-- New spinner from http://codepen.io/collection/HtAne/ --><div class="loader"><svg class="circular" viewBox="25 25 50 50"><circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/></svg></div>';
     document.querySelector("#route").innerHTML = "";
     document.querySelector("#route").appendChild(spinner);
     scrollTo(0,0);
@@ -390,7 +388,7 @@
       let parser = new DOMParser(),
         newDom = parser.parseFromString(data, "text/html"),
         docFrag = document.createDocumentFragment();
-      Array.from(newDom.querySelectorAll(".sortable")).forEach(element => {
+      Array.from(newDom.querySelectorAll(".sortable, .result")).forEach(element => {
         docFrag.appendChild(element);
       });
       setTimeout(() => {
@@ -431,10 +429,7 @@
   }
 
   rjdci.refreshOnCall = async () => {
-    let ticketCount = document.querySelector(".ticketCount").innerHTML,
-      spinner = document.createElement("div");
-    spinner.classList.add("showbox");
-    spinner.innerHTML = '<!-- New spinner from http://codepen.io/collection/HtAne/ --><div class="loader"><svg class="circular" viewBox="25 25 50 50"><circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/></svg></div>';
+    let ticketCount = document.querySelector(".ticketCount").innerHTML;
     document.querySelector("#on_call").innerHTML = "";
     document.querySelector("#on_call").appendChild(spinner);
     scrollTo(0,0);
@@ -457,7 +452,7 @@
       let parser = new DOMParser(),
         newDom = parser.parseFromString(data, "text/html"),
         docFrag = document.createDocumentFragment();
-      Array.from(newDom.querySelectorAll(".sortable")).forEach(element => {
+      Array.from(newDom.querySelectorAll(".sortable, .result")).forEach(element => {
         docFrag.appendChild(element);
       });
       setTimeout(() => {
@@ -487,10 +482,7 @@
   rjdci.refreshTicketEntry = async() => {
     let elem = document.querySelector("#deliveryRequest"),
       workspace = elem.parentNode;
-      target = workspace.querySelector(".subContainer"),
-      spinner = document.createElement("div");
-    spinner.classList.add("showbox");
-    spinner.innerHTML = '<!-- New spinner from http://codepen.io/collection/HtAne/ --><div class="loader"><svg class="circular" viewBox="25 25 50 50"><circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/></svg></div>';
+      target = workspace.querySelector(".subContainer");
     workspace.removeChild(target);
     workspace.removeChild(elem);
     workspace.appendChild(spinner);
@@ -530,20 +522,21 @@
     });
   }
 
-  countDispatch = (oldCount) => {
+  rjdci.countDispatch = (oldCount) => {
     let newCount = (document.querySelector("#dispatch .tickets")) ? Array.from(document.querySelectorAll("#dispatch .tickets")).length : 0,
     target = document.querySelector(".alert");
-    if (newCount > oldCount) target.classList.add("dispatchAlert").innerHTML = "!";
+    if (newCount > oldCount) {
+      target.classList.add("dispatchAlert");
+      target.innerHTML = "!";
+    }
     if (newCount === 0) target.classList.remove("dispatchAlert");
     if (target.classList.length === 1) target.innerHTML = "";
     Array.from(document.querySelectorAll(".dispatchCount")).forEach(element => { element.innerHTML = newCount; } );
   }
 
   rjdci.refreshDispatch = async() => {
-    let oldCount = Number(document.querySelector(".dispatchCount").innerHTML) - 1,
-      spinner = document.createElement("div");
-    spinner.classList.add("showbox");
-    spinner.innerHTML = '<!-- New spinner from http://codepen.io/collection/HtAne/ --><div class="loader"><svg class="circular" viewBox="25 25 50 50"><circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/></svg></div>';
+    let oldCount = Number(document.querySelector(".dispatchCount").innerHTML) - 1;
+    document.querySelector("#dispatch").innerHTML = "";
     document.querySelector("#dispatch").appendChild(spinner);
     scrollTo(0,0);
     await rjdci.fetch_template({ url: "./refreshDispatch.php", postData: { formKey: document.querySelector("#formKey").value } })
@@ -565,13 +558,14 @@
       let parser = new DOMParser(),
         newDom = parser.parseFromString(data, "text/html"),
         docFrag = document.createDocumentFragment();
-      Array.from(newDom.querySelectorAll(".sortable")).forEach(element => {
+      Array.from(newDom.querySelectorAll(".sortable, .result")).forEach(element => {
         docFrag.appendChild(element);
       });
       setTimeout(() => {
         document.querySelector("#dispatch").removeChild(spinner);
         document.querySelector("#dispatch").appendChild(docFrag);
-        countDispatch(oldCount);
+        rjdci.assignListeners();
+        rjdci.countDispatch(oldCount);
         Array.from(document.querySelectorAll("#dispatch .dTicket")).forEach(element => {
           element.onclick = rjdci.stepTicket();
         });
@@ -605,10 +599,7 @@
   }
 
   rjdci.refreshTransfers = async () => {
-    let transferCount = document.querySelector(".transfersCount").innerHTML,
-      spinner = document.createElement("div");
-    spinner.classList.add("showbox");
-    spinner.innerHTML = '<!-- New spinner from http://codepen.io/collection/HtAne/ --><div class="loader"><svg class="circular" viewBox="25 25 50 50"><circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/></svg></div>';
+    let transferCount = document.querySelector(".transfersCount").innerHTML;
     document.querySelector("#transfers").innerHTML = "";
     document.querySelector("#transfers").appendChild(spinner);
     scrollTo(0,0);
@@ -631,7 +622,7 @@
       let parser = new DOMParser(),
         newDom = parser.parseFromString(data, "text/html"),
         docFrag = document.createDocumentFragment();
-      Array.from(newDom.querySelectorAll(".sortable")).forEach(element => {
+      Array.from(newDom.querySelectorAll(".sortable, .result")).forEach(element => {
         docFrag.appendChild(element);
       });
       setTimeout(() => {
@@ -832,9 +823,7 @@
       workspace = rjdci.getClosest(eve.target, ".message2"),
       functionFlag = rjdci.getClosest(eve.target, ".page").getAttribute("id"),
       ele = document.createElement("span");
-      console.log(workspace);
     if (workspace === null) workspace = rjdci.getClosest(eve.target, "form").querySelector(".message2");
-    console.log(workspace);
     ele.classList.add("ellipsis");
     ele.innerHTML = ".";
     workspace.innerHTML = "";
@@ -2174,6 +2163,7 @@
         });
       });
     }
+
     if (document.querySelector("#deliveryQuery")) {
       Array.from(document.querySelectorAll("#deliveryQuery .orgMember")).forEach(element => {
         element.addEventListener("change", eve => {
@@ -2187,30 +2177,47 @@
           }
         });
       });
-      document.querySelector("#display").addEventListener("change", eve => {
-        if (document.querySelector("#compareBox")) Array.from(document.querySelectorAll("#compareBox, #compareMembersTickets")).forEach(box => box.disabled = eve.target.value === "tickets");
-        document.querySelector("#ticketNumber").readOnly = eve.target.value === "chart"
-        Array.from(document.querySelectorAll("#deliveryQuery .ticketDate, #deliveryQuery .chartDate")).forEach(element => {
-          if (eve.target.value === "tickets") {
-            element.style.display = (element.classList.contains("ticketDate")) ? "inline" : "none";
-            if (element.querySelector("input")) {
-              element.querySelector("input").disabled = !element.classList.contains("ticketDate");
-              element.querySelector("input").value = "";
+
+      if (document.querySelector("#display")) {
+        document.querySelector("#display").addEventListener("change", eve => {
+          if (document.querySelector("#compareBox")) Array.from(document.querySelectorAll("#compareBox, #compareMembersTickets")).forEach(box => box.disabled = eve.target.value === "tickets");
+          document.querySelector("#ticketNumber").disabled = (eve.target.value === "chart" || (eve.target.value === "tickets" && document.querySelector("#allTime").checked === true));
+          Array.from(document.querySelectorAll("#deliveryQuery .ticketDate, #deliveryQuery .chartDate")).forEach(element => {
+            if (eve.target.value === "tickets") {
+              element.style.display = (element.classList.contains("ticketDate")) ? "inline" : "none";
+              if (element.querySelector("input")) {
+                element.querySelector("input").disabled = !element.classList.contains("ticketDate");
+                element.querySelector("input").value = "";
+                element.querySelector("input").disabled = document.querySelector("#allTime").checked === true;
+              }
+            } else {
+              element.style.display = (element.classList.contains("ticketDate")) ? "none" : "inline";
+              if (element.querySelector("input")) {
+                element.querySelector("input").disabled = element.classList.contains("ticketDate");
+                element.querySelector("input").value = "";
+                element.querySelector("input").disabled = document.querySelector("#allTime").checked === true;
+              }
             }
-          } else {
-            element.style.display = (element.classList.contains("ticketDate")) ? "none" : "inline";
-            if (element.querySelector("input")) {
-              element.querySelector("input").disabled = element.classList.contains("ticketDate");
-              element.querySelector("input").value = "";
-            }
-          }
+          });
         });
+      }
+
+      document.querySelector("#allTime").addEventListener("change", eve => {
+        let selector = (document.querySelector("#display") && document.querySelector("#display").value === "chart") ? ".chartDate" : ".ticketDate";
+        if (eve.target.checked === true) {
+          Array.from(rjdci.getClosest(eve.target, "form").querySelectorAll("input[name='startDate'], input[name='endDate'], #ticketNumber")).forEach(element => { element.value = ""; element.disabled = true; });
+        } else {
+           Array.from(rjdci.getClosest(eve.target, "form").querySelectorAll(selector + " input[name='startDate'], " + selector + " input[name='endDate']")).forEach(element => { element.disabled = false; });
+           (document.querySelector("#display")) ? document.querySelector("#ticketNumber").disabled = document.querySelector("#display").value === "chart" :  document.querySelector("#ticketNumber").disabled = false;
+        }
       });
 
       document.querySelector("#ticketNumber").addEventListener("blur", eve => {
         if (eve.target.value !== "") {
-          document.querySelector("#display").value = "tickets";
-          rjdci.triggerEvent(document.querySelector("#display"), "change");
+          if (document.querySelector("#display")) {
+            document.querySelector("#display").value = "tickets";
+            rjdci.triggerEvent(document.querySelector("#display"), "change");
+          }
           Array.from(document.querySelectorAll("#deliveryQuery .startDateDate, #deliveryQuery .endDateDate, #chargeHistory, #charge, #type, #allTime, #display, #compareBox, #compareMembersTickets, #deliveryQuery .orgMember")).forEach(input => {
             input.disabled = true;
             input.checked = false;
@@ -2360,7 +2367,6 @@
               }
             }
           });
-          console.log(postData);
           await rjdci.fetch_template({ url: "./buildQuery.php", postData: postData })
           .then(result => {
             if (typeof result === "undefined") throw new Error("Result Undefined");
@@ -2520,7 +2526,8 @@
     });
     Array.from(document.querySelectorAll("#ticketQueryResults .sigPrint td")).forEach(element => {
       element.addEventListener("click", eve => {
-        eve.target.parentElement.nextElementSibling.style.display = (eve.target.parentElement.nextElementSibling.style.display === "none") ? "block" : "none";
+        let target = eve.target.parentElement.nextElementSibling;
+        target.style.display = (target.style.display === "none" || target.style.display === "") ? "block" : "none";
       });
     });
     Array.from(document.querySelectorAll("#ticketQueryResults .submitTicketQuery")).forEach(element => {
@@ -2750,7 +2757,6 @@
           testVal += input.value;
         });
         let homeAddress = document.querySelector("input[name='ClientName'][form='javascriptVars']").value + document.querySelector("input[name='Department'][form='javascriptVars']").value + document.querySelector("input[name='ShippingAddress1'][form='javascriptVars']").value + document.querySelector("input[name='ShippingAddress2'][form='javascriptVars']").value;
-        console.log(!(testVal === homeAddress));
         if(testVal === homeAddress) eve.preventDefault();
       });
       element.addEventListener("change", eve => {
@@ -3118,7 +3124,7 @@
       });
     }
 
-    Array.from(document.querySelectorAll(".menu__list li")).forEach( element => { element.addEventListener("click", () => { rjdciSwipe.slide(element.querySelector("a").getAttribute("data-value"), 300); }) });
+    Array.from(document.querySelectorAll(".menu__list li")).forEach( element => { element.addEventListener("click", () => { if (element.querySelector("a")) rjdciSwipe.slide(element.querySelector("a").getAttribute("data-value"), 300); }) });
 
     document.querySelector(".header__icon").addEventListener("click", () => {
       let target1 = document.querySelector("#sig"),
