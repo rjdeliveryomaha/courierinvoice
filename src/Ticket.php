@@ -2139,14 +2139,14 @@
                     <p>
                       <label for=\"startDate\">Start Date:</label>
                       <input type=\"hidden\" name=\"startDate\" class=\"startDateMarker\" disabled />
-                      <span style=\"display:none;\" class=\"chartDate\" title=\"Query Range Limited To 6 Month Periods\">{$this->createLimitedMonthInput([ 'clientIDs' => $_SESSION['ClientID'], 'inputID' => 'startDate', 'disabled' => TRUE ])}</span>
-                      <span class=\"ticketDate\">{$this->createLimitedMonthInput([ 'clientIDs' => $_SESSION['ClientID'], 'inputID' => 'startDate', 'type' => 'date', 'table' => 'tickets' ])}</span>
+                      <span style=\"display:none;\" class=\"chartDate\" title=\"Query Range Limited To 6 Month Periods\">{$this->createLimitedMonthInput([ 'clientIDs' => $this->ClientID, 'inputID' => 'startDate', 'disabled' => TRUE ])}</span>
+                      <span class=\"ticketDate\">{$this->createLimitedMonthInput([ 'clientIDs' => $this->ClientID, 'inputID' => 'startDate', 'type' => 'date', 'table' => 'tickets' ])}</span>
                     </p>
                     <p>
                       <label for=\"endDate\">End Date:</label>
                       <input type=\"hidden\" name=\"endDate\" class=\"endDateMarker\" disabled />
-                      <span style=\"display:none;\" class=\"chartDate\" title=\"Query Range Limited To 6 Month Periods\">{$this->createLimitedMonthInput([ 'clientIDs' => $_SESSION['ClientID'], 'inputID' => 'endDate', 'disabled' => TRUE ])}</span>
-                      <span class=\"ticketDate\">{$this->createLimitedMonthInput([ 'clientIDs' => $_SESSION['ClientID'], 'inputID' => 'endDate', 'type' => 'date', 'table' => 'tickets' ])}</span>
+                      <span style=\"display:none;\" class=\"chartDate\" title=\"Query Range Limited To 6 Month Periods\">{$this->createLimitedMonthInput([ 'clientIDs' => $this->ClientID, 'inputID' => 'endDate', 'disabled' => TRUE ])}</span>
+                      <span class=\"ticketDate\">{$this->createLimitedMonthInput([ 'clientIDs' => $this->ClientID, 'inputID' => 'endDate', 'type' => 'date', 'table' => 'tickets' ])}</span>
                     </p>
                   </div>
                   <div>
@@ -2205,14 +2205,14 @@
                     <p>
                       <label for=\"startDate\">Start Date:</label>
                       <input type=\"hidden\" name=\"startDate\" class=\"startDateMarker\" disabled />
-                      <span style=\"display:none;\" class=\"chartDate\" title=\"Query Range Limited To 6 Month Periods\">{$this->createLimitedMonthInput([ 'clientIDs' => $_SESSION['ClientID'], 'inputID' => 'startDate', 'disabled' => TRUE ])}</span>
-                      <span class=\"ticketDate\">{$this->createLimitedMonthInput([ 'clientIDs' => $_SESSION['ClientID'], 'inputID' => 'startDate', 'type' => 'date', 'table' => 'tickets' ])}</span>
+                      <span style=\"display:none;\" class=\"chartDate\" title=\"Query Range Limited To 6 Month Periods\">{$this->createLimitedMonthInput([ 'clientIDs' => $this->ClientID, 'inputID' => 'startDate', 'disabled' => TRUE ])}</span>
+                      <span class=\"ticketDate\">{$this->createLimitedMonthInput([ 'clientIDs' => $this->ClientID, 'inputID' => 'startDate', 'type' => 'date', 'table' => 'tickets' ])}</span>
                     </p>
                     <p>
                       <label for=\"endDate\">End Date:</label>
                       <input type=\"hidden\" name=\"endDate\" class=\"endDateMarker\" disabled />
-                      <span style=\"display:none;\" class=\"chartDate\" title=\"Query Range Limited To 6 Month Periods\">{$this->createLimitedMonthInput([ 'clientIDs' => $_SESSION['ClientID'], 'inputID' => 'endDate', 'disabled' => TRUE ])}</span>
-                      <span class=\"ticketDate\">{$this->createLimitedMonthInput([ 'clientIDs' => $_SESSION['ClientID'], 'inputID' => 'endDate', 'type' => 'date', 'table' => 'tickets' ])}</span>
+                      <span style=\"display:none;\" class=\"chartDate\" title=\"Query Range Limited To 6 Month Periods\">{$this->createLimitedMonthInput([ 'clientIDs' => $this->ClientID, 'inputID' => 'endDate', 'disabled' => TRUE ])}</span>
+                      <span class=\"ticketDate\">{$this->createLimitedMonthInput([ 'clientIDs' => $this->ClientID, 'inputID' => 'endDate', 'type' => 'date', 'table' => 'tickets' ])}</span>
                     </p>
                   </div>
                   <div>
@@ -2330,8 +2330,6 @@
                           <option value=\"chart\">Chart</option>
                         </select>
                       </p>
-                    </div>
-                    <div>
                       <p>
                         <span>Compare:</span>
                         <input type=\"hidden\" name=\"compare\" value=\"0\" />
