@@ -43,6 +43,7 @@
     private $closedMarker;
     private $invoiceDisplay;
     private $counter = 2;
+    private $updateValues = [ 'InvoiceNumber', 'ClientID', 'RepeatClient', 'InvoiceTotal', 'InvoiceSubTotal', 'BalanceForwarded', 'AmountDue', 'StartDate', 'EndDate', 'DateIssued', 'DatePaid', 'AmountPaid', 'Balance', 'Late30Invoice', 'Late30Value', 'Late60Invoice', 'Late60Value', 'Late90Invoice', 'Late90Value', 'Over90Invoice', 'Over90Value', 'CheckNumber', 'Closed', 'Deleted' ];
 
     public function __construct($options, $data=[]) {
       try {
@@ -655,5 +656,36 @@
             </table>
             <div id="invoiceQueryResults"></div>';
       }
+    }
+
+    public function updateInvoice() {
+      $updateData = [];
+      $updateData['method'] = 'PUT';
+      $updateData['endPoint'] = 'invoices';
+      $updateData['primaryKey'] = $this->invoice_index;
+      foreach($this as $key => $value) {
+        if (in_array($key, $this->updateValues) && in_array(lcfirst($key), $this->postKeys)) {
+          if (in_array($key, $this->ints)) {
+            $updateData['payload'][$key] = (in_array($key, $this->nullable) && $value === NULL) ? NULL : self::test_int($value);
+          } elseif (in_array($key, $this->floats)) {
+            $updateData['payload'][$key] = (in_array($key, $this->nullable) && $value === NULL) ? NULL : self::test_float($value);
+          } else {
+            $updateData['payload'][$key] = (in_array($key, $this->nullable) && $value === NULL) ? NULL : self::test_input($value);
+          }
+        }
+      }
+      // Build the update query
+      $query = self::createQuery($updateData);
+      if ($query === FALSE) {
+        echo $this->error;
+        return FALSE;
+      }
+      $result = self::callQuery($query);
+      if ($result === FALSE) {
+        echo $this->error;
+        return FALSE;
+      }
+      echo 'Update Successful';
+      return FALSE;
     }
   }

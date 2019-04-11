@@ -3360,16 +3360,15 @@
         $regen = TRUE;
         $payload = array();
         foreach ($this as $key => $value) {
-          if (in_array($key, $this->updateTicketDatabaseKeys)) {
-            if ($key === 'Transfers' && $value) {
+          if (in_array($key, $this->updateTicketDatabaseKeys) && in_array(lcfirst($key), $this->postKeys)) {
+            if ($key === 'Transfers' && $value != FALSE) {
               $tempArray = json_decode(html_entity_decode($value));
-              $target = array();
+              $target = [];
               for ($i=0;$i<count($tempArray); $i++) {
                 $newObj = new \stdClass();
                 foreach ($tempArray[$i] as $k => $v) {
                   if ($v == NULL) {
                     $newVal = time();
-                    $regen = FALSE;
                   } else {
                     $newVal = $v;
                   }

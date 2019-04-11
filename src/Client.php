@@ -234,7 +234,7 @@
       $this->queryData['primaryKey'] = $this->clientInfo['client_index'];
       $this->queryData['endPoint'] = 'clients';
       for ($i = 0; $i < count($this->updateValues); $i++) {
-        $this->queryData['payload'][$this->updateValues[$i]] = (strpos($this->updateValues[$i], 'Country') !== FALSE) ? self::countryFromAbbr($this->{$this->updateValues[$i]}) : self::test_input($this->{$this->updateValues[$i]});
+        if (in_array(lcfirst($this->updateValues[$i]), $this->postKeys)) $this->queryData['payload'][$this->updateValues[$i]] = (strpos($this->updateValues[$i], 'Country') !== FALSE) ? self::countryFromAbbr($this->{$this->updateValues[$i]}) : self::test_input($this->{$this->updateValues[$i]});
       }
       // Build the update query
       $this->query = self::createQuery($this->queryData);

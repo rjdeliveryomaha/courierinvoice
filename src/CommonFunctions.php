@@ -54,9 +54,10 @@
     protected $fileWriteTry;
     protected $loggingError = FALSE;
     protected $error = '';
-    private $ints = [ 'dryIce', 'DryIce', 'diWeight', 'fromMe', 'toMe', 'charge', 'Charge', 'type', 'Type', 'contract', 'Contract', 'DispatchedTo', 'emailConfirm', 'EmailConfirm', 'pSigReq', 'dSigReq', 'd2SigReq', 'repeatClient', 'RepeatClient', 'ticketNumber', 'TicketNumber', 'sigType', 'PriceOverride', 'RunNumber', 'holder', 'receiver', 'TransferState', 'ClientID', 'Organization', 'ListBy', 'same' ];
+    protected $postKeys;
+    private $ints = [ 'dryIce', 'DryIce', 'diWeight', 'fromMe', 'toMe', 'charge', 'Charge', 'type', 'Type', 'contract', 'Contract', 'DispatchedTo', 'emailConfirm', 'EmailConfirm', 'pSigReq', 'dSigReq', 'd2SigReq', 'repeatClient', 'RepeatClient', 'ticketNumber', 'TicketNumber', 'sigType', 'PriceOverride', 'RunNumber', 'holder', 'receiver', 'TransferState', 'ClientID', 'Organization', 'ListBy', 'same', 'Closed', 'Deleted' ];
     // Properties that should always be floats
-    private $floats = [ 'diPrice', 'TicketBase', 'RunPrice', 'TicketPrice', 'Multiplier', 'timestamp', 'lat',' lng', 'maxRange', 'pLat', 'pLng', 'dLat', 'dLng', 'd2Lat', 'd2Lng', 'latitude', 'longitude' ];
+    private $floats = [ 'diPrice', 'TicketBase', 'RunPrice', 'TicketPrice', 'Multiplier', 'timestamp', 'lat',' lng', 'maxRange', 'pLat', 'pLng', 'dLat', 'dLng', 'd2Lat', 'd2Lng', 'latitude', 'longitude', 'BalanceForwarded', 'InvoiceSubTotal', 'AmountDue', 'InvoiceTotal', 'AmountPaid', 'Balance', 'Late30Value', 'Late60Value', 'Late90Value', 'Over90Value' ];
     // Properties that should always be boolean
     private $bools = [ 'newTicket', 'compare', 'compareMembers', 'ticketEditor', 'updateTicket', 'consolidateContractTicketsOnInvoice', 'showCanceledTicketsOnInvoice', 'organizationFlag', 'noSession', 'processTransfer', 'mapAvailable' ];
     // Properties that are passed at the end of a string value
@@ -103,6 +104,7 @@
       if ($this->options['testMode'] === true && $this->options['testURL'] === null || $this->options['testURL'] === '') {
         throw new Exception('Invalid URL');
       }
+      $this->postKeys = array_keys($_POST);
       if (!isset($data['noSession'])) {
         if (empty($_SESSION) || !isset($_SESSION['ulevel']) || !isset($_SESSION['config']) || empty($_SESSION['config'])) {
           $this->error = 'Session Error';
