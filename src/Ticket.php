@@ -3581,14 +3581,14 @@
       $ticketUpdateData['primaryKey'] = $this->ticket_index;
       $ticketUpdateData['payload'] = [];
       if ($this->multiTicket === NULL) {
-        foreach($this->updateTicketDatabaseKeys as $key => $value) {
-          if ($this->{$key} !== NULL) $ticketUpdateData[$key] = $value;
+        foreach($this as $key => $value) {
+          if (in_array($key, $this->updateTicketDatabaseKeys) && in_array(lcfirst($key), $this->postKeys)) $ticketUpdateData['payload'][$key] = $value;
         }
       } else {
         for ($i = 0; $i < count($this->multiTicket); $i++) {
           $tempObj = new \stdClass();
           foreach($this->updateTicketDatabaseKeys as $key => $value) {
-            if (isset($this->multiTicket[$i][$key])) $tempObj->$key = $value;
+            if (array_key_exists($key, $this->multiTicket[$i])) $tempObj->$key = $value;
           }
           $ticketUpdateData['payload'][] = $tempObj;
         }
@@ -3814,24 +3814,13 @@
         }
       } else {
         $marker = 'group updated';
-        $lower = [ 'ticket_index', 'step' ];
         for ($i = 0; $i < count($this->multiTicket); $i++) {
           foreach ($this->multiTicket[$i] as $key => $value) {
-            if (!in_array($key, $lower)) {
-              if ($this->updateProperty(ucfirst($key), $value) === FALSE) {
-                $ucfirst = 'ucfirst';
-                $this->error = __function__ . ' Error Line ' . __line__ . ": unable to set {$ucfirst($key)} => $value";
-                if ($this->enableLogging !== FALSE) self::writeLoop();
-                return $this->error;
-              }
-            } else {
-              if (!$this->updateProperty($key, $value)) {
-                $this->error = __function__ . ' Error Line ' . __line__ . ": unable to set $key => $value";
-                if ($this->enableLogging !== FALSE) self::writeLoop();
-                return $this->error;
+            foreach($this as $k => $v) {
+              if (strtolower($k) === strtolower($key)) {
+                $this->$k = $value;
               }
             }
-            if ($this->Charge === 7) $this->solveDedicatedRunPrice();
             if ($this->sendEmail() === TRUE) $this->processEmail();
           }
         }
