@@ -76,7 +76,7 @@ table {
   float: right;
 }
 
-.bold, #deliveryQuery label {
+.bold {
   font-weight: bold;
 }
 
