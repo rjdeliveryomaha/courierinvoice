@@ -72,7 +72,7 @@
       }
       $returnData = '';
       if (empty($this->dataSet)) {
-        $this->error = '<p class="center">No invoices on file</p>';
+        $this->error = '<p class="center result">No invoices on file</p>';
         return FALSE;
       }
       if ($this->organizationFlag === TRUE) {
@@ -162,7 +162,7 @@
 
     private function sortData() {
       if (count($this->dataSet) < 1) {
-        $this->error = 'Chart Data Empty Line ' . __line__;
+        $this->error = '<p class="center result">Chart Data Empty Line ' . __line__ . '</p>';
         return FALSE;
       } else {
         if ($this->compare === TRUE) {
@@ -243,7 +243,7 @@
 
     private function sortDataForMemberCompare() {
       if (count($this->dataSet) < 1) {
-        $this->error = 'Chart Data Empty Line ' . __line__;
+        $this->error = '<p class="center result">Chart Data Empty Line ' . __line__ . '</p>';
         return FALSE;
       } else {
         foreach ($this->orgClients as $key => $value) {
@@ -366,7 +366,7 @@
         $this->headerSpan = count($this->tableLabelGroups[$i]) + 2;
         $this->nestedTableColspan = $this->headerSpan - 1;
         $this->tableOutput .= '
-  <table class="member centerDiv">
+  <table class="invoiceTable member centerDiv">
     <thead>
       <tr>
         <th class="displayHeader" colspan="' . $this->headerSpan . '">' . $this->tableHead . '</th>
@@ -483,7 +483,7 @@
       if ($this->compareMembers === TRUE) {
         $this->graphOutput .= '
         <p class="center displayHeader">' . $this->tableHead . '</p>
-        <p style="display:flex; justify-content:space-around;">';
+        <p class="displayHeader" style="display:flex; justify-content:space-around;">';
           for ($i = 0; $i < count($this->memberList); $i++) {
             $this->graphOutput .= '<span class="bar' . $i . 'Label">' . self::clientListBy($this->memberList[$i]) . '  </span>';
           }
