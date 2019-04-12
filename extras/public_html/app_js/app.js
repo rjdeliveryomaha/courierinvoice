@@ -2161,7 +2161,13 @@
             clearInterval(dots);
             if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
             document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
-            document.querySelector("#invoiceQueryResults").innerHTML = data;
+            let parser = new DOMParser(),
+              newDom = parser.parseFromString(data, "text/html"),
+              docFrag = document.createDocumentFragment();
+            Array.from(newDom.querySelectorAll(".invoiceTable, .invoiceGraphContainer, .displayHeader")).forEach(element => {
+              docFrag.appendChild(element);
+            });
+            document.querySelector("#invoiceQueryResults").appendChild(docFrag);
             eve.target.disabled = false;
           })
           .catch(error => {
