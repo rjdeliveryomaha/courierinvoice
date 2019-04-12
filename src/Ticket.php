@@ -2243,7 +2243,7 @@
                       </select>
                     </p>
                     <p>
-                      <span class=\"compare\" style=\"display:none;\">
+                      <span class=\"compare\">
                         <label for=\"compare\">Compare Months: </label>
                         <input type=\"hidden\" name=\"compare\" value=\"0\" />
                         <input type=\"checkbox\" name=\"compare\" id=\"compareBox\" value=\"1\" disabled />
