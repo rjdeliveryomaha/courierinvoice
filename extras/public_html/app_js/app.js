@@ -70,7 +70,6 @@
       // direction: 1 for left or backward, -1 for right or forward
     },
     transitionEnd: function(index, elem) {
-      const pageChange = new Event("rjdci_pageChange");
       // runs at the end of a slide transition
       document.querySelector(".menu__list__active").classList.remove("menu__list__active");
       let pages = document.getElementsByClassName("page");
@@ -93,7 +92,7 @@
         }
       }
       scroll(0,0);
-      document.dispatchEvent(pageChange);
+      document.dispatchEvent(rjdci.pageChange);
     }
   });
 // End Swipe
@@ -102,13 +101,14 @@
 (function(rjdci, undefined) {
   // loading animation
   const spinner = document.createElement("div");
-    spinner.classList.add("showbox");
-    spinner.innerHTML = '<!-- New spinner from http://codepen.io/collection/HtAne/ --><div class="loader"><svg class="circular" viewBox="25 25 50 50"><circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/></svg></div>'
+  spinner.classList.add("showbox");
+  spinner.innerHTML = '<!-- New spinner from http://codepen.io/collection/HtAne/ --><div class="loader"><svg class="circular" viewBox="25 25 50 50"><circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/></svg></div>';
 // Start custom events
   rjdci.loggedout = new Event("rjdci_loggedout");
   rjdci.loggedin = new Event("rjdci_loggedin");
   rjdci.resolutionchange = new Event("rjdci_resolutionchange");
   rjdci.loaded = new Event("rjdci_loaded");
+  rjdci.pageChange = new Event("rjdci_pageChange");
   rjdci.triggerEvent = (element, eventName) => {
     // safari, webkit, gecko
     if (document.createEvent) {
@@ -123,14 +123,11 @@
   }
 // End custom events
 // utilities
-  rjdci.updateMap = ({ coords1, address1, coords2, address2, center, mapDivID }) => { return false; }
-  ucfirst = string => {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-  }
+  rjdci.updateMap = ({ coords1, address1, coords2, address2, center, mapDivID }) => { return false; };
 
-  lcfirst = string => {
-    return string.charAt(0).toLowerCase() + string.slice(1);
-  }
+  ucfirst = string => string.charAt(0).toUpperCase() + string.slice(1);
+
+  lcfirst = string => string.charAt(0).toLowerCase() + string.slice(1);
 
   convert12to24 = string => {
     let hours = Number(string.match(/^(\d+)/)[1]),
@@ -247,7 +244,7 @@
       return null;
     };
 
-  pause = (duration) => { return new Promise(resolve => setTimeout(resolve, duration)) };
+  pause = duration => { return new Promise(resolve => setTimeout(resolve, duration)) };
 
   rjdci.fetch_template = async({ url, postData = {}, method = "POST", retry = 0 }) => {
     if (!url) throw new Error("URL not defined");
@@ -296,7 +293,7 @@
     });
   }
 // isTarget is called by datalist validation
-  rjdci.isTarget = (ele) => {
+  rjdci.isTarget = ele => {
     let targets = [ "billTo", "dispatchedTo", "dispatchedByUser", "shippingCountry", "billingCountry", "pCountry", "dCountry" ];
     for (let i = 0; i < targets.length; i++) {
       if (ele.classList.contains(targets[i])) return true;
@@ -345,7 +342,7 @@
     });
   }
 
-  rjdci.centerForm = (form) => {
+  rjdci.centerForm = form => {
     let obj = document.body.getBoundingClientRect(),
         pageWidth = obj.width,
         obj2 = form.getBoundingClientRect(),
@@ -365,7 +362,7 @@
     container.appendChild(docFrag);
   }
 
-  rjdci.refreshRoute = async() => {
+  rjdci.refreshRoute = async () => {
     document.querySelector("#route").innerHTML = "";
     document.querySelector("#route").appendChild(spinner);
     scrollTo(0,0);
@@ -404,7 +401,7 @@
     });
   }
 
-  countOnCallTickets = (oldCount) => {
+  countOnCallTickets = oldCount => {
     let newCount = Array.from(document.querySelectorAll("#on_call .tickets")).length;
     if (newCount > oldCount) {
       document.querySelector(".alert").classList.add("onCallAlert");
@@ -465,7 +462,7 @@
       }, 2000);
     })
     .catch(error => {
-      console.log(error);
+      console.error(error.message);
       document.querySelector("#on_call").innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + "</p>";
     });
   }
@@ -479,7 +476,7 @@
     }
   }
 
-  rjdci.refreshTicketEntry = async() => {
+  rjdci.refreshTicketEntry = async () => {
     let elem = document.querySelector("#deliveryRequest"),
       workspace = elem.parentNode;
       target = workspace.querySelector(".subContainer");
@@ -516,13 +513,13 @@
         rjdci.assignListeners();
       }, 2000);
     })
-    .catch( error => {
+    .catch(error => {
       workspace.innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + '</p>';
       target.classList.remove("hide");
     });
   }
 
-  rjdci.countDispatch = (oldCount) => {
+  rjdci.countDispatch = oldCount => {
     let newCount = (document.querySelector("#dispatch .tickets")) ? Array.from(document.querySelectorAll("#dispatch .tickets")).length : 0,
     target = document.querySelector(".alert");
     if (newCount > oldCount) {
@@ -534,7 +531,7 @@
     Array.from(document.querySelectorAll(".dispatchCount")).forEach(element => { element.innerHTML = newCount; } );
   }
 
-  rjdci.refreshDispatch = async() => {
+  rjdci.refreshDispatch = async () => {
     let oldCount = Number(document.querySelector(".dispatchCount").innerHTML) - 1;
     document.querySelector("#dispatch").innerHTML = "";
     document.querySelector("#dispatch").appendChild(spinner);
@@ -585,7 +582,7 @@
     }
   }
 
-  countTransferTickets = (oldCount) => {
+  countTransferTickets = oldCount => {
     let newCount = Array.from(document.querySelectorAll("#transfers .sortable")).length,
     target = document.querySelector(".alert");
     if (newCount > oldCount) {
@@ -653,7 +650,7 @@
     }
   }
 
-  rjdci.populatePage = async() => {
+  rjdci.populatePage = async () => {
     let funcs = [];
     Array.from(document.querySelectorAll(".page")).forEach((element, index) => {
       if (element.getAttribute("data-function") !== undefined && element.getAttribute("data-function") !== "") {
@@ -705,10 +702,8 @@
     });
   }
 
-  rjdci.deliveryLocation = ({ ticket_index: [], step: [] }) => {
-      if (typeof navigator.permissions === "undefined" || typeof navigator.geolocation === "undefined") {
-        return rjdci.toast("Location Not Available");
-      }
+  rjdci.deliveryLocation = ({ ticket_index = [], step = [] }) => {
+      if (typeof navigator.permissions === "undefined" || typeof navigator.geolocation === "undefined") return rjdci.toast("Location Not Available");
       let success_count = 0,
         error_count = 0,
         max_attempt = 6,
@@ -742,6 +737,7 @@
             if (ticket_index.length !== step.length || ticket_index.length === 0) return rjdci.toast("Location Data Error");
             let postData = {},
               tempData = {};
+            postData.formKey = document.querySelector("#formKey").value;
             if (ticket_index.length > 1) {
               postData.multiTicket = [];
               ticket_index.forEach((val, index) => {
@@ -752,7 +748,7 @@
                 tempData = {};
               });
             } else {
-              postData.ticket_index[0] = val;
+              postData.ticket_index = ticket_index[0];
               postData[step[0]+"Lat"] = data.coords.latitude;
               postData[step[0]+"Lng"] = data.coords.longitude;
             }
@@ -766,10 +762,14 @@
               }
             })
             .then(data => {
+              if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
+              document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
+              if (data.indexOf("error") !== - 1) throw new Error(data);
               return rjdci.toast("Location Updated");
             })
             .catch(error => {
-              return rjdci.toast(error);
+              console.error(error.message);
+              return rjdci.toast(error.message);
             });
           };
         if (PermissionStatus.state == "granted") {
@@ -800,7 +800,7 @@
     return element;
   }
 
-  rjdci.cancelThis = ( eve ) => {
+  rjdci.cancelThis = eve => {
     let parent = rjdci.getClosest(eve.target, ".sortable")
     Array.from(parent.querySelectorAll("button")).forEach(elem => { elem.disabled = false; });
     eve.target.parentNode.innerHTML = "";
@@ -888,6 +888,7 @@
       }
     })
     .catch(error => {
+      console.error(error.message);
       clearInterval(dots);
       workspace.innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + "</p>";
       setTimeout(() => {
@@ -943,9 +944,9 @@
         if (input.getAttribute("name") !== "latitude" && input.getAttribute("name") !== "longitude") data[input.getAttribute("name")] = input.value;
         if (input.getAttribute("name") === "step") {
           switch (input.value) {
-            case "pickedUp": locationData.step.push("p");
-            case "delivered": locationData.step.push("d");
-            case "returned": locationData.step.push("d2");
+            case "pickedUp": locationData.step.push("p"); break;
+            case "delivered": locationData.step.push("d"); break;
+            case "returned": locationData.step.push("d2"); break;
           }
         }
         if (input.getAttribute("name") === "ticket_index") locationData.ticket_index.push(input.value);
@@ -958,7 +959,7 @@
     postData.printName = sigTest.value;
     postData.sigImage = ticketGroup.querySelector(".sigImage").value;
     rjdci.deliveryLocation(locationData);
-    await rjdci.fetch_template({ url: "./stepTicket", postData: postData })
+    await rjdci.fetch_template({ url: "./updateStep.php", postData: postData })
     .then(result => {
       if (typeof result === "undefined") throw new Error("Result Undefined");
       if (result.ok) {
@@ -979,6 +980,7 @@
       }
     })
     .catch(error => {
+      console.error(error.message);
       clearInterval(dots);
       workspace.innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + "</p>";
       setTimeout(() => {
@@ -1053,6 +1055,7 @@
       }
     })
     .catch(error => {
+      console.error(error.message);
       clearInterval(dots);
       workspace.innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + "</p>";
       setTimeout(() => {
@@ -1140,6 +1143,7 @@
       }
     })
     .catch(error => {
+      console.error(error.message);
       clearInterval(dots);
       workspace.innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + "</p>";
       setTimeout(() => {
@@ -1231,6 +1235,7 @@
       return await rjdci.refreshRoute();
     })
     .catch(error => {
+      console.error(error.message);
       clearInterval(dots);
       workspace.innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + "</p>";
       setTimeout(() => {
@@ -1329,6 +1334,7 @@
       return await rjdci.refreshTransfers();
     })
     .catch(error => {
+      console.error(error.message);
       clearInterval(dots);
       workspace.innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + "</p>";
       setTimeout(() => {
@@ -1423,6 +1429,7 @@
       return await rjdci.refreshTransfers();
     })
     .catch(error => {
+      console.error(error.message);
       clearInterval(dots);
       workspace.innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + "</p>";
       setTimeout(() => {
@@ -1688,6 +1695,7 @@
           assignTicketEditorListener();
         })
         .catch(error => {
+          console.error(error.message);
           clearInterval(dots);
           let element = document.createElement("p");
           element.classList.add("center");
@@ -1866,6 +1874,7 @@
           rjdci.updateMap({mapDivID:"map2", coords1: obj.result1, address1: obj.address1, coords2: obj.result2, address2: obj.address2, center: obj.center});
         })
         .catch(error => {
+          console.error(error.message);
           clearInterval(dots);
           workform.querySelector(".ticketError").innerHTML = '<span class="error">Error</span>: ' + error.message;
           setTimeout(() => {
@@ -2021,6 +2030,7 @@
             }, 4000)
           })
           .catch(error => {
+            console.error(error.message);
             clearInterval(dots);
             workspace.querySelector(".message").innerHTML = '<span class="error">Error</span>: ' + error.message;
             setTimeout(() => {
@@ -2156,6 +2166,7 @@
             eve.target.disabled = false;
           })
           .catch(error => {
+            console.error(error.message);
             clearInterval(dots);
             document.querySelector("#invoiceQueryResults").innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + '</p>';
             setTimeout(() => { document.querySelector("#invoiceQueryResults").innerHTML = ""; eve.target.disabled = false; }, 3500);
@@ -2319,6 +2330,7 @@
             assignQueriedTicketListeners();
           })
           .catch(error => {
+            console.error(error.message);
             eve.target.disabled = false;
             clearInterval(dots);
             document.querySelector("#ticketQueryResults").innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + '</p>';
@@ -2385,7 +2397,7 @@
             assignQueriedTicketListeners();
           })
           .catch(error => {
-            console.log(error.message);
+            console.error(error.message);
             eve.target.disabled = false;
             clearInterval(dots);
             document.querySelector("#ticketQueryResults").innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + '</p>';
@@ -2469,6 +2481,7 @@
           setTimeout(() => { document.querySelector("#clientUpdateResult").innerHTML = ""; }, 3500);
         })
         .catch(error => {
+          console.error(error.message);
           eve.target.disabled = false;
           clearInterval(dots);
           document.querySelector("#clientUpdateResult").innerHTML = '<span class="error">Error</span>: ' + error.message;
@@ -2518,6 +2531,7 @@
           document.querySelector("#invoiceQueryResults").innerHTML = data;
         })
         .catch(error => {
+          console.error(error.message);
           clearInterval(dots);
           document.querySelector("#invoiceQueryResults").innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + '</p>';
           setTimeout(() => { document.querySelector("#invoiceQueryResults").innerHTML = ""; }, 3500);
@@ -2579,6 +2593,7 @@
           assignQueriedTicketListeners();
         })
         .catch(error => {
+          console.error(error.message);
           eve.target.disabled = false;
           clearInterval(dots);
           document.querySelector("#ticketQueryResults").innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + '</p>';
@@ -2587,8 +2602,11 @@
       });
     });
   }
+
   assignTicketEditorListener = () => {
-    Array.from(document.querySelectorAll("#ticketEditorResultContainer button.ticketEditor")).forEach( element => {
+    Array.from(document.querySelectorAll("#ticketEditorResultContainer button.ticketEditor")).forEach(element => {
+      if (element.getAttribute("data-assigned")) return;
+      element.setAttribute("data-assigned", 1);
       element.addEventListener("click", async eve => {
         eve.target.classList.add("red");
         setTimeout(() => { eve.target.classList.remove("red"); }, 3000);
@@ -2622,6 +2640,7 @@
           assignTicketFormListeners(workspace);
         })
         .catch(error => {
+          console.error(error.message);
           let message = document.createElement("p");
           message.classList.add("center");
           message.innerHTML = '<span class="error">Error</span>: ' + error.message;
@@ -2643,6 +2662,7 @@
         }
       });
     }
+
     workspace.querySelector(".emailConfirm").addEventListener("change", eve => {
       let form = rjdci.getClosest(eve.target, "form");
       if (eve.target.value !== "0") {
@@ -2653,6 +2673,7 @@
         if (form.querySelector(".emailNote")) form.querySelector(".emailNote").classList.add("hide");
       }
     });
+
     workspace.querySelector(".dryIce").addEventListener("change", eve => {
       let field = rjdci.getClosest(eve.target, "fieldset");
       if(eve.target.checked){
@@ -2691,9 +2712,7 @@
     });
 
     Array.from(workspace.querySelectorAll("input[type='number']")).forEach(element => {
-      element.addEventListener("keydown", () => {
-        if (element.value === "0") element.value = "";
-      });
+      element.addEventListener("keydown", () => { if (element.value === "0") element.value = ""; });
     });
 
     Array.from(workspace.querySelectorAll("input[type='checkbox'][name='pSigReq'], input[type='checkbox'][name='dSigReq']")).forEach(element => {
@@ -2891,15 +2910,12 @@
         }
       });
       postData.formKey = document.querySelector("#formKey").value;
-      postData.mapAvailable = (rjdci.getClosest(workspace, ".page").querySelector(".mapContainer") === null) ? 0 : 1;
-      if (postData.dryIce === 1) {
-        clearInterval(dots);
-        if (postData.diWeight % diStep !== 0 || postData.diWeight == 0) {
-          workspace.querySelector(".ticketError").innerHTML = "Dry Ice in increments of 5 only.";
-          workspace.querySelector(".diWeight").classList.add("elementError");
-          breakFunction = true;
-          setTimeout(() => { workspace.querySelector(".ticketError").innerHTML = ""; workspace.querySelector(".diWeight").classList.remove("elementError"); }, 3500);
-        }
+      postData.mapAvailable = (!rjdci.getClosest(workspace, ".page").querySelector(".mapContainer")) ? 0 : 1;
+      if (postData.dryIce === 1 && (postData.diWeight % diStep !== 0 || postData.diWeight == 0)) {
+        workspace.querySelector(".ticketError").innerHTML = `Dry Ice in increments of ${diStep} only.`;
+        workspace.querySelector(".diWeight").classList.add("elementError");
+        breakFunction = true;
+        setTimeout(() => { workspace.querySelector(".ticketError").innerHTML = ""; workspace.querySelector(".diWeight").classList.remove("elementError"); }, 3500);
       }
       if (breakFunction === true) {
         clearInterval(dots);
@@ -2926,9 +2942,8 @@
           workspace.querySelector(".ticketError").innerHTML = data;
           Array.from(workspace.querySelectorAll(".submitForm, .cancelTicketEditor")).forEach(element => { element.disabled = false; });
           throw new Error(data);
-          return;
         } else {
-          rjdci.getClosest(eve.target, "#" + eve.target.getAttribute("form")).innerHTML = data;
+          rjdci.getClosest(eve.target, ".removableByEditor").innerHTML = data;
           if (postData.mapAvailable) {
             scroll(0,0);
             rjdci.updateMap({ mapDivID: "map", coords1: workspace.querySelector("#request .coords1[form='coordinates']").value, address1: workspace.querySelector("#request .address1[form='coordinates']").value, coords2: workspace.querySelector("#request .coords2[form='coordinates']").value, address2: workspace.querySelector("#request .address2[form='coordinates']").value, center: workspace.querySelector("#request .center[form='coordinates']").value });
@@ -2937,7 +2952,7 @@
         }
       })
       .catch(error => {
-        console.log(error);
+        console.error(error.message);
         clearInterval(dots);
         workspace.querySelector(".ticketError").innerHTML = '<span class="error">Error</span>: ' + error.message;
         setTimeout(() => { workspace.querySelector(".ticketError").innerHTML = ""; }, 3500);
@@ -2952,18 +2967,13 @@
     Array.from(workspace.querySelectorAll(".confirmed, .editForm")).forEach(element => {
       element.addEventListener("click", async eve => {
         eve.preventDefault();
-        let formID = eve.target.getAttribute("form")
+        let formID = eve.target.getAttribute("form"),
           postData = {};
         postData.formKey = document.querySelector("#formKey").value;
         postData.ticketEditor = 1;
         Array.from(workspace.querySelectorAll("input[form='" + eve.target.getAttribute("form") + "']")).forEach(input => {
           postData[input.getAttribute("name")] = input.value;
         });
-        if (eve.target.classList.contains("editForm") && /\d/.test(eve.target.getAttribute("form"))) {
-          postData.ticket_index = eve.target.getAttribute("form").match(/\d+/)[0];
-        } else {
-          postData.ticketEditor = 0;
-        }
         if (eve.target.classList.contains("confirmed") && /\d/.test(eve.target.getAttribute("form"))) {
           postData.updateTicket = 1;
         }
@@ -3009,7 +3019,7 @@
               setTimeout(() => { document.remove(workspace); }, 3000);
               return;
             }
-            if (rjdci.getClosest(workspace, ".page").querySelector(".mapContainer") === null) {
+            if (!rjdci.getClosest(workspace, ".page").querySelector(".mapContainer")) {
               let ticketContainer = document.querySelector("#ticketEditorResultContainer"),
                 targetTicket = rjdci.getClosest(eve.target, ".sortable"),
                 parser = new DOMParser(),
@@ -3017,13 +3027,14 @@
                 docFrag = document.createDocumentFragment(),
                 note = document.createElement("p");
               note.classList.add("center");
-              note.classList.add("removable");
               note.innerHTML = "Update Successful";
-              docFrag.appendChild(note);
+              targetTicket.appendChild(note);
               docFrag.appendChild(newDom.querySelector(".sortable"));
-              ticketContainer.insertBefore(docFrag, targetTicket);
-              ticketContainer.removeChild(targetTicket);
-              setTimeout(() => { ticketContainer.removeChild(note) }, 3500);
+              setTimeout(() => {
+                ticketContainer.insertBefore(docFrag, targetTicket);
+                ticketContainer.removeChild(targetTicket);
+                assignTicketEditorListener();
+              }, 3500);
             } else {
               rjdci.getClosest(eve.target, "#request").innerHTML = data;
               setTimeout(rjdci.refreshTicketEntry, 3500);
@@ -3031,7 +3042,7 @@
           }
         })
         .catch(error => {
-          console.log(error);
+          console.error(error.message);
           workspace.querySelector(".ticketError").innerHTML = '<p class="ceneter"><span class="error">Error</span>: ' + error.message + '</p>';
           setTimeout(() => { workspace.querySelector(".ticketError").innerHTML = ""; }, 3500);
         });
