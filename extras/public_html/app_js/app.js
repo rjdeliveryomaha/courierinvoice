@@ -2144,7 +2144,6 @@
           if (breakFunction) {
             clearInterval(dots);
             document.querySelector("#invoiceQueryResults").removeChild(container);
-            console.log(eve.target);
             eve.target.disabled = false;
             return false;
           }
@@ -2327,7 +2326,7 @@
             if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
             document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
             document.querySelector("#ticketQueryResults").innerHTML = data;
-            assignQueriedTicketListeners();
+            rjdci.assignQueriedTicketListeners();
           })
           .catch(error => {
             console.error(error.message);
@@ -2394,7 +2393,7 @@
             if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
             document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
             document.querySelector("#ticketQueryResults").innerHTML = data;
-            assignQueriedTicketListeners();
+            rjdci.assignQueriedTicketListeners();
           })
           .catch(error => {
             console.error(error.message);
@@ -2492,7 +2491,7 @@
     // end client app
   }
 
-  assignQueriedTicketListeners = () => {
+  rjdci.assignQueriedTicketListeners = () => {
     Array.from(document.querySelectorAll("#ticketQueryResults .invoiceQuery")).forEach(element => {
       element.addEventListener("click", async eve => {
         eve.preventDefault();
@@ -2590,7 +2589,7 @@
           if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
           document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
           document.querySelector("#ticketQueryResults").innerHTML = data;
-          assignQueriedTicketListeners();
+          rjdci.assignQueriedTicketListeners();
         })
         .catch(error => {
           console.error(error.message);
@@ -3131,6 +3130,7 @@
       rjdci.populatePage()
       .then(() => {
         rjdci.assignListeners();
+        rjdci.assignQueriedTicketListeners()
         document.dispatchEvent(rjdci.loaded)
       });
     }
