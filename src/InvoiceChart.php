@@ -191,7 +191,7 @@
           if ($this->singleMember !== NULL) {
             $this->memberInput = '<input type="hidden" name="clientID[]" value="' . $this->singleMember . '" />';
           } else {
-            $this->memberInput = '<input type="hidden" name="clientID" value="' . $this->clientID . '" />';
+            $this->memberInput = '<input type="hidden" name="clientID" value="' . $this->clientID[0] . '" />';
           }
           $this->groupLabels[] = '
             <form action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
