@@ -153,7 +153,7 @@
       foreach ($this->dataSet as $key => $value) {
         $reorder[] = date('Y-m', strtotime($key));
       }
-      krsort($reorder);
+      ksort($reorder);
       foreach ($reorder as $key => $value) {
         $ordered[] = date('M Y', strtotime($value));
       }
