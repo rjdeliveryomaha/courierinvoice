@@ -2307,7 +2307,7 @@
                       <p>
                         <label for=\"charge\">Charge:</label>
                         <input type=\"hidden\" name=\"charge\" id=\"chargeMarker\" value=\"10\" />
-                        <select name=\"charge\" id=\"charge\">
+                        <select name=\"charge\" id=\"chargeHistory\">
                           {$this->createChargeSelectOptions()}
                         </select>
                       </p>
