@@ -483,7 +483,7 @@
       if ($this->compareMembers === TRUE) {
         $this->graphOutput .= '
         <p class="center displayHeader">' . $this->tableHead . '</p>
-        <p class="displayHeader" style="display:flex; justify-content:space-around;">';
+        <p class="displayHeader" style="display:flex; justify-content:space-around;font-size:1em;">';
           for ($i = 0; $i < count($this->memberList); $i++) {
             $this->graphOutput .= '<span class="bar' . $i . 'Label">' . self::clientListBy($this->memberList[$i]) . '  </span>';
           }
