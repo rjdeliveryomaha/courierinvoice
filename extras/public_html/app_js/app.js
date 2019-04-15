@@ -192,6 +192,11 @@
     minutes = (minutes < 10) ?  `0${minutes.toString()}` : minutes.toString();
     toastMsg.innerHTML = `${msg} <p>${days[d.getDay()]} ${months[d.getMonth()]} ${d.getDate()}</p><p>${d.getHours()}:${minutes}</p>`;
     toastMsg.setAttribute("data-time", options.datatime);
+    if (toastMsg.className === "deliveryLocation") {
+      toastMsg.addEventListener("click", eve => {
+        return (eve.target.tagName.toUpperCase() === "DIV") ? eve.target.parentNode.removeChild(eve.target) : rjdci.triggerEvent(rjdci.getClosest(eve.target, "div"), "click");
+      });
+    }
 
     if (options.eleClass !== "toast__msg") {
       for (let i = 0; i < toastContainer.children.length; i++) {
@@ -703,92 +708,96 @@
   }
 
   rjdci.deliveryLocation = ({ ticket_index = [], step = [] }) => {
-      if (typeof navigator.permissions === "undefined" || typeof navigator.geolocation === "undefined") return rjdci.toast("Location Not Available");
-      let success_count = 0,
-        error_count = 0,
-        max_attempt = 6,
-        min_accuracy = 10,
-        watch_id = null,
-        result = false;
-      navigator.permissions.query({name: "geolocation"}).then(PermissionStatus=>{
-        let options = { enableHighAccuracy: true, timeout: 25000, maximumAge: 0},
-           success = pos => {
-              success_count++;
-              if (success_count > 1) {
-                result = (result.coords.accuracy < pos.coords.accuracy) ? result : pos;
-              } else {
-                result = pos;
-              }
-              if (success_count > max_attempt || (success_count > 2 && result.coords.accuracy < min_accuracy)) {
-                navigator.geolocation.clearWatch(watch_id);
-                return sendResult(result);
-              }
-          },
-          error = err => {
-              error_count++;
-              rjdci.toast("<p>Location Not Available</p>" + err.message);
-              if (success_count > max_attempt || error_count > max_attempt) {
-                navigator.geolocation.clearWatch(watch_id);
-                return sendResult(result);
-              }
-          },
-          sendResult = async data => {
-            if (!data) return rjdci.toast("Location Not Available");
-            if (ticket_index.length !== step.length || ticket_index.length === 0) return rjdci.toast("Location Data Error");
-            let postData = {},
+    if (typeof navigator.permissions === "undefined" || typeof navigator.geolocation === "undefined") return rjdci.toast("Location Not Available");
+    let success_count = 0,
+      error_count = 0,
+      max_attempt = 6,
+      min_accuracy = 10,
+      watch_id = null,
+      result = false,
+      toast_options = {};
+    toast_options.title = "Updating Location";
+    toast_options.eleClass = "deliveryLocation";
+    rjdci.toast("Updating Location<br>Please do not turn off screen", toast_options);
+    navigator.permissions.query({name: "geolocation"}).then(PermissionStatus => {
+      let options = { enableHighAccuracy: true, timeout: 25000, maximumAge: 0},
+        success = pos => {
+          success_count++;
+          if (success_count > 1) {
+            result = (result.coords.accuracy < pos.coords.accuracy) ? result : pos;
+          } else {
+            result = pos;
+          }
+          if (success_count > max_attempt || (success_count > 2 && result.coords.accuracy < min_accuracy)) {
+            navigator.geolocation.clearWatch(watch_id);
+            return sendResult(result);
+          }
+        },
+        error = err => {
+          error_count++;
+          rjdci.toast("Location Not Available<br>Tap to dismiss" + err.message, toast_options);
+          if (success_count > max_attempt || error_count > max_attempt) {
+            navigator.geolocation.clearWatch(watch_id);
+            return sendResult(result);
+          }
+        },
+        sendResult = async data => {
+          if (!data) return rjdci.toast("Location Not Available<br>Tap to dismiss", toast_options);
+          if (ticket_index.length !== step.length || ticket_index.length === 0) return rjdci.toast("Location Data Error<br>Tap to dismiss", toast_options);
+          let postData = {},
+            tempData = {};
+          postData.formKey = document.querySelector("#formKey").value;
+          if (ticket_index.length > 1) {
+            postData.multiTicket = [];
+            ticket_index.forEach((val, index) => {
+              tempData.ticket_index = val;
+              tempData[step[ index ]+"Lat"] = data.coords.latitude;
+              tempData[step[ index ]+"Lng"] = data.coords.longitude;
+              postData.multiTicket[ index ] = tempData;
               tempData = {};
-            postData.formKey = document.querySelector("#formKey").value;
-            if (ticket_index.length > 1) {
-              postData.multiTicket = [];
-              ticket_index.forEach((val, index) => {
-                tempData.ticket_index = val;
-                tempData[step[ index ]+"Lat"] = data.coords.latitude;
-                tempData[step[ index ]+"Lng"] = data.coords.longitude;
-                postData.multiTicket[ index ] = tempData;
-                tempData = {};
-              });
-            } else {
-              postData.ticket_index = ticket_index[0];
-              postData[step[0]+"Lat"] = data.coords.latitude;
-              postData[step[0]+"Lng"] = data.coords.longitude;
-            }
-            await rjdci.fetch_template({ url: "./updateTicket.php", postData: postData })
-            .then(result => {
-              if (typeof result === "undefined") throw new Error("Result Undefined");
-              if (result.ok) {
-                return result.text();
-              } else {
-                throw new Error(result.status + " " + result.statusText);
-              }
-            })
-            .then(data => {
-              if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
-              document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
-              if (data.indexOf("error") !== - 1) throw new Error(data);
-              return rjdci.toast("Location Updated");
-            })
-            .catch(error => {
-              console.error(error.message);
-              return rjdci.toast(error.message);
             });
-          };
-        if (PermissionStatus.state == "granted") {
+          } else {
+            postData.ticket_index = ticket_index[0];
+            postData[step[0]+"Lat"] = data.coords.latitude;
+            postData[step[0]+"Lng"] = data.coords.longitude;
+          }
+          await rjdci.fetch_template({ url: "./updateTicket.php", postData: postData })
+          .then(result => {
+            if (typeof result === "undefined") throw new Error("Result Undefined");
+            if (result.ok) {
+              return result.text();
+            } else {
+              throw new Error(result.status + " " + result.statusText);
+            }
+          })
+          .then(data => {
+            if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
+            document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
+            if (data.indexOf("error") !== - 1) throw new Error(data);
+            return rjdci.toast("Location Updated<br>Tap to dismiss", toast_options);
+          })
+          .catch(error => {
+            console.error(error.message);
+            return rjdci.toast(error.message + "<br>Tap to dismiss", toast_options);
+          });
+        };
+      if (PermissionStatus.state == "granted") {
+        watch_id = navigator.geolocation.watchPosition(success, error, options);
+      } else if (PermissionStatus.state == "prompt") {
+        navigator.geolocation.getCurrentPosition(pos => {return});
+      } else if (PermissionStatus.state == "denied") {
+        return false;
+      }
+      PermissionStatus.onchange = () => {
+        if (PermissionStatus.state === "granted") {
           watch_id = navigator.geolocation.watchPosition(success, error, options);
         } else if (PermissionStatus.state == "prompt") {
-          navigator.geolocation.getCurrentPosition(pos => {return});
+          return false;
         } else if (PermissionStatus.state == "denied") {
           return false;
         }
-        PermissionStatus.onchange = () => {
-          if (PermissionStatus.state === "granted") {
-            watch_id = navigator.geolocation.watchPosition(success, error, options);
-          } else if (PermissionStatus.state == "prompt") {
-            return false;
-          } else if (PermissionStatus.state == "denied") {
-            return false;
-          }
-        }
-      });
+      }
+    });
   }
 
   getCancelThis = () => {

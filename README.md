@@ -1469,7 +1469,7 @@ Setting the order of menu items as well as adding custom menu items (with or wit
 
 ### Drivers
 
-If the user agent supports both the [permissions](https://developer.mozilla.org/en-US/docs/Web/API/Permissions_API) and [geolocation](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API) APIs an attempt will be made to get the coordinates when a ticket is picked up, delivered, returned, declined, or marked as a dead run.
+If the user agent supports both the [permissions](https://developer.mozilla.org/en-US/docs/Web/API/Permissions_API) and [geolocation](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API) APIs an attempt will be made to get the coordinates when a ticket is picked up, delivered, returned, declined, or marked as a dead run. The above described function ` rjdci.toast ` is used to create notifications with the class ` deliveryLocation ` to inform the user of the status of updating the delivery location.
 
 * Route
 
