@@ -1756,7 +1756,7 @@
         Array.from(document.querySelectorAll("#priceResult .currencySymbol, #priceResult .weightMarker")).forEach(element => {
           element.style.display = "none";
         });
-        document.querySelector("#price_calculator .elementError").classList.remove("elementError");
+        Array.from(document.querySelectorAll("#price_calculator .elementError")).forEach(element => element.classList.remove("elementError"));
         rjdci.updateMap({mapDivID: "map2"});
       });
       workform.querySelector(".submitPriceQuery").addEventListener("click", async eve => {
@@ -2159,12 +2159,13 @@
           })
           .then(data => {
             clearInterval(dots);
+            document.querySelector("#invoiceQueryResults").removeChild(container);
             if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
             document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
             let parser = new DOMParser(),
               newDom = parser.parseFromString(data, "text/html"),
               docFrag = document.createDocumentFragment();
-            Array.from(newDom.querySelectorAll(".invoiceTable, .invoiceGraphContainer, .displayHeader")).forEach(element => {
+            Array.from(newDom.querySelectorAll(".invoiceTable, .invoiceGraphContainer, p.displayHeader")).forEach(element => {
               docFrag.appendChild(element);
             });
             document.querySelector("#invoiceQueryResults").appendChild(docFrag);
@@ -2196,8 +2197,18 @@
 
       if (document.querySelector("#display")) {
         document.querySelector("#display").addEventListener("change", eve => {
-          if (document.querySelector("#compareBox")) Array.from(document.querySelectorAll("#compareBox, #compareMembersTickets")).forEach(box => box.disabled = eve.target.value === "tickets");
+          if (document.querySelector("#compareBox")) {
+            Array.from(document.querySelectorAll("#compareBox, #compareMembersTickets")).forEach(box => {
+              box.disabled = eve.target.value === "tickets";
+              if (eve.target.value === "tickets") {
+                box.checked = false;
+              }
+            });
+          }
           document.querySelector("#ticketNumber").disabled = (eve.target.value === "chart" || (eve.target.value === "tickets" && document.querySelector("#allTime").checked === true));
+          Array.from(document.querySelectorAll("#chargeHistory, #type")).forEach(element => {
+            element.disabled = eve.target.value === "chart";
+          });
           Array.from(document.querySelectorAll("#deliveryQuery .ticketDate, #deliveryQuery .chartDate")).forEach(element => {
             if (eve.target.value === "tickets") {
               element.style.display = (element.classList.contains("ticketDate")) ? "inline" : "none";
