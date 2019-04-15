@@ -735,7 +735,7 @@
         },
         error = err => {
           error_count++;
-          rjdci.toast("Location Not Available<br>Tap to dismiss" + err.message, toast_options);
+          rjdci.toast("Location Not Available<br>" + err.message + "<br>Tap to dismiss", toast_options);
           if (success_count > max_attempt || error_count > max_attempt) {
             navigator.geolocation.clearWatch(watch_id);
             return sendResult(result);
