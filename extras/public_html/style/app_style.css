@@ -295,20 +295,12 @@ header {
   padding: 0.750em 0.938em;
 }
 
-.toast__msg, .toast__container > div {
+.toast__container > div {
+  cursor: pointer;
   border-radius: 0.25em;
   background-color: rgba(128,128,128,0.75);
   min-height: 2em;
   color: #fff;
-  /* display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  -webkit-box-pack: justify;
-      -ms-flex-pack: justify;
-          justify-content: space-between; */
   font-size: 0.85em;
   font-weight: 500;
   padding-left: 0.938em;
