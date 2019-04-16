@@ -47,7 +47,7 @@ These properties are described in [extras/includes](https://github.com/rjdeliver
 
  - secure
 
- - bypassHijackingTest
+ - alternateHijackingTest
 
 ## Public Methods:
 
