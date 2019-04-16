@@ -266,7 +266,7 @@
       retry++;
       if (retry === 20) throw err;
       await pause(250 * retry)
-      return await rjdci.fetch_template({ url, postData, method, retry });
+      return await rjdci.fetch_template({ url: url, postData: postData, method: method, retry: retry });
     }
   }
 
@@ -2699,20 +2699,22 @@
       }
     });
 
-    workspace.querySelector(".dryIce").addEventListener("change", eve => {
-      let field = rjdci.getClosest(eve.target, "fieldset");
-      if(eve.target.checked){
-        field.querySelector(".diWeight").value = "0";
-        field.querySelector(".diWeight").disabled = false;
-        field.querySelector(".diWeight").focus();
-        field.querySelector(".diWeightMarker").value = "0";
-        field.querySelector(".diWeightMarker").disabled = true;
-      } else{
-        field.querySelector(".diWeightMarker").value = "0"
-        field.querySelector(".diWeightMarker").disabled = false;
-        field.querySelector(".diWeight").value = "0";
-        field.querySelector(".diWeight").disabled = true;
-      }
+    Array.from(workspace.querySelectorAll(".dryIce")).forEach(element => {
+      element.addEventListener("change", eve => {
+        let field = rjdci.getClosest(eve.target, "fieldset");
+        if(eve.target.checked){
+          field.querySelector(".diWeight").value = "0";
+          field.querySelector(".diWeight").disabled = false;
+          field.querySelector(".diWeight").focus();
+          field.querySelector(".diWeightMarker").value = "0";
+          field.querySelector(".diWeightMarker").disabled = true;
+        } else{
+          field.querySelector(".diWeightMarker").value = "0"
+          field.querySelector(".diWeightMarker").disabled = false;
+          field.querySelector(".diWeight").value = "0";
+          field.querySelector(".diWeight").disabled = true;
+        }
+      });
     });
 
     workspace.querySelector(".charge").addEventListener("change", eve => {
@@ -2890,8 +2892,11 @@
       eve.preventDefault();
       eve.target.disabled = true;
       if (workspace.querySelector(".cancelTicketEditor")) workspace.querySelector(".cancelTicketEditor").disabled = true;
-      let diStep = workspace.querySelector(".diWeight").getAttribute("step"),
+      let diStep = 1,
         ele = document.createElement("span");
+      if (workspace.querySelector(".diWeight")) {
+        diStep = workspace.querySelector(".diWeight").getAttribute("step");
+      }
       ele.classList.add("ellipsis");
       ele.innerHTML = ".";
       workspace.querySelector(".ticketError").innerHTML = "";
@@ -2968,10 +2973,18 @@
           Array.from(workspace.querySelectorAll(".submitForm, .cancelTicketEditor")).forEach(element => { element.disabled = false; });
           throw new Error(data);
         } else {
-          rjdci.getClosest(eve.target, ".removableByEditor").innerHTML = data;
+          let parser = new DOMParser(),
+            newDom = parser.parseFromString(data, "text/html");
+          workspace.querySelector(".removableByEditor").innerHTML = "";
+          workspace.querySelector(".removableByEditor").appendChild(newDom.querySelector("#deliveryConfirmation"));
           if (postData.mapAvailable) {
             scroll(0,0);
-            rjdci.updateMap({ mapDivID: "map", coords1: workspace.querySelector("#request .coords1[form='coordinates']").value, address1: workspace.querySelector("#request .address1[form='coordinates']").value, coords2: workspace.querySelector("#request .coords2[form='coordinates']").value, address2: workspace.querySelector("#request .address2[form='coordinates']").value, center: workspace.querySelector("#request .center[form='coordinates']").value });
+            let options = {};
+            Array.from(document.querySelectorAll("input[form='coordinates']")).forEach(input => {
+              options[input.getAttribute("name")] = input.value;
+            });
+            options.mapDivID = "map";
+            rjdci.updateMap(options);
           }
           assignConfirmationListeners(workspace);
         }
@@ -2989,6 +3002,7 @@
   }
 
   assignConfirmationListeners = workspace => {
+    let parser = new DOMParser();
     Array.from(workspace.querySelectorAll(".confirmed, .editForm")).forEach(element => {
       element.addEventListener("click", async eve => {
         eve.preventDefault();
@@ -3001,6 +3015,9 @@
         });
         if (eve.target.classList.contains("confirmed") && /\d/.test(eve.target.getAttribute("form"))) {
           postData.updateTicket = 1;
+        }
+        if (eve.target.classList.contains("editForm") && !/\d/.test(eve.target.getAttribute("form"))) {
+          postData.ticketEditor = 0;
         }
         await rjdci.fetch_template({ url: "./enterTicket.php", postData: postData })
         .then(result => {
@@ -3021,8 +3038,7 @@
             Array.from(workspace.querySelectorAll("datalist, .removableByEditor")).forEach(element => {
               element.parentNode.removeChild(element);
             });
-            let parser = new DOMParser(),
-              newDom = parser.parseFromString(data, "text/html"),
+            let newDom = parser.parseFromString(data, "text/html"),
               docFrag = document.createDocumentFragment(),
               mapElement = document.querySelector(".subContainer");
             Array.from(newDom.querySelectorAll("datalist, div")).forEach(element => {
@@ -3047,7 +3063,6 @@
             if (!rjdci.getClosest(workspace, ".page").querySelector(".mapContainer")) {
               let ticketContainer = document.querySelector("#ticketEditorResultContainer"),
                 targetTicket = rjdci.getClosest(eve.target, ".sortable"),
-                parser = new DOMParser(),
                 newDom = parser.parseFromString(data, "text/html"),
                 docFrag = document.createDocumentFragment(),
                 note = document.createElement("p");
@@ -3061,7 +3076,9 @@
                 assignTicketEditorListener();
               }, 3500);
             } else {
-              rjdci.getClosest(eve.target, "#request").innerHTML = data;
+              let newDom = parser.parseFromString(data, "text/html");
+              document.querySelector("#deliveryConfirmation").innerHTML = "";
+              document.querySelector("#deliveryConfirmation").appendChild(newDom.querySelector("#deliveryRequestComplete"));
               setTimeout(rjdci.refreshTicketEntry, 3500);
             }
           }
