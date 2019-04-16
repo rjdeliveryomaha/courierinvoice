@@ -76,6 +76,8 @@
 
     'initialCharge' => 5,
 
+    'displayDryIce' => true,
+
     'dryIceStep' => 0.01,
 
     'extend' => [

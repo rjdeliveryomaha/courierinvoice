@@ -289,6 +289,12 @@ By default the Charge property is null when the ticket entry form is initialized
 
 This setting selects a Charge value when the ticket entry form is initialized.
 
+### displayDryIce
+
+Boolean
+
+Indicates if dry ice should be included on ticket request forms and regenerations.
+
 ### dryIceStep
 
 Float

@@ -1227,7 +1227,7 @@
       } else {
         $billed = 'Not Billed';
       }
-      $answerIce = "
+      $answerIce = ($this->options['displayDryIce'] === true) ? "
         <table class=\"wide\">
           <thead>
             <tr>
@@ -1246,9 +1246,9 @@
             </tr>
           </tbody>
         </table>
-      ";
-      $answerIce2 = "
-	        <td><span class=\"bold\">Dry Ice Price:</span> <span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>{$this->number_format_drop_zero_decimals($this->diPrice, 2)}</td>";
+      " : '';
+      $answerIce2 = ($this->options['displayDryIce'] === true) ? "
+	        <td><span class=\"bold\">Dry Ice Price:</span> <span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>{$this->number_format_drop_zero_decimals($this->diPrice, 2)}</td>" : '<td></td>';
       if (($this->Notes !== NULL && $this->Notes !== '') || $this->forDisatch === TRUE) {
         $readonlyNotes = ($this->forDisatch === TRUE) ? "form=\"dispatchForm{$this->ticket_index}\"" : 'readonly';
         $answerNotes = "
@@ -1690,6 +1690,49 @@
       $dTelDisplay = ($this->dTelephone == NULL) ? '' : "<tr><td>Tel:</td><td><a href=\"tel:{$this->dTelephone}\" style=\"color:blue;\">{$this->dTelephone}</a></td></tr>";
       $pAddressEncoded = urlencode($this->pAddress1 . ', ' . $this->pAddress2 . ', ' . $this->countryFromAbbr($this->pCountry));
       $dAddressEndoded = urlencode($this->dAddress1 . ', ' . $this->dAddress2 . ', ' . $this->countryFromAbbr($this->dCountry));
+      $displayDryIce = ($this->options['displayDryIce'] === true) ? "
+        <table class=\"tFieldLeft\" style=\"width:25%;\">
+          <thead>
+            <tr>
+              <th class=\"pullLeft\">Dry Ice:</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>&nbsp;</td>
+            </tr>
+            <tr>
+              <td class=\"center\" style=\"white-space:nowrap;\">{$iceWeight}{$this->weightMarker}</td>
+            </tr>
+            <tr>
+              <td>&nbsp;</td>
+            </tr>
+          </tbody>
+        </table>
+        <table class=\"tFieldRight\" style=\"width:75%;\">
+          <thead>
+            <tr>
+              <th class=\"pullLeft\">Notes:</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class=\"center\"><textarea class=\"wide notes\" rows=\"4\" name=\"notes\" form=\"ticketForm{$this->ticket_index}\">{$this->Notes}</textarea></td>
+            </tr>
+          </tbody>
+        </table>": "
+        <table class=\"tFieldRight\">
+          <thead>
+            <tr>
+              <th class=\"pullLeft\">Notes:</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class=\"center\"><textarea class=\"wide notes\" rows=\"4\" name=\"notes\" form=\"ticketForm{$this->ticket_index}\">{$this->Notes}</textarea></td>
+            </tr>
+          </tbody>
+        </table>";
       $singleTicket .= "<div class=\"tickets sortable\">
         <h3>{$this->TicketNumber}</h3>
         <span class=\"hide rNum\">{$this->RunNumber}</span>
@@ -1740,36 +1783,7 @@
           </tbody>
         </table>
         <hr>
-        <table class=\"tFieldLeft\" style=\"width:25%;\">
-          <thead>
-            <tr>
-              <th class=\"pullLeft\">Dry Ice:</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>&nbsp;</td>
-            </tr>
-            <tr>
-              <td class=\"center\" style=\"white-space:nowrap;\">{$iceWeight}{$this->weightMarker}</td>
-            </tr>
-            <tr>
-              <td>&nbsp;</td>
-            </tr>
-          </tbody>
-        </table>
-        <table class=\"tFieldRight\" style=\"width:75%;\">
-          <thead>
-            <tr>
-              <th class=\"pullLeft\">Notes:</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class=\"center\"><textarea class=\"wide notes\" rows=\"4\" name=\"notes\" form=\"ticketForm{$this->ticket_index}\">{$this->Notes}</textarea></td>
-            </tr>
-          </tbody>
-        </table>
+        {$displayDryIce}
         <hr>
         <p class=\"message2 center\"></p>
         {$confirm}";
@@ -1902,6 +1916,35 @@
           break;
         }
         $transfersFormValue = ($this->multiTicket[$i]->Transfers) ? htmlspecialchars($this->multiTicket[$i]->Transfers) : '';
+        $displayDryIce = ($this->options['displayDryIce'] === true) ? "
+              <td colspan=\"2\">
+                <table class=\"tFieldLeft\" style=\"width:25%;\">
+                  <tr>
+                    <th class=\"pullLeft\">Dry Ice:</th>
+                  </tr>
+                  <tr>
+                    <td class=\"center\">{$iceWeight}{$this->weightMarker}</td>
+                  </tr>
+                </table>
+                <table class=\"tFieldRight\" style=\"width:75%;\">
+                  <tr>
+                    <th class=\"pullLeft\">Notes:</th>
+                  </tr>
+                  <tr>
+                    <td><textarea class=\"wide notes\" rows=\"4\" name=\"notes\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\">{$this->decode($this->multiTicket[$i]->Notes)}</textarea></td>
+                  </tr>
+                </table>
+              </td>": "
+              <td colspan=\"2\">
+                <table class=\"tFieldRight\">
+                  <tr>
+                    <th class=\"pullLeft\">Notes:</th>
+                  </tr>
+                  <tr>
+                    <td><textarea class=\"wide notes\" rows=\"4\" name=\"notes\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\">{$this->decode($this->multiTicket[$i]->Notes)}</textarea></td>
+                  </tr>
+                </table>
+              </td>";
         $multiTicket .= "<table class=\"tickets center\">
           <tfoot>
             <tr>
@@ -1946,24 +1989,7 @@
               <td colspan=\"2\"><hr></td>
             </tr>
             <tr>
-              <td colspan=\"2\">
-                <table class=\"tFieldLeft\" style=\"width:25%;\">
-                  <tr>
-                    <th class=\"pullLeft\">Dry Ice:</th>
-                  </tr>
-                  <tr>
-                    <td class=\"center\">{$iceWeight}{$this->weightMarker}</td>
-                  </tr>
-                </table>
-                <table class=\"tFieldRight\" style=\"width:75%;\">
-                  <tr>
-                    <th class=\"pullLeft\">Notes:</th>
-                  </tr>
-                  <tr>
-                    <td><textarea class=\"wide notes\" rows=\"4\" name=\"notes\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\">{$this->decode($this->multiTicket[$i]->Notes)}</textarea></td>
-                  </tr>
-                </table>
-              </td>
+            {$displayDryIce}
             </tr>
           </tbody>
         </table>";
@@ -2575,6 +2601,44 @@
       $ticketEditorValues = ($this->ticket_index === NULL) ? '' : "<input type=\"hidden\" name=\"ticketBase\" value=\"{$this->TicketBase}\" form=\"request{$this->ticket_index}\" />
           <input type=\"hidden\" name=\"runPrice\" value=\"{$this->RunPrice}\" form=\"request{$this->ticket_index}\" />
           ";
+      $displayDryIce = ($this->options['displayDryIce'] === true) ? "
+              <td>
+                <fieldset form=\"request{$this->ticket_index}\" id=\"diField{$this->ticket_index}\">
+                  <legend>
+                    <label for=\"dryIce{$this->ticket_index}\">Dry Ice:  </label>
+                    <input type=\"hidden\" name=\"dryIce\" id=\"dryIceMarker{$this->ticket_index}\" value=\"0\" form=\"request{$this->ticket_index}\" />
+                    <input type=\"checkbox\" name=\"dryIce\" id=\"dryIce{$this->ticket_index}\" class=\"dryIce\" value=\"1\" {$dryIceChecked} form=\"request{$this->ticket_index}\" />
+                  </legend>
+                  <table class=\"centerDiv wide\">
+                    <tr>
+                      <td colspan=\"2\">&nbsp;</td>
+                    </tr>
+                    <tr>
+                      <td class=\"ticketSpace\"></td>
+                      <td title=\"Increments of 5 please\">
+                        <label for=\"diWeight{$this->ticket_index}\">Weight:</label>
+                        <input type=\"hidden\" name=\"diWeight\" id=\"diWeightMarker{$this->ticket_index}\" class=\"diWeightMarker\" value=\"0\" {$diWeightMarkerDisabled} form=\"request{$this->ticket_index}\" />
+                        <input type=\"number\" name=\"diWeight\" id=\"diWeight{$this->ticket_index}\" class=\"diWeight\" form=\"request{$this->ticket_index}\" min=\"0\" step=\"{$this->dryIceStep}\" value=\"{$this->number_format_drop_zero_decimals($this->diWeight, 3)}\" {$diWeightDisabled} />{$this->weightMarker}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td colspan=\"2\">&nbsp;</td>
+                    </tr>
+                  </table>
+	              </fieldset>
+              </td>
+              <td>
+                <fieldset form=\"request{$this->ticket_index}\">
+                  <legend><label for=\"notes{$this->ticket_index}\">Notes:</label></legend>
+                  <textarea rows=\"4\" name=\"notes\" id=\"notes{$this->ticket_index}\" class=\"notes\" form=\"request{$this->ticket_index}\">{$this->Notes}</textarea>
+	              </fieldset>
+              </td>" : "
+              <td colspan=\"2\">
+                <fieldset form=\"request{$this->ticket_index}\">
+                  <legend><label for=\"notes{$this->ticket_index}\">Notes:</label></legend>
+                  <textarea rows=\"4\" name=\"notes\" id=\"notes{$this->ticket_index}\" class=\"notes\" form=\"request{$this->ticket_index}\">{$this->Notes}</textarea>
+	              </fieldset>
+              </td>";
       $returnData .= "
       <div id=\"deliveryRequest{$this->ticket_index}\" class=\"removableByEditor\">
         <form id=\"request{$this->ticket_index}\" action=\"{$this->action}\" method=\"post\">
@@ -2814,37 +2878,7 @@
               </td>
             </tr>
             <tr>
-              <td>
-                <fieldset form=\"request{$this->ticket_index}\" id=\"diField{$this->ticket_index}\">
-                  <legend>
-                    <label for=\"dryIce{$this->ticket_index}\">Dry Ice:  </label>
-                    <input type=\"hidden\" name=\"dryIce\" id=\"dryIceMarker{$this->ticket_index}\" value=\"0\" form=\"request{$this->ticket_index}\" />
-                    <input type=\"checkbox\" name=\"dryIce\" id=\"dryIce{$this->ticket_index}\" class=\"dryIce\" value=\"1\" {$dryIceChecked} form=\"request{$this->ticket_index}\" />
-                  </legend>
-                  <table class=\"centerDiv wide\">
-                    <tr>
-                      <td colspan=\"2\">&nbsp;</td>
-                    </tr>
-                    <tr>
-                      <td class=\"ticketSpace\"></td>
-                      <td title=\"Increments of 5 please\">
-                        <label for=\"diWeight{$this->ticket_index}\">Weight:</label>
-                        <input type=\"hidden\" name=\"diWeight\" id=\"diWeightMarker{$this->ticket_index}\" class=\"diWeightMarker\" value=\"0\" {$diWeightMarkerDisabled} form=\"request{$this->ticket_index}\" />
-                        <input type=\"number\" name=\"diWeight\" id=\"diWeight{$this->ticket_index}\" class=\"diWeight\" form=\"request{$this->ticket_index}\" min=\"0\" step=\"{$this->dryIceStep}\" value=\"{$this->number_format_drop_zero_decimals($this->diWeight, 3)}\" {$diWeightDisabled} />{$this->weightMarker}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td colspan=\"2\">&nbsp;</td>
-                    </tr>
-                  </table>
-	              </fieldset>
-              </td>
-              <td>
-                <fieldset form=\"request{$this->ticket_index}\">
-                  <legend><label for=\"notes{$this->ticket_index}\">Notes:</label></legend>
-                  <textarea rows=\"4\" name=\"notes\" id=\"notes{$this->ticket_index}\" class=\"notes\" form=\"request{$this->ticket_index}\">{$this->Notes}</textarea>
-	              </fieldset>
-              </td>
+            {$displayDryIce}
             </tr>
             <tr>
               <td colspan=\"2\">
@@ -2886,6 +2920,7 @@
         self::buildLocationList();
         $returnData .= self::buildDatalists();
       }
+      $displayDryIce = ($this->options['displayDryIce'] === true) ? '' : ' hide';
       $returnData .= "
     <div id=\"priceContainer\">
       <form id=\"priceCalc\">
@@ -2913,7 +2948,8 @@
                         <td>
                           <label for=\"pCountryCalc\">Country</label>:
                           <input type=\"hidden\" name=\"pCountry\" id=\"pCountryMarkerCalc\" value=\"{$this->shippingCountry}\" form=\"priceCalc\" />
-                          <input list=\"countries\" name=\"pCountry\" class=\"pCountry\" id=\"pCountryCalc\" value=\"{$this->countryFromAbbr($this->pCountry)}\" {$this->countryInput} form=\"priceCalc\" {$this->requireCountry} /></td>
+                          <input list=\"countries\" name=\"pCountry\" class=\"pCountry\" id=\"pCountryCalc\" value=\"{$this->countryFromAbbr($this->pCountry)}\" {$this->countryInput} form=\"priceCalc\" {$this->requireCountry} />
+                        </td>
                       </tr>
                     </tbody>
                   </table>
@@ -2940,7 +2976,8 @@
                         <td>
                           <label for=\"dCountryCalc\">Country</label>:
                           <input type=\"hidden\" name=\"dCountry\" id=\"dCountryMarkerCalc\" value=\"{$this->shippingCountry}\" form=\"priceCalc\" />
-                          <input list=\"countries\" name=\"dCountry\" class=\"dCountry\" id=\"dCountryCalc\" value=\"{$this->countryFromAbbr($this->dCountry)}\" {$this->countryInput} form=\"priceCalc\" {$this->requireCountry} /></td>
+                          <input list=\"countries\" name=\"dCountry\" class=\"dCountry\" id=\"dCountryCalc\" value=\"{$this->countryFromAbbr($this->dCountry)}\" {$this->countryInput} form=\"priceCalc\" {$this->requireCountry} />
+                        </td>
                       </tr>
                     </tbody>
                   </table>
@@ -2957,7 +2994,7 @@
                     {$this->createChargeSelectOptions()}
                   </select>
                 </span>
-                <span class=\"floatRight\">
+                <span class=\"floatRight{$displayDryIce}\">
                   <label for=\"CalcDryIce\">Dry Ice:</label>
                   <input name=\"dryIce\" id=\"CalcDryIce\" type=\"checkbox\" class=\"dryIce\" value=\"1\" form=\"priceCalc\" />
                   <input type=\"number\" class=\"diWeight diRow\" name=\"diWeight\" id=\"CalcWeight\" value=\"0\" min=\"0\" step=\"{$this->dryIceStep}\" title=\"Increments of 5\" form=\"priceCalc\" disabled />{$this->weightMarker}
@@ -2977,9 +3014,9 @@
         </table>
       <div id=\"priceResult\">
         <p class=\"hide\">Range: <span id=\"rangeResult\"></span></p>
-        <p>Dry Ice: <span id=\"diWeightResult\"></span><span style=\"display:none;\" class=\"weightMarker\">{$this->weightMarker}</span></p>
+        <p class=\"{$displayDryIce}\">Dry Ice: <span id=\"diWeightResult\"></span><span style=\"display:none;\" class=\"weightMarker\">{$this->weightMarker}</span></p>
         <p>Run Price:<span style=\"display:none;\" class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span><span id=\"runPriceResult\"></span></p>
-        <p>Dry Ice Price: <span style=\"display:none;\" class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span><span style=\"min-width:3em;\" id=\"diPriceResult\">&nbsp;</span></p>
+        <p class=\"{$displayDryIce}\">Dry Ice Price: <span style=\"display:none;\" class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span><span style=\"min-width:3em;\" id=\"diPriceResult\">&nbsp;</span></p>
         <p>Total: <span style=\"display:none;\" class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span><span id=\"ticketPriceResult\"></span></p>
       </div>
       </form>
@@ -3207,15 +3244,16 @@
       }
       // Generate the confirmation display
       $jsVar = '
-      <input type="hidden" class="coords1" value="' . htmlentities(json_encode($this->loc1)) . '" form="coordinates" />
-      <input type="hidden" class="address1" value="' . htmlentities($this->pAddress1 . ' ' . $this->pAddress2, ENT_QUOTES) . '" form="coordinates" />
-      <input type="hidden" class="coords2" value="' . htmlentities(json_encode($this->loc2)) . '" form="coordinates" />
-      <input type="hidden" class="address2" value="' . htmlentities($this->dAddress1 . ' ' . $this->dAddress2, ENT_QUOTES) . '" form="coordinates" />
-      <input type="hidden" class="center" value="' . htmlentities(json_encode($this->center)) . '" form="coordinates" />';
+      <input type="hidden" name="coords1" class="coords1" value="' . htmlentities(json_encode($this->loc1)) . '" form="coordinates" />
+      <input type="hidden" name="address1" class="address1" value="' . htmlentities($this->pAddress1 . ' ' . $this->pAddress2, ENT_QUOTES) . '" form="coordinates" />
+      <input type="hidden" name="coords2" class="coords2" value="' . htmlentities(json_encode($this->loc2)) . '" form="coordinates" />
+      <input type="hidden" name="address2" class="address2" value="' . htmlentities($this->dAddress1 . ' ' . $this->dAddress2, ENT_QUOTES) . '" form="coordinates" />
+      <input type="hidden" name="center" class="center" value="' . htmlentities(json_encode($this->center)) . '" form="coordinates" />';
+      $displayDryIce = ($this->options['displayDryIce'] === true) ? '' : 'class="hide"';
       $output .= "
         <table class=\"ticketContainer\">
           <thead>
-            <tr>
+            <tr {$displayDryIce}>
               <td colspan=\"2\"><span class=\"bold\">Dry Ice:</span>{$this->number_format_drop_zero_decimals($this->diWeight, 3)}{$this->weightMarker} {$iceChargeDisplay}</td>
             </tr>
             <tr>
