@@ -1363,7 +1363,7 @@ This is an extendable drop-in implementation of this set of classes using vanill
 
 Functionality is contained in an module called ` rjdci `.
 
-The [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API#Browser_compatibility) is used extensively and a template is provided. This will retry a failed call 20 times waiting ` n * 250 ` milliseconds between calls where n is the retry count. The Content-Type header is left generic for versatility. As a result the PHP ``` $_POST ``` super global is not populated; data must be read from the stream.
+The [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API#Browser_compatibility) is used extensively and a template is provided. This will retry a call failing due to network issues 20 times waiting ` n * 250 ` milliseconds between calls where n is the retry count. The Content-Type header is left generic for versatility. As a result the PHP ` $_POST ` super global is not populated; data must be read from the stream.
 
 Ex:
 
