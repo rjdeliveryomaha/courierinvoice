@@ -54,6 +54,10 @@ textarea {
   color: yellow;
 }
 
+.dispatchCount, .ticketCount, .transfersCount {
+  padding-left: 0.5em;
+}
+
 .tickets {
   width: 95%;
   white-space: normal;
