@@ -307,7 +307,7 @@ Associative array
 
 Extend layout and functionality with custom css, menu items, pages, and javascript.
 
-With the exception of __css__, The top level keys refer to whom to create the items for; __all__, __client__, __org__, __driver__, __dispatcher__, __client0__, __org0__.
+With the exception of __css__ the top level keys refer to whom the items are created for; __all__, __client__, __org__, __driver__, __dispatcher__, __client0__, __org0__.
 
 __css__ is an associative array with the keys __client__, __org__, __driver__, and __dispatch__ witch are indexed arrays with each entry being the path to the desired css file.
 
