@@ -18,62 +18,22 @@
     exit;
   }
   if (isset($_SESSION['error'])) exit(header('Location: logout'));
-?>
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>R.J. Delivery</title>
-  <link rel="stylesheet" type="text/css" href="../style/main.SIP.css">
-  <link rel="stylesheet" type="text/css" href="../style/app_style.css">
-  <style>
-    .clientSelect {
-      display: none;
-    }
-    .smallTableSpace > td {
-      border: none;
-      padding: 0;
-    }
-    #invoice {
-      overflow-x: scroll;
-      width:  80%;
-    }
-    @media print {
-      #invoice table {
-        background-image: url("../images/reprint.png");
-      }
-    }
-    @media screen and (max-width: 720px) {
-      #invoice {
-        width: 100%;
-      }
-    }
-  </style>
-</head>
-<body>
-<?php
+
   try {
     $functions = new CommonFunctions($config, array());
   } catch(Exception $e) {
     echo $e->getMessage();
-    header('refresh:5;url=/');
-    exit;
+    exit(header('refresh:5;url=/'));
   }
   try {
     $timezone = new dateTimeZone($_SESSION['config']['TimeZone']);
   } catch (Exception $e) {
-    header('refresh:5;url=/');
-    exit;
+    exit(header('refresh:5;url=/'));
   }
   try {
     $date = new dateTime('', $timezone);
   } catch (Exception $e) {
-    header('refresh:5;url=/');
-    exit;
+    exit(header('refresh:5;url=/'));
   }
   if ($_SESSION['ulevel'] > 0) {
     $initialTitle = 'Delivery Request';
@@ -84,6 +44,18 @@
   }
   $mobileMarker = (isset($_SESSION['mobile']) && $_SESSION['mobile'] === TRUE) ? 1 : 0;
 ?>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Clients</title>
+  <?php echo $functions->injectCSS(); ?>
+</head>
+<body>
   <div id="confirmLogin" class="hide">
     <form id="login" action="../login.php" method="post">
       <input type="hidden" name="mobile" id="mobile" value="<?php echo $mobileMarker; ?>" />

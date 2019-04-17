@@ -18,45 +18,24 @@
     exit;
   }
   if (isset($_SESSION['error'])) exit(header('Location: logout'));
-?>
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <link rel="manifest" href="/manifest.json">
-  <title>R.J. Delivery</title>
-  <link rel="stylesheet" type="text/css" href="../style/main.SIP.css">
-  <link rel="stylesheet" type="text/css" href="../style/route.SIP.css">
-  <link rel="stylesheet" type="text/css" href="../style/app_style.css">
-  <style>
-  </style>
-</head>
-<body>
-<?php
+
   try {
     $functions = new CommonFunctions($config, array());
   } catch(Exception $e) {
     echo "<p class=\"center\">{$e->getMessage()}</p>";
-    header('refresh:5;url=../mobileLogin');
-    exit;
+    exit(header('refresh:5;url=../mobileLogin'));
   }
   try {
     $timezone = new dateTimeZone($_SESSION['config']['TimeZone']);
   } catch (Exception $e) {
     echo "<p class=\"center\">Session Value Missing: {$e->getMessage()}</p>";
-    header("refresh:5;url=../mobileLogin");
-    exit;
+    exit(header("refresh:5;url=../mobileLogin"));
   }
   try {
     $date = new dateTime("", $timezone);
   } catch (Exception $e) {
     echo "<p class=\"center\">Session Value Missing: {$e->getMessage()}</p>";
-    header("refresh:5;url=../mobileLogin");
-    exit;
+    exit(header("refresh:5;url=../mobileLogin"));
   }
   if ($_SESSION['ulevel'] === 'driver') {
     $initialTitle = '<button type="button" onclick="rjdci.refreshRoute()">Route</button>';
@@ -67,10 +46,21 @@
   }
   $mobileMarker = (isset($_SESSION['mobile']) && $_SESSION['mobile'] === TRUE) ? 1 : 0;
 ?>
-  <div id="confirmLogout" class="hide">
-    <p class="center">Do you want to log out?</p>
-    <button type="button" id="backButtonLogout" class="floatLeft">Confirm</button><button type="button" class="floatRight" id="cancelBackButtonLogout">Cancel</button>
-  </div>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="/manifest.json">
+  <title>Drivers</title>
+  <?php echo $functions->injectCSS(); ?>
+  <style>
+  </style>
+</head>
+<body>
   <div id="confirmLogin" class="hide">
     <form id="login" action="../login.php" method="post">
       <input type="hidden" name="mobile" id="mobile" value="<?php echo $mobileMarker; ?>" />
