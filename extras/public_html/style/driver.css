@@ -1,0 +1,113 @@
+body {
+  color: white;
+  background-color: black;
+}
+
+a:link {
+  text-decoration: none;
+  color: white;
+}
+
+a:visited {
+  text-decoration: none;
+  color: white;
+}
+
+a:hover {
+  text-decoration: underline;
+  color: white;
+}
+
+a:active {
+  text-decoration: none;
+  color: white;
+}
+
+a.plain:link {
+  text-decoration: none;
+  color: white;
+}
+
+a.plain:visited {
+  text-decoration: none;
+  color: white;
+}
+
+a.plain:hover {
+  text-decoration: none;
+  color: white;
+}
+
+a.plain:active {
+  text-decoration: none;
+  color: white;
+}
+
+h3 {
+  display: inline-block;
+  padding:0;
+  margin:0;
+}
+
+textarea {
+  background-color: grey;
+  color: yellow;
+}
+
+.tickets {
+  width: 95%;
+  white-space: normal;
+}
+
+.tickets thead td, .ticketContainer tfoot td, .confirm td {
+  text-align: center;
+}
+
+.sortable {
+  position: relative;
+  width: 95%;
+  margin-bottom: 1rem;
+  border: thick solid grey;
+}
+
+.sortable hr {
+  clear: both;
+}
+.sortable #signature-pad {
+  width: 100%;
+  position: absolute;
+  top: 0;
+  background-color: darkslategray;
+}
+
+.tFieldRight {
+  position: relative;
+  float: right;
+  width:50%;
+  clear: right;
+}
+
+.tFieldLeft {
+  position: relative;
+  float: left;
+  width:50%;
+  clear: left;
+}
+
+#ticketEditor {
+  text-align: center;
+}
+
+#ticketEditor .item {
+  display: inline-block;
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+}
+
+#driverSelect {
+  table-layout: fixed;
+}
+
+.message2 button {
+  margin: 0.125rem;
+}

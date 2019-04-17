@@ -81,6 +81,22 @@
     'dryIceStep' => 0.01,
 
     'extend' => [
+      'css' => [
+        'client' => [
+          '../style/client.css'
+        ],
+        'org' => [
+          '../style/client.css'
+        ],
+        'driver' => [
+          '../style/client.css',
+          '../style/driver.css'
+        ],
+        'dispatch' => [
+          '../style/client.css',
+          '../style/driver.css'
+        ]
+      ],
       'all' => [
         [null, null, '../app_js/app.js']
       ],

@@ -997,6 +997,38 @@
       }
     }
 
+    public function injectCSS() {
+      $returnData = '';
+      if (is_numeric($_SESSION['ulevel'])) {
+        if ($_SESSION['ulevel'] > 0) {
+          if (!isset($this->options['extend']['css']['client']) || !is_array($this->options['extend']['css']['client'])) return false;
+          for ($i = 0; $i < count($this->options['extend']['css']['client']); $i++) {
+            $returnData .= "<link rel=\"stylesheet\" type=\"text/css\" href=\"{$this->options['extend']['css']['client'][$i]}\">
+            ";
+          }
+        } else {
+          if (!isset($this->options['extend']['css']['org']) || !is_array($this->options['extend']['css']['org'])) return false;
+          for ($i = 0; $i < count($this->options['extend']['css']['org']); $i++) {
+            $returnData .= "<link rel=\"stylesheet\" type=\"text/css\" href=\"{$this->options['extend']['css']['org'][$i]}\">
+            ";
+          }
+        }
+      } elseif ($_SESSION['ulevel'] === 'driver') {
+        if (!isset($this->options['extend']['css']['driver']) || !is_array($this->options['extend']['css']['driver'])) return false;
+        for ($i = 0; $i < count($this->options['extend']['css']['driver']); $i++) {
+          $returnData .= "<link rel=\"stylesheet\" type=\"text/css\" href=\"{$this->options['extend']['css']['driver'][$i]}\">
+          ";
+        }
+      } elseif ($_SESSION['ulevel'] === 'dispatch') {
+        if (!isset($this->options['extend']['css']['dispatch']) || !is_array($this->options['extend']['css']['dispatch'])) return false;
+        for ($i = 0; $i < count($this->options['extend']['css']['dispatch']); $i++) {
+          $returnData .= "<link rel=\"stylesheet\" type=\"text/css\" href=\"{$this->options['extend']['css']['dispatch'][$i]}\">
+          ";
+        }
+      }
+      return $returnData;
+    }
+
     public function createNavMenu() {
       self::customize();
       if (is_numeric($_SESSION['ulevel'])) {

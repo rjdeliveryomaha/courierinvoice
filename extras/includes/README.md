@@ -305,9 +305,11 @@ Defines the step attribute of number elements for dry ice weight (diWeight) on t
 
 Associative array
 
-Extend functionality with custom menu items, pages, and javascript.
+Extend layout and functionality with custom css, menu items, pages, and javascript.
 
-The top level keys are who to create the items for; all, client, org, driver, dispatcher, client0, org0.
+With the exception of __css__, The top level keys refer to whom to create the items for; __all__, __client__, __org__, __driver__, __dispatcher__, __client0__, __org0__.
+
+__css__ is an associative array with the keys __client__, __org__, __driver__, and __dispatch__ witch are indexed arrays with each entry being the path to the desired css file.
 
 client0 provides customization options for use when logged in as Courier Invoice user.
 
