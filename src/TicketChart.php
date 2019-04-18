@@ -90,7 +90,7 @@
             // Calculate the width of each interval
             $this->interval_width = ($this->options['bar_width'] * $this->total_bars) + ($this->options['bar_gap'] * $this->total_bars + 1) + (2 * $this->options['interval_border']);
             // Calculate the width of the graph
-            $this->chart_width = ($this->interval_width * $this->groups) + ($this->options['interval_gap'] * ($this->groups + 1)) + 1;
+            $this->chart_width = ($this->interval_width * $this->groups) + ($this->options['interval_gap'] * ($this->groups + 1));
             $returnData .= self::displayTable();
             $returnData .= self::displayBarGraph();
           }
@@ -495,19 +495,21 @@
             <div style=\"height:{$this->options['chart_height']}em;width:{$this->options['bar_gap']}em;\" class=\"gap\"></div>
           ";
         }
-        $this->graphOutput .= "
+        $this->graphOutput .= ($i === count($this->nonAssocData) - 1) ? "</div>" : "
           </div>
           <div style=\"height:{$this->options['chart_height']}em;width:{$this->options['interval_gap']}em;\" class=\"space\"></div>";
       }
       $this->graphOutput .= "
-          <div style=\"clear:both;\"></div>
         </div>
         <div class=\"centerDiv\" style=\"height:2.75em; background-color:#8c8c8c; width:{$this->chart_width}em; color:#fff; border:solid 1px #666;\">
         <div style=\"height:2.75em;width:{$this->options['interval_gap']}em;\" class=\"space\"></div>";
-      foreach ($this->groupLabels as $label) {
+      for ($i = 0; $i < count($this->groupLabels); $i++) {
         $this->graphOutput .= "
-          <div style=\"width:{$this->interval_width}em;padding-left:{$this->options['interval_border']}em; padding-right:{$this->options['interval_border']}em;\" class=\"chartLabels\">{$label}</div>
+          <div style=\"width:{$this->interval_width}em;padding-left:{$this->options['interval_border']}em; padding-right:{$this->options['interval_border']}em;\" class=\"chartLabels\">{$this->groupLabels[$i]}</div>";
+        if ($i !== count($this->groupLabels) - 1) {
+          $this->graphOutput .= "
           <div style=\"height:2.75em;width:{$this->options['interval_gap']}em;\" class=\"space\"></div>";
+        }
       }
       $this->graphOutput .= '
         </div>
@@ -552,24 +554,26 @@
             <div style=\"height:{$this->options['chart_height']}em;width:{$this->options['bar_gap']}em;\" class=\"gap\"></div>
           ";
         }
-        $this->graphOutput .= "
+        $this->graphOutput .= ($i === count($this->currentChart) - 1) ? "</div>" : "
           </div>
           <div style=\"height:{$this->options['chart_height']}em;width:{$this->options['interval_gap']}em;\" class=\"space\"></div>";
       }
       $this->graphOutput .= "
-          <div style=\"clear:both;\"></div>
         </div>
         <div class=\"centerDiv\" style=\"height:2.75em; background-color:#8c8c8c; width:{$this->chart_width}em; color:#fff; border:solid 1px #666;\">
         <div style=\"height:2.75em;width:{$this->options['interval_gap']}em;\" class=\"space\"></div>";
-      foreach ($this->currentChart as $label) {
+      for ($i = 0; $i < count($this->currentChart); $i++) {
         $this->graphOutput .= "
-          <div style=\"width:{$this->interval_width}em;\" class=\"chartLabels\">{$this->arrayValueToChartLabel($label)}</div>
+          <div style=\"width:{$this->interval_width}em;\" class=\"chartLabels\">{$this->arrayValueToChartLabel($this->currentChart[$i])}</div>";
+        if ($i !== count($this->currentChart) - 1) {
+          $this->graphOutput .= "
           <div style=\"height:2.75em;width:{$this->options['interval_gap']}em;\" class=\"space\"></div>";
+        }
       }
       $this->graphOutput .= '
         </div>
       ';
       $this->chartIndex++;
-      self::displayCompareGraph();
+      return self::displayCompareGraph();
     }
   }

@@ -506,19 +506,21 @@
             <div style="height:' . $this->options['chart_height'] . 'em;width:' . $this->options['bar_gap'] . 'em;" class="gap"></div>
           ';
         }
-        $this->graphOutput .= '
+        $this->graphOutput .= ($i === count($this->currentChart) - 1) ? '</div>' : '
           </div>
           <div style="height:' . $this->options['chart_height'] . 'em;width:' . $this->options['interval_gap'] . 'em;" class="space"></div>';
       }
       $this->graphOutput .= '
-          <div style="clear:both;"></div>
         </div>
         <div class="centerDiv" style="height:2.75em; background-color:#8c8c8c; width:' . $this->graph_width . 'em; color:#fff; border:solid 1px #666;">
         <div style="height:2.75em;width:' . $this->options['interval_gap'] . 'em;" class="space"></div>';
-      foreach ($this->currentChart as $label) {
+      for ($i = 0; $i < count($this->currentChart); $i++) {
         $this->graphOutput .= '
-          <div style="width:' . $this->interval_width . 'em;" class="chartLabels">' . self::arrayValueToChartLabel($label) . '</div>
+          <div style="width:' . $this->interval_width . 'em;" class="chartLabels">' . self::arrayValueToChartLabel($this->currentChart[$i]) . '</div>';
+        if ($i !== count($this->currentChart) - 1) {
+          $this->graphOutput .= '
           <div style="height:2.75em;width:' . $this->options['interval_gap'] . 'em;" class="space"></div>';
+        }
       }
       $this->graphOutput .= '
         </div>
