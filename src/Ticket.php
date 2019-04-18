@@ -2350,7 +2350,7 @@
                     <div>
                       <p>
                         <label for=\"display\">Display:  </label>
-                        <input type=\"hidden\" name=\"display\" id=\"displayMarker\" value=\"tickets\" />
+                        <input type=\"hidden\" name=\"display\" id=\"displayMarker\" value=\"tickets\" disabled />
                         <select name=\"display\" id=\"display\">
                           <option value=\"tickets\">Tickets</option>
                           <option value=\"chart\">Chart</option>
