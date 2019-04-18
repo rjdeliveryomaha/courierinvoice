@@ -1017,6 +1017,183 @@ label {
   margin-bottom: 0.5rem;
 }
 
+.displayHeader {
+  font-family: Garamond, serif;
+  font-size: 1.75em;
+  font-weight: bold;
+}
+
+.bar0 {
+  background-color: #fe0000;
+  float: left;
+}
+
+.bar0Label {
+  color: #fe0000;
+}
+
+.bar1 {
+  background-color: #0071bd;
+  float: left;
+}
+
+.bar1Label {
+  color: #0071bd;
+}
+
+.bar2 {
+  background-color: #cf5300;
+  float: left;
+}
+
+.bar2Label {
+  color: #cf5300;
+}
+
+.bar3 {
+  background-color: #ba9907;
+  float: left;
+}
+
+.bar3Label {
+  color: #ba9907;
+}
+
+.bar4 {
+  background-color: #02066f;
+  float: left;
+}
+
+.bar4Label {
+  color: #02066f;
+}
+
+.bar5 {
+  background-color: #004c00;
+  float: left;
+}
+
+.bar5Label {
+  color: #004c00;
+}
+
+.bar6 {
+  background-color: #009345;
+  float: left;
+}
+
+.bar6Label {
+  color: #009345;
+}
+
+.bar7 {
+  background-color: #92278f;
+  float: left;
+}
+
+.bar7Label {
+  color: #92278f;
+}
+
+.bar8 {
+  background-color: #ff00fe;
+  float: left;
+}
+
+.bar8Label {
+  color: #ff00fe;
+}
+
+.bar9 {
+  background-color: #990033;
+  float: left;
+}
+
+.bar9Label {
+  color: #990033;
+}
+
+.bar10 {
+  background-color: #442299;
+  float: left;
+}
+
+.bar10Label {
+  color: #442299;
+}
+
+.bar11 {
+  background-color: #aacc22;
+  float: left;
+}
+
+.bar11Label {
+  color: #aacc22;
+}
+
+.bar12 {
+  background-color: #11aabb;
+  float: left;
+}
+
+.bar12Label {
+  color: #11aabb;
+}
+
+.bar13 {
+  background-color: #feae2d;
+  float: left;
+}
+
+.bar13Label {
+  color: #feae2d;
+}
+
+.bar14 {
+  background-color: #69d025;
+  float: left;
+}
+
+.bar14Label {
+  color: #69d025;
+}
+
+.gap{
+  float: left;
+}
+
+.space{
+  float: left;
+}
+
+.spacer {
+  width: 100%;
+  height: 1.5em;
+  clear: both;
+}
+
+.barContainer {
+  display: inline-flex;
+  justify-content: center;
+  float: left;
+}
+
+.chartLabels {
+  text-align: center;
+  float: left;
+  font-family: Verdana, Geneva, sans-serif;
+}
+
+.small {
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: .5em;
+}
+
+.rollUp {
+  font-size: large;
+  font-weight: bold;
+}
+
 @media all {
   .printOnly, .printOnlyRow {
     display: none;
