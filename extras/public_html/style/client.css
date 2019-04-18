@@ -1201,11 +1201,11 @@ label {
   margin-top: 1em;
   width: 95%;
   border: .1em solid black;
+  table-layout: fixed;
 }
 
-.member {
+.member table {
   table-layout: fixed;
-  margin-top: 1em;
 }
 
 .member th {
