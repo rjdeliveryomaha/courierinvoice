@@ -1096,7 +1096,7 @@
         $dClientDisplay = $this->dClient . ' | ' . $this->dDepartment;
       }
       // Define the dry ice display
-      if ($this->dryIce === 1) {
+      if ($this->dryIce === 1 && $this->options['displayDryIce'] === true) {
         $answerIce = "Weight: {$this->number_format_drop_zero_decimals($this->diWeight, 3)}{$this->weightMarker}  |   Price: <span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>{$this->number_format_drop_zero_decimals($this->diPrice, 2)}";
         $labelIce = 'Dry Ice:';
       } else {
@@ -2920,7 +2920,7 @@
         self::buildLocationList();
         $returnData .= self::buildDatalists();
       }
-      $displayDryIce = ($this->options['displayDryIce'] === true) ? '' : ' hide';
+      $displayDryIce = ($this->options['displayDryIce'] === true) ? '' : 'style="display:none;';
       $returnData .= "
     <div id=\"priceContainer\">
       <form id=\"priceCalc\">
@@ -2994,7 +2994,7 @@
                     {$this->createChargeSelectOptions()}
                   </select>
                 </span>
-                <span class=\"floatRight{$displayDryIce}\">
+                <span {$displayDryIce} class=\"floatRight\">
                   <label for=\"CalcDryIce\">Dry Ice:</label>
                   <input name=\"dryIce\" id=\"CalcDryIce\" type=\"checkbox\" class=\"dryIce\" value=\"1\" form=\"priceCalc\" />
                   <input type=\"number\" class=\"diWeight diRow\" name=\"diWeight\" id=\"CalcWeight\" value=\"0\" min=\"0\" step=\"{$this->dryIceStep}\" title=\"Increments of 5\" form=\"priceCalc\" disabled />{$this->weightMarker}
@@ -3014,9 +3014,9 @@
         </table>
       <div id=\"priceResult\">
         <p class=\"hide\">Range: <span id=\"rangeResult\"></span></p>
-        <p class=\"{$displayDryIce}\">Dry Ice: <span id=\"diWeightResult\"></span><span style=\"display:none;\" class=\"weightMarker\">{$this->weightMarker}</span></p>
+        <p {$displayDryIce}>Dry Ice: <span id=\"diWeightResult\"></span><span style=\"display:none;\" class=\"weightMarker\">{$this->weightMarker}</span></p>
         <p>Run Price:<span style=\"display:none;\" class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span><span id=\"runPriceResult\"></span></p>
-        <p class=\"{$displayDryIce}\">Dry Ice Price: <span style=\"display:none;\" class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span><span style=\"min-width:3em;\" id=\"diPriceResult\">&nbsp;</span></p>
+        <p {$displayDryIce}>Dry Ice Price: <span style=\"display:none;\" class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span><span style=\"min-width:3em;\" id=\"diPriceResult\">&nbsp;</span></p>
         <p>Total: <span style=\"display:none;\" class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span><span id=\"ticketPriceResult\"></span></p>
       </div>
       </form>

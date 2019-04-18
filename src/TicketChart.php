@@ -29,6 +29,7 @@
     private $tableHead;
     private $tableHeadPrefix;
     private $nonZeroIgnore = [ 'billTo', 'startDate', 'endDate' ];
+    private $alwaysInclude = [ 'contract', 'onCall' ];
     protected $nonZero = [];
     private $orderedData;
     private $nonAssocData;
@@ -180,11 +181,16 @@
           if (array_key_exists($this->clientID, $test)) {
             $this->testMax[] = $test[$this->clientID]['monthTotal'];
             foreach ($test[$this->clientID] as $key => $value) {
-              if (((int)$value !== 0 || $key === 'withIce' || $key === 'withoutIce' || $key === 'contract' || $key === 'onCall') && !in_array($key, $this->nonZero) && !in_array($key, $this->nonZeroIgnore)) {
+              if (((int)$value !== 0 || in_array($key, $this->alwaysInclude)) && !in_array($key, $this->nonZero) && !in_array($key, $this->nonZeroIgnore)) {
                 $this->nonZero[] = $key;
               }
             }
           }
+        }
+        if ($this->options['displayDryIce'] === false) {
+          $temp = array_flip($this->nonZero);
+          unset($temp['withIce'], $temp['withoutIce']);
+          $this->nonZero = array_flip($temp);
         }
         foreach ($this->dataSet as $key => $value) {
           if (array_key_exists($this->clientID, $value)) {

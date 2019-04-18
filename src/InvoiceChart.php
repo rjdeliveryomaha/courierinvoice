@@ -176,6 +176,11 @@
             }
           }
         }
+        if ($this->options['displayDryIce'] === false) {
+          $temp = array_flip($this->nonZero);
+          unset($temp['dryIce'], $temp['iceDelivery']);
+          $this->nonZero = array_flip($temp);
+        }
         foreach ($this->dataSet as $key => $value) {
           $this->monthKeys[] = $key;
           $temp = array_merge(array_flip($this->properOrder), $value);
