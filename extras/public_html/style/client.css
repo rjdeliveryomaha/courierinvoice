@@ -45,6 +45,10 @@ body {
   padding: 0;
   scroll-behavior: smooth;
 }
+
+table {
+  border-collapse: collapse;
+}
 /** New spinner **/
 /** http://codepen.io/collection/HtAne/  **/
 .loader {
@@ -173,6 +177,10 @@ a:hover {
 a:active {
   text-decoration: none;
   color: black;
+}
+
+.switch:hover, .rollUp:hover {
+  cursor: pointer;
 }
 
 input[name=clientID]::-webkit-outer-spin-button, input[name=clientID]::-webkit-inner-spin-button, #ticketNumber::-webkit-inner-spin-button, #ticketNumber::-webkit-outer-spin-button, input[type=month]::-webkit-inner-spin-button, input[type=month]::-webkit-outer-spin-button {
@@ -1187,6 +1195,29 @@ label {
 .small {
   font-family: Verdana, Geneva, sans-serif;
   font-size: .5em;
+}
+
+.member {
+  margin-top: 1em;
+  width: 95%;
+  border: .1em solid black;
+}
+
+.member {
+  table-layout: fixed;
+  margin-top: 1em;
+}
+
+.member th {
+  width: 14%;
+}
+
+.member td {
+  width: 14%;
+}
+
+.member tr td table:nth-child(even) {
+  background: #CCC;
 }
 
 .rollUp {
