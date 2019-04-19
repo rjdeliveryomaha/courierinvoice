@@ -2596,6 +2596,20 @@
         });
       });
     });
+
+    if (document.querySelector("#invoiceQueryResults .invoiceTable")) {
+      Array.from(document.querySelectorAll("#invoiceQueryResults .invoiceTable, #invoiceQueryResults .invoiceGraphContainer")).forEach(element => {
+          console.log(element);
+        element.addEventListener("touchstart", eve => {
+          rjdciSwipe.disable();
+        });
+      });
+      Array.from(document.querySelectorAll("#invoiceQueryResults .invoiceTable, #invoiceQueryResults .invoiceGraphContainer")).forEach(element => {
+        element.addEventListener("touchend", eve => {
+          rjdciSwipe.enable();
+        });
+      });
+    }
   };
 
   rjdci.assignQueriedTicketListeners = () => {
