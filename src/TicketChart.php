@@ -171,7 +171,7 @@
 
     private function sortData() {
       if (count($this->dataSet) < 1) {
-        return 'Chart Data Empty';
+        return '<p class="center result">Ticket Chart Data Empty Line ' . __line__ . '</p>';
       } else {
         // Reset properties to empty arrays to prevent data overlap when working with multiple organization members
         $this->totals = $this->testMax = $this->nonZero = $this->labels = $this->orderedData = $this->groupLabels = $this->nonAssocData = $this->heights = $this->margins = $this->counts = [];
@@ -247,7 +247,7 @@
 
     private function sortDataForMemberCompare() {
       if (count($this->dataSet) < 1) {
-        return 'Chart Data Empty Line';
+        return '<p class="center result">Ticket Chart Data Empty Line' . __line__ . '</p>';
       }
       foreach ($this->orgClients as $key => $value) {
         foreach ($this->dataSet as $k => $v) {
