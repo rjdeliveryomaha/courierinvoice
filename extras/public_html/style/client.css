@@ -179,11 +179,17 @@ a:active {
   color: black;
 }
 
-.switch:hover, .rollUp:hover {
+.switch:hover,
+.rollUp:hover {
   cursor: pointer;
 }
 
-input[name=clientID]::-webkit-outer-spin-button, input[name=clientID]::-webkit-inner-spin-button, #ticketNumber::-webkit-inner-spin-button, #ticketNumber::-webkit-outer-spin-button, input[type=month]::-webkit-inner-spin-button, input[type=month]::-webkit-outer-spin-button {
+input[name=clientID]::-webkit-outer-spin-button,
+input[name=clientID]::-webkit-inner-spin-button,
+#ticketNumber::-webkit-inner-spin-button,
+#ticketNumber::-webkit-outer-spin-button,
+input[type=month]::-webkit-inner-spin-button,
+input[type=month]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   -moz-appearance: none;
   display: none;
@@ -222,7 +228,8 @@ h1 {
   margin-top: 4.5rem;
 }
 
-.hide, .clientSelect {
+.hide,
+.clientSelect {
   display: none;
 }
 
@@ -259,11 +266,13 @@ header {
   transition: background-color 250ms linear;
 }
 
-.app__offline, .loggedout {
+.app__offline,
+.loggedout {
   background-color: #6b6b6b;
 }
 
-.offline, .loggedout {
+.offline,
+.loggedout {
   background: #6b6b6b;
 }
 
@@ -374,7 +383,6 @@ header {
 }
 
 .menu__list li a {
-  display: inline;
   cursor: pointer;
   display: block;
 }
@@ -449,7 +457,8 @@ button {
   background-image: linear-gradient(to bottom right, #4F8EFA -50%, #FCFCFC 110.00000000000001%);
 }
 
-button.red, button.red:disabled {
+button.red,
+button.red:disabled {
   /* IE10 Consumer Preview */
   background-image: -ms-linear-gradient(top left, #FF0000 -50%, #FCFCFC 110.00000000000001%);
   /* Mozilla Firefox */
@@ -464,7 +473,8 @@ button.red, button.red:disabled {
   background-image: linear-gradient(to bottom right, #FF0000 -50%, #FCFCFC 110.00000000000001%);
 }
 
-button.green, button.green:disabled {
+button.green,
+button.green:disabled {
   /* IE10 Consumer Preview */
   background-image: -ms-linear-gradient(top left, #00FF00 -50%, #FCFCFC 110.00000000000001%);
   /* Mozilla Firefox */
@@ -479,7 +489,8 @@ button.green, button.green:disabled {
   background-image: linear-gradient(to bottom right, #00FF00 -50%, #FCFCFC 110.00000000000001%);
 }
 
-button.blue, button.blue:disabled {
+button.blue,
+button.blue:disabled {
   /* IE10 Consumer Preview */
   background-image: -ms-linear-gradient(top left, #4F8EFA -50%, #FCFCFC 110.00000000000001%);
   /* Mozilla Firefox */
@@ -508,7 +519,8 @@ label {
   font-weight: bold;
 }
 /** Fix display of Rupee **/
-#currencySymbol, .currencySymbol {
+#currencySymbol,
+.currencySymbol {
   font-family: DejaVu Sans;
 }
 
@@ -524,7 +536,9 @@ label {
   font-size: 1.25rem;
 }
 
-.ticketGraphContainer, .invoiceGraphContainer, .invoiceTable {
+.ticketGraphContainer,
+.invoiceGraphContainer,
+.invoiceTable {
   overflow-x: auto;
 }
 
@@ -559,7 +573,8 @@ label {
   text-align: center;
 }
 
-#confirmLogin, #confirmLogout {
+#confirmLogin,
+#confirmLogout {
   position: fixed;
   top: 15%;
   left: 40%;
@@ -589,7 +604,9 @@ label {
   text-align: center;
 }
 
-#login:hover, .switch:hover, .rollUp:hover {
+#login:hover,
+.switch:hover,
+.rollUp:hover {
   cursor: pointer;
 }
 
@@ -609,7 +626,9 @@ label {
   font-weight: bold;
 }
 
-.error, .currentDay, .ticketCharge {
+.error,
+.currentDay,
+.ticketCharge {
   color: red;
 }
 
@@ -617,7 +636,10 @@ label {
   color: green;
 }
 
-.red, .elementError, .red:disabled, .elementError:disabled {
+.red,
+.elementError,
+.red:disabled,
+.elementError:disabled {
   background-color: red;
 }
 
@@ -644,7 +666,8 @@ label {
   white-space: normal;
 }
 
-.confirmRun > tbody > tr > td, .confirmRun > thead > tr > th {
+.confirmRun > tbody > tr > td,
+.confirmRun > thead > tr > th {
   width: 50%;
   border: solid;
   border-width: 0 0.1rem 0 0.1rem;
@@ -686,26 +709,15 @@ label {
   width: 60%;
 }
 
-#acntError {
-  position: relative;
-  float: right;
-  width: 25%;
-  margin-right: 2%;
-  padding:0;
-}
-
-#acntError p {
-  margin: 0;
-  padding:0;
-}
-
-#tickets, .tickets {
+#tickets,
+.tickets {
   width: 80%;
   margin: 0 auto;
   margin-bottom: 1rem;
 }
 
-#tickets > table, .tickets > table {
+#tickets > table,
+.tickets > table {
   table-layout: fixed;
   margin: 0 auto;
   border: 0.1rem solid black;
@@ -725,7 +737,8 @@ label {
   padding-left: 2%;
 }
 
-#tickets fieldset, .tickets fieldset {
+#tickets fieldset,
+.tickets fieldset {
   padding: 0;
 }
 
@@ -734,15 +747,20 @@ label {
   -moz-appearance: textfield;
 }
 
-#diWeight, .diWeight {
+#diWeight,
+.diWeight {
   width: 3.5rem;
 }
 
-.alert, .PWalert, #newUpdate {
+.alert,
+.PWalert,
+#newUpdate {
   font-style: italic;
 }
 
-.routeStop, .regenBilling, .wide {
+.routeStop,
+.regenBilling,
+.wide {
   width: 100%;
 }
 
@@ -758,14 +776,22 @@ label {
   display: inline-block;
 }
 
-#deliveryRequest, #clientUpdateForm  {
+.notes {
+  width: 95%;
+  margin: 0 auto;
+}
+
+#deliveryRequest,
+#clientUpdateForm  {
   display: block;
   height: 100%;
   width: 80%;
   margin: 0 auto;
 }
 
-#ticketQueryOptions, #options, #invoiceQueryOptions {
+#ticketQueryOptions,
+#options,
+#invoiceQueryOptions {
   margin-bottom: 1rem;
 }
 
@@ -784,7 +810,8 @@ label {
   white-space: nowrap;
 }
 
-#ticketQueryOptions table, #options table {
+#ticketQueryOptions table,
+#options table {
   border-spacing: 0.1rem 0.25rem;
 }
 
@@ -805,13 +832,15 @@ label {
   text-align: center;
 }
 
-#floatRight, .floatRight {
+#floatRight,
+.floatRight {
   display: inline-block;
   position: relative;
   float: right;
 }
 
-#floatLeft, .floatLeft {
+#floatLeft,
+.floatLeft {
   display: inline-block;
   position: relative;
   float: left;
@@ -849,7 +878,8 @@ label {
   margin: 0 auto;
 }
 
-#invoiceBody, .invoiceBody {
+#invoiceBody,
+.invoiceBody {
   margin: 0 auto;
 }
 
@@ -857,7 +887,8 @@ label {
   border-collapse: collapse;
 }
 
-#invoiceBody th, #invoiceBody td {
+#invoiceBody th,
+#invoiceBody td {
   font-family: Garamond, serif;
 }
 
@@ -885,7 +916,8 @@ label {
   padding: 0;
 }
 
-.invoiceBody th, .invoiceBody td {
+.invoiceBody th,
+.invoiceBody td {
   font-family: Garamond, serif;
   font-size: 0.95rem;
 }
@@ -911,7 +943,7 @@ label {
 }
 
 .tableSpace {
-  height: 4remm;
+  height: 4rem;
 }
 
 .smallTableSpace {
@@ -929,7 +961,8 @@ label {
   padding-bottom: 2rem;
 }
 
-#map, #map2 {
+#map,
+#map2 {
   width: 80%;
   margin: 0 auto;
 }
@@ -1004,13 +1037,15 @@ label {
   margin-left: 1rem;
 }
 
-#deliveryQuery p, #dateRange p {
+#deliveryQuery p,
+#dateRange p {
   text-align: center;
   margin: 0;
   padding: 0;
 }
 
-#deliveryQuery div, #dateRange div {
+#deliveryQuery div,
+#dateRange div {
   position: relative;
   float: left;
 }
@@ -1166,11 +1201,11 @@ label {
   color: #69d025;
 }
 
-.gap{
+.gap {
   float: left;
 }
 
-.space{
+.space {
   float: left;
 }
 
@@ -1226,13 +1261,15 @@ label {
 }
 
 @media all {
-  .printOnly, .printOnlyRow {
+  .printOnly,
+  .printOnlyRow {
     display: none;
   }
 }
 
 @media print {
-  .pageBreak, .break  {
+  .pageBreak,
+  .break  {
     display: block;
     page-break-before: always;
   }
@@ -1279,13 +1316,26 @@ label {
   .ticketContainer >tbody > tr > td {
     display: block;
   }
-  .subContainer, #map, #map2, #priceContainer, #priceContainerFoot, #priceContainerFoot > div:first-of-type, .PWcontainer, .tickets:not(.sortable) {
+  .subContainer,
+  #map,
+  #map2,
+  #priceContainer,
+  #priceContainerFoot,
+  #priceContainerFoot > div:first-of-type,
+  .PWcontainer,
+  .tickets:not(.sortable) {
     width: 100%;
   }
-  #billTo, #dispatchedTo, #telephone, #requestedBy, #emailAddress {
+  #billTo,
+  #dispatchedTo,
+  #telephone,
+  #requestedBy,
+  #emailAddress {
     width: 10em;
   }
-  .PWcontainer, #priceResult, #priceContainer {
+  .PWcontainer,
+  #priceResult,
+  #priceContainer {
     display: block;
   }
   #priceCalc {
@@ -1295,7 +1345,8 @@ label {
   #priceCalc table {
     display: table;
   }
-  .PWform table, #priceCalc table {
+  .PWform table,
+  #priceCalc table {
     margin: 0 auto;
   }
   .criteria ul li ul {
@@ -1304,19 +1355,31 @@ label {
   #deliveryRequest legend {
     margin-left: 1em;
   }
-  #deliveryRequest > select[name^=p], #deliveryRequest > select[name^=d] {
+  #deliveryRequest > select[name^=p],
+  #deliveryRequest > select[name^=d] {
     width: 99%;
   }
   #deliveryConfirmation .ticketSpace {
     width: 15%;
   }
-  fieldset[id^="timing"] > table > tbody > tr > td, fieldset[id^="information"] > table > tbody > tr > td, .criteria, .PWform, #clientUpdate, #clientUpdate td, #queryForms td, #dropOff td, #pickUp td, #mapInfo span, #invoiceQueryOptions td {
+  fieldset[id^="timing"] > table > tbody > tr > td,
+  fieldset[id^="information"] > table > tbody > tr > td,
+  .criteria,
+  .PWform,
+  #clientUpdate,
+  #clientUpdate td,
+  #queryForms td,
+  #dropOff td,
+  #pickUp td,
+  #mapInfo span,
+  #invoiceQueryOptions td {
     padding: 0;
     margin: 0;
     display: block;
     width: 100%;
   }
-  .tickets:not(.sortable) > table > tbody > tr:nth-child(even) > td, #priceCalc table:first-of-type tbody td {
+  .tickets:not(.sortable) > table > tbody > tr:nth-child(even) > td,
+  #priceCalc table:first-of-type tbody td {
     display: block;
     width: 100%;
     text-align: center;
