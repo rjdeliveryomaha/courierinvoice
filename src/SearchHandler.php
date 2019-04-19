@@ -111,19 +111,15 @@
     public function handleSearch() {
       $this->queryData['method'] = 'GET';
       $this->queryData['endPoint'] = $this->endPoint;
-      if (is_array($this->clientID)) {
-        for ($i = 0; $i < count($this->clientID); $i++) {
-          if (strpos($this->clientID[$i], 't') === FALSE) {
-            $this->repeatClients[] = $this->clientID[$i];
-          } else {
-            $this->nonRepeat[] = self::test_int($this->clientID[$i]);
-          }
-        }
-      } else {
-        if ($this->RepeatClient === 1) {
-          $this->repeatClients[] = $this->clientID;
+      if (!is_array($this->clientID)) {
+        $marker = ($this->RepeatClient === 1) ? $this->clientID : "t{$this->clientID}";
+        $this->clientID = [ $marker ];
+      }
+      for ($i = 0; $i < count($this->clientID); $i++) {
+        if (strpos($this->clientID[$i], 't') === FALSE) {
+          $this->repeatClients[] = $this->clientID[$i];
         } else {
-          $this->nonRepeat[] = self::test_int($this->clientID);
+          $this->nonRepeat[] = self::test_int($this->clientID[$i]);
         }
       }
       $billToResource = 'BillTo';
@@ -165,7 +161,7 @@
         default:
           $this->error = 'Invalid End Point ' . __line__;
           if ($this->enableLogging !== FALSE) self::writeLoop();
-          return "<p class=\"center\">{$this->error}</p>";
+          return "<p class=\"result center\">{$this->error}</p>";
       }
       if (!empty($this->repeatClients)) {
         $repeatFilter[] = [ 'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->repeatClients) ];
@@ -233,14 +229,14 @@
         } catch (Exception $e) {
           $this->error .= "\n" . __function__ . ' Line ' . __line__ . ': ' . $e->getMessage();
           if ($this->enableLogging !== FALSE) self::writeLoop();
-          return "<p class=\"center\">{$this->error}</p>";
+          return "<p class=\"result center\">{$this->error}</p>";
         }
         try {
           $tempEnd = new \dateTime($this->endDate, $this->timezone);
         } catch (Exception $e) {
           $this->error .= "\n" . __function__ . ' Line ' . __line__ . ': ' . $e->getMessage();
           if ($this->enableLogging !== FALSE) self::writeLoop();
-          return "<p class=\"center\">{$this->error}</p>";
+          return "<p class=\"result center\">{$this->error}</p>";
         }
         if ($this->compare === FALSE) {
           $endDateMarker = ($this->display === 'chart') ? 'Y-m-t' : 'Y-m-d';
@@ -250,15 +246,13 @@
             $marker = ($this->allTimeChartLimit === 1) ? 'month' : 'months';
             $this->error = "Query Range to large. Please limit query range to {$this->allTimeChartLimit} {$marker}.";
             if ($this->enableLogging !== FALSE) self::writeLoop();
-            return "<p class=\"center\">{$this->error}</p>";
+            return "<p class=\"result center\">{$this->error}</p>";
           }
           if (!empty($this->repeatClients)) {
             $repeatFilter[] = ['Resource'=>$dateResource, 'Filter'=>'bt', 'Value'=>"{$tempStart->format('Y-m-d')} 00:00:00,{$tempEnd->format($endDateMarker)} 23:59:59"];
-            $repeatFilter[] = ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1];
           }
           if (!empty($this->nonRepeat)) {
             $nonRepeatFilter[] = ['Resource'=>$dateResource, 'Filter'=>'bt', 'Value'=>"{$tempStart->format('Y-m-d')} 00:00:00,{$tempEnd->format($endDateMarker)} 23:59:59"];
-            $nonRepeatFilter[] = ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0];
           }
         } else {
           if (!empty($this->repeatClients)) {
@@ -319,18 +313,19 @@
           break;
           case 'chart':
             $this->startDate = clone $this->today;
+            $this->startDate->modify('- ' . ($this->allTimeChartLimit - 1). ' months');
             $this->endDate = $this->today->format('Y-m-t') . ' 23:59:59';
             if (!empty($this->repeatClients)) {
-              $repeatFilter = [ ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>implode(',', $this->repeatClients)], ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'ReceivedDate', 'Filter'=>'bt', 'Value'=>"{$this->startDate->modify('- $this->allTimeChartLimit months')->format('Y-m-d')} 00:00:00,{$this->endDate}"] ];
+              $repeatFilter = [ ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>implode(',', $this->repeatClients)], ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'ReceivedDate', 'Filter'=>'bt', 'Value'=>"{$this->startDate->format('Y-m-d')} 00:00:00,{$this->endDate}"] ];
             }
             if (!empty($this->nonRepeat)) {
-              $nonRepeatFilter = [ ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>implode(',', $this->nonRepeat)], ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'ReceivedDate', 'Filter'=>'bt', 'Value'=>"{$this->startDate->modify('- $this->allTimeChartLimit months')->format('Y-m-d')} 00:00:00,{$this->endDate}"] ];
+              $nonRepeatFilter = [ ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>implode(',', $this->nonRepeat)], ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'ReceivedDate', 'Filter'=>'bt', 'Value'=>"{$this->startDate->format('Y-m-d')} 00:00:00,{$this->endDate}"] ];
             }
           break;
           default:
             $this->error = 'Invalid Display Option Line ' . __line__;
             if ($this->enableLogging !== FALSE) self::writeLoop();
-            return "<p class=\"center\">{$this->error}</p>";
+            return "<p class=\"result center\">{$this->error}</p>";
         }
       }
       if (!empty($repeatFilter) && !empty($nonRepeatFilter)) {
@@ -342,26 +337,27 @@
       } else {
         $this->error = 'Empty Query Filter Line ' . __line__;
         if ($this->enableLogging !== FALSE) self::writeLoop();
-        return "<p class=\"center\">{$this->error}</p>";
+        return "<p class=\"result center\">{$this->error}</p>";
       }
+      // return self::safe_print_r($this->queryData);
       $this->query = self::createQuery($this->queryData);
       if ($this->query === FALSE) {
         if ($this->enableLogging !== FALSE) self::writeLoop();
-        return "<p class=\"center\">{$this->error}</p>";
+        return "<p class=\"result center\">{$this->error}</p>";
       }
       try {
         $this->result = self::callQuery($this->query);
       } catch(Exception $e) {
         $this->error = $e->getMessage();
         if ($this->enableLogging !== FALSE) self::writeLoop();
-        return "<p class=\"center\">{$this->error}</p>";
+        return "<p class=\"result center\">{$this->error}</p>";
       }
       if ($this->result === FALSE) {
         if ($this->enableLogging !== FALSE) self::writeLoop();
-        return "<p class=\"center\">{$this->error}</p>";
+        return "<p class=\"result center\">{$this->error}</p>";
       }
       if (empty($this->result)) {
-        return '<p class="center">No Results Match Query</p>';
+        return '<p class="result center">No Results Match Query</p>';
       }
       switch ($this->display) {
         case 'tickets':
@@ -369,7 +365,7 @@
           $temp = self::createTicket([]);
           if ($temp === FALSE) {
             if ($this->enableLogging !== FALSE) self::writeLoop();
-            return "<p class=\"center\">{$this->error}</p>";
+            return "<p class=\"result center\">{$this->error}</p>";
           }
           for ($i = 0; $i < count($this->result); $i++) {
             foreach ($this->result[$i] as $key => $value) {
@@ -384,12 +380,12 @@
           $temp = self::createInvoice($data);
           if ($temp === FALSE) {
             if ($this->enableLogging !== FALSE) self::writeLoop();
-            return "<p class=\"center\">{$this->error}</p>";
+            return "<p class=\"result center\">{$this->error}</p>";
           }
           if (!$displayInvoice = $temp->regenInvoice()) {
             $this->error = $temp->getError();
             if ($this->enableLogging !== FALSE) self::writeLoop();
-            return "<p class=\"center\">{$this->error}</p>";
+            return "<p class=\"result center\">{$this->error}</p>";
           }
           return $displayInvoice;
         break;
@@ -400,7 +396,7 @@
             if ($groupTicketsError !== FALSE) {
               $this->error = $groupTicketsError;
               if ($this->enableLogging !== FALSE) self::writeLoop();
-              return "<p class=\"center\">{$this->error}</p>";
+              return "<p class=\"result center\">{$this->error}</p>";
             }
             $chartData['dataSet'] = $this->months;
             $chart = self::createTicketChart($chartData);
@@ -409,29 +405,29 @@
             if ($fetchTicketError !== FALSE) {
               $this->error = $fetchTicketError;
               if ($this->enableLogging !== FALSE) self::writeLoop();
-              return "<p class=\"center\">{$this->error}</p>";
+              return "<p class=\"result center\">{$this->error}</p>";
             }
             $groupTicketsError = self::groupInvoiceTickets();
             if ($groupTicketsError !== FALSE) {
               $this->error = $groupTicketsError;
               if ($this->enableLogging !== FALSE) self::writeLoop();
-              return "<p class=\"center\">{$this->error}</p>";
+              return "<p class=\"result center\">{$this->error}</p>";
             }
             $chartData['dataSet'] = $this->months;
             $chart = self::createInvoiceChart($chartData);
           }
           if ($chart === FALSE) {
             if ($this->enableLogging !== FALSE) self::writeLoop();
-            return "<p class=\"center\">{$this->error}</p>";
+            return "<p class=\"result center\">{$this->error}</p>";
           }
           if (!$displayChart = $chart->displayChart()) {
             $this->error = $chart->getError();
             if ($this->enableLogging !== FALSE) self::writeLoop();
-            return "<p class=\"center\">{$this->error}</p>";
+            return "<p class=\"result center\">{$this->error}</p>";
           }
           return $displayChart;
         break;
-        default: return '<p class="center">Invalid Display Option</p>';
+        default: return '<p class="result center">Invalid Display Option</p>';
       }
     }
 
@@ -446,11 +442,11 @@
 
       $this->query = self::createQuery($this->queryData);
       if ($this->query === FALSE) {
-        return $this->error;
+        return "<p class=\"result\">{$this->error}</p>";
       }
       $this->tickets = self::callQuery($this->query);
       if ($this->result === FALSE) {
-        return $this->error;
+        return "<p class=\"result\">{$this->error}</p>";
       }
       return FALSE;
     }
@@ -475,7 +471,7 @@
         try {
           $receivedDate = new \dateTime($ticket['ReceivedDate'], $this->timezone);
         } catch (Exception $e) {
-          return 'Processing Error Line ' . __line__ . ': ' . $e->getMessage();
+          return '<p class="result center">Processing Error Line ' . __line__ . ': ' . $e->getMessage() . '</p>';
         }
 
         $monthLabel = $receivedDate->format('M Y');
@@ -545,7 +541,7 @@
 
     private function groupInvoiceTickets() {
       if (!is_array($this->tickets) || empty($this->tickets)) {
-        return 'No Tickets To Sort';
+        return '<p class="result center">No Tickets To Sort</p>';
       }
       // Split $this->months up by clientID if this is an organization call
       if ($this->organizationFlag === TRUE) {
@@ -575,7 +571,7 @@
       }
       foreach ($this->tickets as $ticket) {
         if (!$targetKey = self::recursive_array_search($ticket['InvoiceNumber'], $this->months)) {
-          return "Invoice {$ticket['InvoiceNumber']} Not Found";
+          return "<p class=\"result center\">Invoice {$ticket['InvoiceNumber']} Not Found</p>";
         }
         if ($this->organizationFlag === FALSE) {
           switch ($ticket['Charge']) {
