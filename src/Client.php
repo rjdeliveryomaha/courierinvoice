@@ -115,16 +115,16 @@
         $this->queryData['queryParams']['include'] = ['Password', 'dispatch_index'];
         $this->queryData['queryParams']['filter'] = [ ['Resource'=>'DispatchID', 'Filter'=>'eq', 'Value'=>$client] ];
       } else {
-        return '<span class="error">Invalid Flag</span>';
+        return '<span class="result error">Invalid Flag</span>';
       }
       $this->query = self::createQuery($this->queryData);
       if ($this->query === FALSE) {
-        echo $this->error;
+        echo '<p class="result">', $this->error, '</p>';
         return FALSE;
       }
       $this->result = self::callQuery($this->query);
       if ($this->result === FALSE) {
-        echo $this->error;
+        echo '<p class="result">', $this->error, '</p>';
         return FALSE;
       }
       // Now that we have the data to test againt start building the update query
@@ -135,27 +135,27 @@
       $hash = $this->result[0][$this->resourceName];
       if (!(preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^\&*\)\(\{\}\[\]\-_.=+\?\:;,])(?=.{8,}).*$/', $this->newPw1))) {
         // Make sure the new password meets criteria
-        echo '<p class="center"><span class="error">Password does not meet criteria.</span></p>';
+        echo '<p class="result center"><span class="error">Password does not meet criteria.</span></p>';
         return FALSE;
       } elseif($this->currentPw === $this->newPw1) {
         // Make sure that the password is actually being changed
-        echo '<p class="center"><span class="error">Invalid entry</span>: The password should be changed.</p>';
+        echo '<p class="result center"><span class="error">Invalid entry</span>: The password should be changed.</p>';
         return FALSE;
       } elseif ($this->newPw1 !== $this->newPw2) {
         // Make sure the same value was entered twice
-        echo '<p class="center"><span class="error">Invalid entry</span>: The values entered don\'t match.</p>';
+        echo '<p class="result center"><span class="error">Invalid entry</span>: The values entered don\'t match.</p>';
         return FALSE;
       }
       // Test old password
       if (!password_verify($this->currentPw, $hash)) {
-        echo '<p class="center"><span class="error">Invalid Entry</span>: The password entered doesn\'t match the password on file.</p>';
+        echo '<p class="result center"><span class="error">Invalid Entry</span>: The password entered doesn\'t match the password on file.</p>';
         return FALSE;
       } else {
         if ($this->secondTest) {
           $hash2 = $this->result[0][$this->testAgainst];
           //Compare new admin password to current daily password
           if (password_verify($this->newPw1, $hash2)) {
-            echo '<p><span class="error">Invalid Entry.</span> Admin password and daily user password must not match.</p>';
+            echo '<p class="result center"><span class="error">Invalid Entry.</span> Admin password and daily user password must not match.</p>';
             return FALSE;
           }
         }
@@ -166,12 +166,12 @@
         $this->queryData['payload'] = [$this->resourceName=>$this->newPass];
         $this->query = self::createQuery($this->queryData);
         if ($this->query === FALSE) {
-          echo $this->error . ' No chages were made to the account.';
+          echo '<p class="result">', $this->error, ' No chages were made to the account.</p>';
           return FALSE;
         }
         $this->result = self::callQuery($this->query);
         if ($this->result === FALSE) {
-          echo $this->error;
+          echo '<p class="result">', $this->error, '</p>';
           return FALSE;
         }
         switch ($this->flag) {
@@ -209,7 +209,7 @@
             }
           break;
         }
-        echo '<p class="center big">Password Updated.</p>';
+        echo '<p class="result center big">Password Updated.</p>';
         return TRUE;
       }
     }
@@ -224,7 +224,7 @@
       if ($this->Telephone !== '' && $this->Telephone !== NULL) {
         if (!self::test_phone($this->Telephone)) {
           $this->error = 'Invalid Telephone Number: Please use the format 555-321-1234x567';
-          echo $this->error;
+          echo '<p class="result">', $this->error, '</p>';
           return FALSE;
         }
       }
@@ -239,19 +239,19 @@
       // Build the update query
       $this->query = self::createQuery($this->queryData);
       if ($this->query === FALSE) {
-        echo $this->error;
+        echo '<p class="result">', $this->error, '</p>';
         return FALSE;
       }
       $this->result = self::callQuery($this->query);
       if ($this->result === FALSE) {
-        echo $this->error;
+        echo '<p class="result">', $this->error, '</p>';
         return FALSE;
       }
       // update the session
       for ($i = 0; $i < count($this->updateValues); $i++) {
         $_SESSION[$this->updateValues[$i]] = $this->{$this->updateValues[$i]};
       }
-      echo 'Update Successful';
+      echo '<p class="result">Update Successful</p>';
       return FALSE;
     }
 
