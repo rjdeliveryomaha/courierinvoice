@@ -484,6 +484,10 @@
     }
 
     private function displayBarGraph() {
+      $tableFootHeight = $testHeight = '2.75';
+      for ($i = 0; $i < count($this->groupLabels); $i++) {
+        if (self::test_int(self::between_last('button', 'button', $this->groupLabels[$i])) >= 10 && $tableFootHeight === $testHeight) $tableFootHeight += 2;
+      }
       $this->graphOutput = "
       <div class=\"ticketGraphContainer\">
         <div class=\"centerDiv\" style=\"border:solid 0.1em #e1e1e1; background-color:#f4f4f4; height:{$this->options['chart_height']}em; width:{$this->chart_width}em; margin-top:1.25em; overflow: hidden;\">
@@ -507,14 +511,14 @@
       }
       $this->graphOutput .= "
         </div>
-        <div class=\"centerDiv\" style=\"height:2.75em; background-color:#8c8c8c; width:{$this->chart_width}em; color:#fff; border:solid 1px #666;\">
-        <div style=\"height:2.75em;width:{$this->options['interval_gap']}em;\" class=\"space\"></div>";
+        <div class=\"centerDiv\" style=\"height:{$tableFootHeight}em; background-color:#8c8c8c; width:{$this->chart_width}em; color:#fff; border:solid 1px #666;\">
+        <div style=\"height:{$tableFootHeight}em;width:{$this->options['interval_gap']}em;\" class=\"space\"></div>";
       for ($i = 0; $i < count($this->groupLabels); $i++) {
         $this->graphOutput .= "
           <div style=\"width:{$this->interval_width}em;padding-left:{$this->options['interval_border']}em; padding-right:{$this->options['interval_border']}em;\" class=\"chartLabels\">{$this->groupLabels[$i]}</div>";
         if ($i !== count($this->groupLabels) - 1) {
           $this->graphOutput .= "
-          <div style=\"height:2.75em;width:{$this->options['interval_gap']}em;\" class=\"space\"></div>";
+          <div style=\"height:{$tableFootHeight}em;width:{$this->options['interval_gap']}em;\" class=\"space\"></div>";
         }
       }
       $this->graphOutput .= '
