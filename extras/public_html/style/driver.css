@@ -54,7 +54,9 @@ textarea {
   color: yellow;
 }
 
-.dispatchCount, .ticketCount, .transfersCount {
+.dispatchCount,
+.ticketCount,
+.transfersCount {
   padding-left: 0.5em;
 }
 
@@ -63,7 +65,9 @@ textarea {
   white-space: normal;
 }
 
-.tickets thead td, .ticketContainer tfoot td, .confirm td {
+.tickets thead td,
+.ticketContainer tfoot td,
+.confirm td {
   text-align: center;
 }
 
