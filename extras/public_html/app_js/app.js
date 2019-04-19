@@ -71,26 +71,23 @@
     },
     transitionEnd: function(index, elem) {
       // runs at the end of a slide transition
+      let titleText,
+        buttonTitles = [ "Route", "On Call", "Dispatch", "Transfers", "Ticket Entry" ];
       document.querySelector(".menu__list__active").classList.remove("menu__list__active");
-      let pages = document.getElementsByClassName("page");
-      for (let i = 0; i < pages.length; i++) {
-        if (pages[i].id === elem.id) {
-          let titleText;
-          let buttonTitles = [ "Route", "On Call", "Dispatch", "Transfers", "Ticket Entry" ];
-          // if the link text has a span in it or links to div#route.page
-          // use the text to make button to refresh the corresponding div.page
-          let element =  document.querySelectorAll("[data-id='" + pages[i].id + "']")[0];
-          let eleTest = element.innerHTML.split("<");
-          if (buttonTitles.indexOf(eleTest[0]) !== - 1) {
+      Array.from(document.querySelectorAll(".page")).forEach(page => {
+        (page.id === elem.id) ? page.classList.add("active") : page.classList.remove("active");
+        if (page.id === elem.id) {
+          let eleTest = document.querySelector("a.nav[data-id='" + page.id + "']").innerHTML.split("<");
+          if (buttonTitles.indexOf(eleTest[0]) !== -1) {
             titleText = '<button type="button" onclick="rjdci.refresh' + eleTest[0].replace(/\s/g, '') + '()">' + eleTest[0] + '</button>';
             titleText += (eleTest[0] === "Route") ? "" : "<" + eleTest[1] + "<" + eleTest[2];
           } else {
-            titleText = document.querySelectorAll("[data-id='" + pages[i].id + "']")[0].innerHTML;
+            titleText = document.querySelectorAll("[data-id='" + page.id + "']")[0].innerHTML;
           }
           document.querySelector(".pageTitle").innerHTML = titleText;
-          element.parentNode.classList.add("menu__list__active");
+          document.querySelector("a.nav[data-id='" + page.id + "']").parentNode.classList.add("menu__list__active");
         }
-      }
+      });
       scroll(0,0);
       document.dispatchEvent(rjdci.pageChange);
     }
@@ -2174,11 +2171,12 @@
             let parser = new DOMParser(),
               newDom = parser.parseFromString(data, "text/html"),
               docFrag = document.createDocumentFragment();
-            Array.from(newDom.querySelectorAll(".invoiceTable, .invoiceGraphContainer, p.displayHeader")).forEach(element => {
+            Array.from(newDom.querySelectorAll("#invoice, .invoiceTable, .invoiceGraphContainer, p.displayHeader, .result")).forEach(element => {
               docFrag.appendChild(element);
             });
             document.querySelector("#invoiceQueryResults").appendChild(docFrag);
             eve.target.disabled = false;
+            assignQueriedInvoiceListeners();
           })
           .catch(error => {
             console.error(error.message);
@@ -2222,16 +2220,16 @@
             if (eve.target.value === "tickets") {
               element.style.display = (element.classList.contains("ticketDate")) ? "inline" : "none";
               if (element.querySelector("input")) {
-                element.querySelector("input").disabled = !element.classList.contains("ticketDate");
+                element.querySelector("input").disabled = element.querySelector("input").getAttribute("type") === "month";
                 element.querySelector("input").value = "";
-                element.querySelector("input").disabled = document.querySelector("#allTime").checked === true;
+                if (element.querySelector("input").disabled === false) element.querySelector("input").disabled = document.querySelector("#allTime").checked;
               }
             } else {
               element.style.display = (element.classList.contains("ticketDate")) ? "none" : "inline";
               if (element.querySelector("input")) {
-                element.querySelector("input").disabled = element.classList.contains("ticketDate");
+                element.querySelector("input").disabled = element.querySelector("input").getAttribute("type") !== "month";
                 element.querySelector("input").value = "";
-                element.querySelector("input").disabled = document.querySelector("#allTime").checked === true;
+                if (element.querySelector("input").disabled === false)element.querySelector("input").disabled = document.querySelector("#allTime").checked;
               }
             }
           });
@@ -2351,7 +2349,14 @@
             clearInterval(dots);
             if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
             document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
-            document.querySelector("#ticketQueryResults").innerHTML = data;
+            let parser = new DOMParser(),
+              newDom = parser.parseFromString(data, "text/html"),
+              docFrag = document.createDocumentFragment();
+            Array.from(newDom.querySelectorAll(".tickets, .ticketTable, .ticketGraphContainer, .result")).forEach(element => {
+              docFrag.appendChild(element);
+            });
+            document.querySelector("#ticketQueryResults").innerHTML = "";
+            document.querySelector("#ticketQueryResults").appendChild(docFrag);
             rjdci.assignQueriedTicketListeners();
           })
           .catch(error => {
@@ -2418,7 +2423,14 @@
             clearInterval(dots);
             if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
             document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
-            document.querySelector("#ticketQueryResults").innerHTML = data;
+            let parser = new DOMParser(),
+              newDom = parser.parseFromString(data, "text/html"),
+              docFrag = document.createDocumentFragment();
+            Array.from(newDom.querySelectorAll(".tickets, .ticketTable, .ticketGraphContainer, .result")).forEach(element => {
+              docFrag.appendChild(element);
+            });
+            document.querySelector("#ticketQueryResults").innerHTML = "";
+            document.querySelector("#ticketQueryResults").appendChild(docFrag);
             rjdci.assignQueriedTicketListeners();
           })
           .catch(error => {
@@ -2502,7 +2514,14 @@
           clearInterval(dots);
           if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
           document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
-          document.querySelector("#clientUpdateResult").innerHTML = data;
+          let parser = new DOMParser(),
+            newDom = parser.parseFromString(data, "text/html"),
+            docFrag = document.createDocumentFragment();
+          Array.from(newDom.querySelectorAll(".result")).forEach(element => {
+            docFrag.appendChild(element);
+          });
+          document.querySelector("#clientUpdateResult").innerHTML = "";
+          document.querySelector("#clientUpdateResult").appendChild(docFrag);
           setTimeout(() => { document.querySelector("#clientUpdateResult").innerHTML = ""; }, 3500);
         })
         .catch(error => {
@@ -2516,6 +2535,68 @@
     }
     // end client app
   }
+
+  assignQueriedInvoiceListeners = () => {
+    Array.from(document.querySelectorAll("#invoiceQueryResults .invoiceQuery")).forEach(element => {
+      element.addEventListener("click", async eve => {
+        eve.preventDefault();
+        eve.target.classList.add("red");
+        eve.target.disabled = true;
+        setTimeout(() => { eve.target.classList.remove("red"); }, 3500);
+        let postData = {},
+          ellipsis = document.createElement("p");
+        ellipsis.classList.add("center");
+        ellipsis.innerHTML = ".";
+        rjdci.getClosest(eve.target, ".invoiceTable").appendChild(ellipsis);
+        let forward = true,
+          dots = setInterval(() => {
+            if (forward === true) {
+              ellipsis.innerHTML += "..";
+              forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
+            }
+            if (forward === false) {
+              ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+              forward = ellipsis.innerHTML.length === 1;
+            }
+          }, 500);
+        Array.from(rjdci.getClosest(eve.target, "form").querySelectorAll("input")).forEach(input => {
+          postData[input.getAttribute("name")] = input.value;
+        });
+        postData.formKey = document.querySelector("#formKey").value;
+        await rjdci.fetch_template({ url: "./buildQuery.php", postData: postData })
+        .then(result => {
+          if (typeof result === "undefined") throw new Error("Result Undefined");
+          if (result.ok) {
+            return result.text();
+          } else {
+            throw new Error(result.status + " " + result.statusText);
+          }
+        })
+        .then(data => {
+          if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
+          document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
+          let parser = new DOMParser(),
+            newDom = parser.parseFromString(data, "text/html"),
+            docFrag = document.createDocumentFragment();
+          Array.from(newDom.querySelectorAll("#invoice, .invoiceTable, .invoiceGraphContainer, p.displayHeader, .result")).forEach(element => {
+            docFrag.appendChild(element);
+          });
+          document.querySelector("#invoiceQueryResults").innerHTML = "";
+          document.querySelector("#invoiceQueryResults").appendChild(docFrag);
+        })
+        .catch(error => {
+          console.log(error.message);
+          clearInterval(dots);
+          rjdci.getClosest(eve.target, ".invoiceTable").removeChild(ellipsis);
+          errorMessage = document.createElement("p");
+          errorMessage.classList.add("center");
+          errorMessage.innerHTML = "<span class=\"error\">Error</span>: " + error.message;
+          rjdci.getClosest(eve.target, ".invoiceTable").appendChild(errorMessage);
+          setTimeout(() => { rjdci.getClosest(eve.target, ".invoiceTable").removeChild(errorMessage); eve.target.disabled = false; }, 3500)
+        });
+      });
+    });
+  };
 
   rjdci.assignQueriedTicketListeners = () => {
     Array.from(document.querySelectorAll("#ticketQueryResults .invoiceQuery")).forEach(element => {
@@ -2553,7 +2634,14 @@
           clearInterval(dots);
           if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
           document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
-          document.querySelector("#invoiceQueryResults").innerHTML = data;
+          let parser = new DOMParser(),
+            newDom = parser.parseFromString(data, "text/html"),
+            docFrag = document.createDocumentFragment();
+          Array.from(newDom.querySelectorAll("#invoice, .result")).forEach(element => {
+            docFrag.appendChild(element);
+          });
+          document.querySelector("#invoiceQueryResults").innerHTML = "";
+          document.querySelector("#invoiceQueryResults").appendChild(docFrag);
         })
         .catch(error => {
           console.error(error.message);
@@ -2614,7 +2702,14 @@
           clearInterval(dots);
           if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
           document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
-          document.querySelector("#ticketQueryResults").innerHTML = data;
+          let parser = new DOMParser(),
+            newDom = parser.parseFromString(data, "text/html"),
+            docFrag = document.createDocumentFragment();
+          Array.from(newDom.querySelectorAll(".tickets, .result")).forEach(element => {
+            docFrag.appendChild(element);
+          });
+          document.querySelector("#ticketQueryResults").innerHTML = "";
+          document.querySelector("#ticketQueryResults").appendChild(docFrag);
           rjdci.assignQueriedTicketListeners();
         })
         .catch(error => {
@@ -2626,7 +2721,7 @@
         });
       });
     });
-  }
+  };
 
   assignTicketEditorListener = () => {
     Array.from(document.querySelectorAll("#ticketEditorResultContainer button.ticketEditor")).forEach(element => {
@@ -2674,7 +2769,7 @@
         });
       });
     });
-  }
+  };
 
   assignTicketFormListeners = workspace => {
     if (workspace.querySelector(".repeat")) {
@@ -2686,7 +2781,7 @@
           if (eve.target.checked) workspace.querySelector(".contract").checked = false;
         }
       });
-    }
+    };
 
     workspace.querySelector(".emailConfirm").addEventListener("change", eve => {
       let form = rjdci.getClosest(eve.target, "form");
