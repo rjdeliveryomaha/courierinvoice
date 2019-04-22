@@ -8,8 +8,9 @@ rjdci.signatureListener = eve => {
     printName,
     requiredState,
     boundingRect,
-    workspace = rjdci.getClosest(eve.target, ".sortable");
-  Array.from(document.querySelectorAll("button, input, textarea")).forEach(input => {
+    workspace = rjdci.getClosest(eve.target, ".sortable"),
+    page = rjdci.getClosest(eve.target, ".page");
+  Array.from(page.querySelectorAll("button, input, textarea")).forEach(input => {
     input.disabled = true;
     input.readonly = true;
   });
@@ -66,8 +67,8 @@ rjdci.signatureListener = eve => {
     target.id = "";
     target.innerHTML = "";
     printName.required = requiredState;
-    Array.from(document.querySelectorAll("button, input, textarea")).forEach(input => {
-      if (input.type !== "hidden") input.disabled = false;
+    Array.from(page.querySelectorAll("button, input, textarea")).forEach(input => {
+      input.disabled = false;
       input.readonly = false;
     });
   });
