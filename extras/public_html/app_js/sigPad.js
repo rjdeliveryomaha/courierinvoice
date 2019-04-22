@@ -1,82 +1,108 @@
-// open signature pad
-$(document).ready(function() {
-  $(document).on("click", ".getSig", function() {
-    let target,
-        canvas,
-        canvasWidth,
-        canvasHeight,
-        signaturePad,
-        wrapper,
-        printName,
-        requiredState;
-    //Disable the other buttons in the div
-    $("input, button, textarea").prop("disabled", true);
-    //Close any other open signature pad
-    $(".signature-pad").each(function() {
-      $(this).addClass("sigField").removeClass("field").html("");
-    });
-    target = $(this).parents(".sortable").find(".signature-pad");
-    if (target.hasClass("sigField")) {
-      canvasWidth = $(this).parents(".sortable").innerWidth();
-      canvasHeight = ($(this).closest(".sortable").find(".tickets").length === 0) ? $(this).parents(".sortable").innerHeight() * .65 : $(this).closest(".sortable").find(".tickets").innerHeight();
-      target.removeClass("sigField").addClass("field").attr("id", "signature-pad").html('<canvas id="sig" style="height:' + canvasHeight +'px;width:' + canvasWidth + 'px;"></canvas><button style="float:left;" type="button" data-action="clear">Clear</button><button style="float:right;" type="button" data-action="save">OK</button>');
-      canvas = document.getElementById("sig");
-      signaturePad = new SignaturePad(canvas);
-      wrapper = document.getElementById("signature-pad"),
-      clearButton = wrapper.querySelector("[data-action='clear']"),
-      saveButton = wrapper.querySelector("[data-action='save']"),
-      canvas = wrapper.querySelector("#sig"),
-      signaturePad.velocityFilterWeight = 0.7;
-      signaturePad.minWidth = .5;
-      signaturePad.maxWidth = 2;
-      signaturePad.penColor = "red";
-      signaturePad.backgroundColor = "rgba(0,0,0,1)";
-    };
-
-    function resizeCanvas() {
-      // When zoomed out to less than 100%, for some very strange reason,
-      // some browsers report devicePixelRatio as less than 1
-      // and only part of the canvas is cleared then.
-      let ratio =  Math.max(window.devicePixelRatio || 1, 1);
-      canvas.width = canvas.offsetWidth * ratio;
-      canvas.height = canvas.offsetHeight * ratio;
-      canvas.getContext("2d").scale(ratio, ratio);
+rjdci.signatureListener = eve => {
+  let target,
+    canvas,
+    canvasWidth,
+    canvasHeight,
+    signaturePad,
+    wrapper,
+    printName,
+    requiredState,
+    boundingRect,
+    workspace = rjdci.getClosest(eve.target, ".sortable");
+  Array.from(document.querySelectorAll("button, input, textarea")).forEach(input => {
+    input.disabled = true;
+    input.readonly = true;
+  });
+  target = workspace.querySelector(".signature-pad");
+  if (target.classList.contains("sigField")) {
+    boundingRect = workspace.getBoundingClientRect();
+    canvasWidth = boundingRect.width;
+    canvasHeight = boundingRect.height * 0.65;
+    if (workspace.querySelector(".tickets") !== null) {
+      let newBoundingRect = workspace.querySelector(".tickets").getBoundingClientRect();
+      canvasHeight = newBoundingRect.height;
     }
-    //Resize the canvas so that signature-pad sees the whole area
-    resizeCanvas();
-    // scroll to the sig pad
-    window.scroll(0,findPos(document.getElementById("sig")));
+    target.classList.remove("sigField");
+    target.classList.add("field");
+    target.id = "signature-pad";
+    target.innerHTML = '<canvas id="sig" style="height:' + canvasHeight +'px;width:' + canvasWidth + 'px;"></canvas><button style="float:left;" type="button" data-action="clear">Clear</button><button style="float:right;" type="button" data-action="save">OK</button>';
+    canvas = document.getElementById("sig");
+    signaturePad = new SignaturePad(canvas);
+    wrapper = document.getElementById("signature-pad"),
+    clearButton = wrapper.querySelector("[data-action='clear']"),
+    saveButton = wrapper.querySelector("[data-action='save']"),
+    canvas = wrapper.querySelector("#sig"),
+    signaturePad.velocityFilterWeight = 0.7;
+    signaturePad.minWidth = .5;
+    signaturePad.maxWidth = 2;
+    signaturePad.penColor = "red";
+    signaturePad.backgroundColor = "rgba(0,0,0,1)";
+  }
+  resizeCanvas = () => {
+    // When zoomed out to less than 100%, for some very strange reason,
+    // some browsers report devicePixelRatio as less than 1
+    // and only part of the canvas is cleared then.
+    let ratio =  Math.max(window.devicePixelRatio || 1, 1);
+    canvas.width = canvas.offsetWidth * ratio;
+    canvas.height = canvas.offsetHeight * ratio;
+    canvas.getContext("2d").scale(ratio, ratio);
+  }
+  //Resize the canvas so that signature-pad sees the whole area
+  resizeCanvas();
+  // scroll to the sig pad
+  window.scroll(0,rjdci.findPos(document.getElementById("sig")));
 
-    saveButton.addEventListener("click", function (event) {
-      printName = $(this).parents(".sortable").find(".printName");
-      if (signaturePad.isEmpty()) {
-        $(this).parents(".sortable").find("input[name='sigImage']").val("");
-        toast("Signature Cleared.");
-      } else {
-        $(this).parents(".sortable").find("input[name='sigImage']").val(signaturePad.toDataURL());
-      }
-
-      requiredState = (printName.parents(".sortable").find("input[name='sigImage']").val() !== "" && typeof(printName.parents(".sortable").find("input[name='sigImage']").val()) !== undefined && printName.parents(".sortable").find("input[name='sigImage']").val() !== null) || printName.hasClass("pulse");
-
-      target.removeClass("field").addClass("sigField").html('').attr("id", "");
-      target.parents("body").find("input, button, textarea").prop("disabled", false);
-      printName.prop("required", requiredState);
+  saveButton.addEventListener("click", eve => {
+    printName = workspace.querySelector(".printName");
+    if (signaturePad.isEmpty()) {
+      workspace.querySelector("input[name='sigImage']").value = "";
+      rjdci.toast("Signature Cleared.");
+    } else {
+      workspace.querySelector("input[name='sigImage']").value = signaturePad.toDataURL();
+    }
+    requiredState = (workspace.querySelector("input[name='sigImage']").value !== "") || printName.classList.contains("pulse");
+    target.classList.remove("field");
+    target.classList.add("sigField");
+    target.id = "";
+    target.innerHTML = "";
+    printName.required = requiredState;
+    Array.from(document.querySelectorAll("button, input, textarea")).forEach(input => {
+      if (input.type !== "hidden") input.disabled = false;
+      input.readonly = false;
     });
-
-    clearButton.addEventListener("click", function(event) {
-      signaturePad.clear();
-    });
-    // The canvas is holding the page background color. Calling the clear function fixes this.
+  });
+  clearButton.addEventListener("click", eve => {
     signaturePad.clear();
   });
-
-  $(document).on("touchstart", "#sig", function() {
-    disable_scroll();
-    mySwipe.disable();
+  // The canvas is holding the page background color. Calling the clear function fixes this.
+  signaturePad.clear();
+  canvas.addEventListener("touchstart", eve => {
+    rjdci.disable_scroll();
+    rjdciSwipe.disable();
   });
-
-  $(document).on("touchend", "#sig", function() {
-    enable_scroll();
-    mySwipe.enable();
+  canvas.addEventListener("touchend", eve => {
+    rjdci.enable_scroll();
+    rjdciSwipe.enable();
   });
+};
+document.addEventListener("rjdci_loaded", eve => {
+  if (document.querySelector("#route")) {
+    Array.from(document.querySelectorAll(".getSig")).forEach(element => {
+      element.addEventListener("click", eve => { rjdci.signatureListener(eve); });
+    });
+    let config = { attributes: false, childList: true, subtree: false },
+      callback = (mutationsList, observer) => {
+        for (let mutation of mutationsList) {
+          if (mutation.type !== "childList") return;
+          mutation.addedNodes.forEach(node => {
+            Array.from(node.querySelectorAll(".getSig")).forEach(element => {
+              element.addEventListener("click", eve => { rjdci.signatureListener(eve); });
+            });
+          });
+        }
+      },
+      observer = new MutationObserver(callback);
+    observer.observe(document.querySelector("#route"), config);
+    observer.observe(document.querySelector("#on_call"), config);
+  }
 });
