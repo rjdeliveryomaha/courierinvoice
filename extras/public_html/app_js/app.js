@@ -2876,7 +2876,9 @@
         if (rjdci.isTarget(eve.target)) {
           let goodVals = [];
           Array.from(document.querySelectorAll("datalist#" + eve.target.getAttribute("list") + " option")).forEach(val => {
-            goodVals.push(val.innerHTML);
+            let quarantine = new DOMParser().parseFromString(val.innerHTML, "text/html");
+            quarantine.innerHTML = val.innerHTML;
+            goodVals.push(quarantine.documentElement.textContent);
           });
           if (eve.target.value !== "" && goodVals.indexOf(eve.target.value) === -1) {
             let oldHolder = eve.target.getAttribute("placeholder") || "";
