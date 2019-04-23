@@ -561,6 +561,9 @@ This form is followed by ` <div class="mapContainer" id="map2"></div> ` for use 
 echo $ticket->calculateRunPrice();
 ```
 
+__Note__:
+The private method ` self::getTicketBase() ` is called here as well as when creating on call tickets and contract tickets that have a ` PriceOverride ` value of 0. This method uses (geocoder-php)[https://github.com/geocoder-php/Geocoder] to get the coordinates of the pick up and delivery locations. It expects that the properties ` $ticket->pAddress2 ` and ` $ticket->dAddress2 ` will be in the format _Locality/City, State/Province Zip/Postal Code_. This format is important as the function tests the value between the first comma and the final whitespace in the string (the one prior to Zip/Postal Code) against values returned by the geocoder to determine if accurate data has been received.
+
 Returns a json encoded array with the following properties:
 
 - billTo: ClientID.

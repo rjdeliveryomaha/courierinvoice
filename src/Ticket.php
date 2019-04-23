@@ -433,6 +433,8 @@
     }
 
     private function getTicketBase() {
+      // clear results as this might not be the first try
+      $this->result1 = $this->result2 = NULL;
       if (strlen($this->pCountry) === 2) {
         $this->pCountry = self::countryFromAbbr($this->pCountry);
       }
@@ -441,6 +443,8 @@
       }
       $addy1 = "{$this->pAddress1} {$this->pAddress2}, {$this->pCountry}";
       $addy2 = "{$this->dAddress1} {$this->dAddress2}, {$this->dCountry}";
+      $addy1GeocoderAdmin1 = trim(self::after(',', self::before_last(' ', $this->pAddress2)));
+      $addy2GeocoderAdmin1 = trim(self::after(',', self::before_last(' ', $this->dAddress2)));
       // Load the Geocoder
       $this->geocoder = new \Geocoder\ProviderAggregator();
       $this->guzzle = new GuzzleClient($this->guzzleConfig);
@@ -516,12 +520,20 @@
         }
         return $this->TicketBase = 0;
       }
-      if (!$this->result1obj = $this->geocoder->geocodeQuery(GeocodeQuery::create($addy1))->first()) {
+      $temp = $this->geocoder->geocodeQuery(GeocodeQuery::create($addy1))->all();
+      for ($i = 0; $i < count($temp); $i++) {
+        $test = json_decode($this->dumper->dump($temp[$i]), true);
+        if ($test['properties']['adminLevels'][1]['name'] === $addy1GeocoderAdmin1 || $test['properties']['adminLevels'][1]['code'] === $addy1GeocoderAdmin1) {
+          $this->result1 = json_decode($this->dumper->dump($temp[$i]));
+          break;
+        }
+      }
+      if (!$this->result1) {
         if ($this->ticketBaseRetries < 5) {
           $this->ticketBaseRetries++;
           return self::getTicketBase();
         } else {
-          $this->error = 'No address1 result from geocoder';
+          $this->error = 'No address1 match from geocoder';
           if ($this->enableLogging !== FALSE) self::writeLoop();
           return $this->TicketBase = 0;
         }
@@ -537,20 +549,24 @@
         }
         return $this->TicketBase = 0;
       }
-      if (!$this->result2obj = $this->geocoder->geocodeQuery(GeocodeQuery::create($addy2))->first()) {
+      $temp = $this->geocoder->geocodeQuery(GeocodeQuery::create($addy2))->all();
+      for ($i = 0; $i < count($temp); $i++) {
+         $test = json_decode($this->dumper->dump($temp[$i]), true);
+        if ($test['properties']['adminLevels'][1]['name'] === $addy1GeocoderAdmin1 || $test['properties']['adminLevels'][1]['code'] === $addy1GeocoderAdmin1) {
+          $this->result2 = json_decode($this->dumper->dump($temp[$i]));
+          break;
+        }
+      }
+      if (!$this->result2) {
         if ($this->ticketBaseRetries < 5) {
           $this->ticketBaseRetries++;
           return self::getTicketBase();
         } else {
-          $this->error = 'No address2 result from geocoder';
+          $this->error = 'No address2 match from geocoder';
           if ($this->enableLogging !== FALSE) self::writeLoop();
           return $this->TicketBase = 0;
         }
       }
-      // dump the objects as json strings and encode them as array
-      $this->result1 = json_decode($this->dumper->dump($this->result1obj));
-      $this->result2 = json_decode($this->dumper->dump($this->result2obj));
-
       $this->loc1['lat'] = $this->result1->geometry->coordinates[1];
       $this->loc1['lng'] = $this->result1->geometry->coordinates[0];
       $this->loc2['lat'] = $this->result2->geometry->coordinates[1];
