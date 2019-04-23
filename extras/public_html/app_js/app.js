@@ -721,7 +721,7 @@
         success = pos => {
           success_count++;
           if (success_count > 1) {
-            result = (result.coords.accuracy < pos.coords.accuracy) ? result : pos;
+            result = (result && result.coords.accuracy < pos.coords.accuracy) ? result : pos;
           } else {
             result = pos;
           }
