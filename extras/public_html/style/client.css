@@ -1302,6 +1302,28 @@ label {
     color: inherit;
   }
 }
+/** Pulsing color change **/
+.printName:required {
+  background-color: white;
+  animation-name: pulsing;
+  animation-duration: 4s;
+  animation-iteration-count: infinite;
+}
+@keyframes pulsing {
+  0% {background-color: white; color: black;}
+  50% {background-color: red; color: white;}
+  100% {background-color: white; color: black;}
+}
+@-webkit-keyframes pulsing {
+  0% {background-color: white; color: black;}
+  50% {background-color: red; color: white;}
+  100% {background-color: white; color: black;}
+}
+@-moz-keyframes pulsing {
+  0% {background-color: white; color: black;}
+  50% {background-color: red; color: white;}
+  100% {background-color: white; color: black;}
+}
 
 @media screen and (max-width: 720px) {
   #priceCalc {
