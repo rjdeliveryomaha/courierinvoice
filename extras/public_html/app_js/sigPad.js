@@ -1,6 +1,7 @@
 rjdci.signatureListener = eve => {
+  eve.target.classList.add("red");
+  setTimeout(() => { eve.target.classList.remove("red"); }, 3000);
   let target,
-    canvas,
     canvasWidth,
     canvasHeight,
     signaturePad,
@@ -9,36 +10,87 @@ rjdci.signatureListener = eve => {
     requiredState,
     boundingRect,
     workspace = rjdci.getClosest(eve.target, ".sortable"),
-    page = rjdci.getClosest(eve.target, ".page");
-  Array.from(page.querySelectorAll("button, input, textarea")).forEach(input => {
+    page = rjdci.getClosest(eve.target, ".page"),
+    canvas = document.createElement("canvas"),
+    clearButton = document.createElement("button"),
+    saveButton = document.createElement("button"),
+    cancelButton = document.createElement("button"),
+    sigElements = document.createDocumentFragment();
+  canvas.id = "sig";
+  sigElements.appendChild(canvas);
+  clearButton.style.float = "left";
+  clearButton.innerHTML = "Clear";
+  clearButton.classList.add("sigButton");
+  clearButton.addEventListener("click", eve => {
+    signaturePad.clear();
+  });
+  sigElements.appendChild(clearButton);
+  cancelButton.style.margin = "0 40%";
+  cancelButton.innerHTML = "Cancel";
+  cancelButton.addEventListener("click", eve => {
+    target.classList.remove("field");
+    target.classList.add("sigField");
+    target.id = "";
+    target.innerHTML = "";
+    printName = workspace.querySelector(".printName");
+    printName.required = (workspace.querySelector("input[name='sigImage']").value !== "") || printName.required;
+    Array.from(page.querySelectorAll("button")).forEach(input => {
+      input.disabled = false;
+    });
+    Array.from(page.querySelectorAll(".printName, .notes")).forEach(input => {
+      input.readOnly = false;
+    });
+  });
+  sigElements.appendChild(cancelButton);
+  saveButton.style.float = "right";
+  saveButton.innerHTML = "OK";
+  saveButton.classList.add("sigButton");
+  saveButton.addEventListener("click", eve => {
+    printName = workspace.querySelector(".printName");
+    if (signaturePad.isEmpty()) {
+      workspace.querySelector("input[name='sigImage']").value = "";
+      rjdci.toast("Signature Cleared.");
+    } else {
+      workspace.querySelector("input[name='sigImage']").value = signaturePad.toDataURL();
+    }
+    target.classList.remove("field");
+    target.classList.add("sigField");
+    target.id = "";
+    target.innerHTML = "";
+    printName.required = (workspace.querySelector("input[name='sigImage']").value !== "") || printName.required;
+    Array.from(page.querySelectorAll("button")).forEach(input => {
+      input.disabled = false;
+    });
+    Array.from(page.querySelectorAll(".printName, .notes")).forEach(input => {
+      input.readOnly = false;
+    });
+  });
+  sigElements.appendChild(saveButton);
+  Array.from(page.querySelectorAll("button")).forEach(input => {
     input.disabled = true;
-    input.readonly = true;
+  });
+  Array.from(page.querySelectorAll(".printName, .notes")).forEach(input => {
+    input.readOnly = true;
   });
   target = workspace.querySelector(".signature-pad");
-  if (target.classList.contains("sigField")) {
-    boundingRect = workspace.getBoundingClientRect();
-    canvasWidth = boundingRect.width;
-    canvasHeight = boundingRect.height * 0.65;
-    if (workspace.querySelector(".tickets") !== null) {
-      let newBoundingRect = workspace.querySelector(".tickets").getBoundingClientRect();
-      canvasHeight = newBoundingRect.height;
-    }
-    target.classList.remove("sigField");
-    target.classList.add("field");
-    target.id = "signature-pad";
-    target.innerHTML = '<canvas id="sig" style="height:' + canvasHeight +'px;width:' + canvasWidth + 'px;"></canvas><button style="float:left;" type="button" data-action="clear">Clear</button><button style="float:right;" type="button" data-action="save">OK</button>';
-    canvas = document.getElementById("sig");
-    signaturePad = new SignaturePad(canvas);
-    wrapper = document.getElementById("signature-pad"),
-    clearButton = wrapper.querySelector("[data-action='clear']"),
-    saveButton = wrapper.querySelector("[data-action='save']"),
-    canvas = wrapper.querySelector("#sig"),
-    signaturePad.velocityFilterWeight = 0.7;
-    signaturePad.minWidth = .5;
-    signaturePad.maxWidth = 2;
-    signaturePad.penColor = "red";
-    signaturePad.backgroundColor = "rgba(0,0,0,1)";
+  boundingRect = workspace.getBoundingClientRect();
+  canvas.style.width = boundingRect.width + "px";
+  canvas.style.height = boundingRect.height * 0.65 + "px";
+  if (workspace.querySelector(".tickets") !== null) {
+    let newBoundingRect = workspace.querySelector(".tickets").getBoundingClientRect();
+    canvasHeight = newBoundingRect.height;
   }
+  target.classList.remove("sigField");
+  target.classList.add("field");
+  target.id = "signature-pad";
+  target.appendChild(sigElements);
+  signaturePad = new SignaturePad(canvas);
+  signaturePad.velocityFilterWeight = 0.7;
+  signaturePad.minWidth = .5;
+  signaturePad.maxWidth = 2;
+  signaturePad.penColor = "red";
+  signaturePad.backgroundColor = "rgba(0,0,0,1)";
+
   resizeCanvas = () => {
     // When zoomed out to less than 100%, for some very strange reason,
     // some browsers report devicePixelRatio as less than 1
@@ -53,28 +105,6 @@ rjdci.signatureListener = eve => {
   // scroll to the sig pad
   window.scroll(0,rjdci.findPos(document.getElementById("sig")));
 
-  saveButton.addEventListener("click", eve => {
-    printName = workspace.querySelector(".printName");
-    if (signaturePad.isEmpty()) {
-      workspace.querySelector("input[name='sigImage']").value = "";
-      rjdci.toast("Signature Cleared.");
-    } else {
-      workspace.querySelector("input[name='sigImage']").value = signaturePad.toDataURL();
-    }
-    requiredState = (workspace.querySelector("input[name='sigImage']").value !== "") || printName.classList.contains("pulse");
-    target.classList.remove("field");
-    target.classList.add("sigField");
-    target.id = "";
-    target.innerHTML = "";
-    printName.required = requiredState;
-    Array.from(page.querySelectorAll("button, input, textarea")).forEach(input => {
-      input.disabled = false;
-      input.readonly = false;
-    });
-  });
-  clearButton.addEventListener("click", eve => {
-    signaturePad.clear();
-  });
   // The canvas is holding the page background color. Calling the clear function fixes this.
   signaturePad.clear();
   canvas.addEventListener("touchstart", eve => {
@@ -97,7 +127,10 @@ document.addEventListener("rjdci_loaded", eve => {
           if (mutation.type !== "childList") return;
           mutation.addedNodes.forEach(node => {
             Array.from(node.querySelectorAll(".getSig")).forEach(element => {
-              element.addEventListener("click", eve => { rjdci.signatureListener(eve); });
+              if (!element.classList.contains("assigned")) {
+                element.classList.add("assigned");
+                element.addEventListener("click", eve => { rjdci.signatureListener(eve); });
+              }
             });
           });
         }
