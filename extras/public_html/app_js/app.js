@@ -825,11 +825,26 @@
   rjdci.stepTicket = async eve => {
     eve.preventDefault();
     let postData = {},
+      breakFunction = false,
       step = "",
       workspace = rjdci.getClosest(eve.target, ".message2"),
       functionFlag = rjdci.getClosest(eve.target, ".page").getAttribute("id"),
       ele = document.createElement("span");
     if (workspace === null) workspace = rjdci.getClosest(eve.target, "form").querySelector(".message2");
+    Array.from(document.querySelectorAll("input[form="+eve.target.getAttribute("form")+"], textarea[form="+eve.target.getAttribute("form")+"]")).forEach(element => {
+      if (element.getAttribute("name") !== "latitude" && element.getAttribute("name") !== "longitude") {
+        if (element.required === true && element.value === "") {
+          breakFunction = true;
+          element.classList.add("elementError");
+          setTimeout(() => { element.classList.remove("elementError"); }, 3000);
+        }
+        postData[element.getAttribute("name")] = element.value;
+      }
+    });
+    postData.formKey = document.querySelector("#formKey").value;
+    if (breakFunction) {
+      return;
+    }
     ele.classList.add("ellipsis");
     ele.innerHTML = ".";
     workspace.innerHTML = "";
@@ -845,10 +860,6 @@
           forward = ele.innerHTML.length === 1;
         }
       }, 500);
-    Array.from(document.querySelectorAll("input[form="+eve.target.getAttribute("form")+"], textarea[form="+eve.target.getAttribute("form")+"]")).forEach(element => {
-      if (element.getAttribute("name") !== "latitude" && element.getAttribute("name") !== "longitude") postData[element.getAttribute("name")] = element.value;
-    });
-    postData.formKey = document.querySelector("#formKey").value;
     if (postData.hasOwnProperty("pSigPrint")) {
       postData.printName = postData.pSigPrint;
       delete postData.pSigPrint;
