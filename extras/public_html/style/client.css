@@ -1313,7 +1313,7 @@ label {
   .ticketContainer {
     width: 100%;
   }
-  .ticketContainer >tbody > tr > td {
+  #deliveryRequest > form > .ticketContainer > tbody > tr > td {
     display: block;
   }
   .subContainer,
