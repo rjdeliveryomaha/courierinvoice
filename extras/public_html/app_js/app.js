@@ -335,10 +335,10 @@
   }
 
   rjdci.fixDeadRunButton = () => {
-    let element = document.querySelector(".cancelRun");
+    let element = document.querySelector(".cancelRun:not(.hide)");
     if (!element) return;
     let h1 = element.offsetHeight;
-    Array.from(document.querySelectorAll(".deadRun")).forEach( element => {
+    Array.from(document.querySelectorAll(".deadRun")).forEach(element => {
       element.innerHTML = "Dead Run";
       if (element.offsetHeight > h1) element.innerHTML = "D. Run";
     });
