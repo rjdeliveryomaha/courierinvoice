@@ -142,24 +142,6 @@
     sMinutes = (minutes<10) ? `0${minutes.toString()}` : minutes.toString();
     return sHours + ":" + sMinutes;
   }
-
-  convert24to12 = string => {
-    let hours = Number(string.match(/^(\d+)/)[1]),
-        minutes = Number(string.match(/:(\d+)/)[1]),
-        AMPM = "am",
-        sHours,
-        sMinutes;
-    if (hours > 12) {
-      hours = hours - 12;
-      AMPM = "pm";
-    }
-    if (hours === 0) {
-      hours = 12;
-    }
-    sHours = hours.toString();
-    sMinutes = (minutes<10) ? `0${minutes.toString()}` : minutes.toString();
-    return sHours + ":" + sMinutes + " " + AMPM;
-  }
 // Start Toast
   // Use arrays to make date display pretty
   let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
@@ -320,18 +302,6 @@
 
   rjdci.enable_scroll = () => {
     document.body.removeEventListener("touchmove");
-  }
-// https://stackoverflow.com/a/11986374
-// Finds y value of given object
-// offset the position by the height of the header element
-  rjdci.findPos = obj => {
-    let curtop = 0;
-    if (obj.offsetParent) {
-      do {
-        curtop += obj.offsetTop;
-      } while (obj = obj.offsetParent);
-      return curtop - document.getElementsByTagName("header")[0].offsetHeight;
-    }
   }
 
   rjdci.fixDeadRunButton = () => {
