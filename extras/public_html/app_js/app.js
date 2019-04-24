@@ -2746,6 +2746,15 @@
         });
       });
     });
+
+    if (document.querySelector("#ticketQueryResults .ticketGraphContainer")) {
+      document.querySelector("#ticketQueryResults .ticketGraphContainer").addEventListener("touchstart", eve => {
+        rjdciSwipe.disable();
+      });
+      document.querySelector("#ticketQueryResults .ticketGraphContainer").addEventListener("touchend", eve => {
+        rjdciSwipe.enable();
+      });
+    }
   };
 
   assignTicketEditorListener = () => {
