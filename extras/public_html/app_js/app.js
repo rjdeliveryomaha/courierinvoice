@@ -335,8 +335,9 @@
   }
 
   rjdci.refreshRoute = async () => {
+    let localSpinner = spinner.cloneNode(true);
     document.querySelector("#route").innerHTML = "";
-    document.querySelector("#route").appendChild(spinner);
+    document.querySelector("#route").appendChild(localSpinner);
     scrollTo(0,0);
     await rjdci.fetch_template({ url: "./refreshRoute.php", postData: { formKey: document.querySelector("#formKey").value } })
     .then(result => {
@@ -361,7 +362,7 @@
         docFrag.appendChild(element);
       });
       setTimeout(() => {
-        document.querySelector("#route").removeChild(spinner);
+        document.querySelector("#route").removeChild(localSpinner);
         document.querySelector("#route").appendChild(docFrag);
         rjdci.assignListeners();
         rjdci.fixDeadRunButton();
@@ -398,9 +399,10 @@
   }
 
   rjdci.refreshOnCall = async () => {
-    let ticketCount = document.querySelector(".ticketCount").innerHTML;
+    let ticketCount = document.querySelector(".ticketCount").innerHTML,
+      localSpinner = spinner.cloneNode(true);
     document.querySelector("#on_call").innerHTML = "";
-    document.querySelector("#on_call").appendChild(spinner);
+    document.querySelector("#on_call").appendChild(localSpinner);
     scrollTo(0,0);
     await rjdci.fetch_template({ url: "./refreshOnCall.php", postData: { formKey: document.querySelector("#formKey").value } })
     .then(result => {
@@ -425,7 +427,7 @@
         docFrag.appendChild(element);
       });
       setTimeout(() => {
-        document.querySelector("#on_call").removeChild(spinner);
+        document.querySelector("#on_call").removeChild(localSpinner);
         document.querySelector("#on_call").appendChild(docFrag);
         rjdci.assignListeners();
         rjdci.fixDeadRunButton();
@@ -451,10 +453,11 @@
   rjdci.refreshTicketEntry = async () => {
     let elem = document.querySelector("#deliveryRequest"),
       workspace = elem.parentNode;
-      target = workspace.querySelector(".subContainer");
+      target = workspace.querySelector(".subContainer"),
+      localSpinner = spinner.cloneNode(true);
     workspace.removeChild(target);
     workspace.removeChild(elem);
-    workspace.appendChild(spinner);
+    workspace.appendChild(localSpinner);
     scrollTo(0,0);
     await rjdci.fetch_template({ url: "./refreshTicketForm.php", postData: { edit: 1, formKey: document.querySelector("#formKey").value } })
     .then(result => {
@@ -479,7 +482,7 @@
         docFrag.appendChild(element);
       });
       setTimeout(() => {
-        workspace.removeChild(spinner);
+        workspace.removeChild(localSpinner);
         workspace.appendChild(docFrag);
         workspace.appendChild(target);
         rjdci.assignListeners();
@@ -504,9 +507,10 @@
   }
 
   rjdci.refreshDispatch = async () => {
-    let oldCount = Number(document.querySelector(".dispatchCount").innerHTML) - 1;
+    let oldCount = Number(document.querySelector(".dispatchCount").innerHTML) - 1,
+      localSpinner = spinner.cloneNode(true);
     document.querySelector("#dispatch").innerHTML = "";
-    document.querySelector("#dispatch").appendChild(spinner);
+    document.querySelector("#dispatch").appendChild(localSpinner);
     scrollTo(0,0);
     await rjdci.fetch_template({ url: "./refreshDispatch.php", postData: { formKey: document.querySelector("#formKey").value } })
     .then(result => {
@@ -531,7 +535,7 @@
         docFrag.appendChild(element);
       });
       setTimeout(() => {
-        document.querySelector("#dispatch").removeChild(spinner);
+        document.querySelector("#dispatch").removeChild(localSpinner);
         document.querySelector("#dispatch").appendChild(docFrag);
         rjdci.assignListeners();
         rjdci.countDispatch(oldCount);
@@ -568,9 +572,10 @@
   }
 
   rjdci.refreshTransfers = async () => {
-    let transferCount = document.querySelector(".transfersCount").innerHTML;
+    let transferCount = document.querySelector(".transfersCount").innerHTML,
+      localSpinner = spinner.cloneNode(true);
     document.querySelector("#transfers").innerHTML = "";
-    document.querySelector("#transfers").appendChild(spinner);
+    document.querySelector("#transfers").appendChild(localSpinner);
     scrollTo(0,0);
     await rjdci.fetch_template({ url: "./refreshTransfers.php", postData: { formKey: document.querySelector("#formKey").value } })
     .then(result => {
@@ -595,7 +600,7 @@
         docFrag.appendChild(element);
       });
       setTimeout(() => {
-        document.querySelector("#transfers").removeChild(spinner);
+        document.querySelector("#transfers").removeChild(localSpinner);
         document.querySelector("#transfers").appendChild(docFrag);
         rjdci.assignListeners();
         countTransferTickets(transferCount);
