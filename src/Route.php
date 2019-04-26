@@ -110,7 +110,7 @@
         return "<p class=\"center result\"><span class=\"error\>Error</span>: {$this->error}</p>";
       }
       if (count($this->onCallTicketSet) === 0) {
-        return '<p class="center">No On Call Tickets On File</p>';
+        return '<p class="center result">No On Call Tickets On File</p>';
       }
       $returnData = '';
       for ($i = 0; $i < count($this->onCallTicketSet); $i++) {
