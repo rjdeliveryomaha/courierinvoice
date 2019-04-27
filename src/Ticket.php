@@ -2081,6 +2081,7 @@
       if ($this->ticketEditor === FALSE) {
         $this->driverID = 0;
         $ticketQueryData['queryParams']['filter'][] = ['Resource'=>'DispatchTimeStamp', 'Filter'=>'is'];
+        $ticketQueryData['queryParams']['filter'][] = ['Resource'=>'Charge', 'Filter'=>'bt', 'Value'=>'1,8'];
       } else {
         if ($this->ticket_index === NULL) {
           if (preg_match('/\d{4}-\d{2}-\d{2}/', $this->ticketEditorSearchDate) !== 1) {
