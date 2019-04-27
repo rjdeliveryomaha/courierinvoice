@@ -2085,7 +2085,7 @@
       } else {
         if ($this->ticket_index === NULL) {
           if (preg_match('/\d{4}-\d{2}-\d{2}/', $this->ticketEditorSearchDate) !== 1) {
-            $this->error = '<p class="center">Invalid search date. Please use YYYY-mm-dd</p>';
+            $this->error = '<p class="center result">Invalid search date. Please use YYYY-mm-dd</p>';
             if ($this->enableLogging !== FALSE) self::writeLoop();
             return $this->error;
           }
@@ -2139,7 +2139,7 @@
           }
         }
         if (empty($this->activeTicketSet)) {
-          return '<p class="center">No Tickets Available.</p>';
+          return '<p class="center result">No Tickets Available.</p>';
         }
         for ($i = 0; $i < count($this->activeTicketSet); $i++) {
           foreach ($this->activeTicketSet[$i] as $key => $value) {
@@ -3664,7 +3664,7 @@
         return FALSE;
       }
       $marker = ($this->multiTicket === NULL) ? $this->TicketNumber : 'group';
-      return "<p class=\"center\">Ticket {$marker} updated.</p>";
+      return "<p class=\"center result\">Ticket {$marker} updated.</p>";
     }
 
     public function stepTicket() {
@@ -3880,7 +3880,7 @@
           }
         }
       }
-      return "<p class=\"center\">Ticket {$marker}.</p>";
+      return "<p class=\"center result\">Ticket {$marker}.</p>";
     }
 
     public function cancelTicket() {
