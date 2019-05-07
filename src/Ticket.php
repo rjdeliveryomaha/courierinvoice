@@ -3642,8 +3642,8 @@
       } else {
         for ($i = 0; $i < count($this->multiTicket); $i++) {
           $tempObj = new \stdClass();
-          foreach($this->updateTicketDatabaseKeys as $key => $value) {
-            if (array_key_exists($key, $this->multiTicket[$i])) $tempObj->$key = $value;
+          foreach ($this->multiTicket[$i] as $key => $value) {
+            if (in_array($key, $this->updateTicketDatabaseKeys)) $tempObj->$key = $value;
           }
           $ticketUpdateData['payload'][] = $tempObj;
         }
