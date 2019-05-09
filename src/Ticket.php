@@ -201,6 +201,7 @@
     private $dRangeTest;
     private $pRangeError;
     private $dRangeError;
+    private $geoRetry;
     // Variables for the function stepTicket
     protected $sigImage;
     protected $sigType;
@@ -247,6 +248,7 @@
           if ($this->enableLogging !== FALSE) self::writeLoop();
           throw $e;
         }
+        $this->geoRetry = (count(json_decode($this->config['Geocoders'])) < 5) ? 5 : count(json_decode($this->config['Geocoders']));
       }
       // forms will send ticketNumber, contract, charge while the API and this class expect TicketNumber, Contract, Charge
       if ($this->ticketNumber !== NULL) {
@@ -431,6 +433,15 @@
       }
       return TRUE;
     }
+    private function shiftGeocoders() {
+      $geoProviders = json_decode($this->config['Geocoders'], true);
+      if (count($geoProviders) > 1) {
+        $firstKey = array_shift(array_keys($geoProviders));
+        $firstVal = array_shift($geoProviders);
+        $geoProviders[$firstKey] = $firstVal;
+        $this->config['Geocoders'] = json_encode($geoProviders);
+      }
+    }
 
     private function getTicketBase() {
       // clear results as this might not be the first try
@@ -514,7 +525,8 @@
       } catch(Exception $e) {
         $this->error = $e->getMessage();
         if ($this->enableLogging !== FALSE) self::writeLoop();
-        if ($this->ticketBaseRetries < 5) {
+        if ($this->ticketBaseRetries < $this->geoRetry) {
+          self::shiftGeocoders();
           $this->ticketBaseRetries++;
           return self::getTicketBase();
         }
@@ -522,14 +534,15 @@
       }
       $temp = $this->geocoder->geocodeQuery(GeocodeQuery::create($addy1))->all();
       for ($i = 0; $i < count($temp); $i++) {
-        $test = json_decode($this->dumper->dump($temp[$i]), true);
-        if ($test['properties']['adminLevels'][1]['name'] === $addy1GeocoderAdmin1 || $test['properties']['adminLevels'][1]['code'] === $addy1GeocoderAdmin1) {
-          $this->result1 = json_decode($this->dumper->dump($temp[$i]));
+        $test = json_decode($this->dumper->dump($temp[$i]));
+        if ($test->properties->adminLevels->{1}->name === $addy1GeocoderAdmin1 || $test->properties->adminLevels->{1}->code === $addy1GeocoderAdmin1) {
+          $this->result1 = $test;
           break;
         }
       }
       if (!$this->result1) {
-        if ($this->ticketBaseRetries < 5) {
+        if ($this->ticketBaseRetries < $this->geoRetry) {
+          self::shiftGeocoders();
           $this->ticketBaseRetries++;
           return self::getTicketBase();
         } else {
@@ -543,7 +556,8 @@
       } catch(Exception $e) {
         $this->error = $e->getMessage();
         if ($this->enableLogging !== FALSE) self::writeLoop();
-        if ($this->ticketBaseRetries < 5) {
+        if ($this->ticketBaseRetries < $this->geoRetry) {
+          self::shiftGeocoders();
           $this->ticketBaseRetries++;
           return self::getTicketBase();
         }
@@ -551,14 +565,14 @@
       }
       $temp = $this->geocoder->geocodeQuery(GeocodeQuery::create($addy2))->all();
       for ($i = 0; $i < count($temp); $i++) {
-         $test = json_decode($this->dumper->dump($temp[$i]), true);
-        if ($test['properties']['adminLevels'][1]['name'] === $addy1GeocoderAdmin1 || $test['properties']['adminLevels'][1]['code'] === $addy1GeocoderAdmin1) {
-          $this->result2 = json_decode($this->dumper->dump($temp[$i]));
+        $test = json_decode($this->dumper->dump($temp[$i]));
+        if ($test->properties->adminLevels->{1}->name === $addy2GeocoderAdmin1 || $test->properties->adminLevels->{1}->code === $addy2GeocoderAdmin1) {
           break;
         }
       }
       if (!$this->result2) {
-        if ($this->ticketBaseRetries < 5) {
+        if ($this->ticketBaseRetries < $this->geoRetry) {
+          self::shiftGeocoders();
           $this->ticketBaseRetries++;
           return self::getTicketBase();
         } else {
