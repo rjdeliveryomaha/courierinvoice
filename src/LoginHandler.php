@@ -11,16 +11,17 @@
     private $repeatFlag;
     private $query;
     private $queryData;
-    private $response;
+    private $result;
+    private $clientResult;
     private $configResult;
     private $courierResult;
     private $discountResult;
     private $client;
     private $loginType;
     // Define an array of key names not to include in the session
-    private $exclude = ['Password', 'AdminPassword', 'Deleted'];
+    private $exclude = [ 'Password', 'AdminPassword', 'Deleted', 'config' ];
     // Define key names that will be sent through countryFromAbbr()
-    private $countryParams = ['ShippingCountry', 'BillingCountry'];
+    private $countryParams = [ 'ShippingCountry', 'BillingCountry' ];
 
     public function __construct($options, $data=[]) {
       try {
@@ -117,6 +118,7 @@
           $this->queryData['method'] = 'GET';
           $this->queryData['endPoint'] = 'o_clients';
           $this->queryData['queryParams']['filter'] = [ ['Resource'=>'Login', 'Filter'=>'eq', 'Value'=>$this->clientID], ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0] ];
+          if ($this->clientID !== $this->username) $this->queryData['queryParams']['join'] = [ 'clients' ];
         }
         $this->query = self::createQuery($this->queryData);
         if ($this->query === FALSE) {
@@ -201,10 +203,11 @@
       } catch (Exception $e) {
         throw $e;
       }
+      $discountMarker = ($this->repeatFlag === 1) ? '' : 't';
       foreach ($this->result[0] as $key => $value) {
         if (!in_array($key, $this->exclude)) {
           if ($key === 'GeneralDiscount' || $key === 'ContractDiscount') {
-            $_SESSION['config'][$key][$this->result[0]['ClientID']] = floatval((100 - $value) / 100);
+            $_SESSION['config'][$key]["{$discountMarker}{$this->result[0]['ClientID']}"] = floatval((100 - $value) / 100);
           } else {
             $_SESSION[$key] = (in_array($key, $this->countryParams)) ? self::countryFromAbbr($value) : $value;
           }
@@ -246,7 +249,7 @@
       $_SESSION['ListBy'] = $this->result[0]['ListBy'];
       $_SESSION['ulevel'] = 0;
       self::fetchOrgClients();
-      echo "/clients";
+      echo '/clients';
       return FALSE;
     }
 
@@ -254,8 +257,9 @@
       $this->queryData = [];
       $this->queryData['noSession'] = TRUE;
       $this->queryData['method'] = 'GET';
-      $this->queryData['endPoint'] = 'config';
-      $this->queryData['queryParams'] = [];
+      $this->queryData['endPoint'] = 'clients';
+      $this->queryData['queryParams']['filter'] = ($this->loginType === 'driver' || $this->loginType === 'dispatch') ? [ ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0] ] : [ ['Resource'=>'ClientID', 'Filter'=>'eq', 'Value'=>0] ];
+      $this->queryData['queryParams']['join'] = [ 'config' ];
       $this->query = self::createQuery($this->queryData);
       if ($this->query === FALSE) {
         throw new \Exception($this->error);
@@ -267,74 +271,43 @@
       if (empty($this->configResult[0])) {
         throw new \Exception('Unable To Fetch Configuration');
       }
-      $_SESSION['config'] = $this->configResult[0];
-      // pause for one quater (1/4 (0.25)) of a second between API calls
-      time_nanosleep(0, 250000000);
-      $this->queryData['endPoint'] = 'clients';
-      $this->queryData['queryParams']['filter'] = [ ['Resource'=>'ClientID', 'Filter'=>'eq', 'Value'=>0] ];
-      $this->query = self::createQuery($this->queryData);
-      if ($this->query === FALSE) {
-        throw new \Exception($this->error);
-      }
-      $this->courierResult = self::callQuery($this->query);
-      if ($this->courierResult === FALSE) {
-        throw new \Exception($this->error);
-      }
-      if (empty($this->courierResult[0])) {
-        throw new \Exception('Unable To Fetch Configuration');
-      }
-      foreach ($this->courierResult[0] as $key => $value) {
-        if ($key === 'GeneralDiscount' || $key === 'ContractDiscount') {
-          $_SESSION['config'][$key] = array();
-        } else {
-          if (!in_array($key, $this->exclude)) {
-            $_SESSION['config'][$key] = (in_array($key, $this->countryParams)) ? self::countryFromAbbr($value) : $value;
+      $_SESSION['config']['GeneralDiscount'] = $_SESSION['config']['ContractDiscount'] = [];
+      for ($i = 0; $i < count($this->configResult); $i++) {
+        if ($this->configResult[$i]['ClientID'] === 0) {
+          $_SESSION['config'] = $this->configResult[$i]['config'][0];
+          foreach($this->configResult[$i] as $key => $value) {
+            if (!in_array($key, $this->exclude) && $key !== 'config' && $key !== 'GeneralDiscount' && $key !== 'ContractDiscount') {
+              $_SESSION['config'][$key] = (in_array($key, $this->countryParams)) ? self::countryFromAbbr($value) : $value;
+            }
           }
         }
-      }
-      if ($this->loginType === 'driver' || $this->loginType === 'dispatch') {
-        // pause for one quater (1/4 (0.25)) of a second between API calls
-        time_nanosleep(0, 250000000);
-        $this->queryData['queryParams']['include'] = [ 'ClientID', 'ContractDiscount', 'GeneralDiscount', 'RepeatClient' ];
-        $this->queryData['queryParams']['filter'] = [ ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0] ];
-        $this->query = self::createQuery($this->queryData);
-        if ($this->query === FALSE) {
-          throw new \Exception($this->error);
-        }
-        $this->discountResult = self::callQuery($this->query);
-        if ($this->discountResult === FALSE) {
-          throw new \Exception($this->error);
-        }
-        if (empty($this->discountResult)) {
-          throw new \Exception('Unable To Fetch Configuration');
-        }
-        foreach ($this->discountResult as $temp) {
-          $temp['ClientID'] = ($temp['RepeatClient'] === 0) ? "t{$temp['ClientID']}" : $temp['ClientID'];
-          $_SESSION['config']['GeneralDiscount'][$temp['ClientID']] = floatval((100 - $temp['GeneralDiscount']) / 100);
-          $_SESSION['config']['ContractDiscount'][$temp['ClientID']] = floatval((100 - $temp['ContractDiscount']) / 100);
-        }
+        $discountMarker = ($this->configResult[$i]['RepeatClient'] === 1) ? $this->configResult[$i]['ClientID'] : "t{$this->configResult[$i]['ClientID']}";
+        $_SESSION['config']['GeneralDiscount'][$discountMarker] = floatval((100 - $this->configResult[$i]['GeneralDiscount']) / 100);
+        $_SESSION['config']['ContractDiscount'][$discountMarker] = floatval((100 - $this->configResult[$i]['ContractDiscount']) / 100);
       }
     }
 
     private function fetchOrgClients() {
-      $this->queryData = [];
-      $this->queryData['noSession'] = TRUE;
-      $this->queryData['method'] = 'GET';
-      $this->queryData['endPoint'] = 'clients';
-      $this->queryData['queryParams']['filter'] = [ [ 'Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0 ] ];
-      if ($_SESSION['ClientID'] !== 0) $this->queryData['queryParams']['filter'][] = [ 'Resource'=>'Organization', 'Filter'=>'eq', 'Value'=>$_SESSION['ClientID'] ];
-      $this->query = self::createQuery($this->queryData);
-      if ($this->query === FALSE) {
-        throw new \Exception($this->error);
+      if (!isset($this->result[0]['clients'])) {
+        $this->queryData = [];
+        $this->queryData['noSession'] = TRUE;
+        $this->queryData['method'] = 'GET';
+        $this->queryData['endPoint'] = 'clients';
+        $this->query = self::createQuery($this->queryData);
+        if ($this->query === FALSE) {
+          throw new \Exception($this->error);
+        }
+        $this->clientResult = self::callQuery($this->query);
+        if ($this->clientResult === FALSE) {
+          throw new \Exception($this->error);
+        }
+        if (empty($this->clientResult)) {
+          throw new \Exception('Unable To Fetch Organization Members');
+        }
+        $this->result[0]['clients'] = $this->clientResult;
       }
-      $this->result = self::callQuery($this->query);
-      if ($this->result === FALSE) {
-        throw new \Exception($this->error);
-      }
-      if (empty($this->result)) {
-        throw new \Exception('Unable To Fetch Organization Members');
-      }
-      foreach ($this->result as $member) {
+      foreach ($this->result[0]['clients'] as $member) {
+        if ($member['Deleted'] === 1) continue;
         $marker = ($member['RepeatClient'] === 0) ? 't' : '';
         $_SESSION['members'][$marker . $member['ClientID']] = [];
         foreach ($member as $key => $value) {

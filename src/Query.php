@@ -81,6 +81,9 @@
       if (isset($this->queryParams['page'])) {
         $paramList[] = 'page';
       }
+      if (isset($this->queryParams['join'])) {
+        $paramList[] = 'join';
+      }
       $this->queryParams = array_merge(array_flip($paramList), $params);
     }
 
@@ -126,12 +129,17 @@
             }
           }
         }
-        $encodedQuery = http_build_query($this->query,NULL,'&',PHP_QUERY_RFC3986);
-        // http://php.net/manual/en/function.http-build-query.php#111819
-        $encodedQuery = preg_replace('/%5B[0-9]+%5D/simU', '', $encodedQuery);
+        if (is_array($this->query)) {
+          $encodedQuery = http_build_query($this->query,NULL,'&',PHP_QUERY_RFC3986);
+          // http://php.net/manual/en/function.http-build-query.php#111819
+          $encodedQuery = preg_replace('/%5B[0-9]+%5D/simU', '', $encodedQuery);
+        } else {
+          $encodedQuery = '';
+        }
         if (isset($this->queryParams['order'])) {
           for ($i = 0; $i < count($this->queryParams['order']); $i++) {
-            $encodedQuery .= "&order={$this->queryParams['order'][$i]}";
+            if (strlen($encodedQuery) > 0) $encodedQuery .= '&';
+            $encodedQuery .= "order={$this->queryParams['order'][$i]}";
           }
           if (isset($this->queryParams['page'])) {
             $paramTest = false;
@@ -142,7 +150,13 @@
             if (is_numeric($this->queryParams['page']) || $paramTest === true) $encodedQuery .= "&page={$this->queryParams['page']}";
           }
         }
-        $this->queryURI = "{$this->baseURI}/v2/records/{$this->endPoint}?$encodedQuery";
+        if (isset($this->queryParams['join'])) {
+          for ($i = 0; $i < count($this->queryParams['join']); $i++) {
+            if (strlen($encodedQuery) > 0) $encodedQuery .= '&';
+            $encodedQuery .= "join={$this->queryParams['join'][$i]}";
+          }
+        }
+        $this->queryURI = "{$this->baseURI}/v2/records/{$this->endPoint}?{$encodedQuery}";
       }
       return $this;
     }

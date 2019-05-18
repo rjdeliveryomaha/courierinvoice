@@ -363,14 +363,6 @@
           return FALSE;
         }
         if (!empty($this->newTickets)) {
-          self::fetchContractLocations();
-          if ($this->locations === FALSE) {
-            $temp = $this->error . "\n";
-            $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-            if ($this->enableLogging !== FALSE) self::writeLoop();
-            return FALSE;
-          }
-          self::addLocationsToTickets();
           if (!self::submitRouteTickets()) {
             $temp = $this->error . "\n";
             $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -416,10 +408,11 @@
     }
 
     private function fetchRunList() {
+      $goodVals = [ 'Client', 'Department', 'Contact', 'Telephone', 'Address1', 'Address2', 'Country' ];
       $runListQueryData['endPoint'] = 'contract_runs';
       $runListQueryData['method'] = 'GET';
-      $runListQueryData['queryParams']['include'] = ['crun_index', 'RunNumber', 'BillTo', 'PickUp', 'DropOff', 'RoundTrip', 'pTime', 'dTime', 'd2Time', 'Schedule', 'StartDate', 'LastCompleted', 'Notes', 'DryIce', 'diWeight', 'PriceOverride', 'TicketPrice'];
       $runListQueryData['queryParams']['filter'] = [ ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID] ];
+      $runListQueryData['queryParams']['join'] = [ 'contract_locations' ];
       if (!$runListQuery = self::createQuery($runListQueryData)) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -427,6 +420,14 @@
         return $this->runList = FALSE;
       }
       $this->runList = self::callQuery($runListQuery);
+      for ($i = 0; $i < count($this->runList); $i++) {
+        foreach ($this->runList[$i]['pickup_id'] as $key => $value) {
+          if (in_array($key, $goodVals)) $this->runList[$i]["p{$key}"] = self::decode($value);
+        }
+        foreach ($this->runList[$i]['dropoff_id'] as $key => $value) {
+          if (in_array($key, $goodVals)) $this->runList[$i]["d{$key}"] = self::decode($value);
+        }
+      }
     }
 
     private function fetchRescheduledRuns() {
@@ -491,31 +492,6 @@
       }
     }
 
-    private function fetchContractLocations() {
-      $contractLocationQueryData['endPoint'] = 'contract_locations';
-      $contractLocationQueryData['method'] = 'GET';
-      $contractLocationQueryData['queryParams']['include'] = ['ID','ClientName','Department', 'Contact', 'Telephone', 'Address1', 'Address2', 'Country'];
-      if (!$contractLocationQuery = self::createQuery($contractLocationQueryData)) {
-        $temp = $this->error . "\n";
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        $this->locations = FALSE;
-        return FALSE;
-      }
-      $this->locations = self::callQuery($contractLocationQuery);
-      if ($this->locations === FALSE) {
-        $temp = $this->error . "\n";
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        return FALSE;
-      }
-      if (empty($this->locations)) {
-        $this->error = '<p class="center"><span class="error">Route Error Line ' . __line__ . '</span>: No Contract Locations On File.</p>';
-        $this->locations = FALSE;
-      }
-      return FALSE;
-    }
-
     private function fetchCancelations() {
       $cancelationQueryData['endPoint'] = 'schedule_override';
       $cancelationQueryData['method'] = 'GET';
@@ -536,32 +512,6 @@
         return FALSE;
       }
       return FALSE;
-    }
-
-    private function addLocationsToTickets() {
-      for ($i = 0; $i < count($this->newTickets); $i++) {
-        foreach ($this->locations as $location) {
-          // Replace PickUp and DropOff codes with names and addresses
-          if ($this->newTickets[$i]['PickUp'] === $location['ID']) {
-            $this->newTickets[$i]['pClient'] = self::decode($location['ClientName']);
-            $this->newTickets[$i]['pDepartment'] = self::decode($location['Department']);
-            $this->newTickets[$i]['pContact'] = self::decode($location['Contact']);
-            $this->newTickets[$i]['pTelephone'] = self::decode($location['Telephone']);
-            $this->newTickets[$i]['pAddress1'] = self::decode($location['Address1']);
-            $this->newTickets[$i]['pAddress2'] = self::decode($location['Address2']);
-            $this->newTickets[$i]['pCountry'] = $location['Country'];
-          }
-          if ($this->newTickets[$i]['DropOff'] === $location['ID']) {
-            $this->newTickets[$i]['dClient'] = self::decode($location['ClientName']);
-            $this->newTickets[$i]['dDepartment'] = self::decode($location['Department']);
-            $this->newTickets[$i]['dContact'] = self::decode($location['Contact']);
-            $this->newTickets[$i]['dTelephone'] = self::decode($location['Telephone']);
-            $this->newTickets[$i]['dAddress1'] = self::decode($location['Address1']);
-            $this->newTickets[$i]['dAddress2'] = self::decode($location['Address2']);
-            $this->newTickets[$i]['dCountry'] = $location['Country'];
-          }
-        }
-      }
     }
 
     private function processScheduleCodes() {

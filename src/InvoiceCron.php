@@ -21,6 +21,7 @@
     private $today;
     private $result;
     // update variables
+    private $invoice_index;
     private $ticketUpdateKeys;
     private $ticketUpdateValues;
 
@@ -296,6 +297,13 @@
         $this->error = __function__ . ' Line ' . __line__;
         if ($this->invoiceCronLogFailure) self::writeLoop();
         exit;
+      }
+      foreach ($this->result as $i => $index) {
+        for($j = 0; $j < count($this->ticketUpdateValues); $j++) {
+          if ($this->ticketUpdateValues[$j]->InvoiceNumber === $this->newInvoices[$i]->InvoiceNumber) {
+            $this->ticketUpdateValues[$j]->invoice_id= $index;
+          }
+        }
       }
     }
 

@@ -22,7 +22,7 @@
     protected $Closed;
     protected $consolidateContractTicketsOnInvoice = TRUE;
     protected $showCanceledTicketsOnInvoice = FALSE;
-    protected $Tickets;
+    protected $tickets;
     protected $ConsolidatedTickets = [];
     protected $RegenThisInvoice;
     protected $Late30Invoice;
@@ -53,39 +53,6 @@
       }
     }
 
-    private function fetchInvoiceTickets() {
-      $ticketQueryData['method'] = 'GET';
-      $ticketQueryData['endPoint'] = 'tickets';
-      $ticketQueryData['queryParams']['include'] = [ 'ticket_index', 'TicketNumber', 'RunNumber', 'BillTo', 'RequestedBy', 'ReceivedDate', 'pClient', 'pDepartment', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'dClient', 'dDepartment', 'dAddress1', 'dAddress2', 'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'TicketBase', 'Charge', 'Contract', 'Multiplier', 'RunPrice', 'TicketPrice', 'EmailConfirm', 'EmailAddress', 'Notes', 'DispatchTimeStamp', 'DispatchedTo', 'DispatchedBy', 'Transfers', 'TransferState', 'PendingReceiver', 'pTimeStamp', 'dTimeStamp', 'd2TimeStamp', 'pTime', 'dTime', 'd2Time', 'pSigReq', 'dSigReq', 'd2SigReq', 'pSigPrint', 'dSigPrint', 'd2SigPrint', 'pSig', 'dSig', 'd2Sig', 'pSigType', 'dSigType', 'd2SigType', 'RepeatClient', 'InvoiceNumber' ];
-      $ticketQueryData['queryParams']['filter'] = [ ['Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>$this->InvoiceNumber] ];
-      $ticketQueryData['queryParams']['order'] = ['Contract,desc', 'ReceivedDate'];
-      if (!$ticketQuery = self::createQuery($ticketQueryData)) {
-        $temp = $this->error . "\n";
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        $this->Tickets = FALSE;
-        return FALSE;
-      }
-      $ticketQueryResult = self::callQuery($ticketQuery);
-      if ($ticketQueryResult === FALSE) {
-        $temp = $this->error . "\n";
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        $this->Tickets = FALSE;
-        return FALSE;
-      }
-      $this->Tickets = [];
-      for ($i = 0; $i < count($ticketQueryResult); $i++) {
-        if (!$this->Tickets[] = self::createTicket($ticketQueryResult[$i])) {
-          $temp = $this->error . "\n";
-          $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-          if ($this->enableLogging !== FALSE) self::writeLoop();
-          $this->Tickets = FALSE;
-          return FALSE;
-        }
-      }
-    }
-
     private function multiInvoiceForm() {
       $returnData = '
         <p data-error="error" class="center">Multiple invoices available for ' . date('F Y', strtotime($this->invoiceQueryResult[0]['DateIssued'])) . '.</p>
@@ -106,7 +73,7 @@
 
     private function consolidateTickets() {
       //Merge contract tickets
-      foreach ($this->Tickets as $ticket) {
+      foreach ($this->tickets as $ticket) {
         if ($ticket->getProperty('Contract') === 1) {
           if ($ticket->getProperty('Charge') !== 0) {
             if (empty($this->ConsolidatedTickets)) {
@@ -161,7 +128,7 @@
       if ($this->consolidateContractTicketsOnInvoice === TRUE) {
         $ticketSet = $this->ConsolidatedTickets;
       } else {
-        $ticketSet = $this->Tickets;
+        $ticketSet = $this->tickets;
       }
       $body = '
             <table class="wide">';
@@ -346,15 +313,17 @@
       $this->showCanceledTicketsOnInvoice = in_array($this->ClientID, $this->options['showCanceledTicketsOnInvoiceExceptions'], true);
 
       $this->consolidateContractTicketsOnInvoice = !in_array($this->ClientID, $this->options['consolidateContractTicketsOnInvoiceExceptions'], true);
-
-      self::fetchInvoiceTickets();
-
-      if ($this->Tickets === FALSE) {
-        $temp = $this->error . "\n";
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        return FALSE;
+      $temp = [];
+      for ($i = 0; $i < count($this->tickets); $i++) {
+        if (!$temp[] = self::createTicket($this->tickets[$i])) {
+          $temp = $this->error . "\n";
+          $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+          if ($this->enableLogging !== FALSE) self::writeLoop();
+          $this->Tickets = FALSE;
+          return FALSE;
+        }
       }
+      $this->tickets = $temp;
       // Check for ticket consolidation request
       if ($this->consolidateContractTicketsOnInvoice === TRUE) {
         self::consolidateTickets();

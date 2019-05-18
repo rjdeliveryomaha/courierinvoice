@@ -330,6 +330,29 @@ try {
           ```php
           $data['queryParams']['page'] = '1,50';
           ```
+        + join
+
+          - Indexed array of tables to join via Foreign Key Constraint.
+
+          ```php
+            $data['endPoint'] = 'clients';
+            $data['method'] = 'get';
+            $data['queryParams']['filter'][] = ['Resource'=>'ClientID', 'Filter'=>'eq', 'Value'=>0];
+            $data['queryParams']['join'] = [ 'config' ];
+          ```
+
+          This query will return the client with all resources plus an extra resource named 'config' with all of the resources from that end point.
+
+          If the filter were left off all clients would have the extra resource however, it would only be populated for Client 0.
+
+          - Joins currently available:
+
+            * Client 0 to config
+
+            * Invoice to tickets
+
+            * Contract Run to contract locations
+
 ## Public Methods
 
 ```php

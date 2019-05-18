@@ -125,9 +125,9 @@
       $billToResource = 'BillTo';
       $dateResource = 'ReceivedDate';
       $repeatFilter = $nonRepeatFilter = [];
+      $this->queryData['queryParams']['exclude'] = [ 'Tenant' ];
       switch ($this->endPoint) {
         case 'tickets':
-          $this->queryData['queryParams']['include'] = [ 'ticket_index', 'TicketNumber', 'RunNumber', 'BillTo', 'RequestedBy', 'ReceivedDate', 'pClient', 'pDepartment', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'dClient', 'dDepartment', 'dAddress1', 'dAddress2', 'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'TicketBase', 'Charge', 'Contract', 'Multiplier', 'RunPrice', 'TicketPrice', 'EmailConfirm', 'EmailAddress', 'Notes', 'DispatchTimeStamp', 'DispatchedTo', 'DispatchedBy', 'Transfers', 'TransferState', 'PendingReceiver', 'pTimeStamp', 'dTimeStamp', 'd2TimeStamp', 'pLat', 'pLng', 'dLat', 'dLng', 'd2Lat', 'd2Lng', 'pTime', 'dTime', 'd2Time', 'pSigReq', 'dSigReq', 'd2SigReq', 'pSigPrint', 'dSigPrint', 'd2SigPrint', 'pSig', 'dSig', 'd2Sig', 'pSigType', 'dSigType', 'd2SigType', 'RepeatClient', 'InvoiceNumber' ];
           if (!empty($this->repeatClients)) {
             if ($this->charge < 10) {
               $repeatFilter[] = [ 'Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>$this->charge ];
@@ -150,13 +150,13 @@
         case 'invoices':
           $billToResource = 'ClientID';
           $dateResource = 'DateIssued';
-          $this->queryData['queryParams']['include'] = [ 'invoice_index', 'InvoiceNumber', 'ClientID', 'RepeatClient', 'InvoiceTotal', 'InvoiceSubTotal', 'BalanceForwarded', 'AmountDue', 'StartDate', 'EndDate', 'DateIssued', 'DatePaid', 'AmountPaid', 'Balance', 'Late30Invoice', 'Late30Value', 'Late60Invoice', 'Late60Value', 'Late90Invoice', 'Late90Value', 'Over90Invoice', 'Over90Value', 'CheckNumber', 'Closed' ];
           if (!empty($this->repeatClients)) {
             $repeatFilter[] = [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1 ];
           }
           if (!empty($this->nonRepeat)) {
             $nonRepeatFilter[] = [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0 ];
           }
+          if ($this->display === 'invoice') $this->queryData['queryParams']['join'] = [ 'tickets' ];
         break;
         default:
           $this->error = 'Invalid End Point ' . __line__;
