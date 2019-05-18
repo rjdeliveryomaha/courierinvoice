@@ -567,6 +567,7 @@
       for ($i = 0; $i < count($temp); $i++) {
         $test = json_decode($this->dumper->dump($temp[$i]));
         if ($test->properties->adminLevels->{1}->name === $addy2GeocoderAdmin1 || $test->properties->adminLevels->{1}->code === $addy2GeocoderAdmin1) {
+          $this->result2 = $test;
           break;
         }
       }
