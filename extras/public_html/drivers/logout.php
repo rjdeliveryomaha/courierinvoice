@@ -1,4 +1,5 @@
 <?php
+  if (empty($_POST)) $_POST = json_decode(file_get_contents('php://input'),true);
   require_once '../../includes/APIToolsConfig.php';
   require_once '../../vendor/autoload.php';
 
@@ -11,7 +12,7 @@
     exit;
   }
   //Set a flag to indicate where to redrict after the session is destroyed
-  $mobile =  (isset($_POST['mobile']) && $_POST['mobile'] === 1);
+  $mobile =  (isset($_POST['mobile']) && $_POST['mobile'] === '1');
   // Destroy session
   SecureSessionHandler::destroySession();
 
