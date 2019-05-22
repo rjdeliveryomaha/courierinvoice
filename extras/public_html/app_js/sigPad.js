@@ -16,16 +16,16 @@ rjdci.signatureListener = eve => {
     saveButton = document.createElement("button"),
     cancelButton = document.createElement("button"),
     sigElements = document.createDocumentFragment();
+    sigButtonsParent = document.createElement("p");
+  sigButtonsParent.style.display = "flex";
   canvas.id = "sig";
   sigElements.appendChild(canvas);
-  clearButton.style.float = "left";
   clearButton.innerHTML = "Clear";
   clearButton.classList.add("sigButton");
   clearButton.addEventListener("click", eve => {
     signaturePad.clear();
   });
-  sigElements.appendChild(clearButton);
-  cancelButton.style.margin = "0 40%";
+  sigButtonsParent.appendChild(clearButton);
   cancelButton.innerHTML = "Cancel";
   cancelButton.addEventListener("click", eve => {
     target.classList.remove("field");
@@ -41,8 +41,7 @@ rjdci.signatureListener = eve => {
       input.readOnly = false;
     });
   });
-  sigElements.appendChild(cancelButton);
-  saveButton.style.float = "right";
+  sigButtonsParent.appendChild(cancelButton);
   saveButton.innerHTML = "OK";
   saveButton.classList.add("sigButton");
   saveButton.addEventListener("click", eve => {
@@ -65,7 +64,8 @@ rjdci.signatureListener = eve => {
       input.readOnly = false;
     });
   });
-  sigElements.appendChild(saveButton);
+  sigButtonsParent.appendChild(saveButton);
+  sigElements.appendChild(sigButtonsParent);
   Array.from(page.querySelectorAll("button")).forEach(input => {
     input.disabled = true;
   });
@@ -116,7 +116,19 @@ rjdci.signatureListener = eve => {
     rjdciSwipe.enable();
   });
 };
-document.addEventListener("rjdci_loaded", eve => {
+// https://stackoverflow.com/a/11986374
+// Finds y value of given object
+// offset the position by the height of the header element
+rjdci.findPos = obj => {
+  let curtop = 0;
+  if (obj.offsetParent) {
+    do {
+      curtop += obj.offsetTop;
+    } while (obj = obj.offsetParent);
+    return curtop - document.getElementsByTagName("header")[0].offsetHeight;
+  }
+};
+document.addEventListener("rjdci_loaded", () => {
   if (document.querySelector("#route")) {
     Array.from(document.querySelectorAll(".getSig")).forEach(element => {
       element.addEventListener("click", eve => { rjdci.signatureListener(eve); });

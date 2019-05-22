@@ -85,7 +85,7 @@ textarea {
   width: 100%;
   position: absolute;
   top: 0;
-  background-color: darkslategray;
+  background-color: #4682B4; /* steelblue */
 }
 
 .tFieldRight {
