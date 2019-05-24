@@ -6,10 +6,10 @@ rjdci.signatureListener = eve => {
     canvasHeight,
     signaturePad,
     wrapper,
-    printName,
     requiredState,
     boundingRect,
     workspace = rjdci.getClosest(eve.target, ".sortable"),
+    printName = workspace.querySelector(".printName"),
     page = rjdci.getClosest(eve.target, ".page"),
     canvas = document.createElement("canvas"),
     clearButton = document.createElement("button"),
@@ -32,8 +32,11 @@ rjdci.signatureListener = eve => {
     target.classList.add("sigField");
     target.id = "";
     target.innerHTML = "";
-    printName = workspace.querySelector(".printName");
-    printName.required = (workspace.querySelector("input[name='sigImage']").value !== "") || printName.required;
+    if (workspace.querySelector("input[name='sigImage']").value !== "") {
+      printName.required = true;
+    } else {
+      printName.required = printName.getAttribute("data-required").toLowerCase === "true";
+    }
     Array.from(page.querySelectorAll("button")).forEach(input => {
       input.disabled = false;
     });
@@ -45,7 +48,6 @@ rjdci.signatureListener = eve => {
   saveButton.innerHTML = "OK";
   saveButton.classList.add("sigButton");
   saveButton.addEventListener("click", eve => {
-    printName = workspace.querySelector(".printName");
     if (signaturePad.isEmpty()) {
       workspace.querySelector("input[name='sigImage']").value = "";
       rjdci.toast("Signature Cleared.");
@@ -56,7 +58,11 @@ rjdci.signatureListener = eve => {
     target.classList.add("sigField");
     target.id = "";
     target.innerHTML = "";
-    printName.required = (workspace.querySelector("input[name='sigImage']").value !== "") || printName.required;
+    if (workspace.querySelector("input[name='sigImage']").value !== "") {
+      printName.required = true;
+    } else {
+      printName.required = printName.getAttribute("data-required").toLowerCase === "true";
+    }
     Array.from(page.querySelectorAll("button")).forEach(input => {
       input.disabled = false;
     });
@@ -132,6 +138,7 @@ document.addEventListener("rjdci_loaded", () => {
   if (document.querySelector("#route")) {
     Array.from(document.querySelectorAll(".getSig")).forEach(element => {
       element.addEventListener("click", eve => { rjdci.signatureListener(eve); });
+      rjdci.getClosest(element, ".sortable").querySelector(".printName").setAttribute("data-required", rjdci.getClosest(element, ".sortable").querySelector(".printName").required);
     });
     let config = { attributes: false, childList: true, subtree: false },
       callback = (mutationsList, observer) => {
@@ -142,6 +149,7 @@ document.addEventListener("rjdci_loaded", () => {
               if (!element.classList.contains("assigned")) {
                 element.classList.add("assigned");
                 element.addEventListener("click", eve => { rjdci.signatureListener(eve); });
+                rjdci.getClosest(element, ".sortable").querySelector(".printName").setAttribute("data-required", rjdci.getClosest(element, ".sortable").querySelector(".printName").required);
               }
             });
           });

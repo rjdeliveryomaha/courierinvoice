@@ -297,11 +297,11 @@
   }
 
   rjdci.disable_scroll = () => {
-    document.body.addEventListener("touchmove", eve => { eve.preventDefault(); });
+    window.ontouchmove  = e => e.preventDefault();
   }
 
   rjdci.enable_scroll = () => {
-    document.body.removeEventListener("touchmove");
+    window.ontouchmove  = e => true;
   }
 
   rjdci.fixDeadRunButton = () => {
