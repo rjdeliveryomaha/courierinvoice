@@ -16,10 +16,11 @@
     protected $ticketSet = [];
     protected $singleLocation = [];
     protected $multiLocation = [];
-    protected $cancelations;
+    protected $cancelations = [];
     protected $processTransfer = FALSE;
-    protected $overrideTickets;
     protected $rescheduledRuns;
+    protected $rescheduledRunsList = [];
+    protected $cancelRoute = FALSE;
     protected $driverID;
     protected $driverName;
     protected $today;
@@ -27,7 +28,6 @@
     protected $dateObject;
     protected $testDate;
     protected $testDateObject;
-    protected $secondTestDate;
     protected $add;
     protected $runList = [];
     protected $locations = [];
@@ -92,10 +92,38 @@
       $ticketQueryData['endPoint'] = 'tickets';
       $ticketQueryData['method'] = 'GET';
       $ticketQueryData['queryParams']['filter'] = [];
-      $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>$this->backstop . ' 00:00:00,' . $this->today . ' 23:59:59'], ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'Charge', 'Filter'=>'bt', 'Value'=>'1,5'], ['Resource'=>'dTimeStamp', 'Filter'=>'is'] ];
-      $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>$this->backstop . ' 00:00:00,' . $this->today . ' 23:59:59'], ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>6], ['Resource'=>'d2TimeStamp', 'Filter'=>'is'] ];
-      $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>"{$this->backstop} 00:00:00,{$this->today} 23:59:59"], ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>7], ['Resource'=>'dTimeStamp', 'Filter'=>'is'], ['Resource'=>'d2SigReq', 'Filter'=>'eq', 'Value'=>0] ];
-      $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>"{$this->backstop} 00:00:00,{$this->today} 23:59:59"], ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>7], ['Resource'=>'d2TimeStamp', 'Filter'=>'is'], ['Resource'=>'d2SigReq', 'Filter'=>'eq', 'Value'=>1] ];
+      $ticketQueryData['queryParams']['filter'][] = [
+        ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>0],
+        ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID],
+        ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>$this->backstop . ' 00:00:00,' . $this->today . ' 23:59:59'],
+        ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0],
+        ['Resource'=>'Charge', 'Filter'=>'bt', 'Value'=>'1,5'],
+        ['Resource'=>'dTimeStamp', 'Filter'=>'is']
+      ];
+      $ticketQueryData['queryParams']['filter'][] = [
+        ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>0],
+        ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID],
+        ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>$this->backstop . ' 00:00:00,' . $this->today . ' 23:59:59'],
+        ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>6],
+        ['Resource'=>'d2TimeStamp', 'Filter'=>'is']
+      ];
+      $ticketQueryData['queryParams']['filter'][] = [
+        ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>0],
+        ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID],
+        ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>"{$this->backstop} 00:00:00,{$this->today} 23:59:59"],
+        ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>7],
+        ['Resource'=>'dTimeStamp', 'Filter'=>'is'],
+        ['Resource'=>'d2SigReq', 'Filter'=>'eq', 'Value'=>0]
+      ];
+      $ticketQueryData['queryParams']['filter'][] = [
+        ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>0],
+        ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID],
+        ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>"{$this->backstop} 00:00:00,{$this->today} 23:59:59"],
+        ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0],
+        ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>7],
+        ['Resource'=>'d2TimeStamp', 'Filter'=>'is'],
+        ['Resource'=>'d2SigReq', 'Filter'=>'eq', 'Value'=>1]
+      ];
       if (!$ticketQuery = self::createQuery($ticketQueryData)) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -139,11 +167,27 @@
       // Pull Round Trip ticket
       $ticketQueryData['endPoint'] = 'tickets';
       $ticketQueryData['method'] = 'GET';
-      $ticketQueryData['queryParams']['filter'] = [];
       // Pull RoundTrip tickets
-      $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>"{$this->today} 00:00:00,{$this->today} 23:59:59"], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>6], ['Resource'=>'d2TimeStamp', 'Filter'=>'is'], ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0] ];
+      $roundTripFilter = [
+        ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>1],
+        ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID],
+        ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>"{$this->today} 00:00:00,{$this->today} 23:59:59"],
+        ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>6],
+        ['Resource'=>'d2TimeStamp', 'Filter'=>'is'],
+        ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0]
+      ];
       // Pull Routine tickets
-      $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>"{$this->today} 00:00:00,{$this->today} 23:59:59"], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>5], ['Resource'=>'dTimeStamp', 'Filter'=>'is'], ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0] ];
+      $routineFilter = [
+        ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>1],
+        ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID],
+        ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>"{$this->today} 00:00:00,{$this->today} 23:59:59"],
+        ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>5],
+        ['Resource'=>'dTimeStamp', 'Filter'=>'is'],
+        ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0]
+      ];
+
+      $ticketQueryData['queryParams']['filter'] = [ $roundTripFilter, $routineFilter ];
+
       if (!$ticketQuery = self::createQuery($ticketQueryData)) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -161,7 +205,13 @@
       if (empty($this->activeTicketSet)) {
         //  Check for completed contract tickets for today
         // Only queryParams['filter'] needs to be changed here
-        $ticketQueryData['queryParams']['filter'] = [ ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'Charge', 'Filter'=>'neq', 'Value'=>0], ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>"{$this->today} 00:00:00,{$this->today} 23:59:59"], ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0] ];
+        $ticketQueryData['queryParams']['filter'] = [
+          ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>1],
+          ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID],
+          ['Resource'=>'Charge', 'Filter'=>'neq', 'Value'=>0],
+          ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>"{$this->today} 00:00:00,{$this->today} 23:59:59"],
+          ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0]
+        ];
         if (!$ticketQuery = self::createQuery($ticketQueryData)) {
           $temp = $this->error . "\n";
           $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -246,14 +296,58 @@
       $transfersQueryData['endPoint'] = 'tickets';
       $transfersQueryData['method'] = 'GET';
       $transfersQueryData['queryParams']['filter'] = [];
-      $transfersQueryData['queryParams']['filter'][] = [ ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'Charge', 'Filter'=>'bt', 'Value'=>'1,5'], ['Resource'=>'dTimeStamp', 'Filter'=>'is'] ];
-      $transfersQueryData['queryParams']['filter'][] = [ ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>6], ['Resource'=>'d2TimeStamp', 'Filter'=>'is'] ];
-      $transfersQueryData['queryParams']['filter'][] = [ ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'PendingReceiver', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'Charge', 'Filter'=>'bt', 'Value'=>'1,5'], ['Resource'=>'dTimeStamp', 'Filter'=>'is'] ];
-      $transfersQueryData['queryParams']['filter'][] = [ ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'PendingReceiver', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>6], ['Resource'=>'d2TimeStamp', 'Filter'=>'is'] ];
-      $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>7], ['Resource'=>'dTimeStamp', 'Filter'=>'is'], ['Resource'=>'d2SigReq', 'Filter'=>'eq', 'Value'=>0] ];
-      $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>7], ['Resource'=>'d2TimeStamp', 'Filter'=>'is'], ['Resource'=>'d2SigReq', 'Filter'=>'eq', 'Value'=>1] ];
-      $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'PendingReceiver', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>7], ['Resource'=>'dTimeStamp', 'Filter'=>'is'], ['Resource'=>'d2SigReq', 'Filter'=>'eq', 'Value'=>0] ];
-      $ticketQueryData['queryParams']['filter'][] = [ ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'PendingReceiver', 'Filter'=>'eq', 'Value'=>$this->driverID], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>7], ['Resource'=>'d2TimeStamp', 'Filter'=>'is'], ['Resource'=>'d2SigReq', 'Filter'=>'eq', 'Value'=>1] ];
+      $transfersQueryData['queryParams']['filter'][] = [
+        ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1],
+        ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID],
+        ['Resource'=>'Charge', 'Filter'=>'bt', 'Value'=>'1,5'],
+        ['Resource'=>'dTimeStamp', 'Filter'=>'is']
+      ];
+      $transfersQueryData['queryParams']['filter'][] = [
+        ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1],
+        ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID],
+        ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>6],
+        ['Resource'=>'d2TimeStamp', 'Filter'=>'is']
+      ];
+      $transfersQueryData['queryParams']['filter'][] = [
+        ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1],
+        ['Resource'=>'PendingReceiver', 'Filter'=>'eq', 'Value'=>$this->driverID],
+        ['Resource'=>'Charge', 'Filter'=>'bt', 'Value'=>'1,5'],
+        ['Resource'=>'dTimeStamp', 'Filter'=>'is']
+      ];
+      $transfersQueryData['queryParams']['filter'][] = [
+        ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1],
+        ['Resource'=>'PendingReceiver', 'Filter'=>'eq', 'Value'=>$this->driverID],
+        ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>6],
+        ['Resource'=>'d2TimeStamp', 'Filter'=>'is']
+      ];
+      $ticketQueryData['queryParams']['filter'][] = [
+        ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1],
+        ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID],
+        ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>7],
+        ['Resource'=>'dTimeStamp', 'Filter'=>'is'],
+        ['Resource'=>'d2SigReq', 'Filter'=>'eq', 'Value'=>0]
+      ];
+      $ticketQueryData['queryParams']['filter'][] = [
+        ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1],
+        ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID],
+        ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>7],
+        ['Resource'=>'d2TimeStamp', 'Filter'=>'is'],
+        ['Resource'=>'d2SigReq', 'Filter'=>'eq', 'Value'=>1]
+      ];
+      $ticketQueryData['queryParams']['filter'][] = [
+        ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1],
+        ['Resource'=>'PendingReceiver', 'Filter'=>'eq', 'Value'=>$this->driverID],
+        ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>7],
+        ['Resource'=>'dTimeStamp', 'Filter'=>'is'],
+        ['Resource'=>'d2SigReq', 'Filter'=>'eq', 'Value'=>0]
+      ];
+      $ticketQueryData['queryParams']['filter'][] = [
+        ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>1],
+        ['Resource'=>'PendingReceiver', 'Filter'=>'eq', 'Value'=>$this->driverID],
+        ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>7],
+        ['Resource'=>'d2TimeStamp', 'Filter'=>'is'],
+        ['Resource'=>'d2SigReq', 'Filter'=>'eq', 'Value'=>1]
+      ];
       if (!$transfersQuery = self::createQuery($transfersQueryData)) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -343,24 +437,8 @@
         // Process the reschedule codes
         if (!empty($this->runList)) {
           self::processScheduleCodes();
-          // check for cancelations
-          self::fetchCancelations();
-          if ($this->cancelations === FALSE) {
-            $temp = $this->error . "\n";
-            $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-            if ($this->enableLogging !== FALSE) self::writeLoop();
-            return FALSE;
-          }
           // Filter runs by schedule, check them against the schedule override, and add them to the daily ticket set
           self::filterRuns();
-        }
-        // Check for rescheduled runs dispatched to this driver
-        self::fetchRescheduledRuns();
-        if ($this->rescheduledRuns === FALSE) {
-          $temp = $this->error . "\n";
-          $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-          if ($this->enableLogging !== FALSE) self::writeLoop();
-          return FALSE;
         }
         if (!empty($this->newTickets)) {
           if (!self::submitRouteTickets()) {
@@ -409,33 +487,23 @@
 
     private function fetchRunList() {
       $goodVals = [ 'Client', 'Department', 'Contact', 'Telephone', 'Address1', 'Address2', 'Country' ];
-      $runListQueryData['endPoint'] = 'contract_runs';
-      $runListQueryData['method'] = 'GET';
-      $runListQueryData['queryParams']['filter'] = [ ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID] ];
-      $runListQueryData['queryParams']['join'] = [ 'contract_locations' ];
-      if (!$runListQuery = self::createQuery($runListQueryData)) {
-        $temp = $this->error . "\n";
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        return $this->runList = FALSE;
-      }
-      $this->runList = self::callQuery($runListQuery);
-      for ($i = 0; $i < count($this->runList); $i++) {
-        foreach ($this->runList[$i]['pickup_id'] as $key => $value) {
-          if (in_array($key, $goodVals)) $this->runList[$i]["p{$key}"] = self::decode($value);
-        }
-        foreach ($this->runList[$i]['dropoff_id'] as $key => $value) {
-          if (in_array($key, $goodVals)) $this->runList[$i]["d{$key}"] = self::decode($value);
-        }
-      }
-    }
-
-    private function fetchRescheduledRuns() {
-      // Pull the list of reschedule events for this driver
+      $runVals = [ 'DryIce', 'diWeight', 'Notes', 'PriceOverride', 'TicketPrice', 'RoundTrip' ];
       $rescheduledQueryData['endPoint'] = 'schedule_override';
       $rescheduledQueryData['method'] = 'GET';
-      $rescheduledQueryData['queryParams']['include'] = ['ID','StartDate','EndDate','RunNumber','pTime','dTime','d2Time'];
-      $rescheduledQueryData['queryParams']['filter'] = [ ['Resource'=>'Cancel', 'Filter'=>'eq', 'Value'=>5], ['Resource'=>'DriverID', 'Filter'=>'eq', 'Value'=>$this->driverID] ];
+      $rescheduleFilter = [
+        ['Resource'=>'Cancel', 'Filter'=>'eq', 'Value'=>5],
+        ['Resource'=>'DriverID', 'Filter'=>'eq', 'Value'=>$this->driverID],
+        ['Resource'=>'StartDate', 'Filter'=>'le', 'Value'=>$this->today],
+        ['Resource'=>'EndDate', 'Filter'=>'ge', 'Value'=>$this->today]
+      ];
+      $cancelFilter = [
+        ['Resource'=>'Cancel', 'Filter'=>'le', 'Value'=>4],
+        ['Resource'=>'StartDate', 'Filter'=>'le', 'Value'=>$this->today],
+        ['Resource'=>'EndDate', 'Filter'=>'ge', 'Value'=>$this->today]
+      ];
+      $rescheduledQueryData['queryParams']['filter'] = [ $rescheduleFilter, $cancelFilter ];
+      $rescheduledQueryData['queryParams']['join'] = [ 'contract_runs,contract_locations' ];
+      $rescheduledQueryData['queryParams']['order'] = [ 'Cancel' ];
       if (!$rescheduledQuery = self::createQuery($rescheduledQueryData)) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -451,67 +519,57 @@
         $this->runList = FALSE;
         return FALSE;
       }
-      if (empty($this->rescheduledRuns)) return FALSE;
-      // Use month and day to determine if today has an event and process the ticket
-      foreach ($this->rescheduledRuns as $event) {
-        if (date('n-j-Y', strtotime($this->today)) >= date('n-j-Y', strtotime($event['StartDate'])) && date('n-j-Y', strtotime($this->today)) <= date('n-j-Y', strtotime($event['EndDate']))) {
-          // Pull the ticket info
-          $runQueryData['endPoint'] = 'contract_runs';
-          $runQueryData['method'] = 'GET';
-          $runQueryData['queryParams']['include'] = ['crun_index', 'RunNumber', 'BillTo', 'PickUp', 'DropOff', 'Notes', 'DryIce', 'diWeight', 'PriceOverride', 'TicketPrice'];
-          $runQueryData['queryParams']['filter'] = [ ['Resource'=>'RunNumber', 'Filter'=>'eq', 'Value'=>$event['RunNumber']] ];
-          if (!$runQuery = self::createQuery($runQueryData)) {
-            $temp = $this->error . "\n";
-            $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-            if ($this->enableLogging !== FALSE) self::writeLoop();
-            $this->runList = FALSE;
-            return FALSE;
-          }
-          $temp1 = self::callQuery($runQuery);
-          if ($temp1 === FALSE) {
-            $temp = $this->error . "\n";
-            $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-            if ($this->enableLogging !== FALSE) self::writeLoop();
-            $this->runList = FALSE;
-            return FALSE;
-          }
-          $temp = $temp1[0];
-          // Add the rescheduled times
-          $temp['pTime'] = $event['pTime'];
-          $temp['dTime'] = $event['dTime'];
-          $temp['d2Time'] = $event['d2Time'];
-          if ($event['d2Time'] == NULL) {
-            $temp['RoundTrip'] = 0;
-          } else {
-            $temp['RoundTrip'] = 1;
-          }
-          // Set a flag in the Rescheduled field indicating that this ticket is rescheduled
-          $temp['Rescheduled'] = $event['ID'];
-          $this->newTickets[] = $temp;
+      for ($i = 0; $i < count($this->rescheduledRuns); $i++) {
+        if ($this->cancelRoute === TRUE) break;
+        switch ($this->rescheduledRuns[$i]['Cancel']) {
+          case 1: $this->cancelRoute = TRUE;
+          case 2:
+          case 3:
+          case 4: $this->cancelations[] = $this->rescheduledRuns[$i]['RunNumber'];
+          break;
+          case 5:
+            if ($this->cancelRoute === TRUE || in_array($this->rescheduledRuns[$i]['RunNumber'], $this->cancelations, TRUE)) break;
+            $this->rescheduledRunsList[] = $this->rescheduledRuns[$i]['RunNumber'];
+            foreach ($this->rescheduledRuns[$i]['run_id']['pickup_id'] as $key => $value) {
+              if (in_array($key, $goodVals)) $this->rescheduledRuns[$i]["p{$key}"] = self::decode($value);
+            }
+            foreach ($this->rescheduledRuns[$i]['run_id']['dropoff_id'] as $key => $value) {
+              if (in_array($key, $goodVals)) $this->rescheduledRuns[$i]["d{$key}"] = self::decode($value);
+            }
+            foreach ($this->rescheduledRuns[$i]['run_id'] as $key => $value) {
+              if (in_array($key, $runVals)) $this->rescheduledRuns[$i][$key] = $value;
+            }
+            unset($this->rescheduledRuns[$i]['run_id']);
+            $this->newTickets[] = $this->rescheduledRuns[$i];
+          break;
         }
       }
-    }
-
-    private function fetchCancelations() {
-      $cancelationQueryData['endPoint'] = 'schedule_override';
-      $cancelationQueryData['method'] = 'GET';
-      $cancelationQueryData['queryParams']['include'] = ['Cancel', 'RunNumber', 'StartDate', 'EndDate'];
-      $cancelationQueryData['queryParams']['filter'] = [ ['Resource'=>'Cancel', 'Filter'=>'le', 'Value'=>4] ];
-      if (!$cancelationQuery = self::createQuery($cancelationQueryData)) {
+      if ($this->cancelRoute === TRUE) return FALSE;
+      $runListQueryData['endPoint'] = 'contract_runs';
+      $runListQueryData['method'] = 'GET';
+      $runListQueryData['queryParams']['filter'] = [
+        ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID],
+        ['Resource'=>'RunNumber', 'Filter'=>'nin', 'Value'=>implode(',', array_merge($this->cancelations, $this->rescheduledRunsList))]
+      ];
+      $runListQueryData['queryParams']['join'] = [ 'contract_locations' ];
+      if (!$runListQuery = self::createQuery($runListQueryData)) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== FALSE) self::writeLoop();
-        $this->cancelations = FALSE;
-        return FALSE;
+        return $this->runList = FALSE;
       }
-      $this->cancelations = self::callQuery($cancelationQuery);
-      if ($this->cancelations === FALSE) {
-        $temp = $this->error . "\n";
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        return FALSE;
+      $temp = self::callQuery($runListQuery);
+      for ($i = 0; $i < count($temp); $i++) {
+        foreach ($temp[$i]['pickup_id'] as $key => $value) {
+          if (in_array($key, $goodVals)) $temp[$i]["p{$key}"] = self::decode($value);
+        }
+        unset($temp[$i]['pickup_id']);
+        foreach ($temp[$i]['dropoff_id'] as $key => $value) {
+          if (in_array($key, $goodVals)) $temp[$i]["d{$key}"] = self::decode($value);
+        }
+        unset($temp[$i]['dropoff_id']);
+        $this->runList = $temp;
       }
-      return FALSE;
     }
 
     private function processScheduleCodes() {
@@ -677,10 +735,6 @@
     }
 
     private function compareSchedule($runNumber, $scheduleFrequency) {
-      // Stop here if the run has been canceled
-      if (self::canceledRun($runNumber)) {
-        return FALSE;
-      }
       if ($this->testDate === $this->today) {
         return FALSE;
       }
@@ -700,12 +754,9 @@
       }
       if (count($test) === 2) {
         switch ($test[1]) {
-          case 'Day':
-            return TRUE;
-          case 'Weekday':
-            return $this->dateObject->format('N') <= 5;
-          default:
-            return $test[1] === $this->dateObject->format('l');
+          case 'Day': return TRUE;
+          case 'Weekday': return $this->dateObject->format('N') <= 5;
+          default: return $test[1] === $this->dateObject->format('l');
         }
       } elseif (count($test) === 3) {
         if ($test[2] === 'Day' || $test[2] === 'Weekday' || $test[2] === $this->dateObject->format('l')) {
@@ -714,20 +765,6 @@
           return FALSE;
         }
       }
-    }
-
-    private function canceledRun($runNumber) {
-      // Use month and day to determine if today has an event
-      $match = FALSE;
-      for ($i = 0; $i < count($this->cancelations); $i++) {
-        if (date('n-j-Y', strtotime($this->today)) >= date('n-j-Y', strtotime($this->cancelations[$i]['StartDate'])) && date('n-j-Y', strtotime($this->today)) <= date('n-j-Y', strtotime($this->cancelations[$i]['EndDate']))) {
-          if ((int)$this->cancelations[$i]['Cancel'] <= 2 || $this->cancelations[$i]['RunNumber'] === $runNumber) {
-            $match = TRUE;
-            break;
-          }
-        }
-      }
-      return $match;
     }
 
     private function testFrequency($test, $dayName) {
@@ -836,7 +873,9 @@
     }
 
     private function sortTickets($ticket) {
-      if (array_key_exists($ticket['locationTest'], $this->multiLocation) && self::recursive_array_search($ticket['TicketNumber'], $this->multiLocation) === FALSE) {
+      if (array_key_exists($ticket['locationTest'], $this->multiLocation) &&
+        self::recursive_array_search($ticket['TicketNumber'], $this->multiLocation) === FALSE)
+      {
         $this->multiLocation[$ticket['locationTest']][] = $ticket;
       } else {
         if (empty($this->ticketSet)) {

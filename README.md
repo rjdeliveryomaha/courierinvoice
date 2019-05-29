@@ -797,9 +797,11 @@ All properties of this class are set by the session.
 $route->routeTickets();
 ```
 
-Checks drivers LastSeen resource. If it is not the current date a call is made to check for tickets defined on the Manage Runs page and creates them. The LastSeen resource is then updated.
+Checks drivers LastSeen resource. If it is not the current date a call is made to check for cancelations and rescheduling then tickets defined on the Manage Runs page are created. The LastSeen resource is then updated.
 
-A call is made to fetch incomplete routine and round trip contract tickets. If this result is empty a third call is made to check if any contract tickets were created for the driver on the current day.
+__Note__: The above order is overriding. Canceling a run on a given date supersedes rescheduling that run to the same date. Rescheduling a run supersedes its date, pick up time, delivery time, and return time defined on the Manage Runs page.
+
+A call is made to fetch incomplete routine and round trip contract tickets. If this result is empty a call is made to check if any contract tickets were created for the driver on the current day.
 
 Returns HTML content.
 
