@@ -66,7 +66,9 @@
       $this->queryData['endPoint'] = 'tickets';
       $this->queryData['noSession'] = TRUE;
       $this->queryData['queryParams']['include'] = [ 'Charge', 'pTimeStamp', 'dTimeStamp', 'd2TimeStamp', 'd2SigReq' ];
-      $this->queryData['queryParams']['filter'] = [ [ 'Resource'=>'TicketNumber', 'Filter'=>'eq', 'Value'=>$this->ticketNumber ] ];
+      $this->queryData['queryParams']['filter'] = [
+        [ 'Resource'=>'TicketNumber', 'Filter'=>'eq', 'Value'=>$this->ticketNumber ]
+      ];
       $this->query = self::createQuery($this->queryData);
 
       if ($this->query === FALSE) {
@@ -156,7 +158,7 @@
           if (!empty($this->nonRepeat)) {
             $nonRepeatFilter[] = [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0 ];
           }
-          if ($this->display === 'invoice') $this->queryData['queryParams']['join'] = [ 'tickets' ];
+          $this->queryData['queryParams']['join'] = [ 'tickets' ];
         break;
         default:
           $this->error = 'Invalid End Point ' . __line__;
@@ -249,33 +251,88 @@
             return "<p class=\"result center\">{$this->error}</p>";
           }
           if (!empty($this->repeatClients)) {
-            $repeatFilter[] = ['Resource'=>$dateResource, 'Filter'=>'bt', 'Value'=>"{$tempStart->format('Y-m-d')} 00:00:00,{$tempEnd->format($endDateMarker)} 23:59:59"];
+            $repeatFilter[] = [
+              'Resource'=>$dateResource,
+              'Filter'=>'bt',
+              'Value'=>"{$tempStart->format('Y-m-d')} 00:00:00,{$tempEnd->format($endDateMarker)} 23:59:59"
+            ];
           }
           if (!empty($this->nonRepeat)) {
-            $nonRepeatFilter[] = ['Resource'=>$dateResource, 'Filter'=>'bt', 'Value'=>"{$tempStart->format('Y-m-d')} 00:00:00,{$tempEnd->format($endDateMarker)} 23:59:59"];
+            $nonRepeatFilter[] = [
+              'Resource'=>$dateResource,
+              'Filter'=>'bt',
+              'Value'=>"{$tempStart->format('Y-m-d')} 00:00:00,{$tempEnd->format($endDateMarker)} 23:59:59"
+            ];
           }
         } else {
           if (!empty($this->repeatClients)) {
-            $repeatFilter = [ [ [ 'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->repeatClients) ], [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1 ], [ 'Resource'=>$dateResource, 'Filter'=>'bt', 'Value'=>"{$tempStart->format('Y-m-d')} 00:00:00,{$tempStart->format('Y-m-t')} 23:59:59" ] ], [ [ 'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->repeatClients) ], [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1 ], [ 'Resource'=>$dateResource, 'Filter'=>'bt', 'Value'=>"{$tempEnd->format('Y-m-d')} 00:00:00,{$tempEnd->format('Y-m-t')} 23:59:59" ] ] ];
+            $repeatFilter = [
+              [
+                [ 'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->repeatClients) ],
+                [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1 ],
+                [ 'Resource'=>$dateResource,
+                  'Filter'=>'bt',
+                  'Value'=>"{$tempStart->format('Y-m-d')} 00:00:00,{$tempStart->format('Y-m-t')} 23:59:59"
+                ]
+              ],
+              [
+                [ 'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->repeatClients) ],
+                [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1 ],
+                [ 'Resource'=>$dateResource,
+                  'Filter'=>'bt',
+                  'Value'=>"{$tempEnd->format('Y-m-d')} 00:00:00,{$tempEnd->format('Y-m-t')} 23:59:59"
+                ]
+              ]
+            ];
           }
           if (!empty($this->nonRepeat)) {
-            $nonRepeatFilter = [ [ [ 'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->nonRepeat) ], [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0 ], [ 'Resource'=>$dateResource, 'Filter'=>'bt', 'Value'=>"{$tempStart->format('Y-m-d')} 00:00:00,{$tempStart->format('Y-m-t')} 23:59:59" ] ], [ [ 'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->nonRepeat) ], [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0 ], [ 'Resource'=>$dateResource, 'Filter'=>'bt', 'Value'=>"{$tempEnd->format('Y-m-d')} 00:00:00,{$tempEnd->format('Y-m-t')} 23:59:59" ] ] ];
+            $nonRepeatFilter = [
+              [
+                [ 'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->nonRepeat) ],
+                [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0 ],
+                [ 'Resource'=>$dateResource,
+                  'Filter'=>'bt',
+                  'Value'=>"{$tempStart->format('Y-m-d')} 00:00:00,{$tempStart->format('Y-m-t')} 23:59:59"
+                ]
+              ],
+              [
+                [ 'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->nonRepeat) ],
+                [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0 ],
+                [ 'Resource'=>$dateResource,
+                  'Filter'=>'bt',
+                  'Value'=>"{$tempEnd->format('Y-m-d')} 00:00:00,{$tempEnd->format('Y-m-t')} 23:59:59"
+                ]
+              ]
+            ];
           }
         }
       } elseif ($this->allTime === '0') {
         $temp = clone $this->today;
         $this->yesterday = $temp->modify('-1 day')->format('Y-m-d') . ' 23:59:59';
         if (!empty($this->repeatClients)) {
-          $repeatFilter[] = [ ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>implode(',', $this->repeatClients)], ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'ReceivedDate', 'Filter'=>'gt', 'Value'=>$this->yesterday] ];
+          $repeatFilter[] = [
+            ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>implode(',', $this->repeatClients)],
+            ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1],
+            ['Resource'=>'ReceivedDate', 'Filter'=>'gt', 'Value'=>$this->yesterday]
+          ];
         }
         if (!empty($this->nonRepeat)) {
-          $nonRepeatFilter[] = [ ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>implode(',', $this->nonRepeat)], ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'ReceivedDate', 'Filter'=>'gt', 'Value'=>$this->yesterday] ];
+          $nonRepeatFilter[] = [
+            ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>implode(',', $this->nonRepeat)],
+            ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0],
+            ['Resource'=>'ReceivedDate', 'Filter'=>'gt', 'Value'=>$this->yesterday]
+          ];
         }
       } elseif ($this->allTime === '1') {
         switch ($this->display) {
           case 'tickets':
             if (!empty($this->repeatClients)) {
-              $filterStart = [ ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>implode(',', $this->repeatClients)], ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>$this->charge], ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>$this->type] ];
+              $filterStart = [
+                ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>implode(',', $this->repeatClients)],
+                ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1],
+                ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>$this->charge],
+                ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>$this->type]
+              ];
               $repeatFilter = [];
               // Remove the type and charge filter if they are set to their respective 'all' values
               foreach($filterStart as $temp) {
@@ -293,7 +350,12 @@
               }
             }
             if (!empty($this->nonRepeat)) {
-              $filterStart = [ ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>implode(',', $this->nonRepeat)], ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>$this->charge], ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>$this->type] ];
+              $filterStart = [
+                ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>implode(',', $this->nonRepeat)],
+                ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0],
+                ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>$this->charge],
+                ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>$this->type]
+              ];
               $nonRepeatFilter = [];
               // Remove the type and charge filter if they are set to their respective 'all' values
               foreach($filterStart as $temp) {
@@ -316,10 +378,18 @@
             $this->startDate->modify('- ' . ($this->allTimeChartLimit - 1). ' months');
             $this->endDate = $this->today->format('Y-m-t') . ' 23:59:59';
             if (!empty($this->repeatClients)) {
-              $repeatFilter = [ ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>implode(',', $this->repeatClients)], ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1], ['Resource'=>'ReceivedDate', 'Filter'=>'bt', 'Value'=>"{$this->startDate->format('Y-m-d')} 00:00:00,{$this->endDate}"] ];
+              $repeatFilter = [
+                ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>implode(',', $this->repeatClients)],
+                ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1],
+                ['Resource'=>'ReceivedDate', 'Filter'=>'bt', 'Value'=>"{$this->startDate->format('Y-m-d')} 00:00:00,{$this->endDate}"]
+              ];
             }
             if (!empty($this->nonRepeat)) {
-              $nonRepeatFilter = [ ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>implode(',', $this->nonRepeat)], ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'ReceivedDate', 'Filter'=>'bt', 'Value'=>"{$this->startDate->format('Y-m-d')} 00:00:00,{$this->endDate}"] ];
+              $nonRepeatFilter = [
+                ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>implode(',', $this->nonRepeat)],
+                ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0],
+                ['Resource'=>'ReceivedDate', 'Filter'=>'bt', 'Value'=>"{$this->startDate->format('Y-m-d')} 00:00:00,{$this->endDate}"]
+              ];
             }
           break;
           default:
@@ -390,7 +460,12 @@
           return $displayInvoice;
         break;
         case 'chart':
-          $chartData = [ 'organizationFlag'=>$this->organizationFlag, 'clientID'=>$this->clientID, 'compare'=>$this->compare, 'compareMembers'=>$this->compareMembers, ];
+          $chartData = [
+            'organizationFlag'=>$this->organizationFlag,
+            'clientID'=>$this->clientID,
+            'compare'=>$this->compare,
+            'compareMembers'=>$this->compareMembers,
+          ];
           if ($this->endPoint === 'tickets') {
             $groupTicketsError = self::groupTickets();
             if ($groupTicketsError !== FALSE) {
@@ -401,11 +476,8 @@
             $chartData['dataSet'] = $this->months;
             $chart = self::createTicketChart($chartData);
           } elseif ($this->endPoint === 'invoices') {
-            $fetchTicketError = self::fetchInvoiceTickets();
-            if ($fetchTicketError !== FALSE) {
-              $this->error = $fetchTicketError;
-              if ($this->enableLogging !== FALSE) self::writeLoop();
-              return "<p class=\"result center\">{$this->error}</p>";
+            for ($i = 0; $i < count($this->result); $i++) {
+              $this->tickets = array_merge($this->tickets, $this->result[$i]['tickets']);
             }
             $groupTicketsError = self::groupInvoiceTickets();
             if ($groupTicketsError !== FALSE) {
@@ -429,26 +501,6 @@
         break;
         default: return '<p class="result center">Invalid Display Option</p>';
       }
-    }
-
-    private function fetchInvoiceTickets() {
-      $this->queryData = [];
-      $this->queryData['endPoint'] = 'tickets';
-      $this->queryData['method'] = 'GET';
-      $this->queryData['queryParams']['include'] = [ 'ticket_index', 'TicketNumber', 'RunNumber', 'BillTo', 'RequestedBy', 'ReceivedDate', 'pClient', 'pDepartment', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'dClient', 'dDepartment', 'dAddress1', 'dAddress2', 'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'TicketBase', 'Charge', 'Contract', 'Multiplier', 'RunPrice', 'TicketPrice', 'EmailConfirm', 'EmailAddress', 'Notes', 'DispatchTimeStamp', 'DispatchedTo', 'DispatchedBy', 'Transfers', 'TransferState', 'PendingReceiver', 'pTimeStamp', 'dTimeStamp', 'd2TimeStamp', 'pTime', 'dTime', 'd2Time', 'pSigReq', 'dSigReq', 'd2SigReq', 'pSigPrint', 'dSigPrint', 'd2SigPrint', 'pSig', 'dSig', 'd2Sig', 'pSigType', 'dSigType', 'd2SigType', 'RepeatClient', 'InvoiceNumber' ];
-      for ($i = 0; $i < count($this->result); $i++) {
-        $this->queryData['queryParams']['filter'][] = [ [ 'Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>$this->result[$i]['InvoiceNumber'] ] ];
-      }
-
-      $this->query = self::createQuery($this->queryData);
-      if ($this->query === FALSE) {
-        return "<p class=\"result\">{$this->error}</p>";
-      }
-      $this->tickets = self::callQuery($this->query);
-      if ($this->result === FALSE) {
-        return "<p class=\"result\">{$this->error}</p>";
-      }
-      return FALSE;
     }
 
     private function sortMonths() {
@@ -481,7 +533,12 @@
           $this->months[$monthLabel][$ticket['BillTo']]['monthTotal']++;
           $this->months[$monthLabel][$ticket['BillTo']]['endDate'] = $receivedDate->format('Y-m-d');
         } else {
-          $this->months[$monthLabel][$ticket['BillTo']] = [ 'billTo'=>$ticket['BillTo'], 'monthTotal'=>1, 'contract'=>0, 'credit'=>0, 'canceled'=>0, 'onCall'=>0, 'routine'=>0, 'fourHour'=>0, 'threeHour'=>0, 'twoHour'=>0, 'oneHour'=>0, 'roundTrip'=>0, 'deadRun'=>0, 'dedicatedRun'=>0, 'withIce'=>0, 'withoutIce'=>0, 'startDate'=>$receivedDate->format('Y-m-d'), 'endDate'=>$receivedDate->format('Y-m-d') ];
+          $this->months[$monthLabel][$ticket['BillTo']] = [
+            'billTo'=>$ticket['BillTo'], 'monthTotal'=>1, 'contract'=>0, 'credit'=>0, 'canceled'=>0, 'onCall'=>0,
+            'routine'=>0, 'fourHour'=>0, 'threeHour'=>0, 'twoHour'=>0, 'oneHour'=>0, 'roundTrip'=>0, 'deadRun'=>0,
+            'dedicatedRun'=>0, 'withIce'=>0, 'withoutIce'=>0, 'startDate'=>$receivedDate->format('Y-m-d'),
+            'endDate'=>$receivedDate->format('Y-m-d')
+          ];
         }
         // count totals for ticket types overall and by month
         switch ($ticket['Charge']) {
@@ -553,7 +610,12 @@
             $this->months[$invoiceLabel][$invoiceGroup]['monthTotal'] += $invoice['InvoiceSubTotal'];
             $this->months[$invoiceLabel][$invoiceGroup]['monthTotal'] -= $invoice['BalanceForwarded'];
           } else {
-            $this->months[$invoiceLabel][$invoiceGroup] = [ 'invoices' => [0=>$invoice['InvoiceNumber']], 'monthTotal'=>$invoice['InvoiceSubTotal'] - $invoice['BalanceForwarded'], 'contract'=>0, 'credit'=>0, 'canceled'=>0, 'onCall'=>0, 'routine'=>0, 'fourHour'=>0, 'threeHour'=>0, 'twoHour'=>0, 'oneHour'=>0, 'roundTrip'=>0, 'deadRun'=>0, 'dedicatedRun'=>0, 'dryIce'=>0, 'iceDelivery'=>0, ];
+            $this->months[$invoiceLabel][$invoiceGroup] = [
+              'invoices' => [0=>$invoice['InvoiceNumber']],
+              'monthTotal'=>$invoice['InvoiceSubTotal'] - $invoice['BalanceForwarded'], 'contract'=>0, 'credit'=>0,
+              'canceled'=>0, 'onCall'=>0, 'routine'=>0, 'fourHour'=>0, 'threeHour'=>0, 'twoHour'=>0, 'oneHour'=>0,
+              'roundTrip'=>0, 'deadRun'=>0, 'dedicatedRun'=>0, 'dryIce'=>0, 'iceDelivery'=>0,
+            ];
           }
         }
       } else {
@@ -565,7 +627,12 @@
             $this->months[$invoiceLabel]['monthTotal'] += $invoice['InvoiceSubTotal'];
             $this->months[$invoiceLabel]['monthTotal'] -= $invoice['BalanceForwarded'];
           } else {
-            $this->months[$invoiceLabel] = [ 'invoices'=>[0 => $invoice['InvoiceNumber']], 'billTo'=>$invoice['ClientID'], 'monthTotal'=>$invoice['InvoiceSubTotal'] - $invoice['BalanceForwarded'], 'contract'=>0, 'credit'=>0, 'canceled'=>0, 'onCall'=>0, 'routine'=>0, 'fourHour'=>0, 'threeHour'=>0, 'twoHour'=>0, 'oneHour'=>0, 'roundTrip'=>0, 'deadRun'=>0, 'dedicatedRun'=>0, 'dryIce'=>0, 'iceDelivery'=>0, ];
+            $this->months[$invoiceLabel] = [
+              'invoices'=>[0 => $invoice['InvoiceNumber']], 'billTo'=>$invoice['ClientID'],
+              'monthTotal'=>$invoice['InvoiceSubTotal'] - $invoice['BalanceForwarded'], 'contract'=>0, 'credit'=>0,
+              'canceled'=>0, 'onCall'=>0, 'routine'=>0, 'fourHour'=>0, 'threeHour'=>0, 'twoHour'=>0, 'oneHour'=>0,
+              'roundTrip'=>0, 'deadRun'=>0, 'dedicatedRun'=>0, 'dryIce'=>0, 'iceDelivery'=>0,
+            ];
           }
         }
       }
