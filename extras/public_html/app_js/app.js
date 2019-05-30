@@ -621,9 +621,21 @@
   }
 
   rjdci.assignLinkValues = () => {
-    let eles = document.getElementsByClassName("nav");
+    let eles = document.getElementsByClassName("nav"),
+      titleText,
+      buttonTitles = [ "Route", "On Call", "Dispatch", "Transfers", "Ticket Entry" ];;
     for (let i = 0; i < eles.length; i++) {
       eles[i].setAttribute("data-value", i);
+      if (i === 0) {
+        let eleTest = eles[i].innerHTML.split("<");
+        if (buttonTitles.indexOf(eleTest[0]) !== -1) {
+          titleText = '<button type="button" onclick="rjdci.refresh' + eleTest[0].replace(/\s/g, '') + '()">' + eleTest[0] + '</button>';
+          titleText += (eleTest[0] === "Route") ? "" : "<" + eleTest[1] + "<" + eleTest[2];
+        } else {
+          titleText = eles[i].innerHTML;
+        }
+        document.querySelector(".pageTitle").innerHTML = titleText;
+      }
     }
   }
 
@@ -690,10 +702,11 @@
       toast_options = {};
     toast_options.title = "Updating Location";
     toast_options.eleClass = "deliveryLocation";
-    rjdci.toast("Updating Location<br>Please do not turn off screen", toast_options);
+    rjdci.toast("Updating Location<br>Do not turn<br>screen off", toast_options);
     navigator.permissions.query({name: "geolocation"}).then(PermissionStatus => {
       let options = { enableHighAccuracy: true, timeout: 25000, maximumAge: 0},
         success = pos => {
+          console.log(pos);
           success_count++;
           if (success_count > 1) {
             result = (result && result.coords.accuracy < pos.coords.accuracy) ? result : pos;
@@ -733,6 +746,7 @@
             postData[step[0]+"Lat"] = data.coords.latitude;
             postData[step[0]+"Lng"] = data.coords.longitude;
           }
+          console.log(postData);
           await rjdci.fetch_template({ url: "./updateTicket.php", postData: postData })
           .then(result => {
             if (typeof result === "undefined") throw new Error("Result Undefined");

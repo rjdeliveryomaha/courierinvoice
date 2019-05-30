@@ -38,10 +38,8 @@
     exit(header("refresh:5;url=../mobileLogin"));
   }
   if ($_SESSION['ulevel'] === 'driver') {
-    $initialTitle = '<button type="button" onclick="rjdci.refreshRoute()">Route</button>';
     $loginName = "driver{$_SESSION['DriverID']}";
   } else {
-    $initialTitle = '<button type="button" onclick="rjdci.refreshDispatch()">Dispatch</button><span class="medium dispatchCount"></span>';
     $loginName = "dispatch{$_SESSION['DispatchID']}";
   }
   $mobileMarker = (isset($_SESSION['mobile']) && $_SESSION['mobile'] === TRUE) ? 1 : 0;
@@ -101,7 +99,7 @@
         </svg>
         <span class="alert"></span><span id="newUpdate" class="medium hide">New</span>
       </span>
-      <span class="header__title no--select"><span class="pageTitle medium"><?php echo $initialTitle; ?></span><span style="position:fixed;right:2%" class="medium"><?php echo $date->format("D d M Y"); ?></span></span>
+      <span class="header__title no--select"><span class="pageTitle medium"></span><span style="position:fixed;right:2%" class="medium"><?php echo $date->format("D d M Y"); ?></span></span>
     </header>
     <div class="menu">
       <?php echo $functions->createNavMenu(); ?>

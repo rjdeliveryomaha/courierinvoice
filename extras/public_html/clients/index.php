@@ -36,10 +36,8 @@
     exit(header('refresh:5;url=/'));
   }
   if ($_SESSION['ulevel'] > 0) {
-    $initialTitle = 'Delivery Request';
     $loginName = $_SESSION['ClientID'];
   } else {
-    $initialTitle = '<span class="mobileHide">Run </span>Price Calc<span class="mobileHide">ulator</span>';
     $loginName = $_SESSION['Login'];
   }
   $mobileMarker = (isset($_SESSION['mobile']) && $_SESSION['mobile'] === TRUE) ? 1 : 0;
@@ -95,7 +93,7 @@
           <path d="M6 36h36v-4H6v4zm0-10h36v-4H6v4zm0-14v4h36v-4H6z"></path>
         </svg>
       </span>
-      <span class="header__title no--select"><span class="pageTitle medium"><?php echo $initialTitle; ?></span><span class="medium" style="position:fixed;right:2%"><?php echo $date->format("D d M Y"); ?></span></span>
+      <span class="header__title no--select"><span class="pageTitle medium"></span><span class="medium" style="position:fixed;right:2%"><?php echo $date->format("D d M Y"); ?></span></span>
     </header>
 
     <div class="menu">
