@@ -38,9 +38,19 @@
 
     'clientAddressExceptions' => [],
 
-    'ignoreValues' => [ 'none', 'test', 'billing correction', '-', 'multiple', 'fuel compensation', 'other charge' ],
+    'ignoreValues' => [
+      'none', 'test', 'billing correction', '-', 'multiple', 'fuel compensation', 'other charge'
+    ],
 
-    'emailConfig' => [ 'fromAddress' => '', 'password'=> '', 'smtpHost' => '', 'port' => '587', 'secureType' => 'tls', 'fromName' => '', 'BCCAddress' => '' ],
+    'emailConfig' => [
+      'fromAddress' => '',
+      'password'=> '',
+      'smtpHost' => '',
+      'port' => '587',
+      'secureType' => 'tls',
+      'fromName' => '',
+      'BCCAddress' => ''
+    ],
 
     'allTimeChartLimit' => 6,
 
@@ -98,7 +108,7 @@
         ]
       ],
       'all' => [
-        [null, null, '../app_js/app.js']
+        [null, null, '../app_js/app.min.js']
       ],
       'client' => [
         [
@@ -132,7 +142,7 @@
           ['On Call', 'onCallTickets'],
           ['Transfers', 'transferredTickets'],
           [null, null, 'https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js'],
-          [null, null, '../app_js/sigPad.js']
+          [null, null, '../app_js/sigPad.min.js']
         ],
         [
           // can dispatch = 0
