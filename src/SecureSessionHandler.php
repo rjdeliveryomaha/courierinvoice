@@ -2,9 +2,11 @@
 
 namespace rjdeliveryomaha\courierinvoice;
 
-class SecureSessionHandler extends \SessionHandler {
+class SecureSessionHandler extends \SessionHandler
+{
 
-  public static function start_session($config) {
+  public static function start_session($config)
+  {
     try {
       static::create_session($config);
     } catch(Exception $e) {
@@ -28,11 +30,13 @@ class SecureSessionHandler extends \SessionHandler {
     if (!isset($_SESSION['formKey'])) $_SESSION['formKey'] = mt_rand();
   }
 
-  static public function outputKey() {
+  public static function outputKey()
+  {
     return $_SESSION['formKey'];
   }
 
-  static public function destroySession() {
+  public static function destroySession()
+  {
     $params = session_get_cookie_params();
     setcookie(session_name(), '', time() - 42000,
       $params['path'], $params['domain'],
@@ -44,7 +48,8 @@ class SecureSessionHandler extends \SessionHandler {
     $_SESSION = [ 'formKey' => $formKey ];
   }
 
-  static public function newKey($config) {
+  public static function newKey($config)
+  {
     try {
       static::create_session($config);
     } catch(Exception $e) {
@@ -54,7 +59,8 @@ class SecureSessionHandler extends \SessionHandler {
     return $_SESSION['formKey'];
   }
 
-  static public function regenerate_session() {
+  public static function regenerate_session()
+  {
     // If this session is obsolete it means there already is a new id
     if (isset($_SESSION['OBSOLETE']) && $_SESSION['OBSOLETE'] === true) return;
     // Set current session to expire in 10 seconds
@@ -72,7 +78,8 @@ class SecureSessionHandler extends \SessionHandler {
     unset($_SESSION['OBSOLETE'], $_SESSION['EXPIRES']);
   }
 
-  static protected function create_session($config) {
+  protected static function create_session($config)
+  {
     if (session_status() === PHP_SESSION_ACTIVE) return false;
     if (ini_set('session.use_only_cookies', 1) === false) throw new \Exception('Session Error: use only cookies failed');
     if (ini_set('session.use_strict_mode', 1) === false) throw new \Exception('Session Error: use strict mode failed');
@@ -97,7 +104,8 @@ class SecureSessionHandler extends \SessionHandler {
     session_start();
   }
 
-  static protected function preventHijacking() {
+  protected static function preventHijacking()
+  {
     if(!isset($_SESSION['IPaddress']) || !isset($_SESSION['userAgent'])) return false;
 
     if ($_SESSION['IPaddress'] != $_SERVER['REMOTE_ADDR']) return false;
@@ -107,7 +115,8 @@ class SecureSessionHandler extends \SessionHandler {
     return true;
   }
 
-  static protected function validateSession() {
+  protected static function validateSession()
+  {
     $alternateHijackingTest = $config['alternateHijackingTest'] ?? false;
 
     if (filter_var($alternateHijackingTest, FILTER_VALIDATE_BOOLEAN) === true) {

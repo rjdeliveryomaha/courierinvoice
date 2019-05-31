@@ -21,7 +21,8 @@
     private $result;
     protected $testVal;
 
-    public function __construct($options, $data=[]) {
+    public function __construct($options, $data=[])
+    {
       try {
         parent::__construct($options, $data);
       } catch (Exception $e) {
@@ -29,24 +30,42 @@
       }
       // username, publicKey, and privateKey will be set in CommonFunctions
       $this->baseURI = ($this->options['testMode'] === true) ? $this->options['testURL'] : 'https://rjdeliveryomaha.com';
-      $this->validTables = [ 'config', 'tickets', 'invoices', 'clients', 'o_clients', 'contract_locations', 'contract_runs', 'schedule_override', 'drivers', 'dispatchers', 'categories' ];
+      $this->validTables = [ 'config', 'tickets', 'invoices', 'clients', 'o_clients', 'contract_locations',
+        'contract_runs', 'schedule_override', 'drivers', 'dispatchers', 'categories' ];
     }
 
     private function responseError() {
       switch (self::test_int($this->result)) {
-        case 400: $this->error = 'Invalid Request URI.'; break;
-        case 401: $this->error = 'Invalid API credentials.'; break;
-        case 403: $this->error = 'API credentials not defined.'; break;
-        case 404: $this->error = 'Server Failed to locate record.'; break;
-        case 422: $this->error = "Failed Data Validation. {$this->after('422', $this->result)}"; break;
-        case 500: $this->error = 'Internal Server Error.'; break;
-        case 503: $this->error = 'Service temporarily unavailable.'; break;
-        default: $this->error = "{$this->result}.";
+        case 400:
+          $this->error = 'Invalid Request URI.';
+          break;
+        case 401:
+          $this->error = 'Invalid API credentials.';
+          break;
+        case 403:
+          $this->error = 'API credentials not defined.';
+          break;
+        case 404:
+          $this->error = 'Server Failed to locate record.';
+          break;
+        case 422:
+          $this->error = "Failed Data Validation. {$this->after('422', $this->result)}";
+          break;
+        case 500:
+          $this->error = 'Internal Server Error.';
+          break;
+        case 503:
+          $this->error = 'Service temporarily unavailable.';
+          break;
+        default:
+          $this->error = "{$this->result}.";
+          break;
       }
       if ($this->enableLogging !== false) self::writeLoop();
     }
 
-    private function testResponse() {
+    private function testResponse()
+    {
       // A simple test to make sure an appropriate response was received
       switch (strtoupper($this->method)) {
         // POST: Expects the id of the last created resource
@@ -63,7 +82,8 @@
       }
     }
 
-    private function orderParams() {
+    private function orderParams()
+    {
       $paramList = [];
       $params = $this->queryParams;
       if (isset($this->queryParams['exclude'])) {
@@ -93,12 +113,18 @@
         if ($this->enableLogging !== false) self::writeLoop();
         throw new \Exception($this->error);
       }
-      if ($this->primaryKey === NULL && (strtoupper($this->method) === 'PUT' || strtoupper($this->method) === 'DELETE')) {
+      if (
+        $this->primaryKey === null && (strtoupper($this->method) === 'PUT' ||
+        strtoupper($this->method) === 'DELETE')
+      ) {
         $this->error = "Primary Key Not Set For End Point {$this->endPoint}\n";
         if ($this->enableLogging !== false) self::writeLoop();
         throw new \Exception($this->error);
       }
-      if ((strtoupper($this->method) === 'POST' || strtoupper($this->method) === 'PUT') && ($this->payload === NULL || (is_array($this->payload) && empty($this->payload)))) {
+      if (
+        (strtoupper($this->method) === 'POST' || strtoupper($this->method) === 'PUT') &&
+        ($this->payload === null || (is_array($this->payload) && empty($this->payload)))
+      ) {
         $this->error = "No Payload Provided\n";
         if ($this->enableLogging !== false) self::writeLoop();
         throw new \Exception($this->error);
@@ -123,14 +149,15 @@
               for ($i = 0; $i < count($value); $i++) {
                 $filter_index = ($key === 'filter') ? $i + 1 : '';
                 for ($j = 0; $j < count($value[$i]); $j++) {
-                  $this->query["{$key}{$filter_index}"][] = (count($value[$i] > 1)) ? implode(',', array_values($value[$i][$j])) : $value[$i][$j];
+                  $this->query["{$key}{$filter_index}"][] = (count($value[$i] > 1)) ?
+                  implode(',', array_values($value[$i][$j])) : $value[$i][$j];
                 }
               }
             }
           }
         }
         if (is_array($this->query)) {
-          $encodedQuery = http_build_query($this->query,NULL,'&',PHP_QUERY_RFC3986);
+          $encodedQuery = http_build_query($this->query,null,'&',PHP_QUERY_RFC3986);
           // http://php.net/manual/en/function.http-build-query.php#111819
           $encodedQuery = preg_replace('/%5B[0-9]+%5D/simU', '', $encodedQuery);
         } else {
@@ -139,21 +166,25 @@
         if (isset($this->queryParams['order'])) {
           for ($i = 0; $i < count($this->queryParams['order']); $i++) {
             if (strlen($encodedQuery) > 0) $encodedQuery .= '&';
-            $encodedQuery .= "order={$this->queryParams['order'][$i]}";
+            $orderParam = preg_replace('/\s+/', '', $this->queryParams['order'][$i]);
+            $encodedQuery .= "order={$orderParam}";
           }
           if (isset($this->queryParams['page'])) {
             $paramTest = false;
             if (strpos(',', $this->queryParams['page']) !== false) {
               $testVal = explode(',', $this->queryParams['page']);
               $paramTest = count($testVal) === 2 && is_numeric($testVal[0]) && is_numeric($testVal[1]);
+            } else {
+              $paramTest = is_numeric($this->queryParams['page']);
             }
-            if (is_numeric($this->queryParams['page']) || $paramTest === true) $encodedQuery .= "&page={$this->queryParams['page']}";
+            if ($paramTest === true) $encodedQuery .= "&page={$this->queryParams['page']}";
           }
         }
         if (isset($this->queryParams['join'])) {
           for ($i = 0; $i < count($this->queryParams['join']); $i++) {
             if (strlen($encodedQuery) > 0) $encodedQuery .= '&';
-            $encodedQuery .= "join={$this->queryParams['join'][$i]}";
+            $joinParam = preg_replace('/\s+/', '', $this->queryParams['join'][$i]);
+            $encodedQuery .= "join={$joinParam}";
           }
         }
         $this->queryURI = "{$this->baseURI}/v2/records/{$this->endPoint}?{$encodedQuery}";
@@ -161,8 +192,9 @@
       return $this;
     }
 
-    public function call() {
-      if ($this->primaryKey !== NULL) {
+    public function call()
+    {
+      if ($this->primaryKey !== null) {
         $this->queryURI .= '/' . $this->primaryKey;
       }
       // clear $this->headers
@@ -188,7 +220,7 @@
       $this->headers[] = 'Authorization: Basic ' . base64_encode("{$this->username}:{$this->publicKey}");
       $this->headers[] = "auth: {$this->token}";
       $this->headers[] = "time: {$this->timeVal}";
-      if ($this->payload !== NULL) {
+      if ($this->payload !== null) {
         $this->jsonData = json_encode($this->payload);
         curl_setopt($this->ch, CURLOPT_POSTFIELDS, $this->jsonData);
         $this->headers[] = 'Content-Type: application/json';

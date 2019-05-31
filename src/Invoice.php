@@ -3,7 +3,8 @@
 
   use rjdeliveryomaha\courierinvoice\CommonFunctions;
 
-  class Invoice extends CommonFunctions {
+  class Invoice extends CommonFunctions
+  {
     protected $invoice_index;
     protected $InvoiceNumber;
     protected $ClientID;
@@ -20,8 +21,8 @@
     protected $Balance;
     protected $CheckNumber;
     protected $Closed;
-    protected $consolidateContractTicketsOnInvoice = TRUE;
-    protected $showCanceledTicketsOnInvoice = FALSE;
+    protected $consolidateContractTicketsOnInvoice = true;
+    protected $showCanceledTicketsOnInvoice = false;
     protected $tickets;
     protected $ConsolidatedTickets = [];
     protected $RegenThisInvoice;
@@ -43,9 +44,14 @@
     private $closedMarker;
     private $invoiceDisplay;
     private $counter = 2;
-    private $updateValues = [ 'InvoiceNumber', 'ClientID', 'RepeatClient', 'InvoiceTotal', 'InvoiceSubTotal', 'BalanceForwarded', 'AmountDue', 'StartDate', 'EndDate', 'DateIssued', 'DatePaid', 'AmountPaid', 'Balance', 'Late30Invoice', 'Late30Value', 'Late60Invoice', 'Late60Value', 'Late90Invoice', 'Late90Value', 'Over90Invoice', 'Over90Value', 'CheckNumber', 'Closed', 'Deleted' ];
+    private $updateValues = [ 'InvoiceNumber', 'ClientID', 'RepeatClient', 'InvoiceTotal', 'InvoiceSubTotal',
+      'BalanceForwarded', 'AmountDue', 'StartDate', 'EndDate', 'DateIssued', 'DatePaid', 'AmountPaid', 'Balance',
+      'Late30Invoice', 'Late30Value', 'Late60Invoice', 'Late60Value', 'Late90Invoice', 'Late90Value', 'Over90Invoice',
+      'Over90Value', 'CheckNumber', 'Closed', 'Deleted'
+    ];
 
-    public function __construct($options, $data=[]) {
+    public function __construct($options, $data=[])
+    {
       try {
         parent::__construct($options, $data);
       } catch (Exception $e) {
@@ -53,7 +59,8 @@
       }
     }
 
-    private function multiInvoiceForm() {
+    private function multiInvoiceForm()
+    {
       $returnData = '
         <p data-error="error" class="center">Multiple invoices available for ' . date('F Y', strtotime($this->invoiceQueryResult[0]['DateIssued'])) . '.</p>
         <form class="center" id="multiInvoiceForm" method="post" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '">
@@ -71,7 +78,8 @@
       return $returnData;
     }
 
-    private function consolidateTickets() {
+    private function consolidateTickets()
+    {
       //Merge contract tickets
       foreach ($this->tickets as $ticket) {
         if ($ticket->getProperty('Contract') === 1) {
@@ -79,14 +87,14 @@
             if (empty($this->ConsolidatedTickets)) {
               $this->ConsolidatedTickets[] = clone $ticket;
             } else {
-              $add = TRUE;
+              $add = true;
               for ($i = 0; $i < count($this->ConsolidatedTickets); $i++) {
-                if (self::compareProperties($ticket, $this->ConsolidatedTickets[$i], 'RunNumber') === TRUE) {
-                  $add = FALSE;
+                if (self::compareProperties($ticket, $this->ConsolidatedTickets[$i], 'RunNumber') === true) {
+                  $add = false;
                   break;
                 }
               }
-              if ($add === TRUE) {
+              if ($add === true) {
                 $this->ConsolidatedTickets[] = clone $ticket;
               } else {
                 foreach ($this->ConsolidatedTickets as $test) {
@@ -94,23 +102,23 @@
                     if (!$test->addToProperty('Multiplier', $ticket->getProperty('Multiplier'))) {
                       $temp = $this->error . "\n";
                       $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-                      if ($this->enableLogging !== FALSE) self::writeLoop();
-                      $this->ConsolidatedTickets = FALSE;
-                      return FALSE;
+                      if ($this->enableLogging !== false) self::writeLoop();
+                      $this->ConsolidatedTickets = false;
+                      return false;
                     }
                     if (!$test->addToProperty('TicketPrice', $ticket->getProperty('TicketPrice'))) {
                       $temp = $this->error . "\n";
                       $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-                      if ($this->enableLogging !== FALSE) self::writeLoop();
-                      $this->ConsolidatedTickets = FALSE;
-                      return FALSE;
+                      if ($this->enableLogging !== false) self::writeLoop();
+                      $this->ConsolidatedTickets = false;
+                      return false;
                     }
                     if (!$test->updateProperty('ReceivedDate', $ticket->getProperty('ReceivedDate'))) {
                       $temp = $this->error . "\n";
                       $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-                      if ($this->enableLogging !== FALSE) self::writeLoop();
-                      $this->ConsolidatedTickets = FALSE;
-                      return FALSE;
+                      if ($this->enableLogging !== false) self::writeLoop();
+                      $this->ConsolidatedTickets = false;
+                      return false;
                     }
                   }
                 }
@@ -123,9 +131,10 @@
       }
     }
 
-    private function invoiceBodyTickets() {
+    private function invoiceBodyTickets()
+    {
       // Check for ticket consolidation request
-      if ($this->consolidateContractTicketsOnInvoice === TRUE) {
+      if ($this->consolidateContractTicketsOnInvoice === true) {
         $ticketSet = $this->ConsolidatedTickets;
       } else {
         $ticketSet = $this->tickets;
@@ -133,7 +142,7 @@
       $body = '
             <table class="wide">';
       $page1 = $morePages = $filteredTicketSet = array();
-      if ($this->showCanceledTicketsOnInvoice === FALSE) {
+      if ($this->showCanceledTicketsOnInvoice === false) {
         foreach ($ticketSet as $filtered) {
           if ($filtered->getProperty('Charge') !== 0) {
             $filteredTicketSet[] = $filtered;
@@ -299,12 +308,13 @@
       return $body;
     }
 
-    public function regenInvoice() {
+    public function regenInvoice()
+    {
       if (count($this->invoiceQueryResult) > 1) {
         return self::multiInvoiceForm();
       } else {
         foreach ($this->invoiceQueryResult[0] as $key => $value) {
-          if ($value !== NULL) self::updateProperty($key, $value);
+          if ($value !== null) self::updateProperty($key, $value);
         }
       }
 
@@ -318,20 +328,20 @@
         if (!$temp[] = self::createTicket($this->tickets[$i])) {
           $temp = $this->error . "\n";
           $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-          if ($this->enableLogging !== FALSE) self::writeLoop();
-          $this->Tickets = FALSE;
-          return FALSE;
+          if ($this->enableLogging !== false) self::writeLoop();
+          $this->Tickets = false;
+          return false;
         }
       }
       $this->tickets = $temp;
       // Check for ticket consolidation request
-      if ($this->consolidateContractTicketsOnInvoice === TRUE) {
+      if ($this->consolidateContractTicketsOnInvoice === true) {
         self::consolidateTickets();
-        if ($this->ConsolidatedTickets === FALSE) {
+        if ($this->ConsolidatedTickets === false) {
           $temp = $this->error . "\n";
           $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-          if ($this->enableLogging !== FALSE) self::writeLoop();
-          return FALSE;
+          if ($this->enableLogging !== false) self::writeLoop();
+          return false;
         }
       }
 
@@ -473,7 +483,8 @@
       return $this->invoiceDisplay;
     }
 
-    public function invoiceQueryForm() {
+    public function invoiceQueryForm()
+    {
       if ($this->ulevel === 1) {
         return '
             <table id="invoiceQueryOptions" class="noPrint centerDiv">
@@ -490,7 +501,7 @@
                       <table>
                         <tr>
                           <td><label for="dateIssued">Date Issued:  </label></td>
-                          <td class="pullLeft">' . self::createLimitedMonthInput([ 'clientIDs' => $_SESSION['ClientID'], 'inputID' => 'dateIssued', 'type' => 'month', 'required' => TRUE, 'form' => 'singleInvoiceQuery' ]) . '</td>
+                          <td class="pullLeft">' . self::createLimitedMonthInput([ 'clientIDs' => $_SESSION['ClientID'], 'inputID' => 'dateIssued', 'type' => 'month', 'required' => true, 'form' => 'singleInvoiceQuery' ]) . '</td>
                         </tr>
                         <tr>
                           <td><label for="invoiceNumber">Invoice Number:  </label></td>
@@ -519,11 +530,11 @@
                       <table>
                         <tr>
                           <td><label for="startDate">Start Date:</label></td>
-                          <td>' . self::createLimitedMonthInput([ 'clientIDs' => $_SESSION['ClientID'], 'inputID' => 'startDate', 'type' => 'month', 'required' => TRUE, 'form' => 'multiInvoiceQuery' ]) . '</td>
+                          <td>' . self::createLimitedMonthInput([ 'clientIDs' => $_SESSION['ClientID'], 'inputID' => 'startDate', 'type' => 'month', 'required' => true, 'form' => 'multiInvoiceQuery' ]) . '</td>
                         </tr>
                         <tr>
                           <td><label for="endDate">End Date:</label></td>
-                          <td>' . self::createLimitedMonthInput([ 'clientIDs' => $_SESSION['ClientID'], 'inputID' => 'endDate', 'type' => 'month', 'required' => TRUE, 'form' => 'multiInvoiceQuery' ]). '</td>
+                          <td>' . self::createLimitedMonthInput([ 'clientIDs' => $_SESSION['ClientID'], 'inputID' => 'endDate', 'type' => 'month', 'required' => true, 'form' => 'multiInvoiceQuery' ]). '</td>
                         </tr>
                         <tr>
                           <td colspan="2" title="Range limited to 6 months.">
@@ -570,7 +581,7 @@
                         <table>
                           <tr>
                             <td><label for="dateIssued">Date Issued:</label></td>
-                            <td class="pullLeft">' . self::createLimitedMonthInput([ 'clientIDs' => array_keys($_SESSION['members']), 'inputID' => 'dateIssued', 'type' => 'month', 'required' => TRUE, 'form' => 'singleInvoiceQuery' ]) . '</td>
+                            <td class="pullLeft">' . self::createLimitedMonthInput([ 'clientIDs' => array_keys($_SESSION['members']), 'inputID' => 'dateIssued', 'type' => 'month', 'required' => true, 'form' => 'singleInvoiceQuery' ]) . '</td>
                           </tr>
                           <tr>
                             <td colspan="2">&nbsp;</td>
@@ -593,12 +604,12 @@
                         <table>
                           <tr>
                             <td class="pullLeft"><label for="invoiceStartDateMonth">Start Date:</label></td>
-                            <td>' . self::createLimitedMonthInput([ 'clientIDs' => array_keys($_SESSION['members']), 'inputID' => 'invoiceStartDate', 'form' => 'multiInvoiceQuery', 'required' => TRUE ]). '</td>
+                            <td>' . self::createLimitedMonthInput([ 'clientIDs' => array_keys($_SESSION['members']), 'inputID' => 'invoiceStartDate', 'form' => 'multiInvoiceQuery', 'required' => true ]). '</td>
                             <td colspan="2" class="center bold">Compare</td>
                           </tr>
                           <tr>
                             <td class="pullLeft"><label for="invoiceEndDateMonth">End Date:</label></td>
-                            <td class="pullLeft">' . self::createLimitedMonthInput([ 'clientIDs' => array_keys($_SESSION['members']), 'inputID' => 'invoiceEndDate', 'form' => 'multiInvoiceQuery', 'required' => TRUE ]) . '</td>
+                            <td class="pullLeft">' . self::createLimitedMonthInput([ 'clientIDs' => array_keys($_SESSION['members']), 'inputID' => 'invoiceEndDate', 'form' => 'multiInvoiceQuery', 'required' => true ]) . '</td>
                             <td class="center">
                               <label for="compareInvoices">Months:</label>
                               <input type="hidden" name="compare" value="0" form="multiInvoiceQuery" />
@@ -627,7 +638,8 @@
       }
     }
 
-    public function updateInvoice() {
+    public function updateInvoice()
+    {
       $updateData = [];
       $updateData['method'] = 'PUT';
       $updateData['endPoint'] = 'invoices';
@@ -635,26 +647,26 @@
       foreach($this as $key => $value) {
         if (in_array($key, $this->updateValues) && in_array(lcfirst($key), $this->postKeys)) {
           if (in_array($key, $this->ints)) {
-            $updateData['payload'][$key] = (in_array($key, $this->nullable) && $value === NULL) ? NULL : self::test_int($value);
+            $updateData['payload'][$key] = (in_array($key, $this->nullable) && $value === null) ? null : self::test_int($value);
           } elseif (in_array($key, $this->floats)) {
-            $updateData['payload'][$key] = (in_array($key, $this->nullable) && $value === NULL) ? NULL : self::test_float($value);
+            $updateData['payload'][$key] = (in_array($key, $this->nullable) && $value === null) ? null : self::test_float($value);
           } else {
-            $updateData['payload'][$key] = (in_array($key, $this->nullable) && $value === NULL) ? NULL : self::test_input($value);
+            $updateData['payload'][$key] = (in_array($key, $this->nullable) && $value === null) ? null : self::test_input($value);
           }
         }
       }
       // Build the update query
       $query = self::createQuery($updateData);
-      if ($query === FALSE) {
+      if ($query === false) {
         echo $this->error;
-        return FALSE;
+        return false;
       }
       $result = self::callQuery($query);
-      if ($result === FALSE) {
+      if ($result === false) {
         echo $this->error;
-        return FALSE;
+        return false;
       }
       echo 'Update Successful';
-      return FALSE;
+      return false;
     }
   }

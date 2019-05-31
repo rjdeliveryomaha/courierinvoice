@@ -15,7 +15,9 @@
     private $totals = [];
     private $monthKeys = [];
     // Define the order for the keys in $dataSet
-    private $properOrder = [ 'monthTotal', 'contract', 'onCall', 'credit', 'withIce', 'withoutIce', 'canceled', 'deadRun', 'oneHour', 'twoHour', 'threeHour', 'fourHour', 'routine', 'roundTrip', 'dedicated' ];
+    private $properOrder = [ 'monthTotal', 'contract', 'onCall', 'credit', 'withIce', 'withoutIce', 'canceled',
+      'deadRun', 'oneHour', 'twoHour', 'threeHour', 'fourHour', 'routine', 'roundTrip', 'dedicated'
+    ];
     // $ratio will be used to make sure that bars never go beyond graph height
     private $ratio;
     private $testMax = [];
@@ -48,7 +50,8 @@
     protected $currentChart;
     private $nestedTableColspan;
 
-    public function __construct($options, $data) {
+    public function __construct($options, $data)
+    {
       try {
         parent::__construct($options, $data);
       } catch (Exception $e) {
@@ -61,7 +64,8 @@
       }
     }
 
-    public function displayChart() {
+    public function displayChart()
+    {
       $returnData = '';
       foreach ($this->dataSet as $key => $value) {
         $this->monthKeys[] = $key;
@@ -89,9 +93,14 @@
               if (array_key_exists($this->clientID, $value)) $this->groups++;
             }
             // Calculate the width of each interval
-            $this->interval_width = ($this->options['bar_width'] * $this->total_bars) + ($this->options['bar_gap'] * $this->total_bars + 1) + (2 * $this->options['interval_border']);
+            $this->interval_width = ($this->options['bar_width'] * $this->total_bars) +
+              ($this->options['bar_gap'] * $this->total_bars + 1) +
+              (2 * $this->options['interval_border']);
+
             // Calculate the width of the graph
-            $this->chart_width = ($this->interval_width * $this->groups) + ($this->options['interval_gap'] * ($this->groups + 1));
+            $this->chart_width = ($this->interval_width * $this->groups) +
+              ($this->options['interval_gap'] * ($this->groups + 1));
+
             $returnData .= self::displayTable();
             $returnData .= self::displayBarGraph();
           }
@@ -109,7 +118,8 @@
           // Calculate the width of each interval
           $this->interval_width = 5;
           // Calculate the width of the graph
-          $this->chart_width = ($this->interval_width * $this->groups) + ($this->options['interval_gap'] * ($this->groups + 1)) + 1;
+          $this->chart_width = ($this->interval_width * $this->groups) +
+            ($this->options['interval_gap'] * ($this->groups + 1)) + 1;
           // var_dump($this->interval_width, $this->groups, $this->options['interval_gap'], $this->chart_width);
           $returnData .= self::displayCompareGraph();
         } else {
@@ -129,16 +139,20 @@
         // Number of bars in each group
         $this->total_bars = count($this->labels);
         // Calculate the width of each interval
-        $this->interval_width = ($this->options['bar_width'] * $this->total_bars) + ($this->options['bar_gap'] * $this->total_bars + 1) + (2 * $this->options['interval_border']);
+        $this->interval_width = ($this->options['bar_width'] * $this->total_bars) +
+          ($this->options['bar_gap'] * $this->total_bars + 1) + (2 * $this->options['interval_border']);
         // Calculate the width of the graph
-        $this->chart_width = ($this->interval_width * $this->groups) + ($this->options['interval_gap'] * ($this->groups + 1));
+        $this->chart_width = ($this->interval_width * $this->groups) +
+          ($this->options['interval_gap'] * ($this->groups + 1));
+
         $returnData .= self::displayTable();
         $returnData .= self::displayBarGraph();
       }
       return $returnData;
     }
 
-    private function arrayValueToChartLabel($arrayValue) {
+    private function arrayValueToChartLabel($arrayValue)
+    {
       switch ($arrayValue) {
         case 'monthTotal': return 'Total';
         case 'contract': return 'Contract';
@@ -159,7 +173,8 @@
       }
     }
 
-    private function displayGroupTotals($pointer) {
+    private function displayGroupTotals($pointer)
+    {
       foreach ($this->totals as $key => $value) {
         if ($pointer === $key) {
           $returnData = array_sum($value);
@@ -169,19 +184,25 @@
       return $returnData;
     }
 
-    private function sortData() {
+    private function sortData()
+    {
       if (count($this->dataSet) < 1) {
         return '<p class="center result">Ticket Chart Data Empty Line ' . __line__ . '</p>';
       } else {
         // Reset properties to empty arrays to prevent data overlap when working with multiple organization members
-        $this->totals = $this->testMax = $this->nonZero = $this->labels = $this->orderedData = $this->groupLabels = $this->nonAssocData = $this->heights = $this->margins = $this->counts = [];
+        $this->totals = $this->testMax = $this->nonZero = $this->labels = $this->orderedData = $this->groupLabels =
+        $this->nonAssocData = $this->heights = $this->margins = $this->counts = [];
         $this->colorCode = 0;
         // Process the data set for the given member
         foreach ($this->dataSet as $test) {
           if (array_key_exists($this->clientID, $test)) {
             $this->testMax[] = $test[$this->clientID]['monthTotal'];
             foreach ($test[$this->clientID] as $key => $value) {
-              if (((int)$value !== 0 || in_array($key, $this->alwaysInclude)) && !in_array($key, $this->nonZero) && !in_array($key, $this->nonZeroIgnore)) {
+              if (
+                ((int)$value !== 0 || in_array($key, $this->alwaysInclude)) &&
+                !in_array($key, $this->nonZero) &&
+                !in_array($key, $this->nonZeroIgnore)
+            ) {
                 $this->nonZero[] = $key;
               }
             }
@@ -245,7 +266,8 @@
       return FALSE;
     }
 
-    private function sortDataForMemberCompare() {
+    private function sortDataForMemberCompare()
+    {
       if (count($this->dataSet) < 1) {
         return '<p class="center result">Ticket Chart Data Empty Line' . __line__ . '</p>';
       }
@@ -269,7 +291,10 @@
         }
       }
       // Remove withIce and withoutIce if both are not in this->nonZero
-      if ((in_array('withIce', $this->nonZero) && !in_array('withoutIce', $this->nonZero)) || (!in_array('withIce', $this->nonZero) && in_array('withoutIce', $this->nonZero))) {
+      if (
+        (in_array('withIce', $this->nonZero) && !in_array('withoutIce', $this->nonZero)) ||
+        (!in_array('withIce', $this->nonZero) && in_array('withoutIce', $this->nonZero))
+      ) {
         $temp1 = array_flip($this->nonZero);
         if (array_key_exists('withIce', $temp1)) unset($tmep1['withIce']);
         if (array_key_exists('withoutIce', $temp1)) unset($temp1['withoutIce']);
@@ -291,7 +316,10 @@
         $temp2 = 0;
         for ($i = 0; $i < count($this->monthKeys); $i++) {
           for ($j = 0; $j < count($this->memberList); $j++) {
-            if (!isset($this->totals[$this->monthKeys[$i]][$value])) $this->totals[$this->monthKeys[$i]][$value] = 0;
+            if (
+              !isset($this->totals[$this->monthKeys[$i]][$value])
+            ) $this->totals[$this->monthKeys[$i]][$value] = 0;
+
             $this->totals[$this->monthKeys[$i]][$value] += $this->orderedData[$this->monthKeys[$i]][$this->memberList[$j]][$value];
             $temp += $this->orderedData[$this->monthKeys[$i]][$this->memberList[$j]][$value];
           }
@@ -323,7 +351,8 @@
       return FALSE;
     }
 
-    private function resortData() {
+    private function resortData()
+    {
       $temp = array();
       for ($i = 0; $i < count($this->properOrder); $i++) {
         if (in_array($this->properOrder[$i], $this->nonZero)) {
@@ -335,8 +364,12 @@
       for ($i = 0; $i < count($this->monthKeys); $i++) {
         for ($j = 0; $j < count($this->memberList); $j++) {
           foreach ($this->nonZero as $key => $value) {
-            if (!isset($temp[$this->monthKeys[0]][$this->memberList[$j]][$value])) $temp[$this->monthKeys[0]][$this->memberList[$j]][$value] = 0;
-            $temp[$this->monthKeys[0]][$this->memberList[$j]][$value] += $this->orderedData[$this->monthKeys[$i]][$this->memberList[$j]][$value];
+            if (
+              !isset($temp[$this->monthKeys[0]][$this->memberList[$j]][$value])
+            ) $temp[$this->monthKeys[0]][$this->memberList[$j]][$value] = 0;
+
+            $temp[$this->monthKeys[0]][$this->memberList[$j]][$value] +=
+              $this->orderedData[$this->monthKeys[$i]][$this->memberList[$j]][$value];
           }
         }
       }
@@ -371,7 +404,8 @@
       $this->monthKeys = $this->memberList;
     }
 
-    private function displayCompareTable() {
+    private function displayCompareTable()
+    {
       for ($i = 0; $i < count($this->tableLabelGroups); $i++) {
         $this->headerSpan = count($this->tableLabelGroups[$i]) + 2;
         $this->nestedTableColspan = $this->headerSpan - 1;
@@ -444,7 +478,8 @@
       return $this->tableOutput;
     }
 
-    private function displayTable() {
+    private function displayTable()
+    {
       $this->tableHeadPrefix = ($this->compare === TRUE) ? 'Comparing Tickets Between ' : 'Tickets for the period between ';
       if ($this->organizationFlag === TRUE) {
         $this->tableHead .= "<br><span class=\"medium\">{$this->clientListBy($this->clientID)}</span>";
@@ -483,7 +518,8 @@
       return $this->tableOutput;
     }
 
-    private function displayBarGraph() {
+    private function displayBarGraph()
+    {
       $tableFootHeight = $testHeight = '2.75';
       for ($i = 0; $i < count($this->groupLabels); $i++) {
         if (self::test_int(self::between_last('button', 'button', $this->groupLabels[$i])) >= 10 && $tableFootHeight === $testHeight) $tableFootHeight += 2;
@@ -528,7 +564,8 @@
       return $this->graphOutput;
     }
 
-    private function displayCompareGraph() {
+    private function displayCompareGraph()
+    {
       $this->currentChart = self::chartIndexToProperty();
       if ($this->currentChart === NULL) {
         return $this->graphOutput;

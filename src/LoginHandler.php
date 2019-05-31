@@ -5,7 +5,8 @@
   use rjdeliveryomaha\courierinvoice\Query;
   use rjdeliveryomaha\courierinvoice\SecureSessionHandler;
 
-  class LoginHandler extends CommonFunctions {
+  class LoginHandler extends CommonFunctions
+  {
     protected $clientID;
     protected $upw;
     private $repeatFlag;
@@ -23,39 +24,48 @@
     // Define key names that will be sent through countryFromAbbr()
     private $countryParams = [ 'ShippingCountry', 'BillingCountry' ];
 
-    public function __construct($options, $data=[]) {
+    public function __construct($options, $data=[])
+    {
       try {
         parent::__construct($options, $data);
       } catch (Exception $e) {
         throw $e;
       }
-      $_SESSION['mobile'] = (array_key_exists('mobile', $data)) ? self::test_bool($data['mobile']) : FALSE;
+      $_SESSION['mobile'] = (array_key_exists('mobile', $data)) ? self::test_bool($data['mobile']) : false;
     }
 
-    public function login() {
+    public function login()
+    {
       // Save the formKey
-      $tempKey = (array_key_exists('formKey', $_SESSION)) ? $_SESSION['formKey'] : NULL;
-      $tempFlag = (array_key_exists('mobile', $_SESSION)) ? $_SESSION['mobile'] : FALSE;
+      $tempKey = (array_key_exists('formKey', $_SESSION)) ? $_SESSION['formKey'] : null;
+      $tempFlag = (array_key_exists('mobile', $_SESSION)) ? $_SESSION['mobile'] : false;
       // Clear any session created by prior login
       $_SESSION = array();
       // Restore the formKey
       $_SESSION['formKey'] = $tempKey;
       $_SESSION['mobile'] = $tempFlag;
-      if ($this->clientID === NULL || $this->upw === NULL) {
+      if ($this->clientID === null || $this->upw === null) {
         throw new \Exception('Invalid Credentials');
       }
-      if (preg_match('/^[1-9][0-9]{0,10}$/', $this->clientID) === 1 || preg_match('/^[t][1-9][0-9]{0,10}$/', $this->clientID) === 1) {
-        $this->repeatFlag = (strpos($this->clientID, 't') === FALSE) ? 1 : 0;
-        $this->queryData['noSession'] = TRUE;
+      if (
+        preg_match('/^[1-9][0-9]{0,10}$/', $this->clientID) === 1 ||
+        preg_match('/^[t][1-9][0-9]{0,10}$/', $this->clientID) === 1
+      ) {
+        $this->repeatFlag = (strpos($this->clientID, 't') === false) ? 1 : 0;
+        $this->queryData['noSession'] = true;
         $this->queryData['method'] = 'GET';
         $this->queryData['endPoint'] = 'clients';
-        $this->queryData['queryParams']['filter'] = [ ['Resource'=>'ClientID', 'Filter'=>'eq', 'Value'=>self::test_int($this->clientID)], ['Resource'=>'RepeatClient','Filter'=>'eq','Value'=>$this->repeatFlag], ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0] ];
+        $this->queryData['queryParams']['filter'] = [
+          ['Resource'=>'ClientID', 'Filter'=>'eq', 'Value'=>self::test_int($this->clientID)],
+          ['Resource'=>'RepeatClient','Filter'=>'eq','Value'=>$this->repeatFlag],
+          ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0]
+        ];
         $this->query = self::createQuery($this->queryData);
-        if ($this->query === FALSE) {
+        if ($this->query === false) {
           throw new \Exception($this->error);
         }
         $this->result = self::callQuery($this->query);
-        if ($this->result === FALSE) {
+        if ($this->result === false) {
           throw new \Exception($this->error);
         }
         if (empty($this->result[0])) {
@@ -66,17 +76,20 @@
         // Driver Login Using "driver" + ID Number
         $temp = self::test_int($this->clientID);
         $this->clientID = $temp;
-        $this->queryData['noSession'] = TRUE;
+        $this->queryData['noSession'] = true;
         $this->queryData['formKey'] = $this->formKey;
         $this->queryData['method'] = 'GET';
         $this->queryData['endPoint'] = 'drivers';
-        $this->queryData['queryParams']['filter'] = [ ['Resource'=>'DriverID', 'Filter'=>'eq', 'Value'=>$this->clientID], ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0] ];
+        $this->queryData['queryParams']['filter'] = [
+          ['Resource'=>'DriverID', 'Filter'=>'eq', 'Value'=>$this->clientID],
+          ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0]
+        ];
         $this->query = self::createQuery($this->queryData);
-        if ($this->query === FALSE) {
+        if ($this->query === false) {
           throw new \Exception($this->error);
         }
         $this->result = self::callQuery($this->query);
-        if ($this->result === FALSE) {
+        if ($this->result === false) {
           throw new \Exception($this->error);
         }
         if (empty($this->result[0])) {
@@ -87,16 +100,19 @@
         // Dispatch Login using "dispatch" + ID Number
         $temp = self::test_int($this->clientID);
         $this->clientID = $temp;
-        $this->queryData['noSession'] = TRUE;
+        $this->queryData['noSession'] = true;
         $this->queryData['method'] = 'GET';
         $this->queryData['endPoint'] = 'dispatchers';
-        $this->queryData['queryParams']['filter'] = [ ['Resource'=>'DispatchID', 'Filter'=>'eq', 'Value'=>$this->clientID], ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0] ];
+        $this->queryData['queryParams']['filter'] = [
+          ['Resource'=>'DispatchID', 'Filter'=>'eq', 'Value'=>$this->clientID],
+          ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0]
+        ];
         $this->query = self::createQuery($this->queryData);
-        if ($this->query === FALSE) {
+        if ($this->query === false) {
           throw new \Exception($this->error);
         }
         $this->result = self::callQuery($this->query);
-        if ($this->result === FALSE) {
+        if ($this->result === false) {
           throw new \Exception($this->error);
         }
         if (empty($this->result[0])) {
@@ -106,7 +122,7 @@
       } elseif (preg_match('/^([\w]+)/', $this->clientID) === 1) {
         if ($this->clientID === $this->userLogin) {
           // login user 0
-          $this->queryData['noSession'] = TRUE;
+          $this->queryData['noSession'] = true;
           $this->queryData['method'] = 'GET';
           $this->queryData['endPoint'] = 'clients';
           $this->queryData['queryParams']['filter'] = [ ['Resource'=>'ClientID', 'Filter'=>'eq', 'Value'=>0] ];
@@ -114,18 +130,21 @@
           // Single word login for organizations
           $temp = self::test_input($this->clientID);
           $this->clientID = $temp;
-          $this->queryData['noSession'] = TRUE;
+          $this->queryData['noSession'] = true;
           $this->queryData['method'] = 'GET';
           $this->queryData['endPoint'] = 'o_clients';
-          $this->queryData['queryParams']['filter'] = [ ['Resource'=>'Login', 'Filter'=>'eq', 'Value'=>$this->clientID], ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0] ];
+          $this->queryData['queryParams']['filter'] = [
+            ['Resource'=>'Login', 'Filter'=>'eq', 'Value'=>$this->clientID],
+            ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0]
+          ];
           if ($this->clientID !== $this->username) $this->queryData['queryParams']['join'] = [ 'clients' ];
         }
         $this->query = self::createQuery($this->queryData);
-        if ($this->query === FALSE) {
+        if ($this->query === false) {
           throw new \Exception($this->error);
         }
         $this->result = self::callQuery($this->query);
-        if ($this->result === FALSE) {
+        if ($this->result === false) {
           throw new \Exception($this->error);
         }
         if (empty($this->result[0])) {
@@ -137,7 +156,8 @@
       }
     }
 
-    private function validateDriver() {
+    private function validateDriver()
+    {
       if (password_verify($this->upw, $this->result[0]['Password'])) {
         $this->loginType = 'driver';
       } else {
@@ -159,10 +179,11 @@
       $_SESSION['driverName'] = $this->result[0]['FirstName'] . " " . $this->result[0]['LastName'];
       $_SESSION['ulevel'] = 'driver';
       echo '/drivers';
-      return FALSE;
+      return false;
     }
 
-    private function validateDispatch() {
+    private function validateDispatch()
+    {
       if (password_verify($this->upw, $this->result[0]['Password'])) {
         $this->loginType = 'dispatch';
       } else {
@@ -184,10 +205,11 @@
       $_SESSION['ulevel'] = 'dispatch';
       $_SESSION['CanDispatch'] = 2;
       echo '/drivers';
-      return FALSE;
+      return false;
     }
 
-    private function validateClient() {
+    private function validateClient()
+    {
       if (password_verify($this->upw, $this->result[0]['Password'])) {
         $this->loginType = 'client';
         $hash = $this->result[0]['Password'];
@@ -223,10 +245,11 @@
       }
       $_SESSION['ulevel'] = ($this->loginType === 'client') ? 2 : 1;
       echo '/clients';
-      return FALSE;
+      return false;
     }
 
-    private function validateOrg() {
+    private function validateOrg()
+    {
       if (password_verify($this->upw, $this->result[0]['Password'])) {
         $this->loginType = 'org';
       } else {
@@ -250,22 +273,26 @@
       $_SESSION['ulevel'] = 0;
       self::fetchOrgClients();
       echo '/clients';
-      return FALSE;
+      return false;
     }
 
-    private function fetchConfig() {
+    private function fetchConfig()
+    {
       $this->queryData = [];
-      $this->queryData['noSession'] = TRUE;
+      $this->queryData['noSession'] = true;
       $this->queryData['method'] = 'GET';
       $this->queryData['endPoint'] = 'clients';
-      $this->queryData['queryParams']['filter'] = ($this->loginType === 'driver' || $this->loginType === 'dispatch') ? [ ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0] ] : [ ['Resource'=>'ClientID', 'Filter'=>'eq', 'Value'=>0] ];
+      $this->queryData['queryParams']['filter'] =
+        ($this->loginType === 'driver' || $this->loginType === 'dispatch') ?
+        [ ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0] ] :
+        [ ['Resource'=>'ClientID', 'Filter'=>'eq', 'Value'=>0] ];
       $this->queryData['queryParams']['join'] = [ 'config' ];
       $this->query = self::createQuery($this->queryData);
-      if ($this->query === FALSE) {
+      if ($this->query === false) {
         throw new \Exception($this->error);
       }
       $this->configResult = self::callQuery($this->query);
-      if ($this->configResult === FALSE) {
+      if ($this->configResult === false) {
         throw new \Exception($this->error);
       }
       if (empty($this->configResult[0])) {
@@ -276,29 +303,36 @@
         if ($this->configResult[$i]['ClientID'] === 0) {
           $_SESSION['config'] = $this->configResult[$i]['config'][0];
           foreach($this->configResult[$i] as $key => $value) {
-            if (!in_array($key, $this->exclude) && $key !== 'config' && $key !== 'GeneralDiscount' && $key !== 'ContractDiscount') {
+            if (
+              !in_array($key, $this->exclude) &&
+              $key !== 'config' && $key !== 'GeneralDiscount' &&
+              $key !== 'ContractDiscount'
+            ) {
               $_SESSION['config'][$key] = (in_array($key, $this->countryParams)) ? self::countryFromAbbr($value) : $value;
             }
           }
         }
-        $discountMarker = ($this->configResult[$i]['RepeatClient'] === 1) ? $this->configResult[$i]['ClientID'] : "t{$this->configResult[$i]['ClientID']}";
+        $discountMarker = ($this->configResult[$i]['RepeatClient'] === 1) ?
+        $this->configResult[$i]['ClientID'] : "t{$this->configResult[$i]['ClientID']}";
+
         $_SESSION['config']['GeneralDiscount'][$discountMarker] = floatval((100 - $this->configResult[$i]['GeneralDiscount']) / 100);
         $_SESSION['config']['ContractDiscount'][$discountMarker] = floatval((100 - $this->configResult[$i]['ContractDiscount']) / 100);
       }
     }
 
-    private function fetchOrgClients() {
+    private function fetchOrgClients()
+    {
       if (!isset($this->result[0]['clients'])) {
         $this->queryData = [];
-        $this->queryData['noSession'] = TRUE;
+        $this->queryData['noSession'] = true;
         $this->queryData['method'] = 'GET';
         $this->queryData['endPoint'] = 'clients';
         $this->query = self::createQuery($this->queryData);
-        if ($this->query === FALSE) {
+        if ($this->query === false) {
           throw new \Exception($this->error);
         }
         $this->clientResult = self::callQuery($this->query);
-        if ($this->clientResult === FALSE) {
+        if ($this->clientResult === false) {
           throw new \Exception($this->error);
         }
         if (empty($this->clientResult)) {
@@ -312,7 +346,8 @@
         $_SESSION['members'][$marker . $member['ClientID']] = [];
         foreach ($member as $key => $value) {
           if (!in_array($key, $this->exclude)) {
-            $_SESSION['members'][$marker . $member['ClientID']][$key] = (in_array($key, $this->countryParams)) ? self::countryFromAbbr($value) : $value;
+            $_SESSION['members'][$marker . $member['ClientID']][$key] = (in_array($key, $this->countryParams)) ?
+            self::countryFromAbbr($value) : $value;
           }
         }
       }

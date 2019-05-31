@@ -2,10 +2,6 @@
   namespace rjdeliveryomaha\courierinvoice;
 
   use rjdeliveryomaha\courierinvoice\CommonFunctions;
-  /***
-  * throws Exception
-  *
-  ***/
 
   class Route extends CommonFunctions {
     protected $newTickets;
@@ -17,10 +13,10 @@
     protected $singleLocation = [];
     protected $multiLocation = [];
     protected $cancelations = [];
-    protected $processTransfer = FALSE;
+    protected $processTransfer = false;
     protected $rescheduledRuns;
     protected $rescheduledRunsList = [];
-    protected $cancelRoute = FALSE;
+    protected $cancelRoute = false;
     protected $driverID;
     protected $driverName;
     protected $today;
@@ -37,7 +33,8 @@
     protected $transferList;
     private $tTest;
 
-    public function __construct($options, $data=[]) {
+    public function __construct($options, $data=[])
+    {
       try {
         parent::__construct($options, $data);
       } catch (Exception $e) {
@@ -50,14 +47,14 @@
         self::setTimezone();
       } catch (Exception $e) {
         $this->error = $e->getMessage();
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         throw $e;
       }
       try {
         $this->dateObject = new \dateTime('NOW', $this->timezone);
       } catch (Exception $e) {
         $this->error = __function__ . ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         throw $e;
       }
       $this->today = $this->dateObject->format('Y-m-d');
@@ -66,28 +63,32 @@
       $this->backstop = $temp->format('Y-m-d');
     }
 
-    private function setLastSeen() {
+    private function setLastSeen()
+    {
       $lastSeenUpdateData['endPoint'] = (array_key_exists('driver_index', $_SESSION)) ? 'drivers' : 'dispatchers';
       $lastSeenUpdateData['method'] = 'PUT';
-      $lastSeenUpdateData['primaryKey'] = (array_key_exists('driver_index', $_SESSION)) ? $_SESSION['driver_index'] : $_SESSION['dispatch_index'];
+      $lastSeenUpdateData['primaryKey'] = (array_key_exists('driver_index', $_SESSION)) ?
+        $_SESSION['driver_index'] : $_SESSION['dispatch_index'];
+
       $lastSeenUpdateData['payload'] = ['LastSeen'=>$this->today];
       if (!$lastSeenUpdate = self::createQuery($lastSeenUpdateData)) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         return $this->error;
       }
       $lastSeenUpdateResult = self::callQuery($lastSeenUpdate);
-      if ($lastSeenUpdateResult === FALSE) {
+      if ($lastSeenUpdateResult === false) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        return FALSE;
+        if ($this->enableLogging !== false) self::writeLoop();
+        return false;
       }
       return $this->LastSeen = $_SESSION['LastSeen'] = $this->today;
     }
 
-    public function onCallTickets() {
+    public function onCallTickets()
+    {
       $this->ticketSet = $ticketQueryData = [];
       $ticketQueryData['endPoint'] = 'tickets';
       $ticketQueryData['method'] = 'GET';
@@ -95,7 +96,7 @@
       $ticketQueryData['queryParams']['filter'][] = [
         ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>0],
         ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID],
-        ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>$this->backstop . ' 00:00:00,' . $this->today . ' 23:59:59'],
+        ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>"{$this->backstop} 00:00:00,{$this->today} 23:59:59"],
         ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0],
         ['Resource'=>'Charge', 'Filter'=>'bt', 'Value'=>'1,5'],
         ['Resource'=>'dTimeStamp', 'Filter'=>'is']
@@ -103,7 +104,7 @@
       $ticketQueryData['queryParams']['filter'][] = [
         ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>0],
         ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID],
-        ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>$this->backstop . ' 00:00:00,' . $this->today . ' 23:59:59'],
+        ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>"{$this->backstop} 00:00:00,{$this->today} 23:59:59"],
         ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>6],
         ['Resource'=>'d2TimeStamp', 'Filter'=>'is']
       ];
@@ -127,14 +128,14 @@
       if (!$ticketQuery = self::createQuery($ticketQueryData)) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         return $this->error;
       }
       $this->onCallTicketSet = self::callQuery($ticketQuery);
-      if ($this->onCallTicketSet === FALSE) {
+      if ($this->onCallTicketSet === false) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         return "<p class=\"center result\"><span class=\"error\>Error</span>: {$this->error}</p>";
       }
       if (count($this->onCallTicketSet) === 0) {
@@ -143,10 +144,10 @@
       $returnData = '';
       for ($i = 0; $i < count($this->onCallTicketSet); $i++) {
         $ticket = self::createTicket($this->onCallTicketSet[$i]);
-        if ($ticket === FALSE) {
+        if ($ticket === false) {
           $temp = $this->error;
           $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-          if ($this->enableLogging !== FALSE) self::writeLoop();
+          if ($this->enableLogging !== false) self::writeLoop();
           $returnData .= "<p class=\"center result\"><span class=\"error\">Error</span>: {$this->error}</p>";
         } else {
           $returnData .= $ticket->displaySingleTicket();
@@ -155,12 +156,13 @@
       return $returnData;
     }
 
-    public function routeTickets() {
+    public function routeTickets()
+    {
       $output = '';
       if (!self::buildRoute()) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         return self::getError();
       }
       // Check for active contract tickets
@@ -191,14 +193,14 @@
       if (!$ticketQuery = self::createQuery($ticketQueryData)) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         return $this->error;
       }
       $this->activeTicketSet = self::callQuery($ticketQuery);
-      if ($this->activeTicketSet === FALSE) {
+      if ($this->activeTicketSet === false) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         return "<p class=\"center result\"><span class=\"error\>Error</span>: {$this->error}</p>";
       }
       // Check for completed contract tickets
@@ -215,14 +217,14 @@
         if (!$ticketQuery = self::createQuery($ticketQueryData)) {
           $temp = $this->error . "\n";
           $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-          if ($this->enableLogging !== FALSE) self::writeLoop();
+          if ($this->enableLogging !== false) self::writeLoop();
           return $this->error;
         }
         $tempTicketSet = self::callQuery($ticketQuery);
-        if ($tempTicketSet === FALSE) {
+        if ($tempTicketSet === false) {
           $temp = $this->error . "\n";
           $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-          if ($this->enableLogging !== FALSE) self::writeLoop();
+          if ($this->enableLogging !== false) self::writeLoop();
           return "<p class=\"center result\"><span class=\"error\>Error</span>: {$this->error}</p>";
         }
         $state = (count($tempTicketSet) > 0) ? 'Complete' : 'Empty';
@@ -232,10 +234,10 @@
         if (!empty($this->singleLocation)) {
           for ($i = 0; $i < count($this->singleLocation); $i++) {
             $ticket = self::createTicket($this->singleLocation[$i]);
-            if ($ticket === FALSE) {
+            if ($ticket === false) {
               $temp = $this->error . "\n";
               $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-              if ($this->enableLogging !== FALSE) self::writeLoop();
+              if ($this->enableLogging !== false) self::writeLoop();
               return "<p class=\"center result\"><span class=\"error\>Error</span>: {$this->error}</p>";
             }
             $output .= $ticket->displaySingleTicket();
@@ -246,20 +248,20 @@
             $temp = array();
             for ($i = 0; $i < count($group); $i++) {
               $ticket = self::createTicket($group[$i]);
-              if ($ticket === FALSE) {
+              if ($ticket === false) {
                 $temp = $this->error . "\n";
                 $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-                if ($this->enableLogging !== FALSE) self::writeLoop();
+                if ($this->enableLogging !== false) self::writeLoop();
                 return "<p class=\"center result\"><span class=\"error\>Error</span>: {$this->error}</p>";
               }
               $temp[] = $ticket;
             }
             $ticketPrimeData = [ 'multiTicket'=>$temp ];
             $ticketPrime = self::createTicket($ticketPrimeData);
-            if ($ticketPrime === FALSE) {
+            if ($ticketPrime === false) {
               $temp = $this->error . "\n";
               $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-              if ($this->enableLogging !== FALSE) self::writeLoop();
+              if ($this->enableLogging !== false) self::writeLoop();
               return "<p class=\"center result\"><span class=\"error\>Error</span>: {$this->error}</p>";
             }
             $output .= $ticketPrime->displayMultiTicket();
@@ -269,30 +271,32 @@
       return $output;
     }
 
-    public function transferredTickets() {
+    public function transferredTickets()
+    {
       $this->contractTicketSet = $this->singleLocation = [];
       $returnData = '';
       // Drivers without dispatch authorization need a single datalist for transferring tickets.
       if ($this->ulevel === "driver" && $this->CanDispatch === 0) {
-        if ($this->transferList === NULL) {
+        if ($this->transferList === null) {
           self::fetchDriversTransfer();
-          if ($this->transferList === FALSE) {
+          if ($this->transferList === false) {
             $temp = $this->error . "\n";
             $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-            if ($this->enableLogging !== FALSE) self::writeLoop();
-            return FALSE;
+            if ($this->enableLogging !== false) self::writeLoop();
+            return false;
           }
         }
-        if ($this->transferList !== 'empty' && $this->transferList !== NULL) {
+        if ($this->transferList !== 'empty' && $this->transferList !== null) {
           $returnData = '<datalist id="receivers">';
-          foreach (json_decode($this->transferList, TRUE) as $driver) {
-            $driverName = ($driver['LastName'] == NULL) ? htmlentities($driver['FirstName']) . '; ' . $driver['DriverID'] : htmlentities($driver['FirstName']) . ' ' . htmlentities($driver['LastName']) . '; ' . $driver['DriverID'];
-            $returnData .= ($driver['DriverID'] !== $_SESSION['DriverID']) ? '<option value="' . $driverName . '">' . $driverName . '</option>' : '';
+          foreach (json_decode($this->transferList, true) as $driver) {
+            $driverName = ($driver['LastName'] == null) ? htmlentities($driver['FirstName']) . '; ' . $driver['DriverID'] : htmlentities($driver['FirstName']) . ' ' . htmlentities($driver['LastName']) . '; ' . $driver['DriverID'];
+            $returnData .= ($driver['DriverID'] !== $_SESSION['DriverID']) ?
+            "<option value=\"{$driverName}\">{$driverName}</option>" : '';
           }
           $returnData .= '</datalist>';
         }
       }
-      $this->processTransfer = TRUE;
+      $this->processTransfer = true;
       $transfersQueryData['endPoint'] = 'tickets';
       $transfersQueryData['method'] = 'GET';
       $transfersQueryData['queryParams']['filter'] = [];
@@ -351,14 +355,14 @@
       if (!$transfersQuery = self::createQuery($transfersQueryData)) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         return $this->error;
       }
       $this->activeTicketSet = self::callQuery($transfersQuery);
-      if ($this->activeTicketSet === FALSE) {
+      if ($this->activeTicketSet === false) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         return $this->error;
       }
       if (empty($this->activeTicketSet)) {
@@ -383,12 +387,12 @@
       }
       if (!empty($this->singleLocation)) {
         for ($i = 0; $i < count($this->singleLocation); $i++) {
-          $this->singleLocation[$i]['processTransfer'] = TRUE;
+          $this->singleLocation[$i]['processTransfer'] = true;
           $ticket = self::createTicket($this->singleLocation[$i]);
-          if ($ticket === FALSE) {
+          if ($ticket === false) {
             $temp = $this->error;
             $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-            if ($this->enableLogging !== FALSE) self::writeLoop();
+            if ($this->enableLogging !== false) self::writeLoop();
             $returnData .= "<p class=\"center result\"><span class=\"error\">Error</span>: {$this->error}</p>";
           } else {
             $returnData .= $ticket->displaySingleTicket();
@@ -400,21 +404,21 @@
           $temp = array();
           for ($i = 0; $i < count($group); $i++) {
             $ticket = self::createTicket($group[$i]);
-            if ($ticket === FALSE) {
+            if ($ticket === false) {
               $temp = $this->error . "\n";
               $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-              if ($this->enableLogging !== FALSE) self::writeLoop();
+              if ($this->enableLogging !== false) self::writeLoop();
               $returnData .= "<p class=\"center result\"><span class=\"error\>Error</span>: {$this->error}</p>";
             }
             $temp[] = $ticket;
           }
           $ticketPrimeData = [ 'multiTicket'=>$temp ];
-          $ticketPrimeData['processTransfer'] = TRUE;
+          $ticketPrimeData['processTransfer'] = true;
           $ticketPrime = self::createTicket($ticketPrimeData);
-          if ($ticketPrime === FALSE) {
+          if ($ticketPrime === false) {
             $temp = $this->error . "\n";
             $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-            if ($this->enableLogging !== FALSE) self::writeLoop();
+            if ($this->enableLogging !== false) self::writeLoop();
             $returnData .= "<p class=\"center result\"><span class=\"error\>Error</span>: {$this->error}</p>";
           }
           $returnData .= $ticketPrime->displayMultiTicket();
@@ -423,16 +427,17 @@
       return $returnData;
     }
 
-    private function buildRoute() {
+    private function buildRoute()
+    {
       // Check if driver has been seen today
-      if ($this->LastSeen === NULL || $this->LastSeen !== $this->today) {
+      if ($this->LastSeen === null || $this->LastSeen !== $this->today) {
         // Pull list of runs dispatched to this driver
         self::fetchRunList();
-        if ($this->runList === FALSE) {
+        if ($this->runList === false) {
           $temp = $this->error . "\n";
           $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-          if ($this->enableLogging !== FALSE) self::writeLoop();
-          return FALSE;
+          if ($this->enableLogging !== false) self::writeLoop();
+          return false;
         }
         // Process the reschedule codes
         if (!empty($this->runList)) {
@@ -444,22 +449,23 @@
           if (!self::submitRouteTickets()) {
             $temp = $this->error . "\n";
             $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-            if ($this->enableLogging !== FALSE) self::writeLoop();
-            return FALSE;
+            if ($this->enableLogging !== false) self::writeLoop();
+            return false;
           }
         }
         // Set that driver has been seen today
         if (!self::setLastSeen()) {
           $temp = $this->error . "\n";
           $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-          if ($this->enableLogging !== FALSE) self::writeLoop();
-          return FALSE;
+          if ($this->enableLogging !== false) self::writeLoop();
+          return false;
         }
       }
-      return TRUE;
+      return true;
     }
 
-    private function fetchDriversTransfer() {
+    private function fetchDriversTransfer()
+    {
       // Pull the data to make the datalists
       $driverQueryData['method'] = 'GET';
       $driverQueryData['endPoint'] = 'drivers';
@@ -468,15 +474,15 @@
       if (!$driverQuery = self::createQuery($driverQueryData)) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        return $this->transferList = FALSE;
+        if ($this->enableLogging !== false) self::writeLoop();
+        return $this->transferList = false;
       }
       $tempDriver = self::callQuery($driverQuery);
-      if ($tempDriver === FALSE) {
+      if ($tempDriver === false) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        return $this->transferList = FALSE;
+        if ($this->enableLogging !== false) self::writeLoop();
+        return $this->transferList = false;
       }
       // Only proceed if a record is returned
       if (empty($tempDriver)) {
@@ -485,7 +491,8 @@
       return $this->transferList = json_encode($tempDriver);
     }
 
-    private function fetchRunList() {
+    private function fetchRunList()
+    {
       $goodVals = [ 'Client', 'Department', 'Contact', 'Telephone', 'Address1', 'Address2', 'Country' ];
       $runVals = [ 'DryIce', 'diWeight', 'Notes', 'PriceOverride', 'TicketPrice', 'RoundTrip' ];
       $rescheduledQueryData['endPoint'] = 'schedule_override';
@@ -507,28 +514,33 @@
       if (!$rescheduledQuery = self::createQuery($rescheduledQueryData)) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        $this->runList = FALSE;
-        return FALSE;
+        if ($this->enableLogging !== false) self::writeLoop();
+        $this->runList = false;
+        return false;
       }
       $this->rescheduledRuns = self::callQuery($rescheduledQuery);
-      if ($this->rescheduledRuns === FALSE) {
+      if ($this->rescheduledRuns === false) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        $this->runList = FALSE;
-        return FALSE;
+        if ($this->enableLogging !== false) self::writeLoop();
+        $this->runList = false;
+        return false;
       }
       for ($i = 0; $i < count($this->rescheduledRuns); $i++) {
-        if ($this->cancelRoute === TRUE) break;
+        if ($this->cancelRoute === true) break;
         switch ($this->rescheduledRuns[$i]['Cancel']) {
-          case 1: $this->cancelRoute = TRUE;
+          case 1: $this->cancelRoute = true;
+            // no break
           case 2:
           case 3:
-          case 4: $this->cancelations[] = $this->rescheduledRuns[$i]['RunNumber'];
-          break;
+          case 4:
+            $this->cancelations[] = $this->rescheduledRuns[$i]['RunNumber'];
+            break;
           case 5:
-            if ($this->cancelRoute === TRUE || in_array($this->rescheduledRuns[$i]['RunNumber'], $this->cancelations, TRUE)) break;
+            if (
+              $this->cancelRoute === true ||
+              in_array($this->rescheduledRuns[$i]['RunNumber'], $this->cancelations, true)
+            ) break;
             $this->rescheduledRunsList[] = $this->rescheduledRuns[$i]['RunNumber'];
             foreach ($this->rescheduledRuns[$i]['run_id']['pickup_id'] as $key => $value) {
               if (in_array($key, $goodVals)) $this->rescheduledRuns[$i]["p{$key}"] = self::decode($value);
@@ -541,10 +553,10 @@
             }
             unset($this->rescheduledRuns[$i]['run_id']);
             $this->newTickets[] = $this->rescheduledRuns[$i];
-          break;
+            break;
         }
       }
-      if ($this->cancelRoute === TRUE) return FALSE;
+      if ($this->cancelRoute === true) return false;
       $runListQueryData['endPoint'] = 'contract_runs';
       $runListQueryData['method'] = 'GET';
       $runListQueryData['queryParams']['filter'] = [
@@ -555,8 +567,8 @@
       if (!$runListQuery = self::createQuery($runListQueryData)) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        return $this->runList = FALSE;
+        if ($this->enableLogging !== false) self::writeLoop();
+        return $this->runList = false;
       }
       $temp = self::callQuery($runListQuery);
       for ($i = 0; $i < count($temp); $i++) {
@@ -572,7 +584,8 @@
       }
     }
 
-    private function processScheduleCodes() {
+    private function processScheduleCodes()
+    {
       for ($i = 0; $i < count($this->runList); $i++) {
         // Process the schedule codes
         if (strpos($this->runList[$i]['Schedule'], ',')) {
@@ -586,61 +599,62 @@
       }
     }
 
-    private function scheduleFrequency($code) {
+    private function scheduleFrequency($code)
+    {
       $x = $y = $schedule = '';
       $test = explode(' ', $code);
       if (count($test) === 1) {
         switch(substr($code, 0, 1)) {
           case 'a':
             $x = 'Every';
-          break;
+            break;
           case 'b':
             $x = 'Every Other';
-          break;
+            break;
           case 'c':
             $x = 'Every First';
-          break;
+            break;
           case 'd':
             $x = 'Every Second';
-          break;
+            break;
           case 'e':
             $x = 'Every Third';
-          break;
+            break;
           case 'f':
             $x = 'Every Fourth';
-          break;
+            break;
           case 'g':
             $x = 'Every Last';
-          break;
+            break;
         }
         switch (substr($code, 1, 1)) {
           case '1':
             $y = 'Day';
-          break;
+            break;
           case '2':
             $y = 'Weekday';
-          break;
+            break;
           case '3':
             $y = 'Monday';
-          break;
+            break;
           case '4':
             $y = 'Tuesday';
-          break;
+            break;
           case '5':
             $y = 'Wednesday';
-          break;
+            break;
           case '6':
             $y = 'Thursday';
-          break;
+            break;
           case '7':
             $y = 'Friday';
-          break;
+            break;
           case '8':
             $y = 'Saturday';
-          break;
+            break;
           case '9':
             $y = 'Sunday';
-          break;
+            break;
         }
         $schedule = "{$x} {$y}";
       } else {
@@ -651,61 +665,62 @@
         switch($test[0]) {
           case 'Every':
             $x = 'a';
-          break;
+            break;
           case 'Other':
             $x = 'b';
-          break;
+            break;
           case 'First':
             $x = 'c';
-          break;
+            break;
           case '"econd':
             $x = 'd';
-          break;
+            break;
           case 'Third':
             $x = 'e';
-          break;
+            break;
           case 'Fourth':
             $x = 'f';
-          break;
+            break;
           case 'Last':
             $x = 'g';
-          break;
+            break;
         }
         switch ($test[1]) {
           case 'Day':
             $y = '1';
-          break;
+            break;
           case 'Weekday':
             $y = '2';
-          break;
+            break;
           case 'Monday':
             $y = '3';
-          break;
+            break;
           case 'Tuesday':
             $y = '4';
-          break;
+            break;
           case 'Wednesday':
             $y = '5';
-          break;
+            break;
           case 'Thursday':
             $y = '6';
-          break;
+            break;
           case 'Friday':
             $y = '7';
-          break;
+            break;
           case 'Saturday':
             $y = '8';
-          break;
+            break;
           case 'Sunday':
             $y = '9';
-          break;
+            break;
         }
         $schedule = "{$x} {$y}";
       }
       return $schedule;
     }
 
-    private function filterRuns() {
+    private function filterRuns()
+    {
       for($i = 0; $i < count($this->runList); $i++) {
         for ($x = 0; $x < count($this->runList[$i]['Schedule']); $x++) {
           // If the run has never been completed set LastCompleted to one day prior
@@ -715,18 +730,19 @@
           } else {
             $this->testDate = $this->runList[$i]['LastCompleted'];
           }
-          if (self::compareSchedule($this->runList[$i]['RunNumber'], $this->runList[$i]['Schedule'][$x]) === TRUE) {
+          if (self::compareSchedule($this->runList[$i]['RunNumber'], $this->runList[$i]['Schedule'][$x]) === true) {
             // Set a flag indicating that the ticket should be added to the new ticket set
-            $this->add = TRUE;
-            // After the first ticket is added set the flag to FALSE if the new ticket set contains a ticket with the same run number
+            $this->add = true;
+            // After the first ticket is added
+            // set the flag to false if the new ticket set contains a ticket with the same run number
             if (!empty($this->newTickets)) {
               foreach ($this->newTickets as $test) {
                 if ($this->runList[$i]['RunNumber'] === $test['RunNumber']) {
-                  $this->add = FALSE;
+                  $this->add = false;
                 }
               }
             }
-            if ($this->add === TRUE) {
+            if ($this->add === true) {
               $this->newTickets[] = $this->runList[$i];
             }
           }
@@ -734,27 +750,28 @@
       }
     }
 
-    private function compareSchedule($runNumber, $scheduleFrequency) {
+    private function compareSchedule($runNumber, $scheduleFrequency)
+    {
       if ($this->testDate === $this->today) {
-        return FALSE;
+        return false;
       }
       try {
         $this->testDateObject = new \dateTime($this->testDate, $this->timezone);
       } catch (Exception $e) {
         $this->error = 'Date Error Line ' . __line__ . ': ' . $e->getMessage();
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        return FALSE;
+        if ($this->enableLogging !== false) self::writeLoop();
+        return false;
       }
-      if ($this->error != NULL) return FALSE;
+      if ($this->error != null) return false;
       $test = explode(' ', $scheduleFrequency);
       if ($test[0] !== 'Every') {
         $this->error = 'Something is very wrong. This error should never occur. Line ' . __line__;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        return FALSE;
+        if ($this->enableLogging !== false) self::writeLoop();
+        return false;
       }
       if (count($test) === 2) {
         switch ($test[1]) {
-          case 'Day': return TRUE;
+          case 'Day': return true;
           case 'Weekday': return $this->dateObject->format('N') <= 5;
           default: return $test[1] === $this->dateObject->format('l');
         }
@@ -762,18 +779,19 @@
         if ($test[2] === 'Day' || $test[2] === 'Weekday' || $test[2] === $this->dateObject->format('l')) {
           return self::testFrequency($test[1], $test[2]);
         } else {
-          return FALSE;
+          return false;
         }
       }
     }
 
-    private function testFrequency($test, $dayName) {
+    private function testFrequency($test, $dayName)
+    {
       switch ($test) {
         case 'Other':
           switch ($dayName) {
             case 'Day':
               return $this->testDateObject->format('j') % 2 === $this->dateObject->format('j') % 2;
-            break;
+              break;
             case 'Weekday':
               $diff = $this->dateObject->diff($this->testDateObject);
               //If it's been more than two days and today is not Monday
@@ -782,19 +800,19 @@
               } else {
                 return $this->testDateObject->modify('+ 2 weekdays')->format('Y-m-d') === $this->dateObject->format('Y-m-d');
               }
-            break;
+              break;
             default:
               /*Sun - Sat*/
               return $this->testDateObject->modify('+ 1 fortnight')->format('Y-m-d') === $this->dateObject->format('Y-m-d'); break;
           }
-        break;
+          break;
         case 'First':
           if ($dayName === 'Weekday') {
             return self::isFirstWeekday($this->dateObject);
           } else {
             return $this->dateObject->format('Y-m-d') === date('Y-m-d', strtotime("first {$dayName} of {$this->dateObject->format('F Y')}"));
           }
-        break;
+          break;
         case 'Second':
           if ($dayName === 'Weekday') {
             return self::isFirstWeekday($this->dateObject->modify('- 1 day'));
@@ -802,47 +820,49 @@
             return $this->dateObject->format('Y-m-d') === date('Y-m-d', strtotime("second {$dayName} of
             {$this->dateObject->format('F Y')}"));
           }
-        break;
+          break;
         case 'Third':
           if ($dayName === 'Weekday') {
             return self::isFirstWeekday($this->dateObject->modify("- 2 day"));
           } else {
             return $this->dateObject->format('Y-m-d') === date('Y-m-d', strtotime("third {$dayName} of {$this->dateObject->format('F Y')}"));
           }
-        break;
+          break;
         case 'Fourth':
           if ($dayName === 'Weekday') {
             return self::isFirstWeekday($this->dateObject->modify('- 3 day'));
           } else {
             return $this->dateObject->format('Y-m-d') === date('Y-m-d', strtotime("fourth {$dayName} of {$this->dateObject->format('F Y')}"));
           }
-        break;
+          break;
         case 'Last':
           if ($dayName === 'Weekday') {
             switch ($this->dateObject->format('t') - $this->dateObject->format('j')) {
               case 0: return $this->dateObject->format('N') <= 5;
               case 1:
               case 2: return $this->dateObject->format('N') == 5;
-              default: return FALSE;
+              default: return false;
             }
           } else {
             return $this->dateObject->format('Y-m-d') === date('Y-m-d', strtotime("last {$dayName} of {$this->dateObject->format('F Y')}"));
           }
-        break;
-        default: return FALSE;
+          break;
+        default: return false;
       }
     }
     /** http://stackoverflow.com/questions/33446530/testing-for-the-first-weekday-of-the-month-in-php **/
-    private function isFirstWeekday($dateObject) {
+    private function isFirstWeekday($dateObject)
+    {
       switch($dateObject->format('j')) {
         case 1: return $dateObject->format('N') <= 5;
         case 2:
         case 3: return $dateObject->format('N') == 1;
-        default: return FALSE;
+        default: return false;
       }
     }
 
-    private function submitRouteTickets() {
+    private function submitRouteTickets()
+    {
       $data['multiTicket'] = [];
       foreach ($this->newTickets as $newTicket) {
         $micro_date = microtime();
@@ -861,21 +881,23 @@
       if (!$ticketPrime = self::createTicket($data)) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        return FALSE;
+        if ($this->enableLogging !== false) self::writeLoop();
+        return false;
       }
-      if ($ticketPrime->processRouteTicket() === FALSE) {
+      if ($ticketPrime->processRouteTicket() === false) {
         $this->error .= "\n" . $ticketPrime->getError();
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        return FALSE;
+        if ($this->enableLogging !== false) self::writeLoop();
+        return false;
       }
-      return TRUE;
+      return true;
     }
 
-    private function sortTickets($ticket) {
-      if (array_key_exists($ticket['locationTest'], $this->multiLocation) &&
-        self::recursive_array_search($ticket['TicketNumber'], $this->multiLocation) === FALSE)
-      {
+    private function sortTickets($ticket)
+    {
+      if (
+        array_key_exists($ticket['locationTest'], $this->multiLocation) &&
+        self::recursive_array_search($ticket['TicketNumber'], $this->multiLocation) === false
+      ) {
         $this->multiLocation[$ticket['locationTest']][] = $ticket;
       } else {
         if (empty($this->ticketSet)) {
@@ -894,8 +916,10 @@
       }
     }
 
-    private function prepTickets() {
-      // Set new keys 1) using client name, department, address1, and schedule time for grouping tickets, 2) indicating what step the ticket is on to ease processing.
+    private function prepTickets()
+    {
+      // Set new keys 1) using client name, department, address1, and schedule time for grouping tickets,
+      // 2) indicating what step the ticket is on to ease processing.
       foreach ($this->activeTicketSet as $ticket) {
         if ($ticket['pTimeStamp'] === $this->tTest) {
           $ticket['locationTest'] = "{$ticket['pClient']} {$ticket['pDepartment']} {$ticket['pAddress1']} {$ticket['pTime']}";

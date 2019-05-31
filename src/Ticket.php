@@ -18,11 +18,11 @@
     protected $contract;
     protected $invoiceNumber;
     protected $generalDiscount;
-    protected $newTicket = FALSE;
-    private $forDisatch = FALSE;
-    protected $ticketEditor = FALSE;
-    protected $updateTicket = FALSE;
-    protected $processTransfer = FALSE;
+    protected $newTicket = false;
+    private $forDisatch = false;
+    protected $ticketEditor = false;
+    protected $updateTicket = false;
+    protected $processTransfer = false;
     protected $crun_index;
     protected $ticket_index;
     protected $TicketNumber;
@@ -121,7 +121,7 @@
     // Ticket values that should not be included on datalists
     protected $ignoreValues = [];
     // bool flag indicating if a map will be displayed for price calculation
-    protected $mapAvailable = TRUE;
+    protected $mapAvailable = true;
     // Other needed properties
     private $activeTicketSet = [];
     private $today;
@@ -141,10 +141,26 @@
     private $tTest;
     // Define the type of form to create charge options for
     private $formType;
-    private $newTicketDatabaseKeys = ['Contract', 'RunNumber', 'TicketNumber', 'TicketBase', 'BillTo', 'RepeatClient', 'RequestedBy', 'pClient', 'dClient', 'pDepartment', 'dDepartment', 'pAddress1', 'dAddress1', 'pAddress2', 'dAddress2', 'pCountry', 'dCountry', 'pContact', 'dContact', 'pTelephone', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'Charge', 'RunPrice', 'TicketPrice', 'EmailConfirm', 'EmailAddress', 'Telephone', 'pTime', 'dTime', 'd2Time', 'pSigReq', 'dSigReq', 'd2SigReq', 'DispatchedTo', 'ReceivedDate', 'DispatchTimeStamp', 'DispatchMicroTime', 'DispatchedBy', 'Notes'];
-    private $updateTicketDatabaseKeys = ['BillTo', 'Charge', 'EmailAddress', 'EmailConfirm', 'Telephone', 'RequestedBy', 'pClient', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'dClient', 'dAddress1', 'dAddress2', 'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'DispatchedTo', 'Transfers', 'TicketBase', 'RunPrice', 'TicketPrice', 'Notes', 'pSigReq', 'dSigReq', 'd2SigReq', 'pLat', 'pLng', 'dLat', 'dLng', 'd2Lat', 'd2Lng'];
-    private $postableKeys = ['repeatClient', 'fromMe', 'pClient', 'pDepartment', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'pSigReq', 'toMe', 'dClient', 'dDepartment', 'dAddress1', 'dAddress2', 'dCountry', 'dContact', 'dTelephone', 'dSigReq', 'dryIce', 'diWeight', 'Notes', 'Charge', 'DispatchedTo', 'd2SigReq', 'EmailAddress', 'EmailConfirm', 'Telephone', 'RequestedBy', 'locationList', 'clientList', 'tClientList', 'driverList'];
-    private $javascriptKeys = ['ClientName', 'Department', 'ShippingAddress1', 'ShippingAddress2', 'ShippingCountry'];
+    private $newTicketDatabaseKeys = [ 'Contract', 'RunNumber', 'TicketNumber', 'TicketBase', 'BillTo', 'RepeatClient',
+      'RequestedBy', 'pClient', 'dClient', 'pDepartment', 'dDepartment', 'pAddress1', 'dAddress1', 'pAddress2',
+      'dAddress2', 'pCountry', 'dCountry', 'pContact', 'dContact', 'pTelephone', 'dTelephone', 'dryIce', 'diWeight',
+      'diPrice', 'Charge', 'RunPrice', 'TicketPrice', 'EmailConfirm', 'EmailAddress', 'Telephone', 'pTime', 'dTime',
+      'd2Time', 'pSigReq', 'dSigReq', 'd2SigReq', 'DispatchedTo', 'ReceivedDate', 'DispatchTimeStamp',
+      'DispatchMicroTime', 'DispatchedBy', 'Notes'
+    ];
+    private $updateTicketDatabaseKeys = [ 'BillTo', 'Charge', 'EmailAddress', 'EmailConfirm', 'Telephone', 'RequestedBy',
+      'pClient', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'dClient', 'dAddress1', 'dAddress2',
+      'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'DispatchedTo', 'Transfers', 'TicketBase',
+      'RunPrice', 'TicketPrice', 'Notes', 'pSigReq', 'dSigReq', 'd2SigReq', 'pLat', 'pLng', 'dLat', 'dLng', 'd2Lat',
+      'd2Lng'
+    ];
+    private $postableKeys = [ 'repeatClient', 'fromMe', 'pClient', 'pDepartment', 'pAddress1', 'pAddress2', 'pCountry',
+      'pContact', 'pTelephone', 'pSigReq', 'toMe', 'dClient', 'dDepartment', 'dAddress1', 'dAddress2', 'dCountry',
+      'dContact', 'dTelephone', 'dSigReq', 'dryIce', 'diWeight', 'Notes', 'Charge', 'DispatchedTo', 'd2SigReq',
+      'EmailAddress', 'EmailConfirm', 'Telephone', 'RequestedBy', 'locationList', 'clientList', 'tClientList',
+      'driverList'
+    ];
+    private $javascriptKeys = [ 'ClientName', 'Department', 'ShippingAddress1', 'ShippingAddress2', 'ShippingCountry' ];
     // Results form geocoder
     private $result1obj;
     private $result2obj;
@@ -154,7 +170,7 @@
     private $loc2;
     private $center;
     private $geocoder;
-    private $guzzleConfig = [ 'timeout' => 2.0, 'verify' => FALSE ];
+    private $guzzleConfig = [ 'timeout' => 2.0, 'verify' => false ];
     private $guzzle;
     private $adapter;
     private $dumper;
@@ -165,9 +181,12 @@
     private $MER = 6372.797; // Mean Earth Radius in km
     private $angle;
     private $greatCircleDistance;
-    private $processingRoute = FALSE;
+    private $processingRoute = false;
     // list of providers supported by php/Geocoder
-    private $providers = [ 'AlgoliaPlaces', 'ArcGISOnline', 'BingMaps', 'FreeGeoIp', 'GeoIP', 'GeoIP2', 'GeoIPs', 'GeoPlugin', 'Geonames', 'GoogleMaps', 'Here', 'HostIp', 'IpInfo', 'IpInfoDb', 'Ipstack', 'LocationIQ', 'MapQuest', 'MapBox', 'Mapzen', 'MaxMind', 'MaxMindBinary', 'Nominatim', 'OpenCage', 'PickPoint', 'TomTom', 'Yandex' ];
+    private $providers = [ 'AlgoliaPlaces', 'ArcGISOnline', 'BingMaps', 'FreeGeoIp', 'GeoIP', 'GeoIP2', 'GeoIPs',
+      'GeoPlugin', 'Geonames', 'GoogleMaps', 'Here', 'HostIp', 'IpInfo', 'IpInfoDb', 'Ipstack', 'LocationIQ', 'MapQuest',
+      'MapBox', 'Mapzen', 'MaxMind', 'MaxMindBinary', 'Nominatim', 'OpenCage', 'PickPoint', 'TomTom', 'Yandex'
+    ];
     private $ticketBaseRetries = 0;
     /**
     *  int flag indicating what range to solve for
@@ -209,16 +228,17 @@
     protected $latitude;
     protected $longitude;
 
-    public function __construct($options, $data=[]) {
+    public function __construct($options, $data=[])
+    {
       try {
         parent::__construct($options, $data);
       } catch (Exception $e) {
         $this->error = $e->getMessage();
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         throw $e;
       }
-      if ($this->noSession === FALSE) {
-        $this->driverID = (isset($_SESSION['driver_index'])) ? $_SESSION['DriverID'] : NULL;
+      if ($this->noSession === false) {
+        $this->driverID = (isset($_SESSION['driver_index'])) ? $_SESSION['DriverID'] : null;
         if (!is_numeric($this->ulevel)) {
           if ($this->ulevel === 'dispatch') {
             $this->userType = 'dispatch';
@@ -238,56 +258,60 @@
           self::setTimezone();
         } catch (Exception $e) {
           $this->error .= "\n" . __function__ . ' Line ' . __line__ . ': ' . $e->getMessage();
-          if ($this->enableLogging !== FALSE) self::writeLoop();
+          if ($this->enableLogging !== false) self::writeLoop();
           throw $e;
         }
         try {
           $this->today = new \dateTime('NOW', $this->timezone);
         } catch (Exception $e) {
           $this->error .= "\nDate Error Line " . __line__ . ': ' . $e->getMessage();
-          if ($this->enableLogging !== FALSE) self::writeLoop();
+          if ($this->enableLogging !== false) self::writeLoop();
           throw $e;
         }
-        $this->geoRetry = (count(json_decode($this->config['Geocoders'])) < 5) ? 5 : count(json_decode($this->config['Geocoders']));
+        $this->geoRetry = (count(json_decode($this->config['Geocoders'])) < 5) ?
+        5 : count(json_decode($this->config['Geocoders']));
       }
       // forms will send ticketNumber, contract, charge while the API and this class expect TicketNumber, Contract, Charge
-      if ($this->ticketNumber !== NULL) {
+      if ($this->ticketNumber !== null) {
         $this->TicketNumber = $this->ticketNumber;
       }
-      if ($this->contract !== NULL) {
+      if ($this->contract !== null) {
         $this->Contract = $this->contract;
       }
-      if ($this->charge !== NULL) {
+      if ($this->charge !== null) {
         $this->Charge = $this->charge;
       }
     }
 
-    protected function clearTicket() {
+    protected function clearTicket()
+    {
       $keysToClear = [];
       for ($i = 0; $i < count($this->newTicketDatabaseKeys); $i++) {
         if ($this->newTicketDatabaseKeys !== 'RepeatClient') $keysToClear[] = $this->newTicketDatabaseKeys[$i];
       }
       $keysToClear[] = 'ticket_index';
       foreach ($this as $key => $value) {
-        if (in_array($key, $keysToClear)) { $this->{$key} = NULL; }
+        if (in_array($key, $keysToClear)) { $this->{$key} = null; }
       }
     }
 
-    private function rangeTest() {
+    private function rangeTest()
+    {
       switch ($this->rangeFlag) {
         case 0:
           $this->rangeLoc1 = $this->loc1;
           $this->rangeLoc2 = $this->loc2;
-        break;
+          break;
         case 1:
           $this->rangeLoc1 = $this->config['RangeCenter'];
           $this->rangeLoc2 = $this->loc1;
-        break;
+          break;
         case 2:
           $this->rangeLoc1 = $this->config['RangeCenter'];
           $this->rangeLoc2 = $this->loc2;
-        break;
-        default: return FALSE;
+          break;
+        default:
+          return false;
       }
       $this->rangeLoc1['lat'] *= $this->pi80;
       $this->rangeLoc1['lng'] *= $this->pi80;
@@ -298,18 +322,23 @@
 
       $this->dLngR = $this->rangeLoc2['lng'] - $this->rangeLoc1['lng'];
 
-      $this->angle = sin($this->dLatR / 2) * sin($this->dLatR / 2) + cos($this->rangeLoc1['lat']) * cos($this->rangeLoc2['lat']) * sin($this->dLngR / 2) * sin($this->dLngR / 2);
+      $this->angle = sin($this->dLatR / 2) * sin($this->dLatR / 2) +
+        cos($this->rangeLoc1['lat']) * cos($this->rangeLoc2['lat']) * sin($this->dLngR / 2) * sin($this->dLngR / 2);
 
       $this->greatCircleDistance = 2 * atan2(sqrt($this->angle), sqrt(1 - $this->angle));
       // Distance in km
       switch ($this->rangeFlag) {
-        case 0: return $this->rangeVal = round($this->MER * $this->greatCircleDistance, 2);
-        case 1: return $this->pRangeTest = round($this->MER * $this->greatCircleDistance, 2);
-        case 2: return $this->dRangeTest = round($this->MER * $this->greatCircleDistance, 2);
+        case 0:
+          return $this->rangeVal = round($this->MER * $this->greatCircleDistance, 2);
+        case 1:
+          return $this->pRangeTest = round($this->MER * $this->greatCircleDistance, 2);
+        case 2:
+          return $this->dRangeTest = round($this->MER * $this->greatCircleDistance, 2);
       }
     }
 
-    private function solveTicketPrice() {
+    private function solveTicketPrice()
+    {
       if ($this->fromMe === 1) {
         $this->pClient = $_SESSION['ClientName'];
         $this->pDepartment = $_SESSION['Department'];
@@ -336,7 +365,7 @@
       }
       // if ticket_index is not null then this is an update
       // query the database to determine if a price change is needed
-      if ($this->ticket_index !== NULL) {
+      if ($this->ticket_index !== null) {
         $data['method'] = 'GET';
         $data['endPoint'] = 'tickets';
         $data['queryParams'] = [];
@@ -344,33 +373,35 @@
         if (!$ticketQuery = self::createQuery($data)) {
           $temp = $this->error;
           $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-          if ($this->enableLogging !== FALSE) self::writeLoop();
-          return FALSE;
+          if ($this->enableLogging !== false) self::writeLoop();
+          return false;
         }
         $testTicket = self::callQuery($ticketQuery);
-        if ($testTicket === FALSE) {
+        if ($testTicket === false) {
           $temp = $this->error;
           $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-          if ($this->enableLogging !== FALSE) self::writeLoop();
-          return FALSE;
+          if ($this->enableLogging !== false) self::writeLoop();
+          return false;
         }
         if ($testTicket[0]['Contract'] === 1 && $testTicket[0]['RunNumber'] !== 0) {
           $contractRunQueryData['endPoint'] = 'contract_runs';
           $contractRunQueryData['method'] = 'GET';
           $contractRunQueryData['queryParams'] = [];
-          $contractRunQueryData['queryParams']['filter'] = [ ['Resource'=>'RunNumber', 'Filter'=>'eq', 'Value'=>$testTicket[0]['RunNumber']] ];
+          $contractRunQueryData['queryParams']['filter'] = [
+            ['Resource'=>'RunNumber', 'Filter'=>'eq', 'Value'=>$testTicket[0]['RunNumber']]
+          ];
           if (!$contractRunQuery = self::createQuery($contractRunQueryData)) {
             $temp = $this->error;
             $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-            if ($this->enableLogging !== FALSE) self::writeLoop();
-            return FALSE;
+            if ($this->enableLogging !== false) self::writeLoop();
+            return false;
           }
           $contractRunQueryResult = self::callQuery($contractRunQuery);
-          if ($contractRunQueryResult === FALSE) {
+          if ($contractRunQueryResult === false) {
             $temp = $this->error;
             $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-            if ($this->enableLogging !== FALSE) self::writeLoop();
-            return FALSE;
+            if ($this->enableLogging !== false) self::writeLoop();
+            return false;
           }
           if (!empty($contractRunQueryResult[0])) {
             foreach($contractRunQueryResult[0] as $key => $value) {
@@ -381,7 +412,11 @@
         $originalTicket = self::recursive_santizer($testTicket[0]);
         $this->PriceOverride = (isset($originalTicket['PriceOverride'])) ? $originalTicket['PriceOverride'] : 0;
         // If the neither address has changed set flag to prevent recalculating the price
-        if ($this->pAddress1 . $this->pAddress2 . $this->pCountry === $originalTicket['pAddress1'] . $originalTicket['pAddress2'] . $originalTicket['pCountry'] && $this->dAddress1 . $this->dAddress2 . $this->dCountry === $originalTicket['dAddress1'] . $originalTicket['dAddress2'] . $originalTicket['dCountry']) {
+        $testP = $this->pAddress1 . $this->pAddress2 . $this->pCountry;
+        $originP = $originalTicket['pAddress1'] . $originalTicket['pAddress2'] . $originalTicket['pCountry'];
+        $testD = $this->dAddress1 . $this->dAddress2 . $this->dCountry;
+        $originD = $originalTicket['dAddress1'] . $originalTicket['dAddress2'] . $originalTicket['dCountry'];
+        if ($testP === $originP && $testD === $originD) {
           $this->PriceOverride = 1;
           $this->TicketBase = $originalTicket['TicketBase'];
         }
@@ -394,35 +429,35 @@
       switch ($this->Charge) {
         case 1:
           $this->RunPrice = round(($this->TicketBase * $this->config['OneHour']), 2, PHP_ROUND_HALF_UP);
-        break;
+          break;
         case 2:
           $this->RunPrice = round(($this->TicketBase * $this->config['TwoHour']), 2, PHP_ROUND_HALF_UP);
-        break;
+          break;
         case 3:
           $this->RunPrice = round(($this->TicketBase * $this->config['ThreeHour']), 2, PHP_ROUND_HALF_UP);
-        break;
+          break;
         case 4:
           $this->RunPrice = round(($this->TicketBase * $this->config['FourHour']), 2, PHP_ROUND_HALF_UP);
-        break;
+          break;
         case 5:
           $this->RunPrice = $this->TicketBase;
-        break;
+          break;
        case 6:
           $this->RunPrice = $this->TicketBase * 2;
-        break;
+          break;
         case 7:
           $this->TicketBase = $this->config['DedicatedRunRate'];
           $this->RunPrice = 0;
-        break;
+          break;
         case 8:
           $this->RunPrice = round(($this->TicketBase * $this->config['DeadRun']), 2, PHP_ROUND_HALF_UP);
-        break;
+          break;
         case 9:
           // credit will currently not be a case here
-        break;
+          break;
         default:
           $this->RunPrice = $this->TicketBase;
-        break;
+          break;
       }
       if ($this->dryIce === 1) {
         $this->diPrice = $this->config['diPrice'] * $this->diWeight;
@@ -431,9 +466,10 @@
         $this->diPrice = 0;
         $this->TicketPrice = $this->RunPrice;
       }
-      return TRUE;
+      return true;
     }
-    private function shiftGeocoders() {
+    private function shiftGeocoders()
+    {
       $geoProviders = json_decode($this->config['Geocoders'], true);
       if (count($geoProviders) > 1) {
         $firstKey = array_shift(array_keys($geoProviders));
@@ -443,9 +479,10 @@
       }
     }
 
-    private function getTicketBase() {
+    private function getTicketBase()
+    {
       // clear results as this might not be the first try
-      $this->result1 = $this->result2 = NULL;
+      $this->result1 = $this->result2 = null;
       if (strlen($this->pCountry) === 2) {
         $this->pCountry = self::countryFromAbbr($this->pCountry);
       }
@@ -463,53 +500,56 @@
       $this->dumper = new \Geocoder\Dumper\GeoJson();
       $geoProviders = json_decode($this->config['Geocoders']);
       if (json_last_error() !== JSON_ERROR_NONE) {
-        if ($this->enableLogging === TRUE) {
+        if ($this->enableLogging === true) {
           $this->error = 'getTicketBase failure line ' . __line__ . '. ' . json_last_error_msg();
           $this->writeLoop();
         }
         return $this->TicketBase = 0;
       }
       // Don't test for providers that require a map if none is available
-      $exclude = ($this->mapAvailable === TRUE) ? [] : ['GoogleMaps'];
+      $exclude = ($this->mapAvailable === true) ? [] : ['GoogleMaps'];
       $chainProviders = [];
       foreach ($geoProviders as $key => $value) {
-        $providerIndex = $newProvider = NULL;
+        $providerIndex = $newProvider = null;
         for ($i = 0; $i < count($this->providers); $i++) {
-          if (strtolower($this->providers[$i]) === strtolower(preg_replace('/\s+/', '', $key)) && !in_array($this->providers[$i], $exclude)) {
+          if (
+            strtolower($this->providers[$i]) === strtolower(preg_replace('/\s+/', '', $key)) &&
+            !in_array($this->providers[$i], $exclude)
+          ) {
             $providerIndex = $i;
           }
         }
-        if ($providerIndex !== NULL) {
+        if ($providerIndex !== null) {
           $testClass = "\Geocoder\Provider\\{$this->providers[$providerIndex]}\\{$this->providers[$providerIndex]}";
           if (class_exists($testClass)) {
             if (count($value) > 1) {
               try {
                 $newProvider = new $testClass($this->adapter, $value[1], $value[0]);
               } catch(Exception $e) {
-                if ($this->enableLogging !== FALSE) {
+                if ($this->enableLogging !== false) {
                   $this->error = "Geocoder Error {$e->getMessage()}";
                   self::writeLoop();
                 }
-                $newProvider = NULL;
+                $newProvider = null;
               }
-              if ($newProvider !== NULL) $chainProviders[] = $newProvider;
+              if ($newProvider !== null) $chainProviders[] = $newProvider;
             } else {
               try {
                 $newProvider = new $testClass($this->adapter, $value[0]);
               } catch(Exception $e) {
-                if ($this->enableLogging !== FALSE) {
+                if ($this->enableLogging !== false) {
                   $this->error = "Geocoder Error {$e->getMessage()}";
                   self::writeLoop();
                 }
-                $newProvider = NULL;
+                $newProvider = null;
               }
             }
-            if ($newProvider !== NULL) $chainProviders[] = $newProvider;
+            if ($newProvider !== null) $chainProviders[] = $newProvider;
           }
         }
       }
       if (empty($chainProviders)) {
-        if ($this->enableLogging !== FALSE) {
+        if ($this->enableLogging !== false) {
           $this->error = 'No geocoder providers available';
           self::writeLoop();
         }
@@ -524,7 +564,7 @@
         $this->geocoder->geocodeQuery(GeocodeQuery::create($addy1));
       } catch(Exception $e) {
         $this->error = $e->getMessage();
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         if ($this->ticketBaseRetries < $this->geoRetry) {
           self::shiftGeocoders();
           $this->ticketBaseRetries++;
@@ -535,7 +575,10 @@
       $temp = $this->geocoder->geocodeQuery(GeocodeQuery::create($addy1))->all();
       for ($i = 0; $i < count($temp); $i++) {
         $test = json_decode($this->dumper->dump($temp[$i]));
-        if ($test->properties->adminLevels->{1}->name === $addy1GeocoderAdmin1 || $test->properties->adminLevels->{1}->code === $addy1GeocoderAdmin1) {
+        if (
+          $test->properties->adminLevels->{1}->name === $addy1GeocoderAdmin1 ||
+          $test->properties->adminLevels->{1}->code === $addy1GeocoderAdmin1
+        ) {
           $this->result1 = $test;
           break;
         }
@@ -547,7 +590,7 @@
           return self::getTicketBase();
         } else {
           $this->error = 'No address1 match from geocoder';
-          if ($this->enableLogging !== FALSE) self::writeLoop();
+          if ($this->enableLogging !== false) self::writeLoop();
           return $this->TicketBase = 0;
         }
       }
@@ -555,7 +598,7 @@
         $this->geocoder->geocodeQuery(GeocodeQuery::create($addy2));
       } catch(Exception $e) {
         $this->error = $e->getMessage();
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         if ($this->ticketBaseRetries < $this->geoRetry) {
           self::shiftGeocoders();
           $this->ticketBaseRetries++;
@@ -566,7 +609,10 @@
       $temp = $this->geocoder->geocodeQuery(GeocodeQuery::create($addy2))->all();
       for ($i = 0; $i < count($temp); $i++) {
         $test = json_decode($this->dumper->dump($temp[$i]));
-        if ($test->properties->adminLevels->{1}->name === $addy2GeocoderAdmin1 || $test->properties->adminLevels->{1}->code === $addy2GeocoderAdmin1) {
+        if (
+          $test->properties->adminLevels->{1}->name === $addy2GeocoderAdmin1 ||
+          $test->properties->adminLevels->{1}->code === $addy2GeocoderAdmin1
+        ) {
           $this->result2 = $test;
           break;
         }
@@ -578,7 +624,7 @@
           return self::getTicketBase();
         } else {
           $this->error = 'No address2 match from geocoder';
-          if ($this->enableLogging !== FALSE) self::writeLoop();
+          if ($this->enableLogging !== false) self::writeLoop();
           return $this->TicketBase = 0;
         }
       }
@@ -601,20 +647,22 @@
         $this->dRangeTest = round($this->dRangeTest * 0.621371192, 2);
       }
       $this->billingCode = round($this->rangeVal / $this->config['RangeIncrement'], 0, PHP_ROUND_HALF_UP);
-      $this->TicketBase = round($this->config['BaseTicketFee'] * pow($this->config['PriceIncrement'], $this->billingCode), 2, PHP_ROUND_HALF_DOWN);
+      $this->TicketBase = round($this->config['BaseTicketFee'] *
+        pow($this->config['PriceIncrement'], $this->billingCode), 2, PHP_ROUND_HALF_DOWN);
       // Solve for ticketPrice
-      if ($this->Contract == 0 && $this->BillTo !== NULL) {
+      if ($this->Contract == 0 && $this->BillTo !== null) {
         $this->TicketBase = round(($this->TicketBase * $this->config['GeneralDiscount'][$this->BillTo]), 2, PHP_ROUND_HALF_DOWN);
-      } elseif ($this->Contract == 1 && $this->BillTo !== NULL) {
+      } elseif ($this->Contract == 1 && $this->BillTo !== null) {
         $this->TicketBase = round(($this->TicketBase * $this->config['ContractDiscount'][$this->BillTo]), 2, PHP_ROUND_HALF_DOWN);
       }
       if ($this->TicketBase > $this->maxFee) {
         $this->TicketBase = $this->maxFee;
       }
-      return TRUE;
+      return true;
     }
 
-    private function solveDedicatedRunPrice() {
+    private function solveDedicatedRunPrice()
+    {
       // Define the start and end times based on return signature request
       if ($this->d2SigReq === 1) {
         if ($this->d2TimeStamp !== $this->tTest) {
@@ -622,20 +670,20 @@
             $start = new \dateTime($this->pTimeStamp, $this->timezone);
           } catch (Exception $e) {
             $this->error = __function__ . ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
-            if ($this->enableLogging !== FALSE) self::writeLoop();
+            if ($this->enableLogging !== false) self::writeLoop();
             echo $this->error;
-            return FALSE;
+            return false;
           }
           try {
             $end = new \dateTime($this->d2TimeStamp, $this->timezone);
           } catch (Exception $e) {
             $this->error = __function__ . ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
-            if ($this->enableLogging !== FALSE) self::writeLoop();
+            if ($this->enableLogging !== false) self::writeLoop();
             echo $this->error;
-            return FALSE;
+            return false;
           }
         } else {
-          return FALSE;
+          return false;
         }
       } else {
         if ($this->dTimeStamp !== $this->tTest) {
@@ -643,20 +691,20 @@
             $start = new \dateTime($this->pTimeStamp, $this->timezone);
           } catch (Exception $e) {
             $this->error = __function__ . ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
-            if ($this->enableLogging !== FALSE) self::writeLoop();
+            if ($this->enableLogging !== false) self::writeLoop();
             echo $this->error;
-            return FALSE;
+            return false;
           }
           try {
             $end = new \dateTime($this->dTimeStamp, $this->timezone);
           } catch (Exception $e) {
             $this->error = __function__ . ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
-            if ($this->enableLogging !== FALSE) self::writeLoop();
+            if ($this->enableLogging !== false) self::writeLoop();
             echo $this->error;
-            return FALSE;
+            return false;
           }
         } else {
-          return FALSE;
+          return false;
         }
       }
       $interval = date_diff($start, $end);
@@ -672,39 +720,44 @@
       if (!$updateTicketPrice = self::createQuery($updateTicketPriceData)) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        return FALSE;
+        if ($this->enableLogging !== false) self::writeLoop();
+        return false;
       }
       $updateTicketPriceResult = self::callQuery($updateTicketPrice);
-      if ($updateTicketPriceResult === FALSE) {
+      if ($updateTicketPriceResult === false) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        return FALSE;
+        if ($this->enableLogging !== false) self::writeLoop();
+        return false;
       }
-      return TRUE;
+      return true;
     }
 
-    private function buildLocationList() {
-      if ($this->organizationFlag === TRUE) $this->ClientID = implode(',', array_keys($this->members));
+    private function buildLocationList()
+    {
+      if ($this->organizationFlag === true) $this->ClientID = implode(',', array_keys($this->members));
       $tempClients = $uniqueTest = array();
-      $locationQueryData['queryParams']['include'] = ['pClient', 'dClient', 'pAddress1', 'pAddress2', 'pCountry', 'dAddress1', 'dAddress2', 'dCountry', 'pDepartment', 'dDepartment', 'pContact', 'dContact'];
-      $locationQueryData['queryParams']['filter'] = ($this->ulevel === 'dispatch' || $this->ulevel === 'driver') ? [] : [ ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>$this->ClientID] ];
       $locationQueryData['method'] = 'GET';
       $locationQueryData['endPoint'] = 'tickets';
+      $locationQueryData['queryParams']['include'] = [ 'pClient', 'dClient', 'pAddress1', 'pAddress2', 'pCountry',
+        'dAddress1', 'dAddress2', 'dCountry', 'pDepartment', 'dDepartment', 'pContact', 'dContact'
+      ];
+      $locationQueryData['queryParams']['filter'] = ($this->ulevel === 'dispatch' || $this->ulevel === 'driver') ?
+        [] : [ ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>$this->ClientID] ];
+
       if (!$locationQuery = self::createQuery($locationQueryData)) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        return FALSE;
+        if ($this->enableLogging !== false) self::writeLoop();
+        return false;
       }
       //Pull the data to make the datalists
       $locationData = self::callQuery($locationQuery);
-      if ($locationData === FALSE) {
+      if ($locationData === false) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        return FALSE;
+        if ($this->enableLogging !== false) self::writeLoop();
+        return false;
       }
       //Only proceed if a record is returned
       if (count($locationData) === 0) {
@@ -713,48 +766,68 @@
         // Filter the locationList first to be unique then using $this->ignoreValues and $this->clientAddressExceptions
         foreach ($locationData as $location) {
           if (!in_array(strtolower($location['pClient']), $this->ignoreValues)) {
-            $test = self::decode($location['pClient']) . ' ' . self::decode($location['pDepartment']) . ' ' . self::decode($location['pAddress1']) . ' ' . self::decode($location['pAddress2']) . ' ' . $location['pCountry'];
-            $exceptionTest = self::decode($location['pClient']) . ', ' . self::decode($location['pAddress1']);
+            $test = self::decode(
+              "{$location['pClient']} {$location['pDepartment']} {$location['pAddress1']} {$location['pAddress2']}"
+              ) . ' ' . $location['pCountry'];
+            $exceptionTest = self::decode("{$location['pClient']}, {$location['pAddress1']}");
             if (!in_array($test, $uniqueTest) && !in_array($exceptionTest, $this->clientAddressExceptions)) {
               $uniqueTest[] = $test;
-              $tempClients[] = ['client'=>self::decode($location['pClient']), 'department'=>self::decode($location['pDepartment']), 'contact'=>self::decode($location['pContact']), 'address1'=>self::decode($location['pAddress1']), 'address2'=>self::decode($location['pAddress2']), 'country'=>$location['pCountry']];
+              $tempClients[] = [
+                'client'=>self::decode($location['pClient']),
+                'department'=>self::decode($location['pDepartment']),
+                'contact'=>self::decode($location['pContact']),
+                'address1'=>self::decode($location['pAddress1']),
+                'address2'=>self::decode($location['pAddress2']),
+                'country'=>$location['pCountry']
+              ];
             }
           }
           if (!in_array(strtolower($location['dClient']), $this->ignoreValues)) {
-            $test = self::decode($location['dClient']) . ' ' . self::decode($location['dDepartment']) . ' ' . self::decode($location['dAddress1']) . ' ' . self::decode($location['dAddress2']) . ' ' . $location['dCountry'];
-            $exceptionTest = self::decode($location['dClient']) . ' ' . self::decode($location['dAddress1']);
+            $test = self::decode(
+              "{$location['dClient']} {$location['dDepartment']} {$location['dAddress1']} {$location['dAddress2']}"
+              ) . ' ' . $location['dCountry'];
+            $exceptionTest = self::decode("{$location['dClient']}, {$location['dAddress1']}");
             if (!in_array($test, $uniqueTest) && !in_array($exceptionTest, $this->clientAddressExceptions)) {
               $uniqueTest[] = $test;
-              $tempClients[] = ['client'=>self::decode($location['dClient']), 'department'=>self::decode($location['dDepartment']), 'contact'=>self::decode($location['dContact']), 'address1'=>self::decode($location['dAddress1']), 'address2'=>self::decode($location['dAddress2']), 'country'=>$location['dCountry']];
+              $tempClients[] = [
+                'client'=>self::decode($location['dClient']),
+                'department'=>self::decode($location['dDepartment']),
+                'contact'=>self::decode($location['dContact']),
+                'address1'=>self::decode($location['dAddress1']),
+                'address2'=>self::decode($location['dAddress2']),
+                'country'=>$location['dCountry']
+              ];
             }
           }
         }
         // Sort $tempClients and reset the keys to the new order before encoding
-        return $this->locationList = (count($tempClients) === 0) ? 'empty' : self::encodeURIComponent(json_encode(self::user_array_sort($tempClients, 'client')));
+        return $this->locationList = (count($tempClients) === 0) ?
+          'empty' : self::encodeURIComponent(json_encode(self::user_array_sort($tempClients, 'client')));
       }
     }
 
-    private function fetchDrivers() {
+    private function fetchDrivers()
+    {
       $tempDriver = [];
       // Pull the data to make the datalists
+      $driverQueryData['method'] = 'GET';
+      $driverQueryData['endPoint'] = 'drivers';
       $driverQueryData['queryParams'] = [];
       $driverQueryData['queryParams']['include'] = ['DriverID', 'FirstName', 'LastName'];
       $driverQueryData['queryParams']['filter'] = [ ['Resource'=>'Deleted', 'Filter'=>'neq', 'Value'=>1] ];
-      $driverQueryData['method'] = 'GET';
-      $driverQueryData['endPoint'] = 'drivers';
       if (!$driverQuery = self::createQuery($driverQueryData)) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        return FALSE;
+        if ($this->enableLogging !== false) self::writeLoop();
+        return false;
       }
       $tempDriver = self::callQuery($driverQuery);
-      if ($tempDriver === FALSE) {
+      if ($tempDriver === false) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         $this->driverList = 'empty';
-        return FALSE;
+        return false;
       }
       // Only proceed if a record is returned
       if (empty($tempDriver)) {
@@ -763,25 +836,26 @@
       return $this->driverList = self::encodeURIComponent(json_encode($tempDriver));
     }
 
-    private function fetchClients() {
+    private function fetchClients()
+    {
       $tempClients = $repeatList = $nrList = [];
+      $clientQueryData['method'] = 'GET';
+      $clientQueryData['endPoint'] = 'clients';
       $clientQueryData['queryParams'] = [];
       $clientQueryData['queryParams']['include'] = ['ClientID', 'ClientName', 'Department', 'RepeatClient'];
       $clientQueryData['queryParams']['filter'] = [ ['Resource'=>'Deleted', 'Filter'=>'neq', 'Value'=>1] ];
-      $clientQueryData['method'] = 'GET';
-      $clientQueryData['endPoint'] = 'clients';
       if (!$clientQuery = self::createQuery($clientQueryData)) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        return FALSE;
+        if ($this->enableLogging !== false) self::writeLoop();
+        return false;
       }
       $tempClients = self::callQuery($clientQuery);
-      if ($tempClients === FALSE) {
+      if ($tempClients === false) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        return FALSE;
+        if ($this->enableLogging !== false) self::writeLoop();
+        return false;
       }
       // Only proceed if a record is returned
       if (empty($tempClients)) {
@@ -796,76 +870,98 @@
       }
       $this->clientList = (empty($repeatList)) ? 'empty' : self::encodeURIComponent(json_encode($repeatList));
       $this->tClientList = (empty($nrList)) ? 'empty' : self::encodeURIComponent(json_encode($nrList));
-      return TRUE;
+      return true;
     }
 
-    private function buildDatalists() {
+    private function buildDatalists()
+    {
       $returnData = '';
       if ($this->userType !== 'client') {
         if ($this->userType === 'dispatch' || $this->CanDispatch === 2) {
-          if ($this->driverList == NULL) {
+          if ($this->driverList == null) {
             self::fetchDrivers();
           }
-          if ($this->driverList !== 'empty' && $this->driverList !== NULL) {
+          if ($this->driverList !== 'empty' && $this->driverList !== null) {
             $returnData .= '<datalist id="drivers">';
-            foreach (json_decode(urldecode($this->driverList), TRUE) as $driver) {
-              // Set DispatchedTo for display if the ticket_index is not NULL
-              if ($this->ticket_index !== NULL) {
+            foreach (json_decode(urldecode($this->driverList), true) as $driver) {
+              // Set DispatchedTo for display if the ticket_index is not null
+              if ($this->ticket_index !== null) {
                 if ($this->DispatchedTo == $driver['DriverID']) {
-                  $this->DispatchedTo = ($driver['LastName'] === NULL || $driver['LastName'] === '') ? htmlentities($driver['FirstName']) . '; ' . $driver['DriverID'] : htmlentities($driver['FirstName']) . ' ' . htmlentities($driver['LastName']) . '; ' . $driver['DriverID'];
+                  $this->DispatchedTo = ($driver['LastName'] === null || $driver['LastName'] === '') ?
+                  htmlentities($driver['FirstName']) . '; ' . $driver['DriverID'] :
+                  htmlentities("{$driver['FirstName']} {$driver['LastName']}") . '; ' . $driver['DriverID'];
                 }
               }
-              $driverName = ($driver['LastName'] === NULL || $driver['LastName'] === '') ? htmlentities($driver['FirstName']) . '; ' . $driver['DriverID'] : htmlentities($driver['FirstName']) . ' ' . htmlentities($driver['LastName']) . '; ' . $driver['DriverID'];
+              $driverName = ($driver['LastName'] === null || $driver['LastName'] === '') ?
+              htmlentities($driver['FirstName']) . '; ' . $driver['DriverID'] :
+              htmlentities("{$driver['FirstName']} {$driver['LastName']}") . '; ' . $driver['DriverID'];
+
               $returnData .= "<option value=\"{$driverName}\">{$driverName}</option>";
             }
             $returnData .= '</datalist>';
             if ($this->userType === 'driver') {
               $returnData .= '<datalist id="receivers">';
-              foreach (json_decode(urldecode($this->driverList), TRUE) as $driver) {
-                $driverName = ($driver['LastName'] === NULL || $driver['LastName'] === '') ? htmlentities($driver['FirstName']) . '; ' . $driver['DriverID'] : htmlentities($driver['FirstName']) . ' ' . htmlentities($driver['LastName']) . '; ' . $driver['DriverID'];
-                $returnData .= ($driver['DriverID'] !== $_SESSION['DriverID']) ? "<option value=\"{$driverName}\">{$driverName}</option>" : '';
+              foreach (json_decode(urldecode($this->driverList), true) as $driver) {
+                $driverName = ($driver['LastName'] === null || $driver['LastName'] === '') ?
+                htmlentities($driver['FirstName']) . '; ' . $driver['DriverID'] :
+                htmlentities("{$driver['FirstName']} {$driver['LastName']}") . '; ' . $driver['DriverID'];
+
+                $returnData .= ($driver['DriverID'] !== $_SESSION['DriverID']) ?
+                "<option value=\"{$driverName}\">{$driverName}</option>" : '';
               }
               $returnData .= '</datalist>';
             }
           }
         }
         if ($this->userType === 'driver' && $this->CanDispatch === 0) {
-          if ($this->driverList !== 'empty' && $this->driverList == NULL) {
+          if ($this->driverList !== 'empty' && $this->driverList == null) {
             self::fetchDrivers();
           }
-          if ($this->driverList !== 'empty' && $this->driverList != NULL) {
+          if ($this->driverList !== 'empty' && $this->driverList != null) {
             $returnData .= '<datalist id="receivers">';
-            foreach (json_decode(urldecode($this->driverList), TRUE) as $driver) {
-              $driverName = ($driver['LastName'] == NULL) ? htmlentities($driver['FirstName']) . '; ' . $driver['DriverID'] : htmlentities($driver['FirstName']) . ' ' . htmlentities($driver['LastName']) . '; ' . $driver['DriverID'];
-              $returnData .= ($driver['DriverID'] !== $_SESSION['DriverID']) ? "<option value=\"{$driverName}\">{$driverName}</option>" : '';
+            foreach (json_decode(urldecode($this->driverList), true) as $driver) {
+              $driverName = ($driver['LastName'] == null) ?
+              htmlentities($driver['FirstName']) . '; ' . $driver['DriverID'] :
+              htmlentities("{$driver['FirstName']} {$driver['LastName']}") . '; ' . $driver['DriverID'];
+
+              $returnData .= ($driver['DriverID'] !== $_SESSION['DriverID']) ?
+              "<option value=\"{$driverName}\">{$driverName}</option>" : '';
             }
             $returnData .= '</datalist>';
           }
         }
-        if ($this->clientList === NULL) {
+        if ($this->clientList === null) {
           if (!self::fetchClients()) {
             return $this->error;
           }
         }
-        if ($this->clientList !== 'empty' && $this->clientList !== NULL) {
+        if ($this->clientList !== 'empty' && $this->clientList !== null) {
           $returnData .= '<datalist id="clients">';
-          foreach (json_decode(urldecode($this->clientList), TRUE) as $client) {
-            // Set BillTo for display if the ticket_index is not NULL
-            if ($this->ticket_index !== NULL) {
+          foreach (json_decode(urldecode($this->clientList), true) as $client) {
+            // Set BillTo for display if the ticket_index is not null
+            if ($this->ticket_index !== null) {
               if ($this->BillTo == $client['ClientID']) {
-                $this->BillTo = ($client['Department'] === NULL || $client['Department'] === '') ? $client['ClientName'] . '; ' . $client['ClientID'] : $client['ClientName'] . ', ' . $client['Department'] . '; ' . $client['ClientID'];
+                $this->BillTo = ($client['Department'] === null || $client['Department'] === '') ?
+                $client['ClientName'] . '; ' . $client['ClientID'] :
+                $client['ClientName'] . ', ' . $client['Department'] . '; ' . $client['ClientID'];
               }
             }
-            $clientVal = ($client['Department'] === NULL || $client['Department'] === '') ? $client['ClientName'] . '; ' . $client['ClientID'] : $client['ClientName'] . ', ' . $client['Department'] . '; ' . $client['ClientID'];
+            $clientVal = ($client['Department'] === null || $client['Department'] === '') ?
+            $client['ClientName'] . '; ' . $client['ClientID'] :
+            $client['ClientName'] . ', ' . $client['Department'] . '; ' . $client['ClientID'];
+
             $returnData .= '<option value="' . $clientVal . '">' . html_entity_decode($clientVal) . '</option>';
           }
           $returnData .= '</datalist>';
         }
-        if ($this->tClientList !== 'empty' && $this->tClientList !== NULL) {
+        if ($this->tClientList !== 'empty' && $this->tClientList !== null) {
           $returnData .= '<datalist id="t_clients">
             <option value="new">new</option>';
-          foreach (json_decode(urldecode($this->tClientList), TRUE) as $tclient) {
-            $tclientVal = ($tclient['Department'] === NULL || $tclient['Department'] === '') ? $tclient['ClientName'] . '; t' . $tclient['ClientID'] : $tclient['ClientName'] . ', ' . $tclient['Department'] . '; t' . $client['ClientID'];
+          foreach (json_decode(urldecode($this->tClientList), true) as $tclient) {
+            $tclientVal = ($tclient['Department'] === null || $tclient['Department'] === '') ?
+            $tclient['ClientName'] . '; t' . $tclient['ClientID'] :
+            $tclient['ClientName'] . ', ' . $tclient['Department'] . '; t' . $client['ClientID'];
+
             $returnData .= "<option value=\"{$tclientVal}\">" . html_entity_decode($tclientVal) . '</option>';
           }
           $returnData .= '</datalist>';
@@ -880,11 +976,11 @@
         }
         $returnData .= '</datalist>';
       }
-      if ($this->locationList === 'empty' || $this->locationList === NULL) {
+      if ($this->locationList === 'empty' || $this->locationList === null) {
         return $returnData;
       }
       $clients = $departments = $contacts = $addy1s = $addy2s = [];
-      $locations = array_values(json_decode(urldecode($this->locationList), TRUE));
+      $locations = array_values(json_decode(urldecode($this->locationList), true));
       foreach ($locations as $location) {
         foreach ($location as $key => $value) {
           switch ($key) {
@@ -913,83 +1009,99 @@
         }
       }
       $returnData .= '<datalist id="clientName">';
-
+      $html_entity_decode = 'html_entity_decode';
       foreach ($clients as $client) {
-        $returnData .= '<option value="' . htmlentities($client) . '">' . html_entity_decode($client) . '</option>';
+        $returnData .= "
+          <option vlaue=\"{$client}\">{$html_entity_decode($client)}</option>";
       }
 
-      $returnData .= '</datalist>
+      $returnData .= '
+        </datalist>
         <datalist id="departments">';
 
       foreach ($departments as $department) {
-        $returnData .= '<option value="' . htmlentities($department) . '">' . html_entity_decode($department) . '</option>';
+        $returnData .= "
+          <option vlaue=\"{$department}\">{$html_entity_decode($department)}</option>";
       }
 
-      $returnData .= '</datalist>
+      $returnData .= '
+        </datalist>
         <datalist id="addy1">';
 
       for($i = 0; $i < count($addy1s); $i++) {
-        // Use htmlentities to ensure that addresses with double quotes are displayed properly
-        $returnData .= '<option value="' . htmlentities($addy1s[$i]) . '" data-value="' . $i . '">' . html_entity_decode($addy1s[$i]) . '</option>';
+        $returnData .= "
+          <option vlaue=\"{$addy1s[$i]}\">{$html_entity_decode($addy1s[$i])}</option>";
       }
 
-      $returnData .= '</datalist>
+      $returnData .= '
+        </datalist>
         <datalist id="addy2">';
 
       for ($i = 0; $i < count($addy2s); $i++) {
-        $returnData .= "<option value=\"{$addy2s[$i]}\" data-value=\"{$i}\">" . html_entity_decode($addy2s[$i]) . '</option>';
+        $returnData .= "
+          <option value=\"{$addy2s[$i]}\" data-value=\"{$i}\">{$html_entity_decode($addy2s[$i])}</option>";
       }
 
       $returnData .= '</datalist>
         <datalist id="contacts">';
 
       foreach ($contacts as $contact) {
-        $returnData .= "<option value=\"{$contact}\">" . html_entity_decode($contact) . '</option>';
+        $returnData .= "
+          <option value=\"{$contact}\">{$html_entity_decode($contact)}</option>";
       }
 
-      $returnData .= '</datalist>';
+      $returnData .= '
+        </datalist>';
 
       return $returnData;
     }
 
-    private function buildSelectElement() {
-      $locations = json_decode(urldecode($this->locationList), TRUE);
+    private function buildSelectElement()
+    {
+      $locations = json_decode(urldecode($this->locationList), true);
       $returnData = '';
       if ($this->locationList === 'empty') {
-        return FALSE;
+        return false;
       }
-      $returnData = "<select name=\"{$this->selectID}\" class=\"clientSelect\" form=\"request\" disabled>";
+      $returnData = "
+        <select name=\"{$this->selectID}\" class=\"clientSelect\" form=\"request\" disabled>";
       for ($i=0; $i<count($locations); $i++) {
-        $returnData .= '<option data-value="' . $i . '" value="' . htmlentities($locations[$i][strtolower(substr($this->selectID, 1))]) . '">' . html_entity_decode($locations[$i][strtolower(substr($this->selectID, 1))]) . '</option>';
+        $val = $locations[$i][strtolower(substr($this->selectID, 1))];
+        $display = html_entity_decode($locations[$i][strtolower(substr($this->selectID, 1))]);
+        $returnData .= "
+          <option data-value=\"{$i}\" value=\"{$val}\">{$display}</option>";
       }
-      $returnData .= '</select>';
+      $returnData .= '
+        </select>';
       return $returnData;
     }
 
-    private function testTicketNumber() {
+    private function testTicketNumber()
+    {
       $ticketNumberQueryData['method'] = 'GET';
       $ticketNumberQueryData['endPoint'] = 'tickets';
       $ticketNumberQueryData['queryParams']['include'] = ['TicketNumber'];
       if (!$ticketNumberQuery = self::createQuery($ticketNumberQueryData)) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        return FALSE;
+        if ($this->enableLogging !== false) self::writeLoop();
+        return false;
       }
       $this->ticketNumberList = self::callQuery($ticketNumberQuery);
-      if ($this->ticketNumberList === FALSE) {
+      if ($this->ticketNumberList === false) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        return FALSE;
+        if ($this->enableLogging !== false) self::writeLoop();
+        return false;
       }
-      while (self::recursive_array_search($this->TicketNumber, $this->ticketNumberList) !== FALSE) {
+      while (self::recursive_array_search($this->TicketNumber, $this->ticketNumberList) !== false) {
         $this->TicketNumber++;
       }
-      return TRUE;
+      return true;
     }
 
-    public function sendEmail() {
+    public function sendEmail()
+    {
       if ($this->step === 'pickedUp') {
         // send email on 1, 3, 5, 7
         return $this->EmailConfirm % 2 !== 0;
@@ -999,36 +1111,40 @@
             case 2:
             case 3:
             case 6:
-            case 7: return TRUE;
-            default: return FALSE;
+            case 7: return true;
+            default: return false;
           }
       } elseif ($this->step === 'returned') {
         // send email on 4, 5, 6, 7
         return $this->EmailConfirm > 3;
       } else {
-        return FALSE;
+        return false;
       }
     }
 
-    private function queryTicket() {
+    private function queryTicket()
+    {
       $ticketQueryResult = array();
-      // When querying multiple tickets $this->ticket_index will be a comma separated list of indexes. Test for a comma and adjust the filter accordingly.
-      $queryFilter = (strpos($this->ticket_index, ',') === FALSE) ? 'eq' : 'in';
+      // When querying multiple tickets $this->ticket_index will be a comma separated list of indexes.
+      // Test for a comma and adjust the filter accordingly.
+      $queryFilter = (strpos($this->ticket_index, ',') === false) ? 'eq' : 'in';
       $ticketQueryData['endPoint'] = 'tickets';
       $ticketQueryData['method'] = 'GET';
-      $ticketQueryData['queryParams']['filter'] = [ ['Resource'=>'ticket_index', 'Filter'=>$queryFilter, 'Value'=>$this->ticket_index] ];
+      $ticketQueryData['queryParams']['filter'] = [
+        ['Resource'=>'ticket_index', 'Filter'=>$queryFilter, 'Value'=>$this->ticket_index]
+      ];
       if (!$ticketQuery = self::createQuery($ticketQueryData)) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        return FALSE;
+        if ($this->enableLogging !== false) self::writeLoop();
+        return false;
       }
       $ticketQueryResult = self::callQuery($ticketQuery);
-      if ($ticketQueryResult === FALSE) {
+      if ($ticketQueryResult === false) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
-        return FALSE;
+        if ($this->enableLogging !== false) self::writeLoop();
+        return false;
       }
       if (count($ticketQueryResult) === 1) {
         $this->sanitized = self::recursive_santizer($ticketQueryResult[0]);
@@ -1036,9 +1152,9 @@
           foreach ($this as $k => $v) {
             if (strtolower($key) === strtolower($k) && $k !== 'sanitized') {
               if (strtolower($key) === 'transfers') {
-                $this->$k = ($value === NULL || $value === '') ? NULL : $value;
+                $this->$k = ($value === null || $value === '') ? null : $value;
               } elseif (strtolower($key) === 'transferstate' || strtolower($key) === 'pendingreceiver') {
-                $this->$k = ($this->processTransfer === TRUE) ? $v : $value;
+                $this->$k = ($this->processTransfer === true) ? $v : $value;
                 $tempkey = strtolower(substr($k, 0, 1)) . substr($k, 1) . 'Old';
                 $this->$tempkey = $value;
               } else {
@@ -1050,20 +1166,25 @@
       } else {
         $this->sanitized = self::recursive_santizer($ticketQueryResult);
       }
-      return TRUE;
+      return true;
     }
 
-    private function processEmail() {
-      if ($this->options['emailConfig'] === NULL || $this->options['emailConfig'] === '' || (is_array($this->options['emailConfig']) && empty($this->options['emailConfig']))) {
-        return FALSE;
+    private function processEmail()
+    {
+      if (
+        $this->options['emailConfig'] === null ||
+        $this->options['emailConfig'] === '' ||
+        (is_array($this->options['emailConfig']) && empty($this->options['emailConfig']))
+      ) {
+        return false;
       }
-      $mail = new PHPMailer(TRUE);
+      $mail = new PHPMailer(true);
       try {
         //Server settings
         $mail->SMTPDebug = 0; // Enable verbose debug output
         $mail->isSMTP(); // Set mailer to use SMTP
         $mail->Host = $this->options['emailConfig']['smtpHost'];  // Specify main and backup SMTP servers
-        $mail->SMTPAuth = TRUE; // Enable SMTP authentication
+        $mail->SMTPAuth = true; // Enable SMTP authentication
         $mail->Username = $this->options['emailConfig']['fromAddress']; // SMTP username
         $mail->Password = $this->options['emailConfig']['password']; // SMTP password
         $mail->SMTPSecure = 'tls'; // Enable TLS encryption, `ssl` also accepted
@@ -1072,14 +1193,19 @@
         $mail->setFrom($this->options['emailConfig']['emailAddress'], $this->options['emailConfig']['fromName']);
         $mail->addAddress($this->EmailAddress);     // Add a recipient
         $mail->addBCC($this->options['emailConfig']['BCCAddress']);
-        $mail->isHTML(TRUE);                                  // Set email format to HTML
+        $mail->isHTML(true);                                  // Set email format to HTML
         $mail->Subject = 'Update';
-        $mail->Body    = "Delivery {$this->TicketNumber} has been {$this->stepMarker}.<br><br>This message is automatically generated. Please do not respond.<br><br>If you believe that you've received this message in error or have questions or comments please contact {$this->myInfo['Name']} by phone at <a href=\"tel:{$this->myInfo['Telephone']}\">{$this->myInfo['Telephone']}</a> or by email at <a href=\"mailto:{$this->myInfo['EmailAddress']}\">{$this->myInfo['EmailAddress']}</a>";
+        $mail->Body  = "Delivery {$this->TicketNumber} has been {$this->stepMarker}.<br><br>
+        This message is automatically generated.
+        Please do not respond.<br><br>
+        If you believe that you've received this message in error or have questions or comments please contact
+        {$this->myInfo['Name']} by phone at <a href=\"tel:{$this->myInfo['Telephone']}\">{$this->myInfo['Telephone']}</a>
+        or by email at <a href=\"mailto:{$this->myInfo['EmailAddress']}\">{$this->myInfo['EmailAddress']}</a>";
         // $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
         $mail->send();
         //echo 'Message has been sent';
       } catch (Exception $e) {
-        if ($this->enableLogging !== FALSE) {
+        if ($this->enableLogging !== false) {
           $this->error = 'Email Not Sent: ' . $mail->ErrorInfo;
           self::writeLoop();
         }
@@ -1087,7 +1213,8 @@
     }
 
     //Ticket Charge values
-    protected function ticketCharge($charge) {
+    protected function ticketCharge($charge)
+    {
       switch ($charge) {
         case 0:
           return 'Canceled';
@@ -1110,25 +1237,29 @@
         case 9:
           return 'Credit';
         default:
-          return FALSE;
+          return false;
       }
     }
 
-    public function invoiceBody() {
-      if ($this->pDepartment == NULL) {
+    public function invoiceBody()
+    {
+      if ($this->pDepartment == null) {
         $pClientDisplay = $this->pClient;
       } else {
         $pClientDisplay = $this->pClient . ' | ' . $this->pDepartment;
       }
 
-      if ($this->dDepartment == NULL) {
+      if ($this->dDepartment == null) {
         $dClientDisplay = $this->dClient;
       } else {
         $dClientDisplay = $this->dClient . ' | ' . $this->dDepartment;
       }
+      $cSym = $this->config['CurrencySymbol'];
       // Define the dry ice display
       if ($this->dryIce === 1 && $this->options['displayDryIce'] === true) {
-        $answerIce = "Weight: {$this->number_format_drop_zero_decimals($this->diWeight, 3)}{$this->weightMarker}  |   Price: <span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>{$this->number_format_drop_zero_decimals($this->diPrice, 2)}";
+        $weight = self::number_format_drop_zero_decimals($this->diWeight, 3) . $this->weightMarker;
+        $val = self::number_format_drop_zero_decimals($this->diPrice, 2);
+        $answerIce = "Weight: {$weight} | Price: <span class=\"currencySymbol\">{$cSym}</span>{$val}";
         $labelIce = 'Dry Ice:';
       } else {
         $answerIce = '&nbsp;';
@@ -1140,6 +1271,8 @@
       } else {
         $date = date('m/d/y', strtotime($this->ReceivedDate));
       }
+      $runPrice = self::negParenth(self::number_format_drop_zero_decimals($this->RunPrice, 2));
+      $ticketPrice = self::negParenth(self::number_format_drop_zero_decimals($this->TicketPrice, 2));
       return "
               <tr>
                 <td>{$date}</td>
@@ -1147,16 +1280,17 @@
                 <td>{$this->ticketCharge($this->Charge)}</td>
                 <td>P.U.:<br><hr>D.O.:<br><hr>{$labelIce}</td>
                 <td>{$pClientDisplay}<br>{$this->pAddress1}<br><hr>{$dClientDisplay}<br>{$this->dAddress1}<br><hr>{$answerIce}</td>
-                <td><span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>{$this->negParenth($this->number_format_drop_zero_decimals($this->RunPrice, 2))}</td>
+                <td><span class=\"currencySymbol\">{$cSym}</span>{$runPrice}</td>
                 <td>{$this->Multiplier}</td>
-                <td><span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>{$this->negParenth($this->number_format_drop_zero_decimals($this->TicketPrice, 2))}</td>
+                <td><span class=\"currencySymbol\">{$cSym}</span>{$ticketPrice}</td>
               </tr>";
     }
 
-    public function regenTicket() {
+    public function regenTicket()
+    {
       //Prepare the received, pick up, drop of, and return time stamps for display
       $hideTableHead = '';
-      if ($this->forDisatch === TRUE) {
+      if ($this->forDisatch === true) {
         $dispatchValue = '';
         if ($this->driverID !== 0) {
           $dispatchValue = "{$this->DriverName}; {$this->driverID}";
@@ -1175,14 +1309,17 @@
           </form>
         ";
         $this->driverDatalist = '<datalist id="drivers">';
-        foreach (json_decode(urldecode($this->driverList), TRUE) as $driver) {
-          $driverName = ($driver['LastName'] == NULL) ? $driver['FirstName'] . '; ' . $driver['DriverID'] : $driver['FirstName'] . ' ' . $driver['LastName'] . '; ' . $driver['DriverID'];
+        foreach (json_decode(urldecode($this->driverList), true) as $driver) {
+          $driverName = ($driver['LastName'] == null) ?
+          $driver['FirstName'] . '; ' . $driver['DriverID'] :
+          $driver['FirstName'] . ' ' . $driver['LastName'] . '; ' . $driver['DriverID'];
+
           $this->driverDatalist .= "<option value=\"{$driverName}\">{$driverName}</option>";
         }
         $this->driverDatalist .= '</datalist>';
         $hideTableHead = 'class="hide"';
       }
-      if ($this->ticketEditor === TRUE) $hideTableHead = 'class="hide"';
+      if ($this->ticketEditor === true) $hideTableHead = 'class="hide"';
       try {
         $rDate = new \dateTime($this->ReceivedDate, $this->timezone);
         $rDateDisplay = $rDate->format('d M Y \a\t g:i A');
@@ -1226,7 +1363,7 @@
         $d2TimeStampDisplay = 'Not Available<span class="hide">Error: None</span>';
       }
       //Check to see if a name is listed in the requestedBy field
-      $requestedByDisplay = ($this->RequestedBy === NULL || $this->RequestedBy === '') ? 'Not On File' : $this->RequestedBy;
+      $requestedByDisplay = ($this->RequestedBy === null || $this->RequestedBy === '') ? 'Not On File' : $this->RequestedBy;
       //Check to see if the ticket has been billed
       if ($this->InvoiceNumber !== '-') {
         if ($this->ulevel < 2) {
@@ -1238,7 +1375,7 @@
             $url = 'error';
           }
           $repeatMarker = ($this->RepeatClient === 1) ? '' : 't';
-          if ($this->organizationFlag === TRUE) {
+          if ($this->organizationFlag === true) {
             $this->memberInput = "<input type=\"hidden\" name=\"clientID[]\" value=\"{$repeatMarker}{$this->BillTo}\" />";
           } else {
             $this->memberInput = "<input type=\"hidden\" name=\"clientID\" value=\"{$this->ClientID}\" />";
@@ -1280,8 +1417,8 @@
       " : '';
       $answerIce2 = ($this->options['displayDryIce'] === true) ? "
 	        <td><span class=\"bold\">Dry Ice Price:</span> <span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>{$this->number_format_drop_zero_decimals($this->diPrice, 2)}</td>" : '<td></td>';
-      if (($this->Notes !== NULL && $this->Notes !== '') || $this->forDisatch === TRUE) {
-        $readonlyNotes = ($this->forDisatch === TRUE) ? "form=\"dispatchForm{$this->ticket_index}\"" : 'readonly';
+      if (($this->Notes !== null && $this->Notes !== '') || $this->forDisatch === true) {
+        $readonlyNotes = ($this->forDisatch === true) ? "form=\"dispatchForm{$this->ticket_index}\"" : 'readonly';
         $answerNotes = "
           <table class=\"wide\">
             <thead>
@@ -1343,9 +1480,9 @@
         $ticketPriceDisplay = 'Pending';
       }
       $pName = $this->pClient;
-      $pName .= ($this->pDepartment == NULL) ? '<br>&nbsp;' : "<br>{$this->pDepartment}";
+      $pName .= ($this->pDepartment == null) ? '<br>&nbsp;' : "<br>{$this->pDepartment}";
       $dName = $this->dClient;
-      $dName .= ($this->dDepartment == NULL) ? '<br>&nbsp;' : "<br>{$this->dDepartment}";
+      $dName .= ($this->dDepartment == null) ? '<br>&nbsp;' : "<br>{$this->dDepartment}";
       $pSigDisplay = $dSigDisplay = $d2SigDisplay = '';
       $sigTokens = ['pSig', 'dSig', 'd2Sig'];
       $tokenSet = [];
@@ -1361,7 +1498,7 @@
             $label = 'Return';
           break;
         }
-        if ($this->$token !== NULL) {
+        if ($this->$token !== null) {
           $fileType = "{$token}Type";
           $showSig = '<img src="data:' . $this->$fileType . ';base64,' . base64_decode($this->$token) . '" height="100" width="375" />';
         } else {
@@ -1380,9 +1517,18 @@
           </tr>";
       }
       extract($tokenSet,EXTR_IF_EXISTS);
-      $pLoc = ($this->pLat === NULL || $this->pLng === NULL) ? 'Not On File' : "<span class=\"coordinates\">{$this->pLat}, {$this->pLng}</span>";
-      $dLoc = ($this->dLat === NULL || $this->dLng === NULL) ? 'Not On File' : "<span class=\"coordinates\">{$this->dLat}, {$this->dLng}</span>";
-      $d2Loc = ($this->d2Lat === NULL || $this->d2Lng === NULL) ? 'Not On File': "<span class=\"coordinates\">{$this->d2Lat}, {$this->d2Lng}</span>";
+      $pLoc = ($this->pLat === null || $this->pLng === null) ?
+      'Not On File' :
+      "<span class=\"coordinates\">{$this->pLat}, {$this->pLng}</span>";
+
+      $dLoc = ($this->dLat === null || $this->dLng === null) ?
+      'Not On File' :
+      "<span class=\"coordinates\">{$this->dLat}, {$this->dLng}</span>";
+
+      $d2Loc = ($this->d2Lat === null || $this->d2Lng === null) ?
+      'Not On File':
+      "<span class=\"coordinates\">{$this->d2Lat}, {$this->d2Lng}</span>";
+
       $returnData =
         $this->driverDatalist .
         "<div class=\"tickets sortable\">
@@ -1440,7 +1586,11 @@
                   {$answerIce2}
                 </tr>
                 <tr {$hideTableHead}>
-                  <td><span class=\"bold\">Ticket Price:</span> <span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>{$this->negParenth($this->number_format_drop_zero_decimals($this->TicketPrice, 2))}</td>
+                  <td>
+                    <span class=\"bold\">Ticket Price:</span>
+                    <span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>
+                    {$this->negParenth($this->number_format_drop_zero_decimals($this->TicketPrice, 2))}
+                  </td>
                 </tr>
               </table>
             </td>
@@ -1460,7 +1610,11 @@
               </tr>
               <tr>
                 <td class=\"ticketSpace\"></td>
-                <td class=\"pullLeft\">{$this->decode($this->pAddress1)}<br>{$this->decode($this->pAddress2)}<br><span class=\"{$this->countryClass}\">{$this->countryFromAbbr($this->pCountry)}</span></td>
+                <td class=\"pullLeft\">
+                  {$this->decode($this->pAddress1)}<br>
+                  {$this->decode($this->pAddress2)}<br>
+                  <span class=\"{$this->countryClass}\">{$this->countryFromAbbr($this->pCountry)}</span>
+                </td>
               </tr>
               <tr>
                 <td class=\"ticketSpace pullRight\">Attn:</td>
@@ -1483,7 +1637,11 @@
               </tr>
               <tr>
                 <td class=\"ticketSpace\"></td>
-                <td class=\"pullLeft\">{$this->decode($this->dAddress1)}<br>{$this->decode($this->dAddress2)}<br><span class=\"{$this->countryClass}\">{$this->countryFromAbbr($this->dCountry)}</span></td>
+                <td class=\"pullLeft\">
+                  {$this->decode($this->dAddress1)}<br>
+                  {$this->decode($this->dAddress2)}<br>
+                  <span class=\"{$this->countryClass}\">{$this->countryFromAbbr($this->dCountry)}</span>
+                </td>
               </tr>
               <tr>
                 <td class=\"ticketSpace pullRight\">Attn:</td>
@@ -1532,18 +1690,20 @@
           </td>
         </tr>
       </table>";
-      if ($this->ticketEditor === TRUE) $returnData .= "<button type=\"button\" class=\"ticketEditor\" data-contract=\"{$this->Contract}\" data-index=\"{$this->ticket_index}\">Edit Ticket</button>";
+      if ($this->ticketEditor === true) $returnData .= "
+      <button type=\"button\" class=\"ticketEditor\" data-contract=\"{$this->Contract}\" data-index=\"{$this->ticket_index}\">Edit Ticket</button>";
     $returnData .= '
     </div>';
     return $returnData;
     }
 
-    public function displaySingleTicket() {
+    public function displaySingleTicket()
+    {
       $singleTicket = '';
       if ($this->Contract === 0) {
-        // Test for fault in query. There should be no NULL dispatch times here
+        // Test for fault in query. There should be no null dispatch times here
         if ($this->DispatchTimeStamp === $this->tTest) {
-          return FALSE;
+          return false;
         }
         // Set the completion deadline based on the dispatch time stamp and charge
         switch ($this->Charge) {
@@ -1682,7 +1842,7 @@
                   <td>
                     <button type=\"button\" class=\"dTicket\" form=\"ticketForm{$this->ticket_index}\">{$buttonName}</button>
                   </td>";
-      if ($this->processTransfer === TRUE) {
+      if ($this->processTransfer === true) {
         $confirm = "
             <table class=\"wide confirm\">
               <tbody>
@@ -1703,10 +1863,10 @@
                   <td><button type="button" class="declineTransfer">Decline Transfer</button>';
       }
       // Make the client name look good for display
-      if ($this->pDepartment != NULL) {
+      if ($this->pDepartment != null) {
         $this->pClient .= "<br>{$this->pDepartment}";
       }
-      if ($this->dDepartment != NULL) {
+      if ($this->dDepartment != null) {
         $this->dClient .= "<br>{$this->dDepartment}";
       }
       if ($this->diWeight == 0) {
@@ -1715,12 +1875,12 @@
         $iceWeight = self::number_format_drop_zero_decimals($this->diWeight, 3);
       }
       // Set the contact info
-      $pContactDisplay = ($this->pContact == NULL) ? '' : "<tr><td>Contact:</td><td>{$this->pContact}</td></tr>";
-      $pTelDisplay = ($this->pTelephone == NULL) ? '' : "<tr><td>Tel:</td><td><a href=\"tel:{$this->pTelephone}\" style=\"color:blue;\">{$this->pTelephone}</a></td></tr>";
-      $dContactDisplay = ($this->dContact == NULL) ? '' : "<tr><td>Contact:</td><td>{$this->dContact}</td></tr>";
-      $dTelDisplay = ($this->dTelephone == NULL) ? '' : "<tr><td>Tel:</td><td><a href=\"tel:{$this->dTelephone}\" style=\"color:blue;\">{$this->dTelephone}</a></td></tr>";
-      $pAddressEncoded = urlencode($this->pAddress1 . ', ' . $this->pAddress2 . ', ' . $this->countryFromAbbr($this->pCountry));
-      $dAddressEndoded = urlencode($this->dAddress1 . ', ' . $this->dAddress2 . ', ' . $this->countryFromAbbr($this->dCountry));
+      $pContactDisplay = ($this->pContact == null) ? '' : "<tr><td>Contact:</td><td>{$this->pContact}</td></tr>";
+      $pTelDisplay = ($this->pTelephone == null) ? '' : "<tr><td>Tel:</td><td><a href=\"tel:{$this->pTelephone}\" style=\"color:blue;\">{$this->pTelephone}</a></td></tr>";
+      $dContactDisplay = ($this->dContact == null) ? '' : "<tr><td>Contact:</td><td>{$this->dContact}</td></tr>";
+      $dTelDisplay = ($this->dTelephone == null) ? '' : "<tr><td>Tel:</td><td><a href=\"tel:{$this->dTelephone}\" style=\"color:blue;\">{$this->dTelephone}</a></td></tr>";
+      $pAddressEncoded = urlencode("{$this->pAddress1}, {$this->pAddress2}, {$this->countryFromAbbr($this->pCountry)}");
+      $dAddressEndoded = urlencode("{$this->dAddress1}, {$this->dAddress2}, {$this->countryFromAbbr($this->dCountry)}");
       $displayDryIce = ($this->options['displayDryIce'] === true) ? "
         <table class=\"tFieldLeft\" style=\"width:25%;\">
           <thead>
@@ -1748,7 +1908,9 @@
           </thead>
           <tbody>
             <tr>
-              <td class=\"center\"><textarea class=\"wide notes\" rows=\"4\" name=\"notes\" form=\"ticketForm{$this->ticket_index}\">{$this->Notes}</textarea></td>
+              <td class=\"center\">
+                <textarea class=\"wide notes\" rows=\"4\" name=\"notes\" form=\"ticketForm{$this->ticket_index}\">{$this->Notes}</textarea>
+              </td>
             </tr>
           </tbody>
         </table>": "
@@ -1760,7 +1922,9 @@
           </thead>
           <tbody>
             <tr>
-              <td class=\"center\"><textarea class=\"wide notes\" rows=\"4\" name=\"notes\" form=\"ticketForm{$this->ticket_index}\">{$this->Notes}</textarea></td>
+              <td class=\"center\">
+                <textarea class=\"wide notes\" rows=\"4\" name=\"notes\" form=\"ticketForm{$this->ticket_index}\">{$this->Notes}</textarea>
+              </td>
             </tr>
           </tbody>
         </table>";
@@ -1782,7 +1946,11 @@
           <tbody>
             <tr>
               <td>{$this->pClient}</td>
-              <td><a class=\"plain\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$pAddressEncoded}\">{$this->pAddress1}<br>{$this->pAddress2}</a></td>
+              <td>
+                <a class=\"plain\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$pAddressEncoded}\">
+                  {$this->pAddress1}<br>{$this->pAddress2}
+                </a>
+              </td>
             </tr>
             <tr class=\"{$this->countryClass}\">
               <td></td>
@@ -1804,7 +1972,11 @@
           <tbody>
             <tr>
               <td>{$this->dClient}</td>
-              <td><a class=\"plain\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$dAddressEndoded}\">{$this->dAddress1}<br>{$this->dAddress2}</a></td>
+              <td>
+                <a class=\"plain\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$dAddressEndoded}\">
+                  {$this->dAddress1}<br>{$this->dAddress2}
+                </a>
+              </td>
             </tr>
             <tr class=\"{$this->countryClass}\">
               <td></td>
@@ -1818,7 +1990,7 @@
         <hr>
         <p class=\"message2 center\"></p>
         {$confirm}";
-      if ($this->processTransfer === FALSE) {
+      if ($this->processTransfer === false) {
         $singleTicket .= "
               <td><button type=\"button\" class=\"cancelRun {$buttonClass}\">Cancel</button></td>
               <td><button type=\"button\" class=\"{$button2Class}\">{$button2Name}</button></td>
@@ -1838,30 +2010,41 @@
       return $singleTicket;
     }
 
-    public function displayMultiTicket() {
+    public function displayMultiTicket()
+    {
       $multiTicket = '';
       $this->processTransfer = $this->multiTicket[0]->processTransfer;
-      if ($this->processTransfer === TRUE) {
+      if ($this->processTransfer === true) {
         $this->PendingReceiver = $this->multiTicket[0]->PendingReceiver;
       }
       switch ($this->multiTicket[0]->step) {
         case 'delivered':
           $topClient = self::decode($this->multiTicket[0]->dClient);
-          if ($this->multiTicket[0]->dDepartment != NULL) {
+          if ($this->multiTicket[0]->dDepartment != null) {
             $topClient .= '<br>' . self::decode($this->multiTicket[0]->dDepartment);
           }
-          $topAddressEncoded = urlencode($this->multiTicket[0]->dAddress1 . ', ' . $this->multiTicket[0]->dAddress2 . ', ' . self::countryFromAbbr($this->multiTicket[0]->dCountry));
-          $topAddress = "<a class=\"plain\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$topAddressEncoded}\">{$this->decode($this->multiTicket[0]->dAddress1)}<br>{$this->decode($this->multiTicket[0]->dAddress2)}</a>";
+          $topAddressEncoded = urlencode(
+            "{$this->multiTicket[0]->dAddress1}, {$this->multiTicket[0]->dAddress2}, {$this->multiTicket[0]->dCountry}"
+          );
+          $topAddress = "
+            <a class=\"plain\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$topAddressEncoded}\">
+              {$this->decode($this->multiTicket[0]->dAddress1)}<br>{$this->decode($this->multiTicket[0]->dAddress2)}
+            </a>";
           $temp = strtotime($this->multiTicket[0]->dTime);
           $pTime = date('g:i a', $temp);
         break;
         default:
           $topClient = self::decode($this->multiTicket[0]->pClient);
-          if ($this->multiTicket[0]->pDepartment != NULL) {
+          if ($this->multiTicket[0]->pDepartment != null) {
             $topClient .= '<br>' . self::decode($this->multiTicket[0]->pDepartment);
           }
-          $topAddressEncoded = urlencode($this->multiTicket[0]->pAddress1 . ', ' . $this->multiTicket[0]->pAddress2 . ', ' . self::countryFromAbbr($this->multiTicket[0]->pCountry));
-          $topAddress = "<a class=\"plain\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$topAddressEncoded}\">{$this->decode($this->multiTicket[0]->pAddress1)}<br>{$this->decode($this->multiTicket[0]->pAddress2)}</a>";
+          $topAddressEncoded = urlencode(
+            "{$this->multiTicket[0]->pAddress1}, {$this->multiTicket[0]->pAddress2}, {$this->multiTicket[0]->pCountry}"
+          );
+          $topAddress = "
+            <a class=\"plain\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$topAddressEncoded}\">
+              {$this->decode($this->multiTicket[0]->pAddress1)}<br>{$this->decode($this->multiTicket[0]->pAddress2)}
+            </a>";
           switch ($this->multiTicket[0]->step) {
             case 'pickedUp':
               $temp = strtotime($this->multiTicket[0]->pTime);
@@ -1903,26 +2086,65 @@
         switch ($this->multiTicket[$i]->step) {
           case 'delivered':
             $client = self::decode($this->multiTicket[$i]->pClient);
-            if ($this->multiTicket[$i]->pDepartment != NULL) {
+            if ($this->multiTicket[$i]->pDepartment != null) {
               $client .= '<br>' . self::decode($this->multiTicket[$i]->pDepartment);
             }
-            $addressEndoded = urlencode($this->multiTicket[$i]->pAddress1 . ', ' . $this->multiTicket[$i]->pAddress2 . ', ' . self::countryFromAbbr($this->multiTicket[$i]->pCountry));
-            $address = "<a class=\"plain\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$addressEndoded}\">{$this->decode($this->multiTicket[$i]->pAddress1)}<br>{$this->decode($this->multiTicket[$i]->pAddress2)}</a>";
-            $contact = ($this->multiTicket[$i]->dContact == NULL) ? '' : "<tr><td>Contact:</td><td>{$this->decode($this->multiTicket[$i]->dContact)}</td></tr>";
-            $tel = ($this->multiTicket[$i]->dTelephone == NULL) ? '' : "<tr><td>Tel:</td><td><a href=\"tel:{$this->multiTicket[$i]->dTelephone}\" style=\"color:blue;\">{$this->multiTicket[$i]->dTelephone}</a></td></tr>";
-          break;
+            $addressEndoded = urlencode(
+              "{$this->multiTicket[$i]->pAddress1}, {$this->multiTicket[$i]->pAddress2}, {$this->multiTicket[$i]->pCountry}"
+            );
+            $address = "
+              <a class=\"plain\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$addressEndoded}\">
+                {$this->decode($this->multiTicket[$i]->pAddress1)}<br>{$this->decode($this->multiTicket[$i]->pAddress2)}
+              </a>";
+            $contact = ($this->multiTicket[$i]->dContact == null) ?
+            '' :
+            "<tr>
+              <td>Contact:</td>
+              <td>{$this->decode($this->multiTicket[$i]->dContact)}</td>
+            </tr>";
+
+            $tel = ($this->multiTicket[$i]->dTelephone == null) ?
+            '' :
+            "<tr>
+              <td>Tel:</td>
+              <td>
+                <a href=\"tel:{$this->multiTicket[$i]->dTelephone}\" style=\"color:blue;\">
+                  {$this->multiTicket[$i]->dTelephone}
+                </a>
+              </td>
+            </tr>";
+            break;
           default:
             $client = self::decode($this->multiTicket[$i]->dClient);
-            if ($this->multiTicket[$i]->dDepartment != NULL) {
+            if ($this->multiTicket[$i]->dDepartment != null) {
               $client .= '<br>' . self::decode($this->multiTicket[$i]->dDepartment);
             }
-            $addressEndoded = urlencode($this->multiTicket[$i]->dAddress1 . ', ' . $this->multiTicket[$i]->dAddress2 . ', ' . self::countryFromAbbr($this->multiTicket[$i]->dCountry));
-            $address = "<a class=\"plain\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$addressEndoded}\">{$this->decode($this->multiTicket[$i]->dAddress1)}<br>{$this->decode($this->multiTicket[$i]->dAddress2)}</a>";
+            $addressEndoded = urlencode(
+              "{$this->multiTicket[$i]->dAddress1}, {$this->multiTicket[$i]->dAddress2}, {$this->multiTicket[$i]->dCountry}"
+            );
+            $address = "
+              <a class=\"plain\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$addressEndoded}\">
+                {$this->decode($this->multiTicket[$i]->dAddress1)}<br>{$this->decode($this->multiTicket[$i]->dAddress2)}
+              </a>";
 
-            $contact = ($this->multiTicket[$i]->pContact == NULL) ? '' : "<tr><td>Contact:</td><td>{$this->decode($this->multiTicket[$i]->pContact)}</td></tr>";
+            $contact = ($this->multiTicket[$i]->pContact == null) ?
+            '' :
+            "<tr>
+              <td>Contact:</td>
+              <td>{$this->decode($this->multiTicket[$i]->pContact)}</td>
+            </tr>";
 
-            $tel = ($this->multiTicket[$i]->pTelephone == NULL) ? '' : "<tr><td>Tel:</td><td><a href=\"tel:{$this->multiTicket[$i]->pTelephone}\" style=\"color:blue;\">{$this->multiTicket[$i]->pTelephone}</a></td></tr>";
-          break;
+            $tel = ($this->multiTicket[$i]->pTelephone == null) ?
+            '' :
+            "<tr>
+              <td>Tel:</td>
+              <td>
+                <a href=\"tel:{$this->multiTicket[$i]->pTelephone}\" style=\"color:blue;\">
+                  {$this->multiTicket[$i]->pTelephone}
+                </a>
+              </td>
+            </tr>";
+            break;
         }
         switch ($this->multiTicket[$i]->step) {
           case 'pickedUp':
@@ -1931,20 +2153,20 @@
             $buttonClass = 'cancelRun';
             $button2Class = 'deadRun';
             $button2Name = 'Dead Run';
-          break;
+            break;
           case 'delivered':
             $label = 'Deliver From';
             $buttonName = 'Not Used';
             $buttonClass = 'hide';
             $button2Class = ($this->processTransfer) ? 'hide' : 'declined';
             $button2Name = 'Declined';
-          break;
+            break;
           case 'returned':
             $label = 'Return From';
             $buttonName = 'Not Used';
             $buttonClass = $button2Class = 'hide';
             $button2Name = '';
-          break;
+            break;
         }
         $transfersFormValue = ($this->multiTicket[$i]->Transfers) ? htmlspecialchars($this->multiTicket[$i]->Transfers) : '';
         $displayDryIce = ($this->options['displayDryIce'] === true) ? "
@@ -1962,7 +2184,11 @@
                     <th class=\"pullLeft\">Notes:</th>
                   </tr>
                   <tr>
-                    <td><textarea class=\"wide notes\" rows=\"4\" name=\"notes\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\">{$this->decode($this->multiTicket[$i]->Notes)}</textarea></td>
+                    <td>
+                      <textarea class=\"wide notes\" rows=\"4\" name=\"notes\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\">
+                        {$this->decode($this->multiTicket[$i]->Notes)}
+                      </textarea>
+                    </td>
                   </tr>
                 </table>
               </td>": "
@@ -1972,7 +2198,11 @@
                     <th class=\"pullLeft\">Notes:</th>
                   </tr>
                   <tr>
-                    <td><textarea class=\"wide notes\" rows=\"4\" name=\"notes\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\">{$this->decode($this->multiTicket[$i]->Notes)}</textarea></td>
+                    <td>
+                      <textarea class=\"wide notes\" rows=\"4\" name=\"notes\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\">
+                        {$this->decode($this->multiTicket[$i]->Notes)}
+                      </textarea>
+                    </td>
                   </tr>
                 </table>
               </td>";
@@ -2003,7 +2233,9 @@
                   <input type=\"hidden\" name=\"pendingReceiver\" class=\"pendingReceiver\" value=\"{$this->multiTicket[$i]->PendingReceiver}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                   <input type=\"hidden\" name=\"step\" class=\"step\" value=\"{$this->multiTicket[$i]->step}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                 </form>
-                <h3 class=\"floatLeft\">{$this->multiTicket[$i]->TicketNumber}</h3>{$label}<h3 class=\"ticketCharge floatRight\">{$this->ticketCharge($this->Charge)}</h3>
+                <h3 class=\"floatLeft\">{$this->multiTicket[$i]->TicketNumber}</h3>
+                {$label}
+                <h3 class=\"ticketCharge floatRight\">{$this->ticketCharge($this->Charge)}</h3>
               </td>
             </tr>
             <tr>
@@ -2027,7 +2259,7 @@
       }
       $multiTicket .= '<p class="message2 center"></p>';
       $count = 'count';
-      if ($this->processTransfer === FALSE) {
+      if ($this->processTransfer === false) {
         $multiTicket .= "
           <p class=\"center\">
             <input type=\"hidden\" name=\"sigImage\" id=\"sigImage{$this->multiTicket[0]->ticket_index}\" class=\"sigImage\" />
@@ -2049,7 +2281,8 @@
       return $multiTicket;
     }
 
-    private function javascriptVars() {
+    private function javascriptVars()
+    {
       $returnData = '<form id="javascriptVars">';
       foreach($_SESSION as $key => $value) {
         if (in_array($key, $this->javascriptKeys)) {
@@ -2064,7 +2297,8 @@
       return $returnData;
     }
 
-    protected function hiddenInputs() {
+    protected function hiddenInputs()
+    {
       $returnData = '';
       $htmlentities = 'htmlentities';
       foreach ($this as $key => $value) {
@@ -2080,56 +2314,64 @@
       return $returnData;
     }
 
-    public function ticketsToDispatch() {
+    public function ticketsToDispatch()
+    {
       $returnData = '';
       $ticketQueryResult = [];
-      $this->forDisatch = TRUE;
+      $this->forDisatch = true;
       // Pull tickets that have not been dispatched
       $ticketQueryData['endPoint'] = 'tickets';
       $ticketQueryData['method'] = 'GET';
       $ticketQueryData['queryParams'] = [];
-      if ($this->ticket_index === NULL) {
-        $ticketQueryData['queryParams']['filter'] = [ ['Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>'-'], ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>$this->Contract] ];
+      if ($this->ticket_index === null) {
+        $ticketQueryData['queryParams']['filter'] = [
+          ['Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>'-'],
+          ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>$this->Contract]
+        ];
       } else {
-        $ticketQueryData['queryParams']['filter'] = [ ['Resource'=>'ticket_index', 'Filter'=>'eq', 'Value'=>$this->ticket_index] ];
+        $ticketQueryData['queryParams']['filter'] = [
+          ['Resource'=>'ticket_index', 'Filter'=>'eq', 'Value'=>$this->ticket_index]
+        ];
       }
-      if ($this->ticketEditor === FALSE) {
+      if ($this->ticketEditor === false) {
         $this->driverID = 0;
         $ticketQueryData['queryParams']['filter'][] = ['Resource'=>'DispatchTimeStamp', 'Filter'=>'is'];
         $ticketQueryData['queryParams']['filter'][] = ['Resource'=>'Charge', 'Filter'=>'bt', 'Value'=>'1,8'];
       } else {
-        if ($this->ticket_index === NULL) {
+        if ($this->ticket_index === null) {
           if (preg_match('/\d{4}-\d{2}-\d{2}/', $this->ticketEditorSearchDate) !== 1) {
             $this->error = '<p class="center result">Invalid search date. Please use YYYY-mm-dd</p>';
-            if ($this->enableLogging !== FALSE) self::writeLoop();
+            if ($this->enableLogging !== false) self::writeLoop();
             return $this->error;
           }
           $ticketQueryData['queryParams']['filter'][] = ['Resource'=>'ReceivedDate', 'Filter'=>'sw', 'Value'=>$this->ticketEditorSearchDate];
         }
       }
-      if ($this->ticket_index === NULL) $ticketQueryData['queryParams']['filter'][] = ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->DispatchedTo];
+      if ($this->ticket_index === null) {
+        $ticketQueryData['queryParams']['filter'][] = ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->DispatchedTo];
+      }
 
       if (!$ticketQuery = self::createQuery($ticketQueryData)) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         return $this->error;
       }
       $ticketQueryResult = self::callQuery($ticketQuery);
-      if ($ticketQueryResult === FALSE) {
+      if ($ticketQueryResult === false) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         return $this->error;
       }
 
       if (empty($ticketQueryResult)) {
         return '<p class="center result">No Tickets Available.</p>';
       }
-      if ($this->driverList === NULL) {
+      if ($this->driverList === null) {
         self::fetchDrivers();
       }
-      if ($this->ticketEditor === FALSE) {
+      if ($this->ticketEditor === false) {
         for ($i = 0; $i < count($ticketQueryResult); $i++) {
           foreach ($ticketQueryResult[$i] as $key => $value) {
             if (property_exists($this, $key)) {
@@ -2141,15 +2383,24 @@
         self::clearTicket();
         return $returnData;
       } else {
-        $this->forDisatch = FALSE;
-        $this->ticketEditor = TRUE;
+        $this->forDisatch = false;
+        $this->ticketEditor = true;
         // Sort the tickets based on charge code and timestamps
         foreach ($ticketQueryResult as $ticket) {
           if ($ticket['pTimeStamp'] === $this->tTest && $ticket['Charge'] !== 9) {
             $this->activeTicketSet[] = $ticket;
-          } elseif ($ticket['pTimeStamp'] !== $this->tTest && $ticket['dTimeStamp'] === $this->tTest && $ticket['Charge'] !== 9) {
+          } elseif (
+            $ticket['pTimeStamp'] !== $this->tTest &&
+            $ticket['dTimeStamp'] === $this->tTest &&
+            $ticket['Charge'] !== 9
+          ) {
             $this->activeTicketSet[] = $ticket;
-          } elseif ($ticket['pTimeStamp'] !== $this->tTest && $ticket['dTimeStamp'] !== $this->tTest && $ticket['d2TimeStamp'] === $this->tTest && ($ticket['Charge'] === 6 || ($ticket['Charge'] === 7 && $ticket['d2SigReq'] === 1))) {
+          } elseif (
+            $ticket['pTimeStamp'] !== $this->tTest &&
+            $ticket['dTimeStamp'] !== $this->tTest &&
+            $ticket['d2TimeStamp'] === $this->tTest &&
+            ($ticket['Charge'] === 6 || ($ticket['Charge'] === 7 && $ticket['d2SigReq'] === 1))
+          ) {
             $this->activeTicketSet[] = $ticket;
           }
         }
@@ -2170,7 +2421,8 @@
       }
     }
 
-    public function ticketQueryForm() {
+    public function ticketQueryForm()
+    {
       $this->formType = 'Query';
       if ($this->userType === 'client' && $this->ulevel === 2) {
         $returnData = "
@@ -2197,13 +2449,13 @@
                     <p>
                       <label for=\"startDate\">Start Date:</label>
                       <input type=\"hidden\" name=\"startDate\" class=\"startDateMarker\" disabled />
-                      <span style=\"display:none;\" class=\"chartDate\" title=\"Query Range Limited To 6 Month Periods\">{$this->createLimitedMonthInput([ 'clientIDs' => $this->ClientID, 'inputID' => 'startDate', 'disabled' => TRUE ])}</span>
+                      <span style=\"display:none;\" class=\"chartDate\" title=\"Query Range Limited To 6 Month Periods\">{$this->createLimitedMonthInput([ 'clientIDs' => $this->ClientID, 'inputID' => 'startDate', 'disabled' => true ])}</span>
                       <span class=\"ticketDate\">{$this->createLimitedMonthInput([ 'clientIDs' => $this->ClientID, 'inputID' => 'startDate', 'type' => 'date', 'table' => 'tickets' ])}</span>
                     </p>
                     <p>
                       <label for=\"endDate\">End Date:</label>
                       <input type=\"hidden\" name=\"endDate\" class=\"endDateMarker\" disabled />
-                      <span style=\"display:none;\" class=\"chartDate\" title=\"Query Range Limited To 6 Month Periods\">{$this->createLimitedMonthInput([ 'clientIDs' => $this->ClientID, 'inputID' => 'endDate', 'disabled' => TRUE ])}</span>
+                      <span style=\"display:none;\" class=\"chartDate\" title=\"Query Range Limited To 6 Month Periods\">{$this->createLimitedMonthInput([ 'clientIDs' => $this->ClientID, 'inputID' => 'endDate', 'disabled' => true ])}</span>
                       <span class=\"ticketDate\">{$this->createLimitedMonthInput([ 'clientIDs' => $this->ClientID, 'inputID' => 'endDate', 'type' => 'date', 'table' => 'tickets' ])}</span>
                     </p>
                   </div>
@@ -2263,13 +2515,13 @@
                     <p>
                       <label for=\"startDate\">Start Date:</label>
                       <input type=\"hidden\" name=\"startDate\" class=\"startDateMarker\" disabled />
-                      <span style=\"display:none;\" class=\"chartDate\" title=\"Query Range Limited To 6 Month Periods\">{$this->createLimitedMonthInput([ 'clientIDs' => $this->ClientID, 'inputID' => 'startDate', 'disabled' => TRUE ])}</span>
+                      <span style=\"display:none;\" class=\"chartDate\" title=\"Query Range Limited To 6 Month Periods\">{$this->createLimitedMonthInput([ 'clientIDs' => $this->ClientID, 'inputID' => 'startDate', 'disabled' => true ])}</span>
                       <span class=\"ticketDate\">{$this->createLimitedMonthInput([ 'clientIDs' => $this->ClientID, 'inputID' => 'startDate', 'type' => 'date', 'table' => 'tickets' ])}</span>
                     </p>
                     <p>
                       <label for=\"endDate\">End Date:</label>
                       <input type=\"hidden\" name=\"endDate\" class=\"endDateMarker\" disabled />
-                      <span style=\"display:none;\" class=\"chartDate\" title=\"Query Range Limited To 6 Month Periods\">{$this->createLimitedMonthInput([ 'clientIDs' => $this->ClientID, 'inputID' => 'endDate', 'disabled' => TRUE ])}</span>
+                      <span style=\"display:none;\" class=\"chartDate\" title=\"Query Range Limited To 6 Month Periods\">{$this->createLimitedMonthInput([ 'clientIDs' => $this->ClientID, 'inputID' => 'endDate', 'disabled' => true ])}</span>
                       <span class=\"ticketDate\">{$this->createLimitedMonthInput([ 'clientIDs' => $this->ClientID, 'inputID' => 'endDate', 'type' => 'date', 'table' => 'tickets' ])}</span>
                     </p>
                   </div>
@@ -2344,7 +2596,7 @@
                         <label for=\"startDate\">Start Date:</label>
                         <input type=\"hidden\" name=\"startDate\" id=\"startDateMarker\" disabled />
                         <span class=\"chartDate\" style=\"display:none;\" title=\"Query Range Limited To 6 Month Periods\">
-                          {$this->createLimitedMonthInput([ 'clientIDs' => $array_keys($_SESSION['members']), 'inputID' => 'startDate', 'disabled' => TRUE ])}
+                          {$this->createLimitedMonthInput([ 'clientIDs' => $array_keys($_SESSION['members']), 'inputID' => 'startDate', 'disabled' => true ])}
                         </span>
                         <span class=\"ticketDate\">
                           {$this->createLimitedMonthInput([ 'clientIDs' => $array_keys($_SESSION['members']), 'inputID' => 'startDate', 'type' => 'date', 'table' => 'tickets' ])}
@@ -2354,7 +2606,7 @@
                         <label for=\"endDate\">End Date:</label>
                         <input type=\"hidden\" name=\"endDate\" id=\"endDateMarker\" />
                         <span class=\"chartDate\" style=\"display:none;\" title=\"Query Range Limited To 6 Month Periods\">
-                          {$this->createLimitedMonthInput([ 'clientIDs' => $array_keys($_SESSION['members']), 'inputID' => 'endDate', 'disabled' => TRUE ])}
+                          {$this->createLimitedMonthInput([ 'clientIDs' => $array_keys($_SESSION['members']), 'inputID' => 'endDate', 'disabled' => true ])}
                         </span>
                         <span class=\"ticketDate\">
                           {$this->createLimitedMonthInput([ 'clientIDs' => $array_keys($_SESSION['members']), 'inputID' => 'endDate', 'type' => 'date', 'table' => 'tickets' ])}
@@ -2409,26 +2661,31 @@
       return $returnData;
     }
 
-    private function createChargeSelectOptions() {
+    private function createChargeSelectOptions()
+    {
       $returnData = '';
       if (isset($this->Charge)) {
         $testCharge = $this->Charge;
       } else {
-        $testCharge = (isset($this->options['initialCharge'])) ? $this->options['initialCharge'] : NULL;
+        $testCharge = (isset($this->options['initialCharge'])) ? $this->options['initialCharge'] : null;
       }
       if ($this->userType === 'client') {
         if ($this->ClientID === 0) {
-          $excludes = (isset($this->options["client0Charges{$this->formType}Exclude"])) ? $this->options["client0Charges{$this->formType}Exclude"] : [];
+          $excludes = (isset($this->options["client0Charges{$this->formType}Exclude"])) ?
+          $this->options["client0Charges{$this->formType}Exclude"] : [];
         } else {
-          $excludes = (isset($this->options["clientCharges{$this->formType}Exclude"][$this->ulevel - 1])) ? $this->options["clientCharges{$this->formType}Exclude"][$this->ulevel - 1] : [];
+          $excludes = (isset($this->options["clientCharges{$this->formType}Exclude"][$this->ulevel - 1])) ?
+          $this->options["clientCharges{$this->formType}Exclude"][$this->ulevel - 1] : [];
         }
       } elseif ($this->userType === 'driver') {
-        $excludes = (isset($this->options["driverCharges{$this->formType}Exclude"][$this->CanDispatch - 1])) ? $this->options["driverCharges{$this->formType}Exclude"][$this->CanDispatch - 1] : [];
+        $excludes = (isset($this->options["driverCharges{$this->formType}Exclude"][$this->CanDispatch - 1])) ?
+        $this->options["driverCharges{$this->formType}Exclude"][$this->CanDispatch - 1] : [];
       } else {
-        $excludes = (isset($this->options["{$this->userType}Charges{$this->formType}Exclude"])) ? $this->options["{$this->userType}Charges{$this->formType}Exclude"] : [];
+        $excludes = (isset($this->options["{$this->userType}Charges{$this->formType}Exclude"])) ?
+        $this->options["{$this->userType}Charges{$this->formType}Exclude"] : [];
       }
       for ($i=0; $i < 10; $i++) {
-        if (!in_array($i, $excludes, TRUE)) {
+        if (!in_array($i, $excludes, true)) {
           $selected = ($testCharge === $i) ? 'selected' : '';
           $returnData .= "
           <option value=\"{$i}\" {$selected}>{$this->ticketCharge($i)}</option>";
@@ -2442,7 +2699,8 @@
       return $returnData;
     }
 
-    public function initTicketEditor() {
+    public function initTicketEditor()
+    {
       return "
             <form id=\"ticketEditor\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
               <input type=\"hidden\" name=\"ticketEditor\" value=\"1\" />
@@ -2473,17 +2731,22 @@
             <span id=\"ticketEditorResultContainer\"><p class=\"center\">Select Driver &amp; Ticket Type</p></span>";
     }
 
-    public function ticketForm() {
+    public function ticketForm()
+    {
       $this->Contract = $this->Contract ?? 0;
       $this->RunNumber = $this->RunNumber ?? 0;
       $returnData = '';
       $this->action = self::esc_url($_SERVER['REQUEST_URI']);
       $this->formType = 'Entry';
       if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        if ($this->newTicket !== FALSE || ($this->ticket_index !== NULL && $this->updateTicket !== FALSE)) return self::processTicket();
-        if ($this->edit === '0') return self::confirmRequest();
+        if ($this->newTicket !== false || ($this->ticket_index !== null && $this->updateTicket !== false)) {
+          return self::processTicket();
+        }
+        if ($this->edit === '0') {
+          return self::confirmRequest();
+        }
       }
-      if ($this->locationList === NULL) {
+      if ($this->locationList === null) {
         if (!self::buildLocationList()) {
           return $this->error;
         }
@@ -2494,27 +2757,33 @@
       } catch (Exception $e) {
         throw $e;
       }
-      if ($this->ticket_index !== NULL) {
+      if ($this->ticket_index !== null) {
         if (!self::queryTicket()) {
           return $this->error;
         }
         $this->action = '/drivers/ticketEditor';
         if ($this->RepeatClient === 1) {
-          foreach (json_decode(urldecode($this->clientList), TRUE) as $client) {
+          foreach (json_decode(urldecode($this->clientList), true) as $client) {
             if ($client['ClientID'] === (int)$this->BillTo) {
-              $this->BillTo = ($client['Department'] == NULL) ? "{$client['ClientName']}; {$client['ClientID']}" : "{$client['ClientName']}, {$client['Department']}; {$client['ClientID']}";
+              $this->BillTo = ($client['Department'] == null) ?
+              "{$client['ClientName']}; {$client['ClientID']}" :
+              "{$client['ClientName']}, {$client['Department']}; {$client['ClientID']}";
             }
           }
         } else {
-          foreach (json_decode(urldecode($this->tClientList), TRUE) as $client) {
+          foreach (json_decode(urldecode($this->tClientList), true) as $client) {
             if ($client['ClientID'] === (int)$this->BillTo) {
-              $this->BillTo = ($client['Department'] == NULL) ? "{$client['ClientName']}; {$client['ClientID']}" : "{$client['ClientName']}, {$client['Department']}; {$client['ClientID']}";
+              $this->BillTo = ($client['Department'] == null) ?
+              "{$client['ClientName']}; {$client['ClientID']}" :
+              "{$client['ClientName']}, {$client['Department']}; {$client['ClientID']}";
             }
           }
         }
-        foreach (json_decode(urldecode($this->driverList), TRUE) as $driver) {
+        foreach (json_decode(urldecode($this->driverList), true) as $driver) {
           if ($driver['DriverID'] == $this->DispatchedTo) {
-            $this->DriverName = ($driver['LastName'] === NULL) ? $driver['FirstName'] : $driver['FirstName'] . ' ' . $driver['LastName'];
+            $this->DriverName = ($driver['LastName'] === null) ?
+            $driver['FirstName'] :
+            $driver['FirstName'] . ' ' . $driver['LastName'];
           }
         }
       }
@@ -2525,7 +2794,7 @@
       $dSigChecked = ($this->dSigReq === 1) ? 'checked' : '';
       $d2SigChecked = ($this->d2SigReq === 1) ? 'checked' : '';
       $sigNoteClass = ($this->pSigReq === 1 || $this->dSigReq === '1' || $this->d2SigReq === '1') ? '' : 'hide';
-      $emailNoteClass = ($this->EmailConfirm === 0 || $this->EmailConfirm === NULL) ? 'hide' : '';
+      $emailNoteClass = ($this->EmailConfirm === 0 || $this->EmailConfirm === null) ? 'hide' : '';
       $dryIceChecked = $diWeightMarkerDisabled = '';
       $diWeightDisabled = 'disabled';
       if ($this->dryIce === 1) {
@@ -2533,7 +2802,10 @@
         $diWeightMarkerDisabled = 'disabled';
         $diWeightDisabled = '';
       }
-      $emailConfirm0 = $emailConfirm1 = $emailConfirm2 = $emailConfirm3 = $emailConfirm4 = $emailConfirm5 = $emailConfirm6 = $emailConfirm7 = '';
+
+      $emailConfirm0 = $emailConfirm1 = $emailConfirm2 = $emailConfirm3 =
+      $emailConfirm4 = $emailConfirm5 = $emailConfirm6 = $emailConfirm7 = '';
+
       switch ($this->EmailConfirm) {
         case 0: $emailConfirm0 = 'selected'; break;
         case 1: $emailConfirm1 = 'selected'; break;
@@ -2552,46 +2824,55 @@
         $dispatchInputType = 'type="hidden"';
         $billToType = 'type="hidden"';
         $billToValue = $_SESSION['ClientName'];
-        $billToValue .= ($_SESSION['Department'] !== NULL) ? ", {$_SESSION['Department']}" : '';
+        $billToValue .= ($_SESSION['Department'] !== null) ? ", {$_SESSION['Department']}" : '';
         $billToValue .= '; ' . $_SESSION['ClientID'];
-        $repeatOption = $readonlyDispatch = $hideFromDriver = $hideDispatch = $requiredDispatch = $billToRequired = $dispatchedBy = '';
+
+        $repeatOption = $readonlyDispatch = $hideFromDriver = $hideDispatch = $requiredDispatch = $billToRequired =
+        $dispatchedBy = $transferredBy = $cancelTicketEditor = $nonRepeatChecked = '';
+
         $dispatchInputValue = '0';
-        $transferredBy = $cancelTicketEditor = $nonRepeatChecked = '';
       } else {
         $billingRowClass = '';
-        $dispatchInputType = ($this->userType === 'dispatch' || $this->CanDispatch === 2) ? 'list="drivers"' : (($this->CanDispatch === 1) ? 'type="text"' : 'type="hidden"');
+        $dispatchInputType = ($this->userType === 'dispatch' || $this->CanDispatch === 2) ?
+        'list="drivers"' :
+        (($this->CanDispatch === 1) ?
+        'type="text"' :
+        'type="hidden"');
+
         $readonlyDispatch = ($this->CanDispatch === 1) ? 'readonly' : '';
         $requiredDispatch = ($this->CanDispatch === 2) ? 'required' : '';
-        if ($this->ticket_index != NULL) {
+        if ($this->ticket_index != null) {
           $dispatchInputValue = $this->DriverName . '; ' . $this->DispatchedTo;
         } else {
-          $dispatchInputValue = ($this->CanDispatch === 1) ? $this->config['driverName'] . '; ' . $_SESSION['ClientID'] : '';
+          $dispatchInputValue = ($this->CanDispatch === 1) ?
+          $this->config['driverName'] . '; ' . $_SESSION['ClientID'] : '';
         }
-        $dispatchedBy = ($this->ticketEditor === FALSE) ? "
+        $dispatchedBy = ($this->ticketEditor === false) ? "
           <input type=\"hidden\" name=\"dispatchedBy\" class=\"dispatchedBy\" value=\"{$this->DispatchedBy}\" />" : '';
         $hideDispatch = ($this->CanDispatch >= 1) ? '' : 'class="hide"';
         $billToType = ($this->RepeatClient === 0) ? 'list="t_clients"' : 'list="clients"';
         $nonRepeatChecked = ($this->RepeatClient === 0) ? 'checked' : '';
         $billToValue = $this->BillTo;
         $billToRequired = 'required';
-        $repeatOption = "<input type=\"checkbox\" name=\"repeatClient\" class=\"repeat\" id=\"repeatClient{$this->ticket_index}\" value=\"0\" form=\"request{$this->ticket_index}\" />";
+        $repeatOption = "
+          <input type=\"checkbox\" name=\"repeatClient\" class=\"repeat\" id=\"repeatClient{$this->ticket_index}\" value=\"0\" form=\"request{$this->ticket_index}\" />";
         $hideFromDriver = 'class="hide"';
-        $transfersValue = ($this->Transfers === NULL) ? '' : htmlentities(json_encode($this->Transfers));
-        $transferredBy = ($this->ticketEditor === TRUE) ? "<input type=\"hidden\" name=\"transferredBy\" class=\"transferredBy\" value=\"{$this->transferredBy}\" form=\"request{$this->ticket_index}\" />
+        $transfersValue = ($this->Transfers === null) ? '' : htmlentities(json_encode($this->Transfers));
+        $transferredBy = ($this->ticketEditor === true) ? "<input type=\"hidden\" name=\"transferredBy\" class=\"transferredBy\" value=\"{$this->transferredBy}\" form=\"request{$this->ticket_index}\" />
         <input type=\"hidden\" name=\"holder\" class=\"holder\" value=\"{$this->DispatchedTo}\" form=\"request{$this->ticket_index}\" />
         <input type=\"hidden\" name=\"transfers\" class=\"transfers\" value=\"{$transfersValue}\" form=\"request{$this->ticket_index}\" />" : '';
-        $cancelTicketEditor = ($this->ticketEditor === TRUE) ? '<button type="button" class="cancelTicketEditor floatRight">Cancel</button>' : '';
+        $cancelTicketEditor = ($this->ticketEditor === true) ? '<button type="button" class="cancelTicketEditor floatRight">Cancel</button>' : '';
       }
       // Display the ticket form
-      $indexInput = ($this->ticket_index == NULL) ? '' : "<input type=\"hidden\" name=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"request{$this->ticket_index}\" />
+      $indexInput = ($this->ticket_index == null) ? '' : "<input type=\"hidden\" name=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"request{$this->ticket_index}\" />
       ";
-      $ticketEditor = ($this->ticketEditor === TRUE) ? "
+      $ticketEditor = ($this->ticketEditor === true) ? "
         <input type=\"hidden\" name=\"ticketEditor\" value=\"1\" form=\"request{$this->ticket_index}\" />" : '';
-      $ticketNumberInput = ($this->TicketNumber !== NULL) ? "
+      $ticketNumberInput = ($this->TicketNumber !== null) ? "
         <input type=\"hidden\" name=\"ticketNumber\" class=\"ticketNumber\" value=\"{$this->TicketNumber}\" form=\"request{$this->ticket_index}\" />
         " : '';
       $d2TimeStampDisabled = ($this->Charge === 6 || $this->Charge === 7) ? '' : 'disabled';
-      if ($this->ticketEditor === TRUE) {
+      if ($this->ticketEditor === true) {
         $dispatchTimeStamp = preg_replace('/\s/', 'T', $this->DispatchTimeStamp);
         $pTimeStamp = preg_replace('/\s/', 'T', $this->pTimeStamp);
         $dTimeStamp = preg_replace('/\s/', 'T', $this->dTimeStamp);
@@ -2630,7 +2911,7 @@
       } else {
         $timing = '';
       }
-      $ticketEditorValues = ($this->ticket_index === NULL) ? '' : "<input type=\"hidden\" name=\"ticketBase\" value=\"{$this->TicketBase}\" form=\"request{$this->ticket_index}\" />
+      $ticketEditorValues = ($this->ticket_index === null) ? '' : "<input type=\"hidden\" name=\"ticketBase\" value=\"{$this->TicketBase}\" form=\"request{$this->ticket_index}\" />
           <input type=\"hidden\" name=\"runPrice\" value=\"{$this->RunPrice}\" form=\"request{$this->ticket_index}\" />
           ";
       $displayDryIce = ($this->options['displayDryIce'] === true) ? "
@@ -2923,7 +3204,7 @@
             </tr>
           </table>
           <p class=\"ticketError\"></p>";
-  if ($this->ticketEditor === FALSE) {
+  if ($this->ticketEditor === false) {
     $returnData .= "
           <p class=\"sigNote {$sigNoteClass}\">Unless a specific request to the contrary is made all deliveries will be completed to the best of our ability even if a signature request is declined.</p>
           <p class=\"emailNote {$emailNoteClass}\">Please add noreply@rjdeliveryomaha.com to your contacts. This will prevent notifications from being marked as spam.</p>";
@@ -2932,7 +3213,7 @@
           <p class="dedicatedNote">To indicate a round trip request return signature.</p>
 	      </form>
       </div>';
-  if ($this->edit === NULL && $this->ticketEditor === FALSE) $returnData .= "
+  if ($this->edit === null && $this->ticketEditor === false) $returnData .= "
     <div class=\"subContainer\">
       <div id=\"terms\">
         <p class=\"error switch center\">*TERMS</p>
@@ -2945,10 +3226,11 @@
     return $returnData;
     }
 
-    public function runPriceForm() {
+    public function runPriceForm()
+    {
       $returnData = '';
       $this->formType = 'Entry';
-      if ($this->organizationFlag === TRUE) {
+      if ($this->organizationFlag === true) {
         self::buildLocationList();
         $returnData .= self::buildDatalists();
       }
@@ -3062,25 +3344,26 @@
         <div class=\"mapContainer\" id=\"map2\"></div>
       </div>
     </div>";
-      if ($this->organizationFlag === TRUE) {
+      if ($this->organizationFlag === true) {
         $returnData .= self::buildDatalists();
       }
       return $returnData;
     }
 
-    public function calculateRunPrice() {
+    public function calculateRunPrice()
+    {
       $this->Contract = 0;
       if ($this->ulevel === 1 || $this->ulevel === 2) {
         $this->BillTo = $this->ClientID;
       } else {
-        $this->BillTo = NULL;
+        $this->BillTo = null;
       }
       if (!self::solveTicketPrice()) {
         return $this->error;
       }
       $this->pCountry = self::countryFromAbbr($this->pCountry);
       $this->dCountry = self::countryFromAbbr($this->dCountry);
-      if ($this->generalDiscount !== NULL && $this->generalDiscount !== '') {
+      if ($this->generalDiscount !== null && $this->generalDiscount !== '') {
         $this->RunPrice *= $this->generalDiscount;
         $this->TicketPrice - $this->RunPrice + $this->diPrice;
       }
@@ -3102,27 +3385,30 @@
       return json_encode($returnData);
     }
 
-    public function fetchTodaysTickets() {
+    public function fetchTodaysTickets()
+    {
       $returnData = '';
       $this->queryData['method'] = 'GET';
       $this->queryData['endPoint'] = 'tickets';
-      $this->queryData['queryParams']['include'] = [ 'ticket_index', 'TicketNumber', 'RunNumber', 'BillTo', 'RequestedBy', 'ReceivedDate', 'pClient', 'pDepartment', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'dClient', 'dDepartment', 'dAddress1', 'dAddress2', 'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'TicketBase', 'Charge', 'Contract', 'Multiplier', 'RunPrice', 'TicketPrice', 'EmailConfirm', 'EmailAddress', 'Notes', 'DispatchTimeStamp', 'DispatchedTo', 'DispatchedBy', 'Transfers', 'TransferState', 'PendingReceiver', 'pTimeStamp', 'dTimeStamp', 'd2TimeStamp', 'pLat', 'pLng', 'dLat', 'dLng', 'd2Lat', 'd2Lng', 'pTime', 'dTime', 'd2Time', 'pSigReq', 'dSigReq', 'd2SigReq', 'pSigPrint', 'dSigPrint', 'd2SigPrint', 'pSig', 'dSig', 'd2Sig', 'pSigType', 'dSigType', 'd2SigType', 'RepeatClient', 'InvoiceNumber' ];
-      $this->queryData['queryParams']['filter'] = [  [ 'Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=>(int)$_SESSION['ClientID'] ], [ 'Resource'=>'ReceivedDate', 'Filter'=>'sw', 'Value'=>$this->today->format('Y-m-d') ]  ];
+      $this->queryData['queryParams']['filter'] = [
+        ['Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=>(int)$_SESSION['ClientID']],
+        [ 'Resource'=>'ReceivedDate', 'Filter'=>'sw', 'Value'=>$this->today->format('Y-m-d')]
+      ];
       if (!$this->query = self::createQuery($this->queryData)) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         return $this->error;
       }
       $this->result = self::callQuery($this->query);
-      if ($this->result === FALSE) {
+      if ($this->result === false) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         return $this->error;
       }
       if (empty($this->result)) {
-        return FALSE;
+        return false;
       }
       $returnData .= '<p class="center">Today\'s Tickets.</p>';
       for ($i = 0; $i < count($this->result); $i++) {
@@ -3134,9 +3420,11 @@
       return $returnData;
     }
 
-    private function confirmRequest() {
+    private function confirmRequest()
+    {
       self::solveTicketPrice();
-      $editForm = "<form id=\"editForm{$this->ticket_index}\" method=\"post\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\">";
+      $editForm = "
+      <form id=\"editForm{$this->ticket_index}\" method=\"post\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\">";
       // Set the form name to editForm
       $this->formName = 'editForm' . $this->ticket_index;
       $editForm .= self::hiddenInputs();
@@ -3147,7 +3435,7 @@
           <button type=\"submit\" class=\"editForm\" form=\"editForm{$this->ticket_index}\">Edit</button>";
 
       // Generate a ticket number if one wasn't provided
-      if ($this->TicketNumber == NULL) {
+      if ($this->TicketNumber == null) {
         $tempTicketNumber = ($this->BillTo === 0) ? date('m') . '00' : $this->BillTo . date('m') . '00';
         // This ticket number will be tested for uniqueness in the processing function
         $this->TicketNumber = (int)$tempTicketNumber;
@@ -3156,55 +3444,55 @@
       switch ($this->Charge) {
         case 0:
           $chargeAnswer = '<p class="center rollUp" title="Canceled">Canceled</p>';
-        break;
+          break;
         case 1:
           $chargeAnswer = '<p class="center rollUp" title="1 hour">STAT</p>';
-        break;
+          break;
         case 2:
           $chargeAnswer = '<p class="center rollUp" title="2 hours">ASAP</p>';
-        break;
+          break;
         case 3:
           $chargeAnswer = '<p class="center rollUp" title="3 hours">3 Hours</p>';
-        break;
+          break;
         case 4:
           $chargeAnswer = '<p class="center rollUp" title="4 hours">4 Hours</p>';
-        break;
+          break;
         case 5:
           $chargeAnswer = '<p class="center rollUp" title="3 - 4 hours">Routine</p>';
-        break;
+          break;
         case 6:
          $chargeAnswer = '<p class="center rollUp" title="4 - 6 hours">Round Trip</p>';
-        break;
+          break;
         case 7:
           $chargeAnswer = '<p class="rollUp">Dedicated Run</p>';
-        break;
+          break;
       }
       //Define the display for email confirmation
       switch ($this->EmailConfirm) {
         case 0:
           $emailAnswer = 'None';
-        break;
+          break;
         case 1:
           $emailAnswer = 'Picked Up';
-        break;
+          break;
         case 2:
           $emailAnswer = 'Delivered';
-        break;
+          break;
         case 3:
           $emailAnswer = 'Picked Up &amp; Delivered';
-        break;
+          break;
         case 4:
           $emailAnswer = 'Returned';
-        break;
+          break;
         case 5:
           $emailAnswer = 'Picked Up &amp; Returned';
-        break;
+          break;
         case 6:
           $emailAnswer = 'Delivered &amp; Returned';
-        break;
+          break;
         case 7:
           $emailAnswer = 'At Each Step';
-        break;
+          break;
       }
       // Define the display for signature request
       $sigReqTemp = array();
@@ -3223,7 +3511,9 @@
       $sigReq = self::arrayToList($sigReqTemp);
       // Generate the hidden form
       // Add the values that we just solved for
-      $newTicketInput = ($this->ticket_index === NULL) ? "<input type=\"hidden\" name=\"newTicket\" value=\"1\" form=\"submitTicket{$this->ticket_index}\" />" : "<input type=\"hidden\" name=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"submitTicket{$this->ticket_index}\" />";
+      $newTicketInput = ($this->ticket_index === null) ?
+      "<input type=\"hidden\" name=\"newTicket\" value=\"1\" form=\"submitTicket{$this->ticket_index}\" />" :
+      "<input type=\"hidden\" name=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"submitTicket{$this->ticket_index}\" />";
       $submitForm = "
             <form id=\"submitTicket{$this->ticket_index}\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
               {$newTicketInput}
@@ -3254,7 +3544,7 @@
         $this->dRangeError = '<p>Delivery address is outside of our delivery range. Please contact us via phone or email to confirm driver availability.</p>';
       }
       // Generate the output
-      $div_marker = ($this->ticketEditor === TRUE) ? 'class="editorConfirmation"' : 'id="deliveryConfirmation"';
+      $div_marker = ($this->ticketEditor === true) ? 'class="editorConfirmation"' : 'id="deliveryConfirmation"';
       $output = "
           <div {$div_marker}>";
       $output .= ($this->edit === 0) ? '<h1>Delivery Confirmation<span class="error">*</span></h1>' : '';
@@ -3415,7 +3705,8 @@
       return $output;
     }
 
-    private function processTicket() {
+    private function processTicket()
+    {
       foreach ($this as $key => $value) {
         if (substr($key,1) === 'Country') {
           if (strlen($value) > 2) {
@@ -3425,19 +3716,19 @@
           }
         }
       }
-      if ($this->updateTicket === TRUE) {
+      if ($this->updateTicket === true) {
         // Do /not/ display the ticket if new transfer is processed
-        $regen = TRUE;
+        $regen = true;
         $payload = array();
         foreach ($this as $key => $value) {
           if (in_array($key, $this->updateTicketDatabaseKeys) && in_array(lcfirst($key), $this->postKeys)) {
-            if ($key === 'Transfers' && $value != FALSE) {
+            if ($key === 'Transfers' && $value != false) {
               $tempArray = json_decode(html_entity_decode($value));
               $target = [];
               for ($i=0;$i<count($tempArray); $i++) {
                 $newObj = new \stdClass();
                 foreach ($tempArray[$i] as $k => $v) {
-                  if ($v == NULL) {
+                  if ($v == null) {
                     $newVal = time();
                   } else {
                     $newVal = $v;
@@ -3449,7 +3740,7 @@
               $payload[$key] = $target;
             } else {
               if (in_array($key, $this->nullable) && !$value) {
-                $payload[$key] = NULL;
+                $payload[$key] = null;
               } else {
                 $payload[$key] = self::decode($value);
               }
@@ -3464,51 +3755,57 @@
         if (!$ticketUpdate = self::createQuery($ticketUpdateData)) {
           $temp = $this->error;
           $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-          if ($this->enableLogging !== FALSE) self::writeLoop();
+          if ($this->enableLogging !== false) self::writeLoop();
           echo $this->error;
-          return FALSE;
+          return false;
         }
         $ticketUpdateResult = self::callQuery($ticketUpdate);
-        if ($ticketUpdateResult === FALSE) {
+        if ($ticketUpdateResult === false) {
           $temp = $this->error;
           $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-          if ($this->enableLogging !== FALSE) self::writeLoop();
+          if ($this->enableLogging !== false) self::writeLoop();
           echo $this->error;
-          return FALSE;
+          return false;
         }
-        if ($regen === TRUE) {
-          $this->ticketEditor = TRUE;
+        if ($regen === true) {
+          $this->ticketEditor = true;
           return self::regenTicket();
         } else {
           echo 'remove';
-          return FALSE;
+          return false;
         }
       }
-      if ($this->ticket_index === NULL) {
+      if ($this->ticket_index === null) {
         if (!self::testTicketNumber()) {
           echo $this->error;
-          return FALSE;
+          return false;
         }
       }
       try {
         $this->now = new \dateTime('NOW', $this->timezone);
       } catch(Exception $e) {
         $this->error = __function__ . ' Received Date Error Line ' . __line__ . ': ' . $e->getMessage();
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         echo $this->error;
-        return FALSE;
+        return false;
       }
-      $this->ReceivedDate = ($this->ReceivedDate === NULL || $this->ReceivedDate === '') ? $this->now->format('Y-m-d H:i:s') : $this->ReceivedDate;
+      $this->ReceivedDate = ($this->ReceivedDate === null || $this->ReceivedDate === '') ?
+      $this->now->format('Y-m-d H:i:s') : $this->ReceivedDate;
+
       if ($this->DispatchedTo != 0) {
-        $this->DispatchTimeStamp = ($this->DispatchTimeStamp === NULL || $this->DispatchTimeStamp === '') ? $this->ReceivedDate : $this->DispatchTimeStamp;
+        $this->DispatchTimeStamp = ($this->DispatchTimeStamp === null || $this->DispatchTimeStamp === '') ?
+        $this->ReceivedDate : $this->DispatchTimeStamp;
+
         $micro_date = microtime();
         $date_array = explode(" ",$micro_date);
-        $this->DispatchMicroTime = ($this->DispatchMicroTime === NULL || $this->DispatchMicroTime === '') ? substr($date_array[0], 1, 7) : $this->DispatchMicroTime;
+        $this->DispatchMicroTime = ($this->DispatchMicroTime === null || $this->DispatchMicroTime === '') ?
+        substr($date_array[0], 1, 7) : $this->DispatchMicroTime;
+
       }
       // Create a new query object to post the new ticket
       $postTicketData = [];
       foreach ($this as $key => $value) {
-        if (in_array($key, $this->newTicketDatabaseKeys) && $value !== NULL) {
+        if (in_array($key, $this->newTicketDatabaseKeys) && $value !== null) {
           $postTicketData['payload'][$key] = self::decode($value);
         }
       }
@@ -3518,32 +3815,33 @@
       if (!$postTicket = self::createQuery($postTicketData)) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         echo $this->error;
-        return FALSE;
+        return false;
       }
       $postTicketResult = self::callQuery($postTicket);
-      if ($postTicketResult === FALSE) {
+      if ($postTicketResult === false) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         echo $this->error;
-        return FALSE;
+        return false;
       }
       echo "
         <div id=\"deliveryRequestComplete\">
           <h1>request submitted</h1>
           <p class=\"center\">Your request has been received.<br>The ticket number for this delivery is {$this->TicketNumber}.</p>
         </div>";
-      return FALSE;
+      return false;
     }
 
-    public function processRouteTicket() {
+    public function processRouteTicket()
+    {
       // multiTicket data has come from the database and doesn't require sanitizing
       $tempTickets = $crun_index_list = array();
       // test each tickets number for uniqueness and solve for price
-      $this->mapAvailable = FALSE;
-      $this->processingRoute = TRUE;
+      $this->mapAvailable = false;
+      $this->processingRoute = true;
       for ($i = 0; $i < count($this->multiTicket); $i++) {
         foreach ($this->multiTicket[$i] as $key => $value) {
           if (property_exists($this, $key)) {
@@ -3552,11 +3850,11 @@
         }
         if (!self::testTicketNumber()) {
           // failure logged in function
-          return FALSE;
+          return false;
         }
         if (!self::solveTicketPrice()) {
           // failure logged in function
-          return FALSE;
+          return false;
         }
         $newObj = new \stdClass();
         foreach ($this as $key => $value) {
@@ -3565,7 +3863,7 @@
             $temp = self::countryFromAbbr($value);
             $value = $temp;
           }
-          if (in_array($key, $this->newTicketDatabaseKeys) && $value !== NULL) {
+          if (in_array($key, $this->newTicketDatabaseKeys) && $value !== null) {
             $newObj->$key = self::decode($value);
           }
         }
@@ -3580,26 +3878,27 @@
       if (!$postTicket = self::createQuery($postTicketData)) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         echo $this->error;
-        return FALSE;
+        return false;
       }
       $postTest = self::callQuery($postTicket);
-      if ($postTest === FALSE) {
+      if ($postTest === false) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         echo $this->error;
-        return FALSE;
+        return false;
       }
-      // set $this->now for last completed value. Doing this any earlier will result in $this->now being overwritten as null
+      // set $this->now for last completed value.
+      // Doing this any earlier will result in $this->now being overwritten as null
       try {
         $this->now = new \dateTime('now', $this->timezone);
       } catch(Exception $e) {
         $this->error = __function__ . ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         echo $this->error;
-        return FALSE;
+        return false;
       }
       $updateLastCompletedDateData['endPoint'] = 'contract_runs';
       $updateLastCompletedDateData['method'] = 'PUT';
@@ -3614,29 +3913,31 @@
       if (!$updateLastCompletedDate = self::createQuery($updateLastCompletedDateData)) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         echo $this->error;
-        return FALSE;
+        return false;
       }
       $updateResult = self::callQuery($updateLastCompletedDate);
-      if ($updateResult === FALSE) {
+      if ($updateResult === false) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         echo $this->error;
-        return FALSE;
+        return false;
       }
-      return TRUE;
+      return true;
     }
 
-    public function processReturnTicket() {
-      $this->mapAvailable = FALSE;
+    public function processReturnTicket()
+    {
+      $this->mapAvailable = false;
       self::solveTicketPrice();
       self::processTicket();
     }
 
-    public function updateTicketProperty() {
-      if ($this->multiTicket !== NULL) {
+    public function updateTicketProperty()
+    {
+      if ($this->multiTicket !== null) {
         $tempIndex = array();
         for ($i = 0; $i < count($this->multiTicket); $i++) {
           foreach ($this->multiTicket[$i] as $key => $value) {
@@ -3650,9 +3951,12 @@
       $ticketUpdateData['queryParams'] = [];
       $ticketUpdateData['primaryKey'] = $this->ticket_index;
       $ticketUpdateData['payload'] = [];
-      if ($this->multiTicket === NULL) {
+      if ($this->multiTicket === null) {
         foreach($this as $key => $value) {
-          if (in_array($key, $this->updateTicketDatabaseKeys) && in_array(lcfirst($key), $this->postKeys)) $ticketUpdateData['payload'][$key] = $value;
+          if (
+            in_array($key, $this->updateTicketDatabaseKeys) &&
+            in_array(lcfirst($key), $this->postKeys)
+          ) $ticketUpdateData['payload'][$key] = $value;
         }
       } else {
         for ($i = 0; $i < count($this->multiTicket); $i++) {
@@ -3666,24 +3970,25 @@
       if (!$ticketUpdate = self::createQuery($ticketUpdateData)) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         return $this->error;
-        return FALSE;
+        return false;
       }
       $updateResult = self::callQuery($ticketUpdate);
-      if ($updateResult === FALSE) {
+      if ($updateResult === false) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         return $this->error;
-        return FALSE;
+        return false;
       }
-      $marker = ($this->multiTicket === NULL) ? $this->TicketNumber : 'group';
+      $marker = ($this->multiTicket === null) ? $this->TicketNumber : 'group';
       return "<p class=\"center result\">Ticket {$marker} updated.</p>";
     }
 
-    public function stepTicket() {
-      if ($this->multiTicket !== NULL) {
+    public function stepTicket()
+    {
+      if ($this->multiTicket !== null) {
         $tempIndex = array();
         for ($i = 0; $i < count($this->multiTicket); $i++) {
           foreach ($this->multiTicket[$i] as $key => $value) {
@@ -3696,72 +4001,72 @@
         $this->now = new \dateTime('now', $this->timezone);
       } catch(Exception $e) {
         $this->error = __function__ . ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         return $this->error;
-        return FALSE;
+        return false;
       }
       $ticketUpdateData['endPoint'] = 'tickets';
       $ticketUpdateData['method']= 'PUT';
       $ticketUpdateData['queryParams'] = [];
       $ticketUpdateData['primaryKey'] = $this->ticket_index;
-      if ($this->multiTicket === NULL) {
+      if ($this->multiTicket === null) {
         switch($this->step){
           case 'pickedUp':
             $ticketUpdateData['payload']['Notes'] = $this->Notes;
             $ticketUpdateData['payload']['pTimeStamp'] = $this->now->format('Y-m-d H:i:s');
-            if ($this->printName !== NULL && $this->printName !== '') {
+            if ($this->printName !== null && $this->printName !== '') {
               $ticketUpdateData['payload']['pSigPrint'] =  $this->printName;
               $ticketUpdateData['payload']['pSigReq'] = 1;
             }
-            if ($this->sigImage !== NULL && $this->sigImage !== '') {
+            if ($this->sigImage !== null && $this->sigImage !== '') {
               $dataPieces = explode(',', $this->sigImage);
               $ticketUpdateData['payload']['pSigType'] = self::between('/',';',$dataPieces[0]);
               $ticketUpdateData['payload']['pSig'] = base64_encode($dataPieces[1]);
               $ticketUpdateData['payload']['pSigReq'] = 1;
             }
-            if ($this->latitude !== NULL && $this->longitude !== NULL) {
+            if ($this->latitude !== null && $this->longitude !== null) {
               $ticketUpdateData['payload']['pLat'] = $this->latitude;
               $ticketUpdateData['payload']['pLng'] = $this->longitude;
             }
             $this->stepMarker = 'Picked Up';
-          break;
+            break;
           case 'delivered':
             $ticketUpdateData['payload']['Notes'] = $this->Notes;
             $ticketUpdateData['payload']['dTimeStamp'] = $this->now->format('Y-m-d H:i:s');
-            if ($this->printName !== NULL && $this->printName !== '') {
+            if ($this->printName !== null && $this->printName !== '') {
               $ticketUpdateData['payload']['dSigPrint'] = $this->printName;
               $ticketUpdateData['payload']['dSigReq'] = 1;
             }
-            if ($this->sigImage != NULL && $this->sigImage !== '') {
+            if ($this->sigImage != null && $this->sigImage !== '') {
               $dataPieces = explode(',', $this->sigImage);
               $ticketUpdateData['payload']['dSigType'] = self::between('/',';',$dataPieces[0]);
               $ticketUpdateData['payload']['dSig'] = base64_encode($dataPieces[1]);
               $ticketUpdateData['payload']['dSigReq'] = 1;
             }
-            if ($this->latitude !== NULL && $this->longitude !== NULL) {
+            if ($this->latitude !== null && $this->longitude !== null) {
               $ticketUpdateData['payload']['dLat'] = $this->latitude;
               $ticketUpdateData['payload']['dLng'] = $this->longitude;
             }
             $this->stepMarker = 'Delivered';
-          break;
+            break;
           case 'returned':
             $ticketUpdateData['payload']['d2TimeStamp'] = $this->now->format('Y-m-d H:i:s');
-            if ($this->printName !== NULL && $this->printName !== '') {
+            if ($this->printName !== null && $this->printName !== '') {
               $ticketUpdateData['payload']['d2SigPrint'] = $this->printName;
               $ticketUpdateData['payload']['d2SigReq'] = 1;
             }
-            if ($this->sigImage != NULL && $this->sigImage !== "") {
+            if ($this->sigImage != null && $this->sigImage !== "") {
               $dataPieces = explode(',', $this->sigImage);
               $ticketUpdateData['payload']['d2SigType'] = between('/',';',$dataPieces[0]);
               $ticketUpdateData['payload']['d2Sig'] = base64_encode($dataPieces[1]);
               $ticketUpdateData['payload']['d2SigReq'] = 1;
             }
-            if ($this->latitude !== NULL && $this->longitude !== NULL) {
+            if ($this->latitude !== null && $this->longitude !== null) {
               $ticketUpdateData['payload']['d2Lat'] = $this->latitude;
               $ticketUpdateData['payload']['d2Lng'] = $this->longitude;
             }
             $this->stepMarker = 'Returned';
-          break;
+            break;
           case 'dispatched':
             $this->DispatchTimeStamp = $this->now->format('Y-m-d H:i:s');
             $micro_date = microtime();
@@ -3769,12 +4074,11 @@
             $this->DispatchMicroTime = substr($date_array[0], 1, 7);
             $ticketUpdateData['payload'] = [ 'DispatchTimeStamp'=>$this->DispatchTimeStamp, 'DispatchMicroTime'=>$this->DispatchMicroTime, 'DispatchedTo'=>$this->DispatchedTo, 'DispatchedBy'=>$this->DispatchedBy ];
             $this->stepMarker = 'Dispatched';
-          break;
+            break;
           default:
             $this->error = __function__ . ' Error: Unknown Action Line ' . __line__;
-            if ($this->enableLogging !== FALSE) self::writeLoop();
+            if ($this->enableLogging !== false) self::writeLoop();
             return $this->error;
-          break;
         }
       } else {
         for ($i = 0; $i < count($this->multiTicket); $i++) {
@@ -3783,63 +4087,63 @@
             case 'pickedUp':
               $tempObj->Notes = $this->multiTicket[$i]['notes'];
               $tempObj->pTimeStamp = $this->now->format('Y-m-d H:i:s');
-              if ($this->printName !== NULL && $this->printName !== '') {
+              if ($this->printName !== null && $this->printName !== '') {
                 $tempObj->pSigPrint = $this->printName;
                 $tempObj->pSigReq = 1;
               }
-              if ($this->sigImage !== NULL && $this->sigImage !== '') {
+              if ($this->sigImage !== null && $this->sigImage !== '') {
                 $dataPieces = explode(',', $this->sigImage);
                 $tempObj->pSigType = self::between('/',';',$dataPieces[0]);
                 $tempObj->pSig = base64_encode($dataPieces[1]);
                 $tempObj->pSigReq = 1;
               }
-              if ($this->latitude !== NULL && $this->longitude !== NULL) {
+              if ($this->latitude !== null && $this->longitude !== null) {
                 $tempObj->pLat = $this->latitude;
                 $tempObj->pLng = $this->longitude;
               }
-              if ($this->printName !== NULL && $this->printName !== '') $tempObj->pSigReq = 1;
+              if ($this->printName !== null && $this->printName !== '') $tempObj->pSigReq = 1;
               $ticketUpdateData['payload'][] = $tempObj;
-            break;
+              break;
             case 'delivered':
               $tempObj->Notes = $this->multiTicket[$i]['notes'];
               $tempObj->dTimeStamp = $this->now->format('Y-m-d H:i:s');
-              if ($this->printName !== NULL && $this->printName !== '') {
+              if ($this->printName !== null && $this->printName !== '') {
                 $tempObj->dSigPrint = $this->printName;
                 $tempObj->dSigReq = 1;
               }
-              if ($this->sigImage !== NULL && $this->sigImage !== '') {
+              if ($this->sigImage !== null && $this->sigImage !== '') {
                 $dataPieces = explode(',', $this->sigImage);
                 $tempObj->dSigType = self::between('/',';',$dataPieces[0]);
                 $tempObj->dSig = base64_encode($dataPieces[1]);
                 $tempObj->dSigReq = 1;
               }
-              if ($this->latitude !== NULL && $this->longitude !== NULL) {
+              if ($this->latitude !== null && $this->longitude !== null) {
                 $tempObj->dLat = $this->latitude;
                 $tempObj->dLng = $this->longitude;
               }
-              if ($this->printName !== NULL && $this->printName !== '') $tempObj->dSigReq = 1;
+              if ($this->printName !== null && $this->printName !== '') $tempObj->dSigReq = 1;
               $ticketUpdateData['payload'][] = $tempObj;
-            break;
+              break;
             case 'returned':
               $tempObj->Notes = $this->multiTicket[$i]['notes'];
               $tempObj->d2TimeStamp = $this->now->format('Y-m-d H:i:s');
-              if ($this->printName !== NULL && $this->printName !== '') {
+              if ($this->printName !== null && $this->printName !== '') {
                 $tempObj->d2SigPrint = $this->printName;
                 $tempObj->d2SigReq = 1;
               }
-              if ($this->sigImage !== NULL && $this->sigImage !== '') {
+              if ($this->sigImage !== null && $this->sigImage !== '') {
                 $dataPieces = explode(',', $this->sigImage);
                 $tempObj->d2SigType = self::between('/',';',$dataPieces[0]);
                 $tempObj->d2Sig = base64_encode($dataPieces[1]);
                 $tempObj->d2SigReq = 1;
               }
-              if ($this->latitude !== NULL && $this->longitude !== NULL) {
+              if ($this->latitude !== null && $this->longitude !== null) {
                 $tempObj->d2Lat = $this->latitude;
                 $tempObj->d2Lng = $this->longitude;
               }
-              if ($this->printName !== NULL && $this->printName !== '') $tempObj->d2SigReq = 1;
+              if ($this->printName !== null && $this->printName !== '') $tempObj->d2SigReq = 1;
               $ticketUpdateData['payload'][] = $tempObj;
-            break;
+              break;
             case 'dispatched':
               $this->DispatchTimeStamp = $this->now->format('Y-m-d H:i:s');
               $micro_date = microtime();
@@ -3850,36 +4154,35 @@
               $tempObj->DispatchedTo = $this->DispatchedTo;
               $tempObj->DispatchedBy = $this->DispatchedBy;
               $ticketUpdateData['payload'][] = $tempObj;
-            break;
+              break;
             default:
               $this->error = __function__ . ' Error: Unknown Action Line ' . __line__;
-              if ($this->enableLogging !== FALSE) self::writeLoop();
+              if ($this->enableLogging !== false) self::writeLoop();
               return $this->error;
-            break;
           }
         }
       }
       if (!$ticketUpdate = self::createQuery($ticketUpdateData)) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         return $this->error;
-        return FALSE;
+        return false;
       }
       $updateResult = self::callQuery($ticketUpdate);
-      if ($updateResult === FALSE) {
+      if ($updateResult === false) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         return $this->error;
-        return FALSE;
+        return false;
       }
-      if ($this->multiTicket === NULL) {
+      if ($this->multiTicket === null) {
         $marker = "{$this->TicketNumber} {$this->stepMarker}";
         if ($this->Charge === 7) {
           self::solveDedicatedRunPrice();
         }
-        if (self::sendEmail() === TRUE) {
+        if (self::sendEmail() === true) {
           self::processEmail();
         }
       } else {
@@ -3891,15 +4194,16 @@
                 $this->$k = $value;
               }
             }
-            if ($this->sendEmail() === TRUE) $this->processEmail();
+            if ($this->sendEmail() === true) $this->processEmail();
           }
         }
       }
       return "<p class=\"center result\">Ticket {$marker}.</p>";
     }
 
-    public function cancelTicket() {
-      if ($this->multiTicket !== NULL) {
+    public function cancelTicket()
+    {
+      if ($this->multiTicket !== null) {
         $tempIndex = [];
         for ($i = 0; $i < count($this->multiTicket); $i++) {
           foreach ($this->multiTicket[$i] as $key => $value) {
@@ -3909,7 +4213,7 @@
         }
         $this->ticket_index = implode(',', $tempIndex);
       }
-      $this->processTransfer = ($this->TransferState !== NULL);
+      $this->processTransfer = ($this->TransferState !== null);
       $ticketUpdateData['endPoint'] = 'tickets';
       $ticketUpdateData['method'] = 'PUT';
       $ticketUpdateData['queryParams'] = [];
@@ -3918,10 +4222,15 @@
         case 'delete':
           $ticketUpdateData['method'] = 'DELETE';
           $answer = 'deleted';
-        break;
+          break;
         case 'cancel':
-          if ($this->multiTicket === NULL) {
-            $ticketUpdateData['payload'] = [ 'Charge'=>'0', 'TicketPrice'=>'0', 'pTimeStamp'=>$this->today->format('Y-m-d H:i:s'), 'Notes'=>$this->Notes ];
+          if ($this->multiTicket === null) {
+            $ticketUpdateData['payload'] = [
+              'Charge'=>'0',
+              'TicketPrice'=>'0',
+              'pTimeStamp'=>$this->today->format('Y-m-d H:i:s'),
+              'Notes'=>$this->Notes
+            ];
           } else {
             $ticketUpdateData['payload'] = [];
             for ($i = 0; $i < count($this->multiTicket); $i++) {
@@ -3934,19 +4243,19 @@
             }
           }
           $answer = 'canceled';
-        break;
+          break;
         case 'deadRun':
-          if ($this->multiTicket === NULL) {
+          if ($this->multiTicket === null) {
             $newPrice = self::number_format_drop_zero_decimals($this->TicketBase * $this->config['DeadRun'], 2);
             $ticketUpdateData['payload'] = [
-                                             'Charge'=>'8',
-                                             'pTimeStamp'=>$this->today->format('Y-m-d H:i:s'),
-                                             'pLat'=>$this->latitude,
-                                             'pLng'=>$this->longitude,
-                                             'RunPrice'=>$newPrice,
-                                             'TicketPrice'=>$newPrice,
-                                             'Notes'=>$this->Notes
-                                           ];
+              'Charge'=>'8',
+              'pTimeStamp'=>$this->today->format('Y-m-d H:i:s'),
+              'pLat'=>$this->latitude,
+              'pLng'=>$this->longitude,
+              'RunPrice'=>$newPrice,
+              'TicketPrice'=>$newPrice,
+              'Notes'=>$this->Notes
+            ];
           } else {
             $ticketUpdateData['payload'] = [];
             for ($i = 0; $i < count($this->multiTicket); $i++) {
@@ -3964,9 +4273,9 @@
             }
           }
           $answer = 'marked as Dead Run';
-        break;
+          break;
         case 'declined':
-          if ($this->multiTicket === NULL) {
+          if ($this->multiTicket === null) {
             switch ($this->Charge) {
               case 1:
               case 2:
@@ -3975,17 +4284,17 @@
               case 5:
                 $newPrice = self::number_format_drop_zero_decimals(($this->TicketBase * 2), 2);
                 $ticketUpdateData['payload'] = [
-                                                 'dryIce'=>0,
-                                                 'diPrice'=>0,
-                                                 'Charge'=>6,
-                                                 'dTimeStamp'=>$this->today->format('Y-m-d H:i:s'),
-                                                 'dLat'=>$this->latitude,
-                                                 'dLng'=>$this->longitude,
-                                                 'RunPrice'=>$newPrice,
-                                                 'TicketPrice'=>$newPrice,
-                                                 'Notes'=>"Delivery declined.\n" . $this->Notes
-                                               ];
-              break;
+                  'dryIce'=>0,
+                  'diPrice'=>0,
+                  'Charge'=>6,
+                  'dTimeStamp'=>$this->today->format('Y-m-d H:i:s'),
+                  'dLat'=>$this->latitude,
+                  'dLng'=>$this->longitude,
+                  'RunPrice'=>$newPrice,
+                  'TicketPrice'=>$newPrice,
+                  'Notes'=>"Delivery declined.\n" . $this->Notes
+                ];
+                break;
             }
           } else {
             $ticketUpdateData['payload'] = [];
@@ -4013,7 +4322,7 @@
             }
           }
           $answer = 'marked for Return';
-        break;
+          break;
         case 'transfer':
           switch ($this->TransferState) {
             /* TransferState will be bool to and from the API
@@ -4024,15 +4333,19 @@
              * 4: Accept Transfer
             */
             case 1:
-              if ($this->multiTicket === NULL) {
-                $ticketUpdateData['payload'] = [ 'TransferState'=>(int)$this->TransferState, 'PendingReceiver'=>(int)self::after_last(';', $this->pendingReceiver), 'Notes'=>$this->Notes ];
+              if ($this->multiTicket === null) {
+                $ticketUpdateData['payload'] = [
+                  'TransferState'=>(int)$this->TransferState,
+                  'PendingReceiver'=>(int)self::after_last(';', $this->pendingReceiver),
+                  'Notes'=>$this->Notes
+                ];
                 $this->receiverName = self::test_input(self::before_last(';', $this->pendingReceiver));
               } else {
                 $ticketUpdateData['payload'] = [];
                 $this->receiverName = self::test_input(self::before_last(';', $this->multiTicket[0]['pendingReceiver']));
                 if (!$this->receiverName) {
                   $this->error = '<span class="error">Error</span>: Transfer Receiver Not Defined.';
-                  if ($this->enableLogging !== FALSE) self::writeLoop();
+                  if ($this->enableLogging !== false) self::writeLoop();
                   return $this->error;
                 }
                 for ($i = 0; $i < count($this->multiTicket); $i++) {
@@ -4044,9 +4357,9 @@
                 }
               }
               $answer = "transferred to {$this->receiverName}";
-            break;
+              break;
             case 2:
-              if ($this->multiTicket === NULL) {
+              if ($this->multiTicket === null) {
                 $ticketUpdateData['payload'] = [ 'TransferState'=>0, 'PendingReceiver'=>0, 'Notes'=>$this->Notes ];
               } else {
                 $ticketUpdateData['payload'] = [];
@@ -4059,10 +4372,15 @@
                 }
               }
               $answer = 'transfer canceled';
-            break;
+              break;
             case 3:
-              if ($this->multiTicket === NULL) {
-                $ticketUpdateData['payload'] = [ 'TransferState'=>0, 'PendingReceiver'=>0, 'Notes'=>$this->Notes, 'DispatchedTo'=>$this->DispatchedTo ];
+              if ($this->multiTicket === null) {
+                $ticketUpdateData['payload'] = [
+                  'TransferState'=>0,
+                  'PendingReceiver'=>0,
+                  'Notes'=>$this->Notes,
+                  'DispatchedTo'=>$this->DispatchedTo
+                ];
               } else {
                 $ticketUpdateData['payload'] = [];
                 for ($i = 0; $i < count($this->multiTicket); $i++) {
@@ -4075,9 +4393,9 @@
                 }
               }
               $answer = 'transfer declined';
-            break;
+              break;
             case 4:
-              if ($this->multiTicket === NULL) {
+              if ($this->multiTicket === null) {
                 $tempTransfer = new \stdClass();
                 $tempTransfer->holder = (int)$this->DispatchedTo;
                 $tempTransfer->receiver = (int)$this->driverID;
@@ -4094,7 +4412,13 @@
                 } else {
                   $this->Transfers = [ $tempTransfer ];
                 }
-                $ticketUpdateData['payload'] = [ 'TransferState'=>0, 'PendingReceiver'=>0, 'Notes'=>$this->Notes, 'DispatchedTo'=>$this->driverID, 'Transfers'=>$this->Transfers ];
+                $ticketUpdateData['payload'] = [
+                  'TransferState'=>0,
+                  'PendingReceiver'=>0,
+                  'Notes'=>$this->Notes,
+                  'DispatchedTo'=>$this->driverID,
+                  'Transfers'=>$this->Transfers
+                ];
               } else {
                 $ticketUpdateData['payload'] = [];
                 for ($i = 0; $i < count($this->multiTicket); $i++) {
@@ -4123,37 +4447,35 @@
                 }
               }
               $answer = 'transfer accepted';
-            break;
+              break;
             default:
               $this->error = __function__ . ' Invalid Transfer State Line ' . __line__ . ': ' . $this->TransferState;
-              if ($this->enableLogging !== FALSE) self::writeLoop();
+              if ($this->enableLogging !== false) self::writeLoop();
               return $this->error;
-            break;
           }
-        break;
+          break;
         default:
           $this->error = __function__ . ' Line ' . __line__ . ": Action {$this->action} not recognized.";
-          if ($this->enableLogging !== FALSE) self::writeLoop();
+          if ($this->enableLogging !== false) self::writeLoop();
           return $this->error;
-        break;
       }
       if (!$ticketUpdate = self::createQuery($ticketUpdateData)) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         echo $this->error;
-        return FALSE;
+        return false;
       }
       $updateResult = self::callQuery($ticketUpdate);
-      if ($updateResult === FALSE) {
+      if ($updateResult === false) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== FALSE) self::writeLoop();
+        if ($this->enableLogging !== false) self::writeLoop();
         echo $this->error;
-        return FALSE;
+        return false;
       }
-      $marker = ($this->multiTicket === NULL) ? $this->TicketNumber : 'group';
+      $marker = ($this->multiTicket === null) ? $this->TicketNumber : 'group';
       echo "Ticket {$marker} {$answer}.";
-      return FALSE;
+      return false;
     }
   }

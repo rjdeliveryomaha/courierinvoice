@@ -33,7 +33,8 @@
     private $months;
     private $dataSet;
 
-    public function __construct($options, $data=[]) {
+    public function __construct($options, $data=[])
+    {
       try {
         parent::__construct($options, $data);
       } catch (Exception $e) {
@@ -60,7 +61,8 @@
       }
     }
 
-    public function ticketLookup() {
+    public function ticketLookup()
+    {
       $returnData = [];
       $this->queryData['method'] = 'GET';
       $this->queryData['endPoint'] = 'tickets';
@@ -103,7 +105,10 @@
         }
       }
 
-      if ($this->result[0]['Charge'] !== 6 || ($this->result[0]['Charge'] === 7 && $this->result[0]['d2SigReq'] !== 1)) {
+      if (
+        $this->result[0]['Charge'] !== 6 ||
+        ($this->result[0]['Charge'] === 7 && $this->result[0]['d2SigReq'] !== 1)
+      ) {
         $returnData['d2TimeStamp'] = 'Not Scheduled';
       }
 
@@ -148,7 +153,7 @@
             }
             $nonRepeatFilter[] = [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0 ];
           }
-        break;
+          break;
         case 'invoices':
           $billToResource = 'ClientID';
           $dateResource = 'DateIssued';
@@ -159,7 +164,7 @@
             $nonRepeatFilter[] = [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0 ];
           }
           $this->queryData['queryParams']['join'] = [ 'tickets' ];
-        break;
+          break;
         default:
           $this->error = 'Invalid End Point ' . __line__;
           if ($this->enableLogging !== FALSE) self::writeLoop();
@@ -185,17 +190,25 @@
             }
           }
           if (!empty($this->repeatClients)) {
-            $repeatFilter[] = [ 'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->repeatClients) ];
+            $repeatFilter[] = [
+              'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->repeatClients)
+            ];
           }
           if (!empty($this->nonRepeat)) {
-            $nonRepeatFilter[] = [ 'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->nonRepeat) ];
+            $nonRepeatFilter[] = [
+              'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->nonRepeat)
+            ];
           }
         } else {
           if (!empty($this->repeatClients)) {
-            $repeatFilter[] = [ 'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->repeatClients) ];
+            $repeatFilter[] = [
+              'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->repeatClients)
+            ];
           }
           if (!empty($this->nonRepeat)) {
-            $nonRepeatFilter[] = [ 'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->nonRepeat) ];
+            $nonRepeatFilter[] = [
+              'Resource'=>$billToResource, 'Filter'=>'in', 'Value'=>implode(',', $this->nonRepeat)
+            ];
           }
         }
         if (!empty($this->repeatClients)) {
@@ -372,7 +385,7 @@
                 }
               }
             }
-          break;
+            break;
           case 'chart':
             $this->startDate = clone $this->today;
             $this->startDate->modify('- ' . ($this->allTimeChartLimit - 1). ' months');
@@ -391,7 +404,7 @@
                 ['Resource'=>'ReceivedDate', 'Filter'=>'bt', 'Value'=>"{$this->startDate->format('Y-m-d')} 00:00:00,{$this->endDate}"]
               ];
             }
-          break;
+            break;
           default:
             $this->error = 'Invalid Display Option Line ' . __line__;
             if ($this->enableLogging !== FALSE) self::writeLoop();
@@ -444,7 +457,6 @@
             $returnData .= $temp->regenTicket();
           }
           return $returnData;
-        break;
         case 'invoice':
           $data['invoiceQueryResult'] = $this->result;
           $temp = self::createInvoice($data);
@@ -458,7 +470,6 @@
             return "<p class=\"result center\">{$this->error}</p>";
           }
           return $displayInvoice;
-        break;
         case 'chart':
           $chartData = [
             'organizationFlag'=>$this->organizationFlag,
@@ -498,12 +509,13 @@
             return "<p class=\"result center\">{$this->error}</p>";
           }
           return $displayChart;
-        break;
-        default: return '<p class="result center">Invalid Display Option</p>';
+        default:
+          return '<p class="result center">Invalid Display Option</p>';
       }
     }
 
-    private function sortMonths() {
+    private function sortMonths()
+    {
       // When querying the month list gets out of order
       // Ensure chronological order using array_merge and array_flip
       $tempMonthList = $newMonthOrder = [];
@@ -518,7 +530,8 @@
       $this->months = $monthHolder;
     }
 
-    private function groupTickets() {
+    private function groupTickets()
+    {
       foreach ($this->result as $ticket) {
         try {
           $receivedDate = new \dateTime($ticket['ReceivedDate'], $this->timezone);
@@ -534,60 +547,74 @@
           $this->months[$monthLabel][$ticket['BillTo']]['endDate'] = $receivedDate->format('Y-m-d');
         } else {
           $this->months[$monthLabel][$ticket['BillTo']] = [
-            'billTo'=>$ticket['BillTo'], 'monthTotal'=>1, 'contract'=>0, 'credit'=>0, 'canceled'=>0, 'onCall'=>0,
-            'routine'=>0, 'fourHour'=>0, 'threeHour'=>0, 'twoHour'=>0, 'oneHour'=>0, 'roundTrip'=>0, 'deadRun'=>0,
-            'dedicatedRun'=>0, 'withIce'=>0, 'withoutIce'=>0, 'startDate'=>$receivedDate->format('Y-m-d'),
-            'endDate'=>$receivedDate->format('Y-m-d')
+            'billTo'=>$ticket['BillTo'],
+            'monthTotal'=>1,
+            'contract'=>0,
+            'credit'=>0,
+            'canceled'=>0,
+            'onCall'=>0,
+            'routine'=>0,
+            'fourHour'=>0,
+            'threeHour'=>0,
+            'twoHour'=>0,
+            'oneHour'=>0,
+            'roundTrip'=>0,
+            'deadRun'=>0,
+            'dedicatedRun'=>0,
+            'withIce'=>0,
+            'withoutIce'=>0,
+            'startDate'=>$receivedDate->format('Y-m-d'),
+            'endDate'=>$receivedDate->format('Y-m-d'),
           ];
         }
         // count totals for ticket types overall and by month
         switch ($ticket['Charge']) {
           case 0:
             $this->months[$monthLabel][$ticket['BillTo']]['canceled']++;
-          break;
+            break;
           case 1:
             $this->months[$monthLabel][$ticket['BillTo']]['oneHour']++;
-          break;
+            break;
           case 2:
             $this->months[$monthLabel][$ticket['BillTo']]['twoHour']++;
-          break;
+            break;
           case 3:
             $this->months[$monthLabel][$ticket['BillTo']]['threeHour']++;
-          break;
+            break;
           case 4:
             $this->months[$monthLabel][$ticket['BillTo']]['fourHour']++;
-          break;
+            break;
           case 5:
             $this->months[$monthLabel][$ticket['BillTo']]['routine']++;
-          break;
+            break;
           case 6:
             $this->months[$monthLabel][$ticket['BillTo']]['roundTrip']++;
-          break;
+            break;
           case 7:
             $this->months[$monthLabel][$ticket['BillTo']]['dedicatedRun']++;
-          break;
+            break;
           case 8:
             $this->months[$monthLabel][$ticket['BillTo']]['deadRun']++;
-          break;
+            break;
           case 9:
             $this->months[$monthLabel][$ticket['BillTo']]['credit']++;
-          break;
+            break;
         }
         switch ($ticket['Contract']) {
           case 0:
             $this->months[$monthLabel][$ticket['BillTo']]['onCall']++;
-          break;
+            break;
           case 1:
             $this->months[$monthLabel][$ticket['BillTo']]['contract']++;
-          break;
+            break;
         }
         switch ($ticket['dryIce']) {
           case 1:
             $this->months[$monthLabel][$ticket['BillTo']]['withIce']++;
-          break;
+            break;
           case 0:
             $this->months[$monthLabel][$ticket['BillTo']]['withoutIce']++;
-          break;
+            break;
         }
       }
       if(count($this->months) > 1) {
@@ -596,7 +623,8 @@
       return FALSE;
     }
 
-    private function groupInvoiceTickets() {
+    private function groupInvoiceTickets()
+    {
       if (!is_array($this->tickets) || empty($this->tickets)) {
         return '<p class="result center">No Tickets To Sort</p>';
       }
@@ -612,9 +640,21 @@
           } else {
             $this->months[$invoiceLabel][$invoiceGroup] = [
               'invoices' => [0=>$invoice['InvoiceNumber']],
-              'monthTotal'=>$invoice['InvoiceSubTotal'] - $invoice['BalanceForwarded'], 'contract'=>0, 'credit'=>0,
-              'canceled'=>0, 'onCall'=>0, 'routine'=>0, 'fourHour'=>0, 'threeHour'=>0, 'twoHour'=>0, 'oneHour'=>0,
-              'roundTrip'=>0, 'deadRun'=>0, 'dedicatedRun'=>0, 'dryIce'=>0, 'iceDelivery'=>0,
+              'monthTotal'=>$invoice['InvoiceSubTotal'] - $invoice['BalanceForwarded'],
+              'contract'=>0,
+              'credit'=>0,
+              'canceled'=>0,
+              'onCall'=>0,
+              'routine'=>0,
+              'fourHour'=>0,
+              'threeHour'=>0,
+              'twoHour'=>0,
+              'oneHour'=>0,
+              'roundTrip'=>0,
+              'deadRun'=>0,
+              'dedicatedRun'=>0,
+              'dryIce'=>0,
+              'iceDelivery'=>0,
             ];
           }
         }
@@ -628,10 +668,23 @@
             $this->months[$invoiceLabel]['monthTotal'] -= $invoice['BalanceForwarded'];
           } else {
             $this->months[$invoiceLabel] = [
-              'invoices'=>[0 => $invoice['InvoiceNumber']], 'billTo'=>$invoice['ClientID'],
-              'monthTotal'=>$invoice['InvoiceSubTotal'] - $invoice['BalanceForwarded'], 'contract'=>0, 'credit'=>0,
-              'canceled'=>0, 'onCall'=>0, 'routine'=>0, 'fourHour'=>0, 'threeHour'=>0, 'twoHour'=>0, 'oneHour'=>0,
-              'roundTrip'=>0, 'deadRun'=>0, 'dedicatedRun'=>0, 'dryIce'=>0, 'iceDelivery'=>0,
+              'invoices'=>[0 => $invoice['InvoiceNumber']],
+              'billTo'=>$invoice['ClientID'],
+              'monthTotal'=>$invoice['InvoiceSubTotal'] - $invoice['BalanceForwarded'],
+              'contract'=>0,
+              'credit'=>0,
+              'canceled'=>0,
+              'onCall'=>0,
+              'routine'=>0,
+              'fourHour'=>0,
+              'threeHour'=>0,
+              'twoHour'=>0,
+              'oneHour'=>0,
+              'roundTrip'=>0,
+              'deadRun'=>0,
+              'dedicatedRun'=>0,
+              'dryIce'=>0,
+              'iceDelivery'=>0,
             ];
           }
         }
@@ -644,42 +697,42 @@
           switch ($ticket['Charge']) {
             case 0:
               $this->months[$targetKey]['canceled'] += $ticket['TicketPrice'];
-            break;
+              break;
             case 1:
               $this->months[$targetKey]['oneHour'] += $ticket['TicketPrice'];
-            break;
+              break;
             case 2:
               $this->months[$targetKey]['twoHour'] += $ticket['TicketPrice'];
-            break;
+              break;
             case 3:
               $this->months[$targetKey]['threeHour'] += $ticket['TicketPrice'];
-            break;
+              break;
             case 4:
               $this->months[$targetKey]['fourHour'] += $ticket['TicketPrice'];
-            break;
+              break;
             case 5:
               $this->months[$targetKey]['routine'] += $ticket['TicketPrice'];
-            break;
+              break;
             case 6:
               $this->months[$targetKey]['roundTrip'] += $ticket['TicketPrice'];
-            break;
+              break;
             case 7:
               $this->months[$targetKey]['dedicatedRun'] += $ticket['TicketPrice'];
-            break;
+              break;
             case 8:
               $this->months[$targetKey]['deadRun'] += $ticket['TicketPrice'];
-            break;
+              break;
             case 9:
               $this->months[$targetKey]['credit'] += $ticket['TicketPrice'];
-            break;
+              break;
           }
           switch ($ticket['Contract']) {
             case 1:
               if ($ticket['Charge'] !== 0) $this->months[$targetKey]['contract'] += $ticket['TicketPrice'];
-            break;
+              break;
             case 0:
               if ($ticket['Charge'] !== 9 && $ticket['Charge'] !== 0) $this->months[$targetKey]['onCall'] += $ticket['TicketPrice'];
-            break;
+              break;
           }
           if ($ticket['dryIce']=== 1) {
             if ($ticket['Charge'] !== 0) {
@@ -691,42 +744,46 @@
           switch ($ticket['Charge']) {
             case 0:
               $this->months[$targetKey][$ticket['BillTo']]['canceled'] += $ticket['TicketPrice'];
-            break;
+              break;
             case 1:
               $this->months[$targetKey][$ticket['BillTo']]['oneHour'] += $ticket['TicketPrice'];
-            break;
+              break;
             case 2:
               $this->months[$targetKey][$ticket['BillTo']]['twoHour'] += $ticket['TicketPrice'];
-            break;
+              break;
             case 3:
               $this->months[$targetKey][$ticket['BillTo']]['threeHour'] += $ticket['TicketPrice'];
-            break;
+              break;
             case 4:
               $this->months[$targetKey][$ticket['BillTo']]['fourHour'] += $ticket['TicketPrice'];
-            break;
+              break;
             case 5:
               $this->months[$targetKey][$ticket['BillTo']]['routine'] += $ticket['TicketPrice'];
-            break;
+              break;
             case 6:
               $this->months[$targetKey][$ticket['BillTo']]['roundTrip'] += $ticket['TicketPrice'];
-            break;
+              break;
             case 7:
               $this->months[$targetKey][$ticket['BillTo']]['dedicatedRun'] += $ticket['TicketPrice'];
-            break;
+              break;
             case 8:
               $this->months[$targetKey][$ticket['BillTo']]['deadRun'] += $ticket['TicketPrice'];
-            break;
+              break;
             case 9:
               $this->months[$targetKey][$ticket['BillTo']]['credit'] += $ticket['TicketPrice'];
-            break;
+              break;
           }
           switch ($ticket['Contract']) {
             case 1:
-              if ($ticket['Charge'] !== 0) $this->months[$targetKey][$ticket['BillTo']]['contract'] += $ticket['TicketPrice'];
-            break;
+              if ($ticket['Charge'] !== 0) {
+                $this->months[$targetKey][$ticket['BillTo']]['contract'] += $ticket['TicketPrice'];
+              }
+              break;
             case 0:
-              if ($ticket['Charge'] !== 9 && $ticket['Charge'] !== 0) $this->months[$targetKey][$ticket['BillTo']]['onCall'] += $ticket['TicketPrice'];
-            break;
+              if ($ticket['Charge'] !== 9 && $ticket['Charge'] !== 0) {
+                $this->months[$targetKey][$ticket['BillTo']]['onCall'] += $ticket['TicketPrice'];
+              }
+              break;
           }
           if ($ticket['dryIce'] === 1) {
             if ($ticket['Charge'] !== 0) {
