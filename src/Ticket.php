@@ -2185,9 +2185,7 @@
                   </tr>
                   <tr>
                     <td>
-                      <textarea class=\"wide notes\" rows=\"4\" name=\"notes\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\">
-                        {$this->decode($this->multiTicket[$i]->Notes)}
-                      </textarea>
+                      <textarea class=\"wide notes\" rows=\"4\" name=\"notes\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\">{$this->decode($this->multiTicket[$i]->Notes)}</textarea>
                     </td>
                   </tr>
                 </table>
