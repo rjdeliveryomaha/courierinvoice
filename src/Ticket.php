@@ -1030,7 +1030,7 @@
 
       for($i = 0; $i < count($addy1s); $i++) {
         $returnData .= "
-          <option vlaue=\"{$addy1s[$i]}\">{$html_entity_decode($addy1s[$i])}</option>";
+          <option vlaue=\"{$addy1s[$i]}\" data-value=\"{$i}\">{$html_entity_decode($addy1s[$i])}</option>";
       }
 
       $returnData .= '
