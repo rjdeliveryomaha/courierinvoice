@@ -27,7 +27,7 @@
     private $result;
     private $today;
     private $yesterday;
-    private $tickets;
+    private $tickets = [];
     private $ticketHolder;
     private $invoices;
     private $months;
@@ -422,7 +422,6 @@
         if ($this->enableLogging !== FALSE) self::writeLoop();
         return "<p class=\"result center\">{$this->error}</p>";
       }
-      // return self::safe_print_r($this->queryData);
       $this->query = self::createQuery($this->queryData);
       if ($this->query === FALSE) {
         if ($this->enableLogging !== FALSE) self::writeLoop();
