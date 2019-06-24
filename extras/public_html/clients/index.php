@@ -92,6 +92,7 @@
         <svg class="menu__icon no--select" width="24px" height="24px" viewBox="0 0 48 48" fill="#fff">
           <path d="M6 36h36v-4H6v4zm0-10h36v-4H6v4zm0-14v4h36v-4H6z"></path>
         </svg>
+        <span class="alert"></span><span id="newUpdate" class="medium hide">New</span>
       </span>
       <span class="header__title no--select"><span class="pageTitle medium"></span><span class="medium" style="position:fixed;right:2%"><?php echo $date->format("D d M Y"); ?></span></span>
     </header>
