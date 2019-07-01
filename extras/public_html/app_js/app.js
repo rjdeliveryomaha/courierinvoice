@@ -1011,6 +1011,7 @@
   rjdci.confirmCancel = async eve => {
     eve.preventDefault();
     let postData = {},
+      cancelValues = [ 'ticket_index', 'notes', 'ticketBase' ],
       workspace = rjdci.getClosest(eve.target, ".message2"),
       step = "",
       ele = document.createElement("span");
@@ -1030,7 +1031,7 @@
         }
       }, 500);
     Array.from(document.querySelectorAll("input[form="+eve.target.getAttribute("form")+"], textarea[form="+eve.target.getAttribute("form")+"]")).forEach(element => {
-      if (element.getAttribute("name") === "ticket_index" || element.getAttribute("name") === "notes") postData[element.getAttribute("name")] = element.value;
+      if (cancelValues.indexOf(element.getAttribute("name")) !== -1) postData[element.getAttribute("name")] = element.value;
     });
     switch(eve.target.getAttribute("class")) {
       case "confirmDelete": postData.action = "delete"; break;

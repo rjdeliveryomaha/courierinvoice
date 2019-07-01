@@ -1831,6 +1831,7 @@
                       <input type=\"hidden\" name=\"emailConfirm\" class=\"emailConfirm\" value=\"{$this->EmailConfirm}\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"emailAddress\" class=\"emailAddress\" value=\"{$this->EmailAddress}\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"transfers\" class=\"transfers\" value=\"{$transfersFormValue}\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"ticketBase\" class=\"ticketBase\" value=\"{$this->TicketBase}\" form=\"ticketForm{$this->ticket_index}\" />
                       <label for=\"{$sigName}Print{$this->ticket_index}\">Signer</label><br><input type=\"text\" name=\"{$sigName}Print\" id=\"{$sigName}Print{$this->ticket_index}\" class=\"{$sigName}Print printName\" placeholder=\"{$sigPlaceholder}\" {$sigActive} form=\"ticketForm{$this->ticket_index}\" />
                     </form>
                   </td>
@@ -2230,6 +2231,7 @@
                   <input type=\"hidden\" name=\"transfers\" class=\"transfers\" value=\"{$transfersFormValue}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                   <input type=\"hidden\" name=\"pendingReceiver\" class=\"pendingReceiver\" value=\"{$this->multiTicket[$i]->PendingReceiver}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                   <input type=\"hidden\" name=\"step\" class=\"step\" value=\"{$this->multiTicket[$i]->step}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
+                  <input type=\"hidden\" name=\"ticketBase\" class=\"ticketBase\" value=\"{$this->multiTicket[$i]->TicketBase}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                 </form>
                 <h3 class=\"floatLeft\">{$this->multiTicket[$i]->TicketNumber}</h3>
                 {$label}
@@ -4248,12 +4250,12 @@
             $ticketUpdateData['payload'] = [
               'Charge'=>'8',
               'pTimeStamp'=>$this->today->format('Y-m-d H:i:s'),
-              'pLat'=>$this->latitude,
-              'pLng'=>$this->longitude,
               'RunPrice'=>$newPrice,
               'TicketPrice'=>$newPrice,
               'Notes'=>$this->Notes
             ];
+            if ($this->latitude !== null) $ticketUpdateData['payload']['pLat'] = $this->latitude;
+            if ($this->longitude !== null) $ticketUpdateData['payload']['pLng'] = $this->longitude;
           } else {
             $ticketUpdateData['payload'] = [];
             for ($i = 0; $i < count($this->multiTicket); $i++) {
@@ -4264,9 +4266,9 @@
               $tempObj->TicketPrice = $newPrice;
               $tempObj->RunPrice = $newPrice;
               $tempObj->pTimeStamp = $this->today->format('Y-m-d H:i:s');
-              $tempObj->pLat = $this->latitude;
-              $tempObj->pLng = $this->longitude;
               $tempObj->Notes = $this->multiTicket[$i]['Notes'];
+              if ($this->latitude !== null) $tempObj->pLat = $this->latitude;
+              if ($this->longitude !== null) $tempObj->pLng = $this->longitude;
               $ticketUpdateData['payload'][] = $tempObj;
             }
           }
@@ -4286,12 +4288,12 @@
                   'diPrice'=>0,
                   'Charge'=>6,
                   'dTimeStamp'=>$this->today->format('Y-m-d H:i:s'),
-                  'dLat'=>$this->latitude,
-                  'dLng'=>$this->longitude,
                   'RunPrice'=>$newPrice,
                   'TicketPrice'=>$newPrice,
                   'Notes'=>"Delivery declined.\n" . $this->Notes
                 ];
+                if ($this->latitude !== null) $ticketUpdateData['payload']['pLat'] = $this->latitude;
+                if ($this->longitude !== null) $ticketUpdateData['payload']['pLng'] = $this->longitude;
                 break;
             }
           } else {
@@ -4310,12 +4312,12 @@
                   $tempObj->diPrice = 0;
                   $tempObj->Charge = 6;
                   $tempObj->dTimeStamp = $this->today->format('Y-m-d H:i:s');
-                  $tempObj->dLat = $this->latitude;
-                  $tempObj->dLng = $this->longitude;
                   $tempObj->RunPrice = $newPrice;
                   $tempObj->TicketPrice = $newPrice;
                   $tempObj->Notes = $this->sanitized[$multiTicketIndex]['Notes'];
               }
+              if ($this->latitude !== null) $tempObj->pLat = $this->latitude;
+              if ($this->longitude !== null) $tempObj->pLng = $this->longitude;
               $ticketUpdateData['payload'][] = $tempObj;
             }
           }
