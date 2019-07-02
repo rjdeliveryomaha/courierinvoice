@@ -26,9 +26,11 @@
 
     'testURL' => '',
 
-    'invoicePage1Max' => 6,
+    'paperFormat' => 'portrait',
 
-    'invoicePageMax' => 9,
+    'paperOrientation' => 'letter',
+
+    'enableChartPDF' => false,
 
     'showCanceledTicketsOnInvoiceExceptions' => [],
 
@@ -55,14 +57,6 @@
     'allTimeChartLimit' => 6,
 
     'chart_height' => 12.5,
-
-    'bar_width' => 0.35,
-
-    'bar_gap' => 0.35,
-
-    'interval_gap' => 1,
-
-    'interval_border' => 0.125,
 
     'userLogin' => 'CustomLogin',
 

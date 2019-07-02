@@ -858,6 +858,8 @@ $invoice->regenInvoice();
 
 Uses the data provided in ` invoiceQueryResult ` to displays invoice.
 
+If [dompdf](https://github.com/dompdf/dompdf) is detected a button will be added to display/download the invoice as a pdf.
+
 If multiple datasets are provided a form will be returned to select which invoice to recreate by invoice number.
 
 ```php
@@ -1041,6 +1043,8 @@ All other values are only displayed if they are not zero.
 
 [example](extras/example_images/ticketChartExample.png?raw=true "Example of ticket chart.")
 
+If [dompdf](https://github.com/dompdf/dompdf) is detected a button will be added to display/download the chart as a pdf.
+
 Properties settable in $config can be found [here](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes#chart_height)
 
 ## Usage:
@@ -1140,6 +1144,8 @@ Displays a simple bar chart depicting the expense of each type of ticket over a 
 Only non-zero values are displayed.
 
 [example](extras/example_images/invoiceChartExample.png?raw=true "Example of invoice chart.")
+
+If [dompdf](https://github.com/dompdf/dompdf) is detected a button will be added to display/download the chart as a pdf.
 
 Properties settable in $config can be found [here](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes#chart_height)
 

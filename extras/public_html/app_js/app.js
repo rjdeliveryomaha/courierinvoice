@@ -662,7 +662,7 @@
       }
       document.getElementById("formKey").value = Number(document.getElementById("formKey").value) + 1;
       let obj,
-          breakFunction = false;
+        breakFunction = false;
       try {
         obj = JSON.parse(data);
       } catch(error) {
@@ -695,7 +695,7 @@
     if (typeof navigator.permissions === "undefined" || typeof navigator.geolocation === "undefined") return rjdci.toast("Location Not Available");
     let success_count = 0,
       error_count = 0,
-      max_attempt = 6,
+      max_attempt = 1,
       min_accuracy = 10,
       watch_id = null,
       result = false,
@@ -746,7 +746,6 @@
             postData[step[0]+"Lat"] = data.coords.latitude;
             postData[step[0]+"Lng"] = data.coords.longitude;
           }
-          console.log(postData);
           await rjdci.fetch_template({ url: "./updateTicket.php", postData: postData })
           .then(result => {
             if (typeof result === "undefined") throw new Error("Result Undefined");
@@ -1897,7 +1896,6 @@
     if (document.querySelector(".PWcontainer")) {
       document.querySelector(".PWcontainer .showText").addEventListener("change", eve => {
         Array.from(rjdci.getClosest(eve.target, "form").querySelectorAll("input.currentPw, .newPw1, .newPw2")).forEach(element => {
-          console.log(element);
           element.type = (eve.target.checked) ? "text" : "password";
         });
       });
@@ -2165,6 +2163,7 @@
             }
           })
           .then(data => {
+            console.log(data);
             clearInterval(dots);
             document.querySelector("#invoiceQueryResults").removeChild(container);
             if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
@@ -2172,7 +2171,7 @@
             let parser = new DOMParser(),
               newDom = parser.parseFromString(data, "text/html"),
               docFrag = document.createDocumentFragment();
-            Array.from(newDom.querySelectorAll("#invoice, .invoiceTable, .invoiceGraphContainer, p.displayHeader, .result")).forEach(element => {
+            Array.from(newDom.querySelectorAll("#invoiceChartPDFform, .bargraph, .graphKey, #invoice, .invoiceTable, p.displayHeader, .result")).forEach(element => {
               docFrag.appendChild(element);
             });
             document.querySelector("#invoiceQueryResults").appendChild(docFrag);
@@ -2353,7 +2352,7 @@
             let parser = new DOMParser(),
               newDom = parser.parseFromString(data, "text/html"),
               docFrag = document.createDocumentFragment();
-            Array.from(newDom.querySelectorAll(".tickets, .ticketTable, .ticketGraphContainer, .result")).forEach(element => {
+            Array.from(newDom.querySelectorAll("#ticketPDFform, .bargraph, .graphKey, .tickets, .ticketTable, .ticketGraphContainer, .result")).forEach(element => {
               docFrag.appendChild(element);
             });
             document.querySelector("#ticketQueryResults").innerHTML = "";
@@ -2427,7 +2426,7 @@
             let parser = new DOMParser(),
               newDom = parser.parseFromString(data, "text/html"),
               docFrag = document.createDocumentFragment();
-            Array.from(newDom.querySelectorAll(".tickets, .ticketTable, .ticketGraphContainer, .result")).forEach(element => {
+            Array.from(newDom.querySelectorAll("#ticketPDFform, .tickets, .ticketTable, .bargraph, .graphKey, .result")).forEach(element => {
               docFrag.appendChild(element);
             });
             document.querySelector("#ticketQueryResults").innerHTML = "";
@@ -2538,6 +2537,35 @@
   }
 
   assignQueriedInvoiceListeners = () => {
+    if (document.querySelector("#invoicePDF")) {
+      document.querySelector("#invoicePDF").addEventListener("click", eve => {
+        eve.preventDefault();
+        let cln = document.querySelector("#invoice").cloneNode(true);
+        cln.querySelector("#invoicePDFform").remove();
+        document.querySelector("#invoicePDFform input[name='content']").value = cln.outerHTML;
+        document.querySelector("#invoicePDFform input[name='formKey']").value = document.querySelector("#formKey").value;
+        document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
+        document.querySelector("#invoicePDFform").submit();
+      });
+    }
+    if (document.querySelector("#invoiceChartPDF")) {
+      document.querySelector("#invoiceChartPDF").addEventListener("click", eve => {
+        eve.preventDefault();
+        let cln = document.querySelector("#invoiceQueryResults").cloneNode(true);
+        cln.querySelector("#invoiceChartPDFform").remove();
+        Array.from(cln.querySelectorAll(".invoiceQuery")).forEach(element => {
+          let td = rjdci.getClosest(element, 'td'),
+            text = element.innerHTML,
+            classes = Array.from(element.classList);
+          td.classList.add(...classes);
+          td.innerHTML = text;
+        });
+        document.querySelector("#invoiceChartPDFform input[name='content']").value = cln.outerHTML;
+        document.querySelector("#invoiceChartPDFform input[name='formKey']").value = document.querySelector("#formKey").value;
+        document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
+        document.querySelector("#invoiceChartPDFform").submit();
+      });
+    }
     Array.from(document.querySelectorAll("#invoiceQueryResults .invoiceQuery")).forEach(element => {
       element.addEventListener("click", async eve => {
         eve.preventDefault();
@@ -2600,7 +2628,6 @@
 
     if (document.querySelector("#invoiceQueryResults .invoiceTable")) {
       Array.from(document.querySelectorAll("#invoiceQueryResults .invoiceTable, #invoiceQueryResults .invoiceGraphContainer")).forEach(element => {
-          console.log(element);
         element.addEventListener("touchstart", eve => {
           rjdciSwipe.disable();
         });
@@ -2736,12 +2763,25 @@
         });
       });
     });
-
-    if (document.querySelector("#ticketQueryResults .ticketGraphContainer")) {
-      document.querySelector("#ticketQueryResults .ticketGraphContainer").addEventListener("touchstart", eve => {
+    if (document.querySelector("#ticketPDF")) {
+      document.querySelector("#ticketPDF").addEventListener("click", eve => {
+        eve.preventDefault();
+        let cln = document.querySelector("#ticketQueryResults").cloneNode(true);
+          cln.querySelector("#ticketPDF").remove();
+        Array.from(cln.querySelectorAll(".submitTicketQuery")).forEach(element => {
+          element.parentNode.remove();
+        });
+        document.querySelector("#ticketPDFform input[name='content']").value = cln.outerHTML;
+        document.querySelector("#ticketPDFform input[name='formKey']").value = document.querySelector("#formKey").value;
+        document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
+        document.querySelector("#ticketPDFform").submit();
+      });
+    }
+    if (document.querySelector("#ticketQueryResults .bargraph")) {
+      document.querySelector("#ticketQueryResults .bargraph").addEventListener("touchstart", eve => {
         rjdciSwipe.disable();
       });
-      document.querySelector("#ticketQueryResults .ticketGraphContainer").addEventListener("touchend", eve => {
+      document.querySelector("#ticketQueryResults .bargraph").addEventListener("touchend", eve => {
         rjdciSwipe.enable();
       });
     }

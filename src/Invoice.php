@@ -38,6 +38,7 @@
     protected $invoiceQueryResult;
     protected $invoicePage1Max;
     protected $invoicePageMax;
+    protected $renderPDF;
     private $repeat;
     private $pastDueData = [];
     private $paymentDisplay;
@@ -140,8 +141,9 @@
         $ticketSet = $this->tickets;
       }
       $body = '
-            <table class="wide">';
-      $page1 = $morePages = $filteredTicketSet = array();
+            <table class="wide invoiceBody">';
+      $page1 = $morePages = $filteredTicketSet = [];
+      $pageCount = 0;
       if ($this->showCanceledTicketsOnInvoice === false) {
         foreach ($ticketSet as $filtered) {
           if ($filtered->getProperty('Charge') !== 0) {
@@ -151,160 +153,145 @@
       } else {
         $filteredTicketSet = $ticketSet;
       }
-      if (count($filteredTicketSet) === $this->invoicePage1Max) $this->invoicePage1Max -= 1;
+      $displayName = $this->members[$this->ClientID]->getProperty('ClientName');
+      $displayName .= ($this->members[$this->ClientID]->getProperty('Department') !== null) ? "; {$this->members[$this->ClientID]->getProperty('Department')}" : '';
+      switch (strtolower($this->options['paperFormat'])) {
+        case 'a4':
+          if (strtolower($this->options['paperOrientation']) === 'landscape') {
+            $this->invoicePage1Max = (count($filteredTicketSet) === 5) ? 4 : 5;
+            $this->invoicePageMax = 7;
+          } else {
+            $this->invoicePage1Max = (count($filteredTicketSet) === 9) ? 8 : 9;
+            $this->invoicePageMax = 11;
+          }
+          break;
+        case 'legal':
+          if (strtolower($this->options['paperOrientation']) === 'landscape') {
+            $this->invoicePage1Max = (count($filteredTicketSet) === 5) ? 4 : 5;
+            $this->invoicePageMax = 7;
+          } else {
+            $this->invoicePage1Max = (count($filteredTicketSet) === 12) ? 11 : 12;
+            $this->invoicePageMax = 14;
+          }
+          break;
+        case 'letter':
+        default:
+          if (strtolower($this->options['paperOrientation']) === 'landscape') {
+            $this->invoicePage1Max = (count($filteredTicketSet) === 5) ? 4 : 5;
+            $this->invoicePageMax = 7;
+          } else {
+            $this->invoicePage1Max = (count($filteredTicketSet) === 8) ? 7 : 8;
+            $this->invoicePageMax = 10;
+          }
+          break;
+      }
       $page1 = array_slice($filteredTicketSet,0,$this->invoicePage1Max);
       $morePages = array_slice($filteredTicketSet,$this->invoicePage1Max);
       $singlePage = empty($morePages);
+      if ($singlePage === false) {
+        $pages = array_chunk($morePages, $this->invoicePageMax);
+        $index = count($pages) - 1;
+        if (count($pages[$index]) === $this->invoicePageMax) {
+          $pages[] = [ array_pop($pages[$index]) ];
+        }
+        $pageCount = count($pages) + 1;
+      }
       for ($i=0; $i<count($page1); $i++) {
         if ($i === 0) {
           $body .= '
               <tr>
-                <th scope="col">Date</th>
-                <th scope="col">Ticket #</th>
-                <th scope="col">Charge</th>
-                <th scope="col" colspan="2">Description</th>
-                <th scope="col">Price</th>
-                <th scope="col">#</th>
-                <th scope="col">Line Price</th>
-              </tr>';
-          $body .= $page1[$i]->invoiceBody();
+                <th>Date</th>
+                <th>Ticket #</th>
+                <th>Charge</th>
+                <th colspan="2">Description</th>
+                <th>Price</th>
+                <th>#</th>
+                <th>Line Price</th>
+              </tr>' .
+              $page1[$i]->invoiceBody();
         } else {
           $body .= '
               <tr>
-                <th scope="col"></th>
-                <th scope="col"></th>
-                <th scope="col"></th>
-                <th scope="col" colspan="2"></th>
-                <th scope="col"></th>
-                <th scope="col"></th>
-                <th scope="col"></th>
-              </tr>';
-          $body .= $page1[$i]->invoiceBody();
+                <th></th>
+                <th></th>
+                <th></th>
+                <th colspan="2"></th>
+                <th></th>
+                <th></th>
+                <th></th>
+              </tr>' .
+              $page1[$i]->invoiceBody();
         }
       }
-      if ($singlePage) {
+      if ($singlePage === true) {
         $body .= '
               <tr>
                 <td colspan="5" style="border:none;"></td>
-                <th scope="row" colspan="2" style="border:1px solid black; white-space:nowrap;">Subtotal:</th>
-                <td style="border:1px solid black;"><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::negParenth(self::number_format_drop_zero_decimals($this->InvoiceSubTotal, 2)) . '</td>
+                <th colspan="2" style="border:1px solid black; white-space:nowrap;">Subtotal:</th>
+                <td style="border:1px solid black;">
+                  <span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::negParenth(self::number_format_drop_zero_decimals($this->InvoiceSubTotal, 2)) . '
+                </td>
               </tr>';
       } else {
-        for ($i=0; $i<count($morePages); $i++) {
-          if ($i === 0) {
+        $body .= '
+            </table>
+            <p class="medium center">1 / ' . $pageCount . '</p>';
+        foreach ($pages as $page) {
+          for ($i = 0; $i < count($page); $i++) {
+            if ($i === 0) {
               $body .= '
-            </tbody>
-          </table>
-        </td>
-      </tr>
-    </table>
-    <p class="medium center">Continued on page ' . $this->counter . '</p>
-    <p class="pageBreak"></p>
-    <table class="invoiceBody wide">
-      <tbody>
-        <tr>
-          <td style="border:none;">
-            <table class="wide">
+            <p class="pageBreak"></p>
+            <table class="wide invoiceBody">
               <tr>
-                <th scope="col">Invoice</th>
-                <th scope="col">Issued</th>
-                <th scope="col">Subtotal</th>
-                <th scope="col">Client</th>
-                <th scope="col">Page</th>
+                <th>Invoice</th>
+                <th>Issued</th>
+                <th>Subtotal</th>
+                <th>Client</th>
+                <th>Page</th>
               </tr>
               <tr>
                 <td>' . $this->InvoiceNumber . '</td>
                 <td>' . date('d M Y', strtotime($this->DateIssued)) . '</td>
-                <td><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>'. self::negParenth(self::number_format_drop_zero_decimals($this->InvoiceSubTotal, 2)) . '</td>
-                <td>' . $this->members[$this->ClientID]->getProperty('ClientName') . '</td>
-                <td>' . $this->counter . '</td>
-              </tr>
-              <tr class="smallTableSpace">
-                <td colspan="5"></td>
-              </tr>
-            </table>
-            <table class="wide">
-              <tr>
-                <th scope="col">Date</th>
-                <th scope="col">Ticket #</th>
-                <th scope="col">Charge</th>
-                <th scope="col" colspan="2">Description</th>
-                <th scope="col">Price</th>
-                <th scope="col">#</th>
-                <th scope="col">Line Price</th>
-              </tr>';
-            $body .= $morePages[$i]->invoiceBody();
-          } else {
-            if ($i % $this->invoicePageMax === 0) {
-              $this->counter++;
-              $body .= '
-            </tbody>
-          </table>
-        </td>
-      </tr>
-    </table>
-    <p class="medium center">Continued on page ' . $this->counter . '</p>
-    <p class="pageBreak"></p>
-    <table class="invoiceBody wide">
-      <tbody>
-        <tr>
-          <td style="border:none;">
-            <table class="wide">
-              <tr>
-                <th scope="col">Invoice</th>
-                <th scope="col">Issued</th>
-                <th scope="col">Subtotal</th>
-                <th scope="col">Client</th>
-                <th scope="col">Page</th>
-              </tr>
-              <tr>
-                <td>' . $this->InvoiceNumber . '</td>
-                <td>' . date('d M Y', strtotime($this->DateIssued)) . '</td>
-                <td><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::negParenth(self::number_format_drop_zero_decimals($this->InvoiceSubTotal, 2)) . '</td>
-                <td>' . $this->members[$this->ClientID]->getProperty('ClientName') . '</td>
-                <td>' . $this->counter . '</td>
-              </tr>
-              <tr class="smallTableSpace">
-                <td colspan="5"></td>
+                <td>
+                  <span class="currencySymbol">' . $_SESSION['config']['CurrencySymbol'] . '</span>'. self::negParenth(self::number_format_drop_zero_decimals($this->InvoiceSubTotal, 2)) . '
+                </td>
+                <td>' . $displayName . '</td>
+                <td>' . $this->counter . ' / ' . $pageCount . '</td>
               </tr>
             </table>
-            <table class="wide">
+            <p class="smallTableSpace"></p>
+            <table class="wide invoiceBody">
               <tr>
-                <th scope="col">Date</th>
-                <th scope="col">Ticket #</th>
-                <th scope="col">Charge</th>
-                <th scope="col" colspan="2">Description</th>
-                <th scope="col">Price</th>
-                <th scope="col">#</th>
-                <th scope="col">Line Price</th>
+                <th>Date</th>
+                <th>Ticket #</th>
+                <th>Charge</th>
+                <th colspan="2">Description</th>
+                <th>Price</th>
+                <th>#</th>
+                <th>Line Price</th>
               </tr>';
-              $body .= $morePages[$i]->invoiceBody();
-            } else {
-              $body .= '
-              <tr>
-                <th scope="col"></th>
-                <th scope="col"></th>
-                <th scope="col"></th>
-                <th scope="col" colspan="2"></th>
-                <th scope="col"></th>
-                <th scope="col"></th>
-                <th scope="col"></th>
-              </tr>';
-              $body .= $morePages[$i]->invoiceBody();
             }
-            if ($i === count($morePages) - 1) {
-              $body .= '
+            $body .= $page[$i]->invoiceBody();
+            $body .= '
+              <tr>
+                <th colspan="8"></th>
+              </tr>';
+            if ($i === count($page) - 1) {
+                $body .= '
               <tr>
                 <td colspan="5" style="border:none;"></td>
-                <th scope="row" colspan="2" style="border:1px solid black; white-space:nowrap;">Subtotal:</th>
-                <td style="border:1px solid black;"><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::negParenth(self::number_format_drop_zero_decimals($this->InvoiceSubTotal, 2)) . '</td>
+                <th colspan="2" style="border:1px solid black; white-space:nowrap;">Subtotal:</th>
+                <td style="border:1px solid black;">
+                  <span class="currencySymbol">' . $_SESSION['config']['CurrencySymbol'] . '</span>' . self::negParenth(self::number_format_drop_zero_decimals($this->InvoiceSubTotal, 2)) . '
+                </td>
               </tr>';
             }
           }
+          $body .= '
+            </table>';
+          $this->counter++;
         }
       }
-      $body .= '
-            </table>';
       return $body;
     }
 
@@ -349,99 +336,124 @@
         // Format the payment method display
         $paymentDisplay = (is_numeric($this->CheckNumber)) ? 'Check #: ' : '';
         $closedMarker = '
-          <td id="paid" colspan="4" rowspan="6">
-            <p class="paid">PAID</p>
-            <p>' . date('d M Y', strtotime($this->DatePaid)) . '</p>
-            <p class="center">' . $paymentDisplay . $this->CheckNumber . '</p>
-          </td>';
+          <div id="paid">
+            PAID<br>
+            ' . date('d M Y', strtotime($this->DatePaid)) . '<br>
+            ' . $paymentDisplay . $this->CheckNumber . '
+          </div>';
       } else {
-        $closedMarker = '
-          <td colspan="4" rowspan="6"></td>';
+        $closedMarker = '';
       }
 
-      $this->invoiceDisplay = '
+      $invoiceAddress1 = $this->config['BillingAddress1'] ?? $this->config['ShippingAddress1'];
+
+      $invoiceAddress2 = $this->config['BillingAddress2'] ?? $this->config['ShippingAddress2'];
+
+      $invoiceCountry = $this->config['BillingCountry'] ?? $this->config['ShippingCountry'];
+
+      $billingName =  $this->members[$this->ClientID]->getProperty('BillingName') ??  $this->members[$this->ClientID]->getProperty('ClientName');
+
+      $billingAddress1 = $this->members[$this->ClientID]->getProperty('BillingAddress1') ?? $this->members[$this->ClientID]->getProperty('ShippingAddress1');
+
+      $billingAddress2 =  $this->members[$this->ClientID]->getProperty('BillingAddress2') ??  $this->members[$this->ClientID]->getProperty('ShippingAddress2');
+
+      $billingCountry = $this->members[$this->ClientID]->getProperty('BillingCountry') ?? $this->members[$this->ClientID]->getProperty('ShippingCountry');
+
+      $pdfForm = (class_exists('Dompdf\Dompdf')) ? "
+        <form id=\"invoicePDFform\" target=\"_blank\" method=\"post\" action=\"pdf\">
+          <input type=\"hidden\" name=\"invoiceNumber\" value=\"{$this->InvoiceNumber}\" form=\"invoicePDFform\" />
+          <input type=\"hidden\" name=\"type\" value=\"invoice\" form=\"invoicePDFform\" />
+          <input type=\"hidden\" name=\"formKey\" form=\"invoicePDFform\" />
+          <input type=\"hidden\" name=\"content\" form=\"invoicePDFform\" />
+          <button type=\"button\" id=\"invoicePDF\" form=\"invoicePDFform\">PDF</button>
+        </form>" : '';
+
+      if ($this->renderPDF === true) {
+        $this->invoiceDisplay = "
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\">
+    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge,chrome=1\">
+    <meta name=\"viewport\" content=\"width=device-width\">
+    <title>{$this->InvoiceNumber}</title>
+    <link rel=\"stylesheet\" href=\"../style/pdfInvoice.css\" type=\"text/css\">
+    <link rel=\"apple-touch-icon\" sizes=\"180x180\" href=\"../apple-touch-icon.png\">
+    <link rel=\"icon\" type=\"image/png\" href=\"../favicon-32x32.png\" sizes=\"32x32\">
+    <link rel=\"icon\" type=\"image/png\" href=\"../favicon-16x16.png\" sizes=\"16x16\">
+  </head>
+  <body>";
+      } else {
+        $this->invoiceDisplay = '';
+      }
+
+      $this->invoiceDisplay .= '
   <div id="invoice">
-    <table class="wide">
+    ' . $this->headerLogo .
+    $pdfForm . '
+    <div id="invoiceLabel2">invoice</div>
+    <hr>
+    <div class="invoiceHead">
+      <div>
+        <p class="big">' . $this->config['ClientName'] . '</p>
+        <p>' . $invoiceAddress1 . '</p>
+        <p>' . $invoiceAddress2 . '</p>
+        </tr>
+        <p class="' .  $this->countryClass . '">' . self::countryFromAbbr($invoiceCountry) . '</p>
+        <p>' .  $this->config['Telephone'] . '</p>
+        <p>' .  $this->config['EmailAddress'] . '</p>
+        <p id="billToLabel">Bill<br>To: </p>
+        <div id="invoiceAddress">
+          <p>' . $billingName . '</p>
+          <p>Attention: ' . $this->members[$this->ClientID]->getProperty('Attention') . '</p>
+          <p>' . $billingAddress1 . '</p>
+          <p>' .$billingAddress2 . '</p>
+          <p class="' . $this->countryClass . '">' . self::countryFromAbbr($billingCountry) . '</p>
+        </div>
+      </div>
+      ' . $closedMarker . '
+      <div>
+        <p>Invoice #: ' . $this->InvoiceNumber . '</p>
+        <p>Start Date: ' . date('d M Y', strtotime($this->StartDate)) . '</p>
+        <p>End Date: ' . date('d M Y', strtotime($this->EndDate)) . '</p>
+        <p>Date Issued: ' . date('d M Y', strtotime($this->DateIssued)) . '</p>
+        <p>Client ID: ' . $this->members[$this->ClientID]->getProperty('ClientID') . '</p>
+        <p>' . $this->members[$this->ClientID]->getProperty('ClientName') . '</p>
+        <p>' . $this->members[$this->ClientID]->getProperty('Department'). '</p>
+        <p>Subtotal: <span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::negParenth(self::number_format_drop_zero_decimals($this->InvoiceSubTotal, 2)) . '</p>
+      </div>
+    </div>
+    <div class="smallTableSpace"></div>';
+      $this->invoiceDisplay .= self::invoiceBodyTickets();
+		  $this->invoiceDisplay .= '
+    <table class="invoiceBody wide" style="margin-top: 1rem;">
       <tbody>
         <tr>
-          <td class="pullLeft" colspan="4" style="vertical-align: middle;">
-          <div>' . $this->headerLogo . '</div>
-          </td>
-          <td class="pullRight" colspan="4" id="invoiceLabel2">invoice</td>
+          <th scope="col">Current</th>
+          <th scope="col">30 Days<br>Past Due</th>
+          <th scope="col">60 Days<br>Past Due</th>
+          <th scope="col">90 Days<br>Past Due</th>
+          <th scope="col">120+ Days<br>Past Due</th>
+          <th scope="col">Credit</th>
+          <th scope="col">Amount<br>Due</th>
         </tr>
         <tr>
-          <td colspan="8" class="smallTableSpace"><hr></td>
+          <td><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::negParenth(self::number_format_drop_zero_decimals($this->InvoiceSubTotal, 2)) . '</td>
+          <td><span class="currencySymbol">' .  $this->config['CurrencySymbol'] . '</span>' .  self::number_format_drop_zero_decimals($this->Late30Value, 2) . '</td>
+          <td><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::number_format_drop_zero_decimals($this->Late60Value, 2) . '</td>
+          <td><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::number_format_drop_zero_decimals($this->Late90Value, 2) . '</td>
+          <td><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::number_format_drop_zero_decimals($this->Over90Value, 2) . '</td>
+          <td><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::negParenth(self::number_format_drop_zero_decimals($this->BalanceForwarded, 2)) . '</td>
+          <td><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::number_format_drop_zero_decimals($this->InvoiceTotal, 2) . '</td>
         </tr>
         <tr>
-          <td class="big pullLeft" colspan="2">' . $this->config['ClientName'] . '</td>' . $closedMarker . '
-          <td colspan="2" rowspan="6" class="pullLeft alignTop">
-            <div id="floatRight">
-              <span>Invoice #:  ' . $this->InvoiceNumber . '</span>
-              <br>
-              <span>Start Date:  ' . date('d M Y', strtotime($this->StartDate)) . '</span>
-              <br>
-              <span>End Date:  ' . date('d M Y', strtotime($this->EndDate)) . '</span>
-              <br>
-              <span>Date Issued:  ' . date('d M Y', strtotime($this->DateIssued)) . '</span>
-              <br>
-              <span>Client ID:  ' . $this->members[$this->ClientID]->getProperty('ClientID') . '</span>
-              <br>
-              <span>' . $this->members[$this->ClientID]->getProperty('ClientName') . '</span>
-              <br>
-              <span>' . $this->members[$this->ClientID]->getProperty('Department'). '</span>
-              <br>
-              <span>Subtotal: <span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::negParenth(self::number_format_drop_zero_decimals($this->InvoiceSubTotal, 2)) . '</span>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td class="pullLeft" colspan="2">' . $this->config['BillingAddress1'] . '</td>
-        </tr>
-        <tr>
-          <td class="pullLeft" colspan="2">' . $this->config['BillingAddress2'] . '</td>
-        </tr>
-        <tr class="' .  $this->countryClass . '">
-          <td class="pullLeft" colspan="2">' . self::countryFromAbbr($this->config['BillingCountry']) . '</td>
-        </tr>
-        <tr>
-          <td class="pullLeft" colspan="2">' .  $this->config['Telephone'] . '</td>
-        </tr>
-        <tr>
-          <td class="pullLeft" colspan="2">' .  $this->config['EmailAddress'] . '</td>
-        </tr>
-        <tr>
-          <td class="pullLeft" style="padding-top:1em;" colspan="4">
-            <span style="color:#8c8c89">Bill<br>To: </span>' . $this->members[$this->ClientID]->getProperty('BillingName') . '
-              <br>
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Attention:  ' . $this->members[$this->ClientID]->getProperty('Attention') . '
-              <br>
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' . $this->members[$this->ClientID]->getProperty('BillingAddress1') . '
-              <br>
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' . $this->members[$this->ClientID]->getProperty('BillingAddress2') . '<span class="' . $this->countryClass . '">
-              <br>
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' . self::countryFromAbbr($this->members[$this->ClientID]->getProperty('BillingCountry')) . '
-            </span>
-          </td>
+          <th style="border:none;">' . $this->InvoiceNumber . '</th>
+          <td>' . $this->Late30Invoice . '</td>
+          <td>' . $this->Late60Invoice . '</td>
+          <td>' . $this->Late90Invoice . '</td>
+          <td colspan="3">' . $this->Over90Invoice . '</td>
         </tr>
       </tbody>
-    </table>
-    <table class="invoiceBody wide">
-      <tbody>
-        <tr class="smallTableSpace">
-          <td style="border:none;"></td>
-        </tr>
-        <tr>
-          <td style="border:none;">';
-        $this->invoiceDisplay .= self::invoiceBodyTickets();
-		    $this->invoiceDisplay .= '
-          </td>
-        </tr>
-        <tr>
-          <td class="smallTableSpace" style="border:none;"></td>
-        </tr>
-      </tbody>
-    </table>
-    <table class="invoiceBody wide">
       <tfoot>
         <tr>
           <td colspan="7" style="padding:0px;border:none;">
@@ -451,35 +463,8 @@
           </td>
         </tr>
       </tfoot>
-    <tbody>
-      <tr>
-        <th scope="col">Current</th>
-        <th scope="col">30 Days<br>Past Due</th>
-        <th scope="col">60 Days<br>Past Due</th>
-        <th scope="col">90 Days<br>Past Due</th>
-        <th scope="col">120+ Days<br>Past Due</th>
-        <th scope="col">Credit</th>
-        <th scope="col">Amount<br>Due</th>
-      </tr>
-      <tr>
-        <td><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::negParenth(self::number_format_drop_zero_decimals($this->InvoiceSubTotal, 2)) . '</td>
-        <td><span class="currencySymbol">' .  $this->config['CurrencySymbol'] . '</span>' .  self::number_format_drop_zero_decimals($this->Late30Value, 2) . '</td>
-        <td><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::number_format_drop_zero_decimals($this->Late60Value, 2) . '</td>
-        <td><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::number_format_drop_zero_decimals($this->Late90Value, 2) . '</td>
-        <td><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::number_format_drop_zero_decimals($this->Over90Value, 2) . '</td>
-        <td><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::negParenth(self::number_format_drop_zero_decimals($this->BalanceForwarded, 2)) . '</td>
-        <td><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::number_format_drop_zero_decimals($this->InvoiceTotal, 2) . '</td>
-      </tr>
-      <tr>
-        <th scope="row" style="border:none;">' . $this->InvoiceNumber . '</th>
-        <td>' . $this->Late30Invoice . '</td>
-        <td>' . $this->Late60Invoice . '</td>
-        <td>' . $this->Late90Invoice . '</td>
-        <td colspan="3">' . $this->Over90Invoice . '</td>
-      </tr>
-    </tbody>
-  </table>
-</div>';
+    </table>
+  </div>';
       return $this->invoiceDisplay;
     }
 

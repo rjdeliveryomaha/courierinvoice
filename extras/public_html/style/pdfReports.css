@@ -1,0 +1,327 @@
+@page {
+  margin: 1rem 2rem;
+  font-family: Garamond, serif;
+}
+
+h1 {
+  margin: 0;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+th {
+  text-align: center;
+}
+
+.noPrint {
+  display: none;
+}
+
+.currencySymbol, .checkMark {
+  font-family: DejaVu Sans;
+}
+
+.centerDiv, .invoiceTable {
+  margin: 0 auto;
+}
+
+.ticketTable {
+  margin: 15% auto 0 auto;
+}
+
+.ticketTable td {
+  padding: 0 1%;
+  white-space: nowrap;
+}
+
+.ticketTable.member td {
+  white-space: normal;
+}
+
+.member {
+  margin-top: 1em;
+  width: 95%;
+  border: .1em solid black;
+}
+
+.ticketTable th {
+  padding: 0.25rem;
+}
+
+.tableMonths {
+  margin-top: 5rem;
+}
+
+.tableMonths td {
+  padding: 0 0.5rem 0 0.5rem;
+  text-align: center;
+}
+
+.bargraph {
+  margin: 1.25rem auto;
+  page-break-after: always;
+}
+
+.graphBody {
+  font-size: 1.2rem;
+  background-color: #f4f4f4;
+  overflow: hidden;
+}
+
+.graphBody div {
+  display: inline-block;
+}
+
+.graphFoot {
+  background-color: #8c8c8c;
+  color: #fff;
+}
+
+.gap {
+  display: inline-block;
+}
+
+.space {
+  width: 0.25rem;
+}
+
+.barContainer {
+  width: 5rem;
+  padding: 0;
+  background-color:#f4f4f4;
+  border: 0.125rem solid #e1e1e1;
+  border-bottom: none;
+  border-top: none;
+  vertical-align: bottom;
+}
+
+.barContainer div {
+  display: inline-block;
+  width: 7%;
+  /* vertical-align: bottom; */
+}
+
+.chartLabels {
+  text-align: center;
+  font-family: Verdana, Geneva, sans-serif;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.graphKey, .graphKey .monthKey {
+  text-align: center;
+}
+
+.graphKey p {
+  margin: 0 0.5rem;
+  padding: 0;
+  display: inline-block;
+}
+
+.labelText {
+  font-size: 0.9rem;
+}
+
+.bar0 {
+  background-color: #fe0000;
+  display: inline-block;
+}
+
+.bar0Label {
+  color: #fe0000;
+}
+
+.bar1 {
+  background-color: #0071bd;
+  display: inline-block;
+}
+
+.bar1Label {
+  color: #0071bd;
+}
+
+.bar2 {
+  background-color: #cf5300;
+  display: inline-block;
+}
+
+.bar2Label {
+  color: #cf5300;
+}
+
+.bar3 {
+  background-color: #ba9907;
+  display: inline-block;
+}
+
+.bar3Label {
+  color: #ba9907;
+}
+
+.bar4 {
+  background-color: #00ff01;
+  display: inline-block;
+}
+
+.bar4Label {
+  color: #00ff01;
+}
+
+.bar5 {
+  background-color: #009345;
+  display: inline-block;
+}
+
+.bar5Label {
+  color: #009345;
+}
+
+.bar6 {
+  background-color: #02066f;
+  display: inline-block;
+}
+
+.bar6Label {
+  color: #02066f;
+}
+
+.bar7 {
+  background-color: #92278f;
+  display: inline-block;
+}
+
+.bar7Label {
+  color: #92278f;
+}
+
+.bar8 {
+  background-color: #ff00fe;
+  display: inline-block;
+}
+
+.bar8Label {
+  color: #ff00fe;
+}
+
+.bar9 {
+  background-color: #990033;
+  display: inline-block;
+}
+
+.bar9Label {
+  color: #990033;
+}
+
+.bar10 {
+  background-color: #442299;
+  display: inline-block;
+}
+
+.bar10Label {
+  color: #442299;
+}
+
+.bar11 {
+  background-color: #aacc22;
+  display: inline-block;
+}
+
+.bar11Label {
+  color: #aacc22;
+}
+
+.bar12 {
+  background-color: #11aabb;
+  display: inline-block;
+}
+
+.bar12Label {
+  color: #11aabb;
+}
+
+.bar13 {
+  background-color: #feae2d;
+  display: inline-block;
+}
+
+.bar13Label {
+  color: #feae2d;
+}
+
+.bar14 {
+  background-color: #69d025;
+  display: inline-block;
+}
+
+.bar14Label {
+  color: #69d025;
+}
+
+.totalBlock {
+  border: none;
+}
+
+.totalBlock > td {
+  padding: 0;
+  margin: 0;
+  border: none;
+}
+
+.totalBlock table {
+  width: 100%;
+}
+
+.parentList {
+  list-style-type: none;
+}
+
+#monthlyOverview table {
+  margin-bottom: 1rem;
+}
+
+#count {
+  width: 2.5rem;
+}
+
+tr.highlight td, tr.highlight th {
+  border-top: 0.1rem solid black;
+  border-bottom: 0.1rem solid black;
+  padding: 0.2rem 0;
+}
+
+#detailedOverview table tr:nth-child(even), #detailedOverview table tr:nth-child(even) {
+  background-color: #f0ffff;
+}
+
+.center {
+  text-align: center;
+}
+
+.error, .red {
+  color: red;
+}
+
+.pageBreak {
+  page-break-before: always;
+}
+
+.wide {
+  width: 100%;
+}
+
+.plain {
+  background-color: white;
+  color: black;
+}
+
+.tableMonths {
+  margin-top: 0.25rem;
+}
+
+.tableMonths td {
+  text-align: center;
+}

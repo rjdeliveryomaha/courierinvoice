@@ -1,0 +1,236 @@
+@page {
+  margin: 1rem 2rem 0.5rem 2rem;
+  font-size: 0.85rem;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+p {
+  padding: 0;
+  margin: 0;
+}
+
+.tFieldRight {
+  float: right;
+  width:50%;
+}
+
+.tFieldLeft {
+  float: left;
+  width:50%;
+}
+
+.hide {
+  display: none;
+}
+
+.paren {
+  font-weight: bold;
+  color: red;
+}
+
+.ticket {
+  border-collapse: collapse;
+  border: none;
+}
+
+.centerDiv {
+  margin: 0 auto;
+}
+
+.center {
+  text-align: center;
+}
+
+.small {
+  font-size: .625rem;
+}
+
+.invoiceLogo {
+  height: 4rem;
+  width: 16rem;
+  margin-left: 1rem;
+}
+
+.ticketLogo {
+  height: 2rem;
+  width: 8rem;
+}
+
+.big {
+  font-family: Garamond, serif;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.medium {
+  font-family: Garamond, serif;
+  font-size: .875rem;
+  padding: .063rem;
+  margin: 0;
+}
+
+.invoiceHead {
+  width: 100%;
+}
+
+.invoiceHead > div:first-child {
+  display: inline-block;
+  vertical-align: top;
+}
+
+#paid {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 15%;
+  padding: 0.125rem;
+  color: red;
+  font: bold 1.5rem sans-serif;
+  text-align: center;
+  border-radius: 1rem;
+  border: 0.25rem solid red;
+  -webkit-transform: rotate(345deg);
+  -moz-transform: rotate(345deg);
+  -o-transform: rotate(345deg);
+  -ms-transform: rotate(345deg);
+  transform: rotate(345deg);
+}
+
+.invoiceHead > div:last-child {
+  display: inline-block;
+  vertical-align: top;
+  position: relative;
+  float: right;
+}
+
+#invoiceLabel2 {
+  display: inline;
+  float: right;
+  margin: 0 1rem 0 0;
+  color: #8c8c89;
+  font-family: Garamond, serif;
+  font-size: 3rem;
+  text-transform: uppercase;
+}
+
+#billToLabel {
+  color: #8c8c89;
+  display: inline-block;
+  vertical-align:top;
+}
+
+#invoiceAddress {
+  display: inline-block;
+  margin-top:1.3rem;
+}
+
+.invoiceBody, .invoiceFoot {
+  margin: 0 auto;
+}
+
+.invoiceBody p {
+  margin: 0;
+}
+
+.invoiceBody th, .invoiceBody td, .invoiceFoot th, .invoiceFoot td {
+  font-family: Garamond, serif;
+}
+
+.invoiceBody th, .invoiceFoot th {
+  background-color: #d1d1cf;
+}
+
+.invoiceBody td, .invoiceFoot td {
+  margin: 0;
+  padding: .063rem .313rem;
+  border-style: solid;
+  border-color: black;
+  border-width: .063rem .063rem .188rem .063rem;
+  text-align: center;
+}
+
+.invoiceBody th, .invoiceFoot th {
+  margin: 0;
+  padding: .125rem;
+  text-align: center;
+}
+
+.invoiceBody td hr {
+  margin: 0 .063rem;
+  padding: 0;
+}
+
+.invoiceBody .dateCell {
+  white-space: nowrap;
+}
+
+.invoiceBody th, .invoiceBody td {
+  font-family: Garamond, serif;
+  font-size: .9rem;
+}
+
+#subTotalCell {
+  border: none;
+  text-align: right;
+}
+
+#subTotalContainer {
+  border: 0.063rem solid black;
+}
+
+#subTotalLabel, #subTotalValue {
+  display: inline-block;
+  position: relative;
+  white-space: nowrap;
+}
+
+#subTotalValue {
+  text-align: center;
+  min-width: 4rem;
+}
+
+#subTotalLabel {
+  font-weight: bold;
+  font-size: 0.99rem;
+  text-align: center;
+  width: 5rem;
+}
+
+.clientInfo {
+  display: inline-block;
+  margin: 0;
+}
+
+.wide {
+  width: 100%;
+}
+
+.invoiceLogo {
+  height: 4rem;
+  width: 16rem;
+  margin-left: 1rem;
+}
+
+.tableSpace {
+  height: 2.875rem;
+  border: none;
+}
+
+.smallTableSpace {
+  height: 1rem;
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+.currencySymbol {
+  font-family: DejaVu Sans;
+}
+
+.pageBreak {
+  display:block;
+  height: 1rem;
+  page-break-before: always;
+}

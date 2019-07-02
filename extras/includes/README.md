@@ -92,17 +92,48 @@ URL to use in test mode.
 
 If test mode is true and this value is null or empty string an exception will be thrown.
 
-### invoicePage1Max
+### paperFormat
 
-Integer
+String
 
-The maximum number of line items on the first page of an invoice. If this is equal to the total number of line items on an invoice it will be reduced by 1 to accommodate the invoice foot.
+This setting, in conjunction with the ` paperOrientation ` setting, tells [DOMPDF](https://github.com/dompdf/dompdf) what paper format to expect and also sets the maximum number of line items per page. For invoices this maximum will be reduced by one for the page on which the invoice foot is to appear.
+  - letter
+    + portrait:
+      Page 1: 8
+      Page 2+: 10
+    + landscape
+      Page 1: 5
+      Page 2+: 7
+  - legal
+    + portrait
+      Page 1: 12
+      Page 2+: 14
+    + landscape
+      Page 1: 5
+      Page 2+: 7
+  - A4
+    + portrait
+      Page 1: 9
+      Page 2+: 11
+    + landscape
+      Page 1: 5
+      Page 2+: 7
 
-### invoicePageMax
+### paperOrientation
 
-Integer
+String
 
-The maximum number of line items on every page after the first.
+portrait or landscape
+
+### enableChartPDF
+
+Boolean
+
+If true a button will be added to multi invoice and ticket chart queries to display / download the result as a pdf.
+
+It is a known issue that [DOMPDF](https://github.com/dompdf/dompdf) doesn't currently handle vertical alignment properly.
+
+For that reason it is not recommended that this value be set to ` true `.
 
 ### showCanceledTicketsOnInvoiceExceptions
 
@@ -177,31 +208,7 @@ Maximum number of months to display on a chart.
 
 Float
 
-Overall height of a chart in em.
-
-### bar_width
-
-Float
-
-Width of each bar for a chart in em.
-
-### bar_gap
-
-Float
-
-Gap between adjacent bars in em.
-
-### interval_gap
-
-Float
-
-Gap between groups of bars in em.
-
-### interval_border
-
-Float
-
-Border width in em of the container that holds each group of bars.
+Height of chart body in rem.
 
 ### userLogin
 

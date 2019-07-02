@@ -536,13 +536,11 @@ label {
   font-size: 1.25rem;
 }
 
-.ticketGraphContainer,
-.invoiceGraphContainer,
-.invoiceTable {
+.invoiceQueryResults, .ticketQueryResults {
   overflow-x: auto;
 }
 
-.invoiceTable table {
+.invoiceTable {
   margin: 0 auto;
 }
 
@@ -815,15 +813,16 @@ label {
   border-spacing: 0.1rem 0.25rem;
 }
 
-.ticketTable table {
+.ticketTable {
   margin: 0 auto;
 }
 
-.ticketTable table td {
+.ticketTable:not(.member) td {
   padding: 0 1%;
+  white-space: nowrap;
 }
 
-.ticketTable th {
+.invoiceTable th, .ticketTable th {
   padding: 0.25rem;
 }
 
@@ -847,7 +846,16 @@ label {
   margin: 0 0.25rem;
 }
 
+.big {
+  font-family: Garamond, serif;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
 #invoiceLabel2 {
+  display: inline;
+  float: right;
+  margin: 0 1rem 0 0;
   color: #8c8c89;
   font-family: Garamond, serif;
   font-size: 3rem;
@@ -855,22 +863,64 @@ label {
   padding-right: 1rem;
 }
 
+#invoiceChartPDFform, #ticketPDFform {
+  text-align: center;
+}
+
+#invoicePDFform {
+  display: inline-block;
+  margin-left: 20%;
+}
+
+#invoiceBillTo {
+  float:left;
+  padding-left: 3.125rem;
+  margin-bottom: 4.375rem;
+}
+
+.invoiceHead {
+  display: inline-block;
+  width: 100%;
+}
+
+.invoiceHead > div:first-child {
+  display: inline-block;
+  position: relative;
+  float: left;
+}
+
+.invoiceHead > div:last-child {
+  display: inline-block;
+  position: relative;
+  float: right;
+}
+
+#invoiceAddress {
+  display: inline-block;
+  margin-top:1.3rem;
+}
+
+#billToLabel {
+  color: #8c8c89;
+  display: inline-block;
+  vertical-align:top;
+}
+
 #paid {
-  z-index: 1;
+  display: inline-block;
+  margin-top: 2%;
+  margin-left: 15%;
+  padding: 0.125rem;
   color: red;
   font: bold 1.5rem sans-serif;
   text-align: center;
   border-radius: 1rem;
+  border: 0.25rem solid red;
   -webkit-transform: rotate(345deg);
   -moz-transform: rotate(345deg);
   -o-transform: rotate(345deg);
   -ms-transform: rotate(345deg);
   transform: rotate(345deg);
-}
-
-#paid > p {
-  margin: 0;
-  padding: 0;
 }
 
 #invoice {
@@ -1061,6 +1111,7 @@ label {
 }
 
 .displayHeader {
+  text-align: center;
   font-family: Garamond, serif;
   font-size: 1.75em;
   font-weight: bold;
@@ -1068,7 +1119,7 @@ label {
 
 .bar0 {
   background-color: #fe0000;
-  float: left;
+  /* float: left; */
 }
 
 .bar0Label {
@@ -1077,7 +1128,7 @@ label {
 
 .bar1 {
   background-color: #0071bd;
-  float: left;
+  /* float: left; */
 }
 
 .bar1Label {
@@ -1086,7 +1137,7 @@ label {
 
 .bar2 {
   background-color: #cf5300;
-  float: left;
+  /* float: left; */
 }
 
 .bar2Label {
@@ -1095,7 +1146,7 @@ label {
 
 .bar3 {
   background-color: #ba9907;
-  float: left;
+  /* float: left; */
 }
 
 .bar3Label {
@@ -1103,35 +1154,35 @@ label {
 }
 
 .bar4 {
-  background-color: #02066f;
-  float: left;
+  background-color: #004c00;
+  /* float: left; */
 }
 
 .bar4Label {
-  color: #02066f;
-}
-
-.bar5 {
-  background-color: #004c00;
-  float: left;
-}
-
-.bar5Label {
   color: #004c00;
 }
 
-.bar6 {
+.bar5 {
   background-color: #009345;
-  float: left;
+  /* float: left; */
+}
+
+.bar5Label {
+  color: #009345;
+}
+
+.bar6 {
+  background-color: #02066f;
+  /* float: left; */
 }
 
 .bar6Label {
-  color: #009345;
+  color: #02066f;
 }
 
 .bar7 {
   background-color: #92278f;
-  float: left;
+  /* float: left; */
 }
 
 .bar7Label {
@@ -1140,7 +1191,7 @@ label {
 
 .bar8 {
   background-color: #ff00fe;
-  float: left;
+  /* float: left; */
 }
 
 .bar8Label {
@@ -1149,7 +1200,7 @@ label {
 
 .bar9 {
   background-color: #990033;
-  float: left;
+  /* float: left; */
 }
 
 .bar9Label {
@@ -1158,7 +1209,7 @@ label {
 
 .bar10 {
   background-color: #442299;
-  float: left;
+  /* float: left; */
 }
 
 .bar10Label {
@@ -1167,7 +1218,7 @@ label {
 
 .bar11 {
   background-color: #aacc22;
-  float: left;
+  /* float: left; */
 }
 
 .bar11Label {
@@ -1176,7 +1227,7 @@ label {
 
 .bar12 {
   background-color: #11aabb;
-  float: left;
+  /* float: left; */
 }
 
 .bar12Label {
@@ -1185,7 +1236,7 @@ label {
 
 .bar13 {
   background-color: #feae2d;
-  float: left;
+  /* float: left; */
 }
 
 .bar13Label {
@@ -1194,37 +1245,72 @@ label {
 
 .bar14 {
   background-color: #69d025;
-  float: left;
+  /* float: left; */
 }
 
 .bar14Label {
   color: #69d025;
 }
 
+.bargraph {
+  margin: 1.25rem auto;
+}
+
+.graphBody {
+  font-size: 0;
+  border: 0.1rem solid #e1e1e1;
+  background-color: #f4f4f4;
+}
+
+.graphFoot {
+  background-color: #8c8c8c;
+  color:#fff;
+}
+
 .gap {
-  float: left;
+  background: #000;
 }
 
 .space {
-  float: left;
+  width: 0.25rem;
+}
+
+.barContainer {
+  /* text-align: center; */
+  border: solid 0.125rem #e1e1e1;
+  border-bottom: none;
+  border-top: none;
+  vertical-align: bottom;
+}
+
+.barContainer div {
+  width: 7%;
+  display: inline-block;
+}
+
+.chartLabels {
+  width: 5rem;
+  text-align: center;
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 0.8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.graphKey, .graphKey .monthKey {
+  text-align: center;
+}
+
+.graphKey p {
+  margin: 0 0.5rem;
+  padding: 0;
+  display: inline-block;
 }
 
 .spacer {
   width: 100%;
   height: 1.5em;
   clear: both;
-}
-
-.barContainer {
-  display: inline-flex;
-  justify-content: center;
-  float: left;
-}
-
-.chartLabels {
-  text-align: center;
-  float: left;
-  font-family: Verdana, Geneva, sans-serif;
 }
 
 .small {
@@ -1236,28 +1322,19 @@ label {
   margin-top: 1em;
   width: 95%;
   border: .1em solid black;
-  table-layout: fixed;
 }
 
-.member table {
-  table-layout: fixed;
-}
-
-.member th {
-  width: 14%;
-}
-
-.member td {
-  width: 14%;
-}
-
-.member tr td table:nth-child(even) {
+.member tr:nth-child(even) {
   background: #CCC;
 }
 
 .rollUp {
   font-size: large;
   font-weight: bold;
+}
+
+.pageBreak {
+  height: 1rem;
 }
 
 @media all {
@@ -1272,9 +1349,6 @@ label {
   .break  {
     display: block;
     page-break-before: always;
-  }
-  .pageBreak {
-    height: 0;
   }
   #paidMarker {
     padding-top: 25%;

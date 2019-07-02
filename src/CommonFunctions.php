@@ -692,15 +692,6 @@
         $this->members[$val]->getProperty('ShippingAddress1') : $this->members[$val]->getProperty('Department');
     }
 
-    protected function chartIndexToProperty()
-    {
-      switch ($this->chartIndex) {
-        case 1: return $this->firstChart;
-        case 2: return $this->secondChart;
-        default: return null;
-      }
-    }
-
     protected function createClient($data)
     {
       try {

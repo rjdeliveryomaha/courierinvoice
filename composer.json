@@ -1,6 +1,6 @@
 {
   "name": "rjdeliveryomaha/courierinvoice",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "type": "library",
   "keywords": [ "courier invoice" ],
   "homepage": "https://github.com/rjdeliveryomaha/courierinvoice",
@@ -21,6 +21,7 @@
     "php-http/guzzle6-adapter": "^1.1"
   },
   "suggest": {
+    "dompdf/dompdf": "Conver DOM elemtns to PDF",
     "geocoder-php/algolia-places-provider": "Algolia Places Geocoder Provider",
     "geocoder-php/arcgis-online-provider":  "ArcGIS Online Geocoder Provider",
     "geocoder-php/bing-maps-provider": "Bing Maps Geocoder Provider",

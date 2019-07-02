@@ -13,7 +13,6 @@
     protected $organizationFlag = false;
     protected $orgClients = [];
     protected $ListBy;
-    protected $invoiceChartRowLimit = 9;
     private $listByKey;
     protected $memberList = [];
     private $newData;
@@ -58,6 +57,7 @@
     private $graphOutput;
     private $colorCode = 0;
     private $today;
+    private $addPDFbutton = true;
 
     public function __construct($options, $data=[])
     {
@@ -116,13 +116,13 @@
             $this->total_bars = count($this->monthKeys);
             $returnData .= self::displayTable();
             $returnData .= self::displayBarGraph();
+            $this->addPDFbutton = false;
           }
         } else {
-          $this->invoiceChartRowLimit = 5;
           if (self::sortDataForMemberCompare() === false) return false;
           $returnData .= self::displayCompareTable();
           self::resortData();
-          $returnData .= self::displayBarGraph();
+          $returnData .= self::displayCompareGraph();
         }
       }
       if ($this->organizationFlag === false) {
@@ -207,23 +207,16 @@
             $this->memberInput = '<input type="hidden" name="clientID" value="' . $this->clientID[0] . '" />';
           }
           $this->groupLabels[] = '
-            <form action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
-              <input type="hidden" name="endPoint" value="invoices" />
-              <input type="hidden" name="display" value="invoice" />
-              <input type="hidden" name="dateIssued" value="' . date('Y-m', strtotime($this->monthKeys[$i])) . '" />'
-              . $this->memberInput .
-              '
-              <button type="submit" class="bar' . $i . 'Label invoiceQuery">' . $this->monthKeys[$i] . '</button>
-            </form>
-          ';
+                  <form action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
+                    <input type="hidden" name="endPoint" value="invoices" />
+                    <input type="hidden" name="display" value="invoice" />
+                    <input type="hidden" name="dateIssued" value="' . date('Y-m', strtotime($this->monthKeys[$i])) . '" />'
+                    . $this->memberInput .
+                    '
+                    <button type="submit" class="bar' . $i . 'Label invoiceQuery">' . $this->monthKeys[$i] . '</button>
+                  </form>';
         }
-        if (count($this->labels) > $this->invoiceChartRowLimit) {
-          $this->split = round((count($this->labels) / 2), 0, PHP_ROUND_HALF_UP);
-          $this->tableLabelGroups[] = array_slice($this->labels, 0, $this->split);
-          $this->tableLabelGroups[] = array_slice($this->labels, $this->split);
-        } else {
-          $this->tableLabelGroups[] = $this->labels;
-        }
+
         $this->maxVal = max($this->testMax);
         $this->ratio = $this->options['chart_height']/$this->maxVal;
         foreach ($this->orderedData as $key => $value) {
@@ -234,7 +227,7 @@
           }
         }
 
-        $conjunction = ($this->compare === true || count($this->monthKeys) === 2) ? ' And ' : ' Through ';
+        $conjunction = ($this->compare === true || count($this->monthKeys) === 2) ? ' &amp; ' : ' - ';
         if (count($this->monthKeys) === 1) {
           $this->tableHead = $this->monthKeys[0];
         } else {
@@ -242,14 +235,16 @@
         }
         // Set $this->nonZero equal to array keys of the first month in $this->orderedData
         $this->nonZero = array_keys($this->orderedData[$this->monthKeys[0]]);
-        // Split $this-nonZero into groups based on the total number of values
-        if (count($this->tableLabelGroups) > 1) {
-          $this->split = round((count($this->nonZero) / 2), 0, PHP_ROUND_HALF_UP);
-          $this->firstChart = array_slice($this->nonZero, 0 , $this->split);
-          $this->secondChart = array_slice($this->nonZero, $this->split);
-          array_unshift($this->secondChart, $this->nonZero[0]);
+        // Split $this->nonZero into groups based on the total number of values
+        if (count($this->labels) > 6) {
+          $temp = array_shift($this->labels);
+          $this->tableLabelGroups = array_chunk($this->labels, 5);
+          for ($i = 0; $i < count($this->tableLabelGroups); $i++) {
+            array_unshift($this->tableLabelGroups[$i], $temp);
+          }
+          array_unshift($this->labels, $temp);
         } else {
-          $this->firstChart = $this->nonZero;
+          $this->tableLabelGroups[] = $this->labels;
         }
       }
     }
@@ -285,7 +280,7 @@
             foreach ($temp as $k1 => $v1) {
               if (in_array($k1, $this->nonZero)) {
                 if (!in_array($k1, $this->labels)) $this->labels[] = $k1;
-                $this->orderedData[$key][$k][$k1] = $v1;
+                $this->orderedData[$key][$k]['counts'][$k1] = $v1;
               }
             }
           }
@@ -295,30 +290,27 @@
           $temp2 = 0;
           for ($i = 0; $i < count($this->monthKeys); $i++) {
             for ($j = 0; $j < count($this->memberList); $j++) {
-              if (!isset($this->totals[$this->monthKeys[$i]][$value])) $this->totals[$this->monthKeys[$i]][$value] = 0;
-              $this->totals[$this->monthKeys[$i]][$value] += $this->orderedData[$this->monthKeys[$i]][$this->memberList[$j]][$value];
-              $temp += $this->orderedData[$this->monthKeys[$i]][$this->memberList[$j]][$value];
+              if (!isset($this->totals[$this->monthKeys[$i]][$value])) {
+                $this->totals[$this->monthKeys[$i]][$value] = 0;
+              }
+              $this->totals[$this->monthKeys[$i]][$value] += $this->orderedData[$this->monthKeys[$i]][$this->memberList[$j]]['counts'][$value];
+              $temp += $this->orderedData[$this->monthKeys[$i]][$this->memberList[$j]]['counts'][$value];
             }
           }
           $this->totals[$value] = $temp;
         }
-        if (count($this->labels) > $this->invoiceChartRowLimit) {
+        if (count($this->labels) > 7) {
+          $temp = array_shift($this->labels);
           $this->split = round((count($this->labels) / 2), 0, PHP_ROUND_HALF_UP);
-          $this->tableLabelGroups[] = array_slice($this->labels, 0, $this->split);
-          $this->tableLabelGroups[] = array_slice($this->labels, $this->split);
+          $this->tableLabelGroups = array_chunk($this->labels, $this->split);
+          for ($i = 0; $i < count($this->tableLabelGroups); $i++) {
+            array_unshift($this->tableLabelGroups[$i], $temp);
+          }
         } else {
           $this->tableLabelGroups[] = $this->labels;
         }
-        // Split $this->nonZero into groups based on the total number of values
-        if (count($this->nonZero) > 9) {
-          $this->split = round((count($this->nonZero) / 2), 0, PHP_ROUND_HALF_UP);
-          $this->firstChart = array_slice($this->nonZero, 0 , $this->split);
-          $this->secondChart = array_slice($this->nonZero, $this->split);
-          array_unshift($this->secondChart, $this->nonZero[0]);
-        } else {
-          $this->firstChart = $this->nonZero;
-        }
-        $conjunction = ($this->compare === true || count($this->monthKeys) === 2) ? ' And ' : ' Through ';
+
+        $conjunction = ($this->compare === true || count($this->monthKeys) === 2) ? ' &amp; ' : ' - ';
         if (count($this->monthKeys) === 1) {
           $this->tableHead = $this->monthKeys[0];
         } else {
@@ -329,232 +321,306 @@
 
     private function resortData()
     {
-      $temp = array();
+      $temp = [];
       for ($i = 0; $i < count($this->properOrder); $i++) {
         if (in_array($this->properOrder[$i], $this->nonZero)) {
           $temp[] = $this->properOrder[$i];
         }
       }
       $this->nonZero = $temp;
-      $temp = array();
+      $temp = [];
       for ($i = 0; $i < count($this->monthKeys); $i++) {
+        $temp[$this->monthKeys[$i]]['max'] = 0;
         for ($j = 0; $j < count($this->memberList); $j++) {
+          if (
+              $this->orderedData[$this->monthKeys[$i]][$this->memberList[$j]]['counts']['monthTotal'] >
+              $temp[$this->monthKeys[$i]]['max']
+            ) {
+                $temp[$this->monthKeys[$i]]['max'] =
+                  $this->orderedData[$this->monthKeys[$i]][$this->memberList[$j]]['counts']['monthTotal'];
+              }
           foreach ($this->nonZero as $key => $value) {
-            if (!isset($temp[$this->monthKeys[0]][$this->memberList[$j]][$value])) $temp[$this->monthKeys[0]][$this->memberList[$j]][$value] = 0;
-            $temp[$this->monthKeys[0]][$this->memberList[$j]][$value] += $this->orderedData[$this->monthKeys[$i]][$this->memberList[$j]][$value];
+            if (
+              !isset($temp[$this->monthKeys[$i]][$this->memberList[$j]][$value])
+            ) {
+              $temp[$this->monthKeys[$i]][$this->memberList[$j]][$value] = 0;
+            }
+
+            $temp[$this->monthKeys[$i]][$this->memberList[$j]][$value] +=
+              $this->orderedData[$this->monthKeys[$i]][$this->memberList[$j]]['counts'][$value];
           }
         }
       }
-      foreach ($temp as $target) {
-        for ($i = 0; $i < count($this->memberList); $i++) {
-          foreach ($target[$this->memberList[$i]] as $key => $value) {
-            if ($key === 'monthTotal') $this->testMax[] = $value;
-          }
-        }
-      }
-      $this->maxVal = max($this->testMax);
-      $this->ratio = $this->options['chart_height']/$this->maxVal;
       foreach ($temp as $key => $value) {
+        $ratio = 0;
         foreach ($value as $k => $v) {
-          $this->totals[$k] = $v;
-          foreach ($v as $k1 => $v1) {
-            $this->heights[$k1 . '_height'][] = $v1 * $this->ratio;
-            $this->margins[$k1 . '_margin'][] = $this->options['chart_height'] - ($v1 * $this->ratio);
-            $this->counts[$k1 . '_counts'][] = self::number_format_drop_zero_decimals($v1, 2);
+          if ($k === 'max') {
+            $ratio = $this->options['chart_height'] / $v;
+          } else {
+            $this->totals[$k] = $v;
+            foreach ($v as $k1 => $v1) {
+              $this->orderedData[$key][$k]['heights'][$k1] = $v1 * $ratio;
+            }
           }
         }
       }
-      // Split $this-nonZero into groups based on the total number of values
-      if (count($this->nonZero) > 9) {
-        $this->split = round((count($this->nonZero) / 2), 0, PHP_ROUND_HALF_UP);
-        $this->firstChart = array_slice($this->nonZero, 0 , $this->split);
-        $this->secondChart = array_slice($this->nonZero, $this->split);
-        array_unshift($this->secondChart, $this->nonZero[0]);
-      } else {
-        $this->firstChart = $this->nonZero;
-      }
-      $this->monthKeys = $this->memberList;
     }
 
     private function displayCompareTable()
     {
-      for ($i = 0; $i < count($this->tableLabelGroups); $i++) {
-        $this->headerSpan = count($this->tableLabelGroups[$i]) + 2;
-        $this->nestedTableColspan = $this->headerSpan - 1;
-        $this->tableOutput .= '
-  <table class="invoiceTable member centerDiv">
-    <thead>
-      <tr>
-        <th class="displayHeader" colspan="' . $this->headerSpan . '">' . $this->tableHead . '</th>
-      </tr>
-    </thead>
-    <tbody>';
-        for ($j = 0; $j < count($this->monthKeys); $j++) {
-          $this->tableOutput .= '
-      <tr>
-        <th>Month</th>
-        <th>Member</th>';
-        for ($k = 0; $k < count($this->tableLabelGroups[$i]); $k++) {
-          $this->tableOutput .= '
-        <th>' . self::arrayValueToChartLabel($this->tableLabelGroups[$i][$k]) . '</th>';
-          if ($k === count($this->tableLabelGroups[$i]) - 1) {
-            $this->tableOutput .= '</tr>';
-          }
-        }
-        $this->tableOutput .= '
-      <tr>
-        <td class="center">' . $this->monthKeys[$j] . '</td>
-        <td colspan="' . $this->nestedTableColspan . '">';
-          for ($x = 0; $x < count($this->memberList); $x++) {
+      $format = $_POST['paperFormat'] ?? $config['paperFormat'] ?? 'letter';
+      $membergroup = [];
+      switch ($format) {
+        case 'a4':
+          $membergroup = array_chunk($this->memberList, 13);
+          break;
+        case 'legal':
+          $membergroup = array_chunk($this->memberList, 14);
+          break;
+        default: $membergroup = array_chunk($this->memberList, 14);
+      }
+      $this->tableOutput = (class_exists('Dompdf\Dompdf') && $this->options['enableChartPDF'] === true) ? "
+        <form id=\"invoiceChartPDFform\" target=\"_blank\" method=\"post\" action=\"pdf\">
+          <input type=\"hidden\" name=\"title\" value=\"invoiceChart\" form=\"invoiceChartPDFform\" />
+          <input type=\"hidden\" name=\"type\" value=\"chart\" form=\"invoiceChartPDFform\" />
+          <input type=\"hidden\" name=\"paperFormat\" value=\"{$format}\" form=\"invoiceChartPDFform\" />
+          <input type=\"hidden\" name=\"paperOrientation\" value=\"landscape\" form=\"invoiceChartPDFform\" />
+          <input type=\"hidden\" name=\"formKey\" form=\"invoiceChartPDFform\" />
+          <input type=\"hidden\" name=\"content\" form=\"invoiceChartPDFform\" />
+          <button type=\"button\" id=\"invoiceChartPDF\" form=\"invoiceChartPDFform\">PDF</button>
+        </form>" : '';
+      foreach ($this->monthKeys as $_ => $month) {
+        foreach ($membergroup as $__ => $memberList) {
+          for ($i = 0; $i < count($this->tableLabelGroups); $i++) {
+            $page_break = ((count($memberList) < 6 && $i === count($this->tableLabelGroups) - 1) || count($memberList) > 5) ? 'style="page-break-after: always;"' : '';
+            $this->tableOutput .= "
+        <table class=\"invoiceTable member centerDiv\" {$page_break}>
+          <tr>
+            <th>Member</th>";
+            for ($j = 0; $j < count($this->tableLabelGroups[$i]); $j++) {
+              $this->tableOutput .= "
+            <th>{$this->arrayValueToChartLabel($this->tableLabelGroups[$i][$j])}</th>";
+            }
             $this->tableOutput .= '
-          <table class="wide">
-            <tr class="highlight">
-              <td class="bar' . $x . 'Label center">' . self::clientListBy($this->memberList[$x]) . '</td>';
+          </tr>';
+            for ($x = 0; $x < count($memberList); $x++) {
+              $pdfHighlight = ($x === 0 || $x % 2 === 0) ? 'style="background-color: #ccc;"' : '';
+              $this->tableOutput .= "
+          <tr class=\"highlight\" {$pdfHighlight}>
+            <td class=\"bar{$x}Label center\">{$this->clientListBy($memberList[$x])}</td>";
               for ($y = 0; $y < count($this->tableLabelGroups[$i]); $y++) {
-                $this->tableOutput .= '
-              <td class="center highlight2"><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . $this->orderedData[$this->monthKeys[$j]][$this->memberList[$x]][$this->tableLabelGroups[$i][$y]] . '<br>' . self::displayPercentage($this->orderedData[$this->monthKeys[$j]][$this->memberList[$x]][$this->tableLabelGroups[$i][$y]], $this->totals[$this->tableLabelGroups[$i][$y]]) . '&#37;</td>';
+                $this->tableOutput .= "
+            <td class=\"center highlight2\">
+              <span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>{$this->number_format_drop_zero_decimals($this->orderedData[$month][$memberList[$x]]['counts'][$this->tableLabelGroups[$i][$y]], 2)}
+              <br>
+              {$this->displayPercentage($this->orderedData[$month][$memberList[$x]]['counts'][$this->tableLabelGroups[$i][$y]], $this->totals[$this->tableLabelGroups[$i][$y]])}&#37;
+            </td>";
               }
-              $this->tableOutput .= '
-            </tr>
-          </table>';
+              $this->tableOutput .= "
+          </tr>";
+            }
+            $this->tableOutput .= "
+          <tr>
+            <th>{$month}:</th>";
+            for ($y = 0; $y < count($this->tableLabelGroups[$i]); $y++) {
+              $this->tableOutput .= "
+            <td class=\"center highlight2 error\">
+              <span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>{$this->totals[$month][$this->tableLabelGroups[$i][$y]]}
+              <br>
+              {$this->displayPercentage($this->totals[$month][$this->tableLabelGroups[$i][$y]], $this->totals[$this->tableLabelGroups[$i][$y]])}&#37;
+            </td>";
+            }
+            $this->tableOutput .= "
+          </tr>
+          <tr>
+            <th>{$this->tableHead}</th>";
+            for ($y = 0; $y < count($this->tableLabelGroups[$i]); $y++) {
+              $this->tableOutput .= "
+            <td class=\"center highlight2\">
+              <span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>{$this->number_format_drop_zero_decimals($this->totals[$this->tableLabelGroups[$i][$y]], 2)}
+            </td>";
+            }
+            $this->tableOutput .= '
+          </tr>
+        </table>';
           }
-          $this->tableOutput .= '
-        </td>
-      </tr>
-      <tr class="highlight">
-        <td></td>
-        <th>Month Total:</th>';
-          for ($y = 0; $y < count($this->tableLabelGroups[$i]); $y++) {
-            $this->tableOutput .= '
-        <td class="center highlight2 error"><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . $this->totals[$this->monthKeys[$j]][$this->tableLabelGroups[$i][$y]] . '<br>' . self::displayPercentage($this->totals[$this->monthKeys[$j]][$this->tableLabelGroups[$i][$y]], $this->totals[$this->tableLabelGroups[$i][$y]]) . '&#37;</td>';
-              }
-          $this->tableOutput .= '
-      </tr>
-      <tr class="highlight" style="border-bottom: 0.1em solid black;">
-        <td></td>
-        <th>Query Total:</th>';
-          for ($y = 0; $y < count($this->tableLabelGroups[$i]); $y++) {
-            $this->tableOutput .= '
-        <td class="center highlight2"><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::number_format_drop_zero_decimals($this->totals[$this->tableLabelGroups[$i][$y]], 2) . '</td>';
-              }
-          $this->tableOutput .= '
-      </tr>';
         }
-        $this->tableOutput .= '
-    </tbody>
-  </table>';
       }
       return $this->tableOutput;
     }
 
     private function displayTable()
     {
-      $this->tableHeadPrefix = ($this->compare === true) ? 'Comparing Expenses For ' : 'Expenses for the period between ';
+      $this->tableOutput = (class_exists('Dompdf\Dompdf') && $this->addPDFbutton === true && $this->options['enableChartPDF'] === true) ? '
+        <form id="invoiceChartPDFform" target="_blank" method="post" action="pdf">
+          <input type="hidden" name="title" value="invoiceChart" form="invoiceChartPDFform" />
+          <input type="hidden" name="type" value="chart" form="invoiceChartPDFform" />
+          <input type="hidden" name="paperOrientation" value="landscape" form="invoiceChartPDFform" />
+          <input type="hidden" name="formKey" form="invoiceChartPDFform" />
+          <input type="hidden" name="content" form="invoiceChartPDFform" />
+          <button type="button" id="invoiceChartPDF" form="invoiceChartPDFform">PDF</button>
+        </form>' : '';
+      $this->tableHeadPrefix = ($this->compare === true) ? 'Comparing Expenses For ' : 'Expenses for ';
       if ($this->singleMember !== null) {
-        $this->tableHeadAddendum = '<br>';
-        $this->tableHeadAddendum .= '<span class="medium">' . self::clientListBy($this->singleMember) . '</span>';
+        $this->tableHeadAddendum = "<br>
+              <span class=\"medium\">{$this->clientListBy($this->singleMember)}</span>";
       }
       $this->headerSpan = count($this->tableLabelGroups[0]) + 1;
-      $this->tableOutput = '
-        <div class="break invoiceTable">
-          <table>
-            <thead>
-              <th class="displayHeader" colspan="' . $this->headerSpan . '">' . $this->tableHeadPrefix . $this->tableHead . $this->tableHeadAddendum . '</th>
-            </thead>
-            <tbody>';
+      $this->tableOutput .= "
+        <table class=\"invoiceTable\">
+          <thead>
+            <th class=\"displayHeader\" colspan=\"{$this->headerSpan}\">
+              {$this->tableHeadPrefix}{$this->tableHead}{$this->tableHeadAddendum}
+            </th>
+          </thead>
+          <tbody>";
       for ($i = 0; $i < count($this->tableLabelGroups); $i++) {
         for ($j = 0; $j < count($this->tableLabelGroups[$i]); $j++) {
           if ($j === 0) $this->tableOutput .= '
-              <tr>
-                <td></td>
-                ';
-          $this->tableOutput .= '<th>' . self::arrayValueToChartLabel($this->tableLabelGroups[$i][$j]) . '</th>';
-          if ($j === count($this->tableLabelGroups[$i]) - 1) $this->tableOutput .= '</tr>';
+            <tr>
+              <th>Month</th>';
+          $this->tableOutput .= '
+              <th>
+                ' . self::arrayValueToChartLabel($this->tableLabelGroups[$i][$j]) . '
+              </th>';
+          if ($j === count($this->tableLabelGroups[$i]) - 1) $this->tableOutput .= '
+            </tr>';
         }
         for ($x = 0; $x < count($this->groupLabels); $x++) {
           for ($y = 0; $y < count($this->tableLabelGroups[$i]); $y++) {
             if ($y === 0) {
               $this->tableOutput .= '
-              <tr class="bar' . $x . 'Label">
-                <td>' . $this->groupLabels[$x] . '</td>
-                ';
+            <tr class="bar' . $x . 'Label">
+              <td>' . $this->groupLabels[$x] . '
+              </td>';
             }
-            $this->tableOutput .= '<td class="center"><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::negParenth(self::number_format_drop_zero_decimals($this->totals[$this->tableLabelGroups[$i][$y]][$x], 2)) . '</td>';
+            $this->tableOutput .= '
+              <td class="center"><span class="currencySymbol">
+                ' . $this->config['CurrencySymbol'] . '</span>' . self::negParenth(self::number_format_drop_zero_decimals($this->totals[$this->tableLabelGroups[$i][$y]][$x], 2)) . '
+              </td>';
 
-            if ($y === count($this->tableLabelGroups[$i]) - 1) $this->tableOutput .= '</tr>';
+            if ($y === count($this->tableLabelGroups[$i]) - 1) $this->tableOutput .= '
+            </tr>';
           }
         }
       }
-      $this->tableOutput .= '</tbody></table></div>';
+      $this->tableOutput .= '
+          </tbody>
+        </table>';
       return $this->tableOutput;
     }
 
     private function displayBarGraph()
     {
-      $this->currentChart = self::chartIndexToProperty();
-      if ($this->currentChart === null) {
-        return $this->graphOutput;
-      }
-      // dynamically calculate the width of the graph
-      $this->groups = count($this->currentChart);
-      $this->graph_width = ($this->interval_width * $this->groups) + ($this->options['interval_gap'] * ($this->groups + 1));
-      if ($this->compareMembers === true) {
-        $this->graphOutput .= '
-        <p class="center displayHeader">' . $this->tableHead . '</p>
-        <p class="displayHeader" style="display:flex; justify-content:space-around;font-size:1em;">';
-          for ($i = 0; $i < count($this->memberList); $i++) {
-            $this->graphOutput .= '<span class="bar' . $i . 'Label">' . self::clientListBy($this->memberList[$i]) . '  </span>';
+      $this->graphOutput = '';
+      $firstBarMargin = (100 - (7 * (count($this->monthKeys)  + (count($this->monthKeys) - 1)))) / 2;
+      for ($i = 0; $i < count($this->tableLabelGroups); $i++) {
+        $this->graphOutput .= "
+        <table class=\"bargraph\">
+          <tbody>
+            <tr class=\"graphBody\" style=\"height: {$this->options['chart_height']}rem;\">";
+        for ($j = 0; $j < count($this->tableLabelGroups[$i]); $j++) {
+          $this->graphOutput .= '
+              <td class="barContainer">';
+          for ($k = 0; $k < count($this->monthKeys); $k++) {
+            $margin = ($k === 0) ? "margin-left: {$firstBarMargin}%;" : '';
+            $titleValue = ($this->compareMembers === true) ? $this->totals[$this->monthKeys[$k]][$this->tableLabelGroups[$i][$j]] : $this->totals[$this->tableLabelGroups[$i][$j]][$k];
+            $heightKey = "{$this->tableLabelGroups[$i][$j]}_height";
+            $this->graphOutput .= "<div title=\"{$this->arrayValueToChartLabel($this->tableLabelGroups[$i][$j])}
+            &#10;{$this->config['CurrencySymbol']}{$this->number_format_drop_zero_decimals($titleValue, 2)}\"
+            style=\"height: {$this->heights[$heightKey][$k]}rem;{$margin}\" class=\"bar{$k}\"></div>";
+            if ($k !== count($this->monthKeys) - 1) {
+              $this->graphOutput .= '<div class="gap"></div>';
+            }
           }
-        $this->graphOutput .= '
-        </p>';
-      }
-      $this->graphOutput .= '
-        <div class="invoiceGraphContainer">
-        <div class="centerDiv" style="border:solid 0.1em #e1e1e1; background-color:#f4f4f4; height:' . $this->options['chart_height'] . 'em; width:' . $this->graph_width . 'em; margin-top:1.25em; /* padding-top:0.75em; */ overflow: hidden;">
-          <div style="height:' . $this->options['chart_height'] . 'em;width:' . $this->options['interval_gap'] . 'em;" class="space"></div>';
-      // Sort out the bars here
-      for ($i = 0; $i < count($this->currentChart); $i++) {
-        $this->graphOutput .= '
-          <div style="height:' . $this->options['chart_height'] . 'em; width:' . $this->interval_width . 'em; margin:0; padding:0;' . $this->options['interval_border'] . 'em;" class="barContainer">
-          <div style="height:' . $this->options['chart_height'] . 'em;width:' . $this->options['bar_gap'] . 'em;" class="gap"></div>';
-        for ($j = 0; $j < count($this->monthKeys); $j++) {
-          $titleValue = ($this->compareMembers === true) ? $this->totals[$this->monthKeys[$j]][$this->currentChart[$i]] : $this->totals[$this->currentChart[$i]][$j];
           $this->graphOutput .= '
-            <div title="' .
-              self::arrayValueToChartLabel($this->currentChart[$i]) . '&#10;' . $this->config['CurrencySymbol'] .
-              self::number_format_drop_zero_decimals($titleValue, 2) .
-              '" style="height:' . $this->heights[$this->currentChart[$i] .
-              '_height'][$j] . 'em; width:' . $this->options['bar_width'] .
-              'em; margin-top:' . $this->margins[$this->currentChart[$i] .
-              '_margin'][$j] . 'em;" class="bar' . $j . '"></div>
-            <div style="height:' . $this->options['chart_height'] .
-            'em;width:' . $this->options['bar_gap'] . 'em;" class="gap"></div>
-          ';
+            </td>';
+          if ($j !== count($this->tableLabelGroups[$i]) - 1) {
+            $this->graphOutput .= '
+              <td class="space"></td>';
+          }
         }
-        $this->graphOutput .= ($i === count($this->currentChart) - 1) ? '</div>' : '
-          </div>
-          <div style="height:' . $this->options['chart_height'] . 'em;width:' . $this->options['interval_gap'] . 'em;" class="space"></div>';
-      }
-      $this->graphOutput .= '
-        </div>
-        <div class="centerDiv" style="height:2.75em; background-color:#8c8c8c; width:' .
-        $this->graph_width . 'em; color:#fff; border:solid 1px #666;">
-        <div style="height:2.75em;width:' . $this->options['interval_gap'] . 'em;" class="space"></div>';
-      for ($i = 0; $i < count($this->currentChart); $i++) {
         $this->graphOutput .= '
-          <div style="width:' .
-          $this->interval_width .
-          'em;" class="chartLabels">' . self::arrayValueToChartLabel($this->currentChart[$i]) . '</div>';
-        if ($i !== count($this->currentChart) - 1) {
-          $this->graphOutput .= '
-          <div style="height:2.75em;width:' . $this->options['interval_gap'] . 'em;" class="space"></div>';
+            </tr>
+            <tr class="graphFoot">';
+        for ($j = 0; $j < count($this->tableLabelGroups[$i]); $j++) {
+          $this->graphOutput .= "
+              <td class=\"chartLabels\">{$this->arrayValueToChartLabel($this->tableLabelGroups[$i][$j])}</td>";
+          if ($j !== count($this->tableLabelGroups[$i]) - 1) {
+            $this->graphOutput .= '
+              <td class="space"></td>';
+          }
+        }
+        $this->graphOutput .= '
+            </tr>
+          </tbody>
+        </table>';
+      }
+      return $this->graphOutput;
+    }
+
+    private function displayCompareGraph()
+    {
+      $this->graphOutput = '';
+      $memberList = array_chunk($this->memberList, 6);
+      $heights = $counts = [];
+      foreach ($this->heights as $key => $value) {
+        $heights[$key] = array_chunk($value, 6);
+      }
+      foreach ($this->counts as $key => $value) {
+        $counts[$key] = array_chunk($value, 6);
+      }
+      foreach ($this->monthKeys as $_ => $month) {
+        for ($j = 0; $j < count($memberList); $j++) {
+          for ($i = 0; $i < count($this->tableLabelGroups); $i++) {
+            $this->graphOutput .= "
+            <div class=\"graphKey\">
+              <h2 class=\"monthKey\">{$month}</h2>";
+            for ($k = 0; $k < count($memberList[$j]); $k++) {
+              $firstBarMargin = (100 - (7 * (count($memberList[$j])  + (count($memberList[$j]) - 1)))) / 2;
+              $this->graphOutput .= "
+              <p class=\"bar{$k}Label\">{$this->clientListBy($memberList[$j][$k])}</p>";
+            }
+            $this->graphOutput .= "
+            </div>
+            <table class=\"bargraph\">
+              <tr class=\"graphBody\">";
+            for ($k = 0; $k < count($this->tableLabelGroups[$i]); $k++) {
+              $this->graphOutput .= "
+                <td class=\"barContainer\" style=\"height:{$this->options['chart_height']}rem;\">";
+              for ($l = 0; $l < count($memberList[$j]); $l++) {
+                $margin = ($l === 0) ? " margin-left: {$firstBarMargin}%;" : '';
+                $this->graphOutput .= "<div class=\"bar{$l}\" title=\"{$this->config['CurrencySymbol']}{$this->orderedData[$month][$memberList[$j][$l]]['counts'][$this->tableLabelGroups[$i][$k]]}\" style=\"height: {$this->orderedData[$month][$memberList[$j][$l]]['heights'][$this->tableLabelGroups[$i][$k]]}rem;{$margin}\"></div>";
+                if ($l !== count($memberList[$j]) - 1) {
+                  $this->graphOutput .= '<div class="gap"></div>';
+                }
+              }
+              $this->graphOutput .= '
+                </td>';
+              if ($k !== count($this->tableLabelGroups[$i]) - 1) {
+                $this->graphOutput .= '
+                <td class="space"></td>';
+              }
+            }
+            $this->graphOutput .= '
+              </tr>
+              <tr class="graphFoot">';
+            for ($k = 0; $k < count($this->tableLabelGroups[$i]); $k++) {
+              $this->graphOutput .= "
+                <td class=\"chartLabels\">
+                  {$this->arrayValueToChartLabel($this->tableLabelGroups[$i][$k])}
+                </td>";
+                if ($k !== count($this->tableLabelGroups[$i]) - 1) {
+                  $this->graphOutput .= '
+                <td class="space"></td>';
+                }
+            }
+            $this->graphOutput .= '
+              </tr>
+            </table>';
+          }
         }
       }
-      $this->graphOutput .= '
-        </div>
-      </div>
-      ';
-      $this->chartIndex++;
-      return self::displayBarGraph();
+      return $this->graphOutput;
     }
   }
