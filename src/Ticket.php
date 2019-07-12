@@ -2804,6 +2804,7 @@
         $diWeightMarkerDisabled = 'disabled';
         $diWeightDisabled = '';
       }
+      $rtDisplay = ($this->Charge === 6 || $this->Charge === 7) ? 'inline-block' : 'none';
 
       $emailConfirm0 = $emailConfirm1 = $emailConfirm2 = $emailConfirm3 =
       $emailConfirm4 = $emailConfirm5 = $emailConfirm6 = $emailConfirm7 = '';
@@ -2987,9 +2988,9 @@
                         </select>
                       </td>
                       <td>
-                        <label class=\"rtMarker\" for=\"d2SigReq{$this->ticket_index}\">Return Signature:</label>
+                        <label class=\"rtMarker\" for=\"d2SigReq{$this->ticket_index}\" style=\"display:{$rtDisplay};\">Return Signature:</label>
                         <input type=\"hidden\" name=\"d2SigReq\" id=\"d2SigReqMarker{$this->ticket_index}\" class=\"d2SigReqMarker\" value=\"0\" form=\"request{$this->ticket_index}\" />
-                        <input type=\"checkbox\" class=\"rtMarker\" name=\"d2SigReq\" id=\"d2SigReq{$this->ticket_index}\" class=\"d2SigReq\" value=\"1\" {$d2SigChecked} form=\"request{$this->ticket_index}\" />
+                        <input type=\"checkbox\" class=\"rtMarker\" name=\"d2SigReq\" id=\"d2SigReq{$this->ticket_index}\" class=\"d2SigReq\" style=\"display:{$rtDisplay};\" value=\"1\" {$d2SigChecked} form=\"request{$this->ticket_index}\" />
                       </td>
                     </tr>
                     <tr>
@@ -3004,10 +3005,10 @@
                           <option value=\"1\" {$emailConfirm1}>Picked Up</option>
                           <option value=\"2\" {$emailConfirm2}>Delivered</option>
                           <option value=\"3\" {$emailConfirm3}>Picked Up & Delivered</option>
-                          <option class=\"rtMarker\" value=\"4\" {$emailConfirm4}>Returned</option>
-                          <option class=\"rtMarker\" value=\"5\" {$emailConfirm5}>Picked Up &amp; Returned</option>
-                          <option class=\"rtMarker\" value=\"6\" {$emailConfirm6}>Delivered &amp; Returned</option>
-                          <option class=\"rtMarker\" value=\"7\" {$emailConfirm7}>All</option>
+                          <option class=\"rtMarker\" value=\"4\" {$emailConfirm4} style=\"display:{$rtDisplay};\">Returned</option>
+                          <option class=\"rtMarker\" value=\"5\" {$emailConfirm5} style=\"display:{$rtDisplay};\">Picked Up &amp; Returned</option>
+                          <option class=\"rtMarker\" value=\"6\" {$emailConfirm6} style=\"display:{$rtDisplay};\">Delivered &amp; Returned</option>
+                          <option class=\"rtMarker\" value=\"7\" {$emailConfirm7} style=\"display:{$rtDisplay};\">All</option>
                         </select>
                       </td>
                     </tr>
