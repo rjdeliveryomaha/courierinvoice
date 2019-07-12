@@ -2325,11 +2325,13 @@
       $ticketQueryData['queryParams'] = [];
       if ($this->ticket_index === null) {
         $ticketQueryData['queryParams']['filter'] = [
+          ['Resource'=>'NotForDispatch', 'Filter'=>'eq', 'Value'=>0],
           ['Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>'-'],
           ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>$this->Contract]
         ];
       } else {
         $ticketQueryData['queryParams']['filter'] = [
+          ['Resource'=>'NotForDispatch', 'Filter'=>'eq', 'Value'=>0],
           ['Resource'=>'ticket_index', 'Filter'=>'eq', 'Value'=>$this->ticket_index]
         ];
       }
@@ -3391,6 +3393,7 @@
       $this->queryData['method'] = 'GET';
       $this->queryData['endPoint'] = 'tickets';
       $this->queryData['queryParams']['filter'] = [
+        ['Resource'=>'NotForDispatch', 'Filter'=>'eq', 'Value'=>0],
         ['Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=>(int)$_SESSION['ClientID']],
         [ 'Resource'=>'ReceivedDate', 'Filter'=>'sw', 'Value'=>$this->today->format('Y-m-d')]
       ];

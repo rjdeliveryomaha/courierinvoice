@@ -94,6 +94,7 @@
       $ticketQueryData['method'] = 'GET';
       $ticketQueryData['queryParams']['filter'] = [];
       $ticketQueryData['queryParams']['filter'][] = [
+        ['Resource'=>'NotForDispatch', 'Filter'=>'eq', 'Value'=>0],
         ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>0],
         ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID],
         ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>"{$this->backstop} 00:00:00,{$this->today} 23:59:59"],
@@ -102,21 +103,26 @@
         ['Resource'=>'dTimeStamp', 'Filter'=>'is']
       ];
       $ticketQueryData['queryParams']['filter'][] = [
+        ['Resource'=>'NotForDispatch', 'Filter'=>'eq', 'Value'=>0],
         ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>0],
         ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID],
         ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>"{$this->backstop} 00:00:00,{$this->today} 23:59:59"],
-        ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>6],
+        ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0],
+        ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>6],
         ['Resource'=>'d2TimeStamp', 'Filter'=>'is']
       ];
       $ticketQueryData['queryParams']['filter'][] = [
+        ['Resource'=>'NotForDispatch', 'Filter'=>'eq', 'Value'=>0],
         ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>0],
         ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID],
         ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>"{$this->backstop} 00:00:00,{$this->today} 23:59:59"],
-        ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0], ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>7],
+        ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0],
+        ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>7],
         ['Resource'=>'dTimeStamp', 'Filter'=>'is'],
         ['Resource'=>'d2SigReq', 'Filter'=>'eq', 'Value'=>0]
       ];
       $ticketQueryData['queryParams']['filter'][] = [
+        ['Resource'=>'NotForDispatch', 'Filter'=>'eq', 'Value'=>0],
         ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>0],
         ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID],
         ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>"{$this->backstop} 00:00:00,{$this->today} 23:59:59"],
@@ -171,6 +177,7 @@
       $ticketQueryData['method'] = 'GET';
       // Pull RoundTrip tickets
       $roundTripFilter = [
+        ['Resource'=>'NotForDispatch', 'Filter'=>'eq', 'Value'=>0],
         ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>1],
         ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID],
         ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>"{$this->today} 00:00:00,{$this->today} 23:59:59"],
@@ -180,6 +187,7 @@
       ];
       // Pull Routine tickets
       $routineFilter = [
+        ['Resource'=>'NotForDispatch', 'Filter'=>'eq', 'Value'=>0],
         ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>1],
         ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID],
         ['Resource'=>'DispatchTimeStamp', 'Filter'=>'bt', 'Value'=>"{$this->today} 00:00:00,{$this->today} 23:59:59"],
@@ -208,6 +216,7 @@
         //  Check for completed contract tickets for today
         // Only queryParams['filter'] needs to be changed here
         $ticketQueryData['queryParams']['filter'] = [
+          ['Resource'=>'NotForDispatch', 'Filter'=>'eq', 'Value'=>0],
           ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>1],
           ['Resource'=>'DispatchedTo', 'Filter'=>'eq', 'Value'=>$this->driverID],
           ['Resource'=>'Charge', 'Filter'=>'neq', 'Value'=>0],
