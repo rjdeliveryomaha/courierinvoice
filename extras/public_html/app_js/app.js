@@ -126,22 +126,6 @@
 
   lcfirst = string => string.charAt(0).toLowerCase() + string.slice(1);
 
-  convert12to24 = string => {
-    let hours = Number(string.match(/^(\d+)/)[1]),
-        minutes = Number(string.match(/:(\d+)/)[1]),
-        AMPM = string.match(/\s(.*)$/)[1],
-        sHours,
-        sMinutes;
-    if(AMPM.toUpperCase() == "PM" && hours<12) {
-      hours = hours+12;
-    }
-    if(AMPM.toUpperCase() == "AM" && hours==12) {
-      hours = hours-12;
-    }
-    sHours = (hours<10) ? `0${hours.toString()}` : hours.toString();
-    sMinutes = (minutes<10) ? `0${minutes.toString()}` : minutes.toString();
-    return sHours + ":" + sMinutes;
-  }
 // Start Toast
   // Use arrays to make date display pretty
   let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
@@ -327,7 +311,7 @@
     let container = document.querySelector("#route"),
         items = Array.from(container.querySelectorAll(".sortable"));
     items.sort((a,b) => {
-      return (convert12to24(a.querySelector(".timing").textContent) > convert12to24(b.querySelector(".timing").textContent)) ? 1 : -1;
+      return (a.querySelector(".timing").textContent > b.querySelector(".timing").textContent) ? 1 : -1;
     });
     let docFrag = document.createDocumentFragment();
     items.forEach(element => { docFrag.appendChild(element); });
@@ -391,7 +375,7 @@
     let container = document.querySelector("#on_call"),
         items = Array.from(container.querySelectorAll(".sortable"));
     items.sort((a,b) => {
-      return (convert12to24(a.querySelector(".timing").textContent) > convert12to24(b.querySelector(".timing").textContent)) ? 1 : -1;
+      return (a.querySelector(".timing").textContent > b.querySelector(".timing").textContent) ? 1 : -1;
     });
     let docFrag = document.createDocumentFragment();
     items.forEach(element => { docFrag.appendChild(element); });
@@ -695,14 +679,14 @@
     if (typeof navigator.permissions === "undefined" || typeof navigator.geolocation === "undefined") return rjdci.toast("Location Not Available");
     let success_count = 0,
       error_count = 0,
-      max_attempt = 1,
+      max_attempt = 5,
       min_accuracy = 10,
       watch_id = null,
       result = false,
       toast_options = {};
     toast_options.title = "Updating Location";
     toast_options.eleClass = "deliveryLocation";
-    rjdci.toast("Updating Location<br>Do not turn<br>screen off", toast_options);
+    rjdci.toast("Updating Location<br>Do not<br>disable screen", toast_options);
     navigator.permissions.query({name: "geolocation"}).then(PermissionStatus => {
       let options = { enableHighAccuracy: true, timeout: 25000, maximumAge: 0},
         success = pos => {
@@ -756,7 +740,7 @@
             }
           })
           .then(data => {
-            if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
+            if (data.indexOf("Session Error") !== -1) throw new Error("Session Error");
             document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
             if (data.indexOf("error") !== - 1) throw new Error(data);
             return rjdci.toast("Location Updated<br>Tap to dismiss", toast_options);
@@ -3040,6 +3024,38 @@
       });
     });
 
+    workspace.querySelector(".receivedReady").addEventListener("change", eve => {
+      Array.from(workspace.querySelectorAll(".readyNote, .readyDate")).forEach(element => {
+        element.style.display = (element.style.display === "none") ? "inline-block" : "none";
+        if (element.classList.contains("readyDate")) {
+          if (eve.target.checked === true) {
+            element.value = "";
+          }
+          rjdci.triggerEvent(element, "change");
+          element.required = !eve.target.checked;
+        }
+      });
+    });
+
+    workspace.querySelector(".readyDate").addEventListener("change", eve => {
+      let d1 = new Date(),
+        d2 = new Date(eve.target.value);
+      if (d1 >= d2) {
+        let readyError = document.createElement("p");
+        readyError.classList.add("readyError");
+        readyError.innerHTML = 'Ready Time should be either "Now" or a time in the future.';
+        if (!workspace.querySelector(".readyError")) {
+          workspace.querySelector(".ticketError").appendChild(readyError);
+        }
+      } else {
+        if (workspace.querySelector(".readyError")) {
+          let element = workspace.querySelector(".readyError")
+          element.parentNode.removeChild(element);
+        }
+      }
+      workspace.querySelector(".submitForm").disabled = workspace.querySelector(".readyError") !== null;
+    });
+
     if (workspace.querySelector(".cancelTicketEditor")) {
       workspace.querySelector(".cancelTicketEditor").addEventListener("click", eve => {
         workspace.removeChild(workspace.querySelector(".removableByEditor"));
@@ -3089,6 +3105,25 @@
               setTimeout(() => { element.classList.remove("elementError"); }, 3000);
             } else {
               element.classList.remove("elementError");
+            }
+            if (element.getAttribute("name") === "readyDate" && element.style.display !== "none") {
+              let d1 = new Date(),
+                d2 = new Date(element.value);
+              if (d1 >= d2) {
+                breakFunction = true;
+                let readyError = document.createElement("p");
+                  readyError.classList.add("readyError");
+                  readyError.classList.add("center");
+                  readyError.innerHTML = 'Ready Time should be either "Now" or a time in the future.';
+                if (!workspace.querySelector(".readyError")) {
+                  workspace.querySelector(".ticketError").parentNode.appendChild(readyError);
+                }
+                element.classList.add("elementError");
+                setTimeout(() => {
+                  element.classList.remove("elementError");
+                  if (workspace.querySelector(".readyError")) readyError.parentNode.removeChild(readyError);
+                }, 3000);
+              }
             }
             postData[element.getAttribute("name")] = element.value;
           } else if (element.type === "checkbox") {

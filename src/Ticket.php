@@ -83,6 +83,8 @@
     protected $ReceivedDate;
     protected $DispatchTimeStamp;
     protected $DispatchMicroTime;
+    protected $ReadyDate;
+    protected $ReceivedReady = 1;
     protected $DispatchedBy;
     protected $Transfers;
     /* TransferState will be bool to and from the API
@@ -145,20 +147,20 @@
       'RequestedBy', 'pClient', 'dClient', 'pDepartment', 'dDepartment', 'pAddress1', 'dAddress1', 'pAddress2',
       'dAddress2', 'pCountry', 'dCountry', 'pContact', 'dContact', 'pTelephone', 'dTelephone', 'dryIce', 'diWeight',
       'diPrice', 'Charge', 'RunPrice', 'TicketPrice', 'EmailConfirm', 'EmailAddress', 'Telephone', 'pTime', 'dTime',
-      'd2Time', 'pSigReq', 'dSigReq', 'd2SigReq', 'DispatchedTo', 'ReceivedDate', 'DispatchTimeStamp',
-      'DispatchMicroTime', 'DispatchedBy', 'Notes'
+      'd2Time', 'pSigReq', 'dSigReq', 'd2SigReq', 'DispatchedTo', 'ReceivedDate', 'ReceivedReady', 'ReadyDate',
+      'DispatchTimeStamp', 'DispatchMicroTime', 'DispatchedBy', 'Notes'
     ];
     private $updateTicketDatabaseKeys = [ 'BillTo', 'Charge', 'EmailAddress', 'EmailConfirm', 'Telephone', 'RequestedBy',
       'pClient', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'dClient', 'dAddress1', 'dAddress2',
-      'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'DispatchedTo', 'Transfers', 'TicketBase',
-      'RunPrice', 'TicketPrice', 'Notes', 'pSigReq', 'dSigReq', 'd2SigReq', 'pLat', 'pLng', 'dLat', 'dLng', 'd2Lat',
-      'd2Lng'
+      'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'ReceivedReady', 'ReadyDate',
+      'DispatchedTo', 'Transfers', 'TicketBase', 'RunPrice', 'TicketPrice', 'Notes', 'pSigReq', 'dSigReq', 'd2SigReq',
+      'pLat', 'pLng', 'dLat', 'dLng', 'd2Lat', 'd2Lng'
     ];
     private $postableKeys = [ 'repeatClient', 'fromMe', 'pClient', 'pDepartment', 'pAddress1', 'pAddress2', 'pCountry',
       'pContact', 'pTelephone', 'pSigReq', 'toMe', 'dClient', 'dDepartment', 'dAddress1', 'dAddress2', 'dCountry',
-      'dContact', 'dTelephone', 'dSigReq', 'dryIce', 'diWeight', 'Notes', 'Charge', 'DispatchedTo', 'd2SigReq',
-      'EmailAddress', 'EmailConfirm', 'Telephone', 'RequestedBy', 'locationList', 'clientList', 'tClientList',
-      'driverList'
+      'dContact', 'dTelephone', 'dSigReq', 'dryIce', 'diWeight', 'Notes', 'Charge', 'ReceivedReady', 'ReadyDate',
+      'DispatchedTo', 'd2SigReq', 'EmailAddress', 'EmailConfirm', 'Telephone', 'RequestedBy', 'locationList',
+      'clientList', 'tClientList', 'driverList'
     ];
     private $javascriptKeys = [ 'ClientName', 'Department', 'ShippingAddress1', 'ShippingAddress2', 'ShippingCountry' ];
     // Results form geocoder
@@ -736,7 +738,7 @@
     private function buildLocationList()
     {
       if ($this->organizationFlag === true) $this->ClientID = implode(',', array_keys($this->members));
-      $tempClients = $uniqueTest = array();
+      $tempClients = $uniqueTest = [];
       $locationQueryData['method'] = 'GET';
       $locationQueryData['endPoint'] = 'tickets';
       $locationQueryData['queryParams']['include'] = [ 'pClient', 'dClient', 'pAddress1', 'pAddress2', 'pCountry',
@@ -1124,7 +1126,7 @@
 
     private function queryTicket()
     {
-      $ticketQueryResult = array();
+      $ticketQueryResult = [];
       // When querying multiple tickets $this->ticket_index will be a comma separated list of indexes.
       // Test for a comma and adjust the filter accordingly.
       $queryFilter = (strpos($this->ticket_index, ',') === false) ? 'eq' : 'in';
@@ -1699,28 +1701,26 @@
 
     public function displaySingleTicket()
     {
+      if ($this->ReadyDate === null) {
+        $this->ReadyDate = $this->DispatchTimeStamp;
+      }
+      $readyObj = new \dateTime($this->ReadyDate);
       $singleTicket = '';
       if ($this->Contract === 0) {
         // Test for fault in query. There should be no null dispatch times here
         if ($this->DispatchTimeStamp === $this->tTest) {
           return false;
         }
-        // Set the completion deadline based on the dispatch time stamp and charge
+        // Set the completion deadline based on the ready date and charge
         switch ($this->Charge) {
           case 1:
-            $this->pTime = date('g:i a', strtotime($this->DispatchTimeStamp) + 60*60);
-          break;
           case 2:
-            $this->pTime = date('g:i a', strtotime($this->DispatchTimeStamp) + 60*60*2);
-          break;
           case 3:
-            $this->pTime = date('g:i a', strtotime($this->DispatchTimeStamp) + 60*60*3);
-          break;
           case 4:
-            $this->pTime = date('g:i a', strtotime($this->DispatchTimeStamp) + 60*60*4);
+            $this->pTime = date('d M \b\y g:i a', strtotime($this->ReadyDate) + 60*60*$this->Charge);
           break;
           default:
-            $this->pTime = date('g:i a', strtotime($this->DispatchTimeStamp) + 60*60*5);
+            $this->pTime = date('d M \b\y g:i a', strtotime($this->ReadyDate) + 60*60*5);
           break;
         }
       }
@@ -1729,7 +1729,12 @@
       * charge and timestamps.
       ***/
       $sigClass = $sigActive = $sigPlaceholder = $sigName = $buttonName = '';
+      $timingMultiplier = ($this->Charge < 6) ? $this->Charge : 5;
+      $timingSource = 'now';
       if ($this->pTimeStamp === $this->tTest) {
+        $label1 = ($this->Contract === 1) ?
+          '' :
+          '<p>Ready: ' . date('d M \a\t g:i a', strtotime($this->ReadyDate)) . '</p>';
         $this->step = $this->step ?? 'pickedUp';
         $sigName = 'pSig';
         if ($this->pSigReq === 1) {
@@ -1741,12 +1746,23 @@
         $buttonName = 'Pick Up';
         $button2Class = 'deadRun';
         $button2Name = 'Dead Run';
-        $label1 = ($this->Contract === 0) ? 'Deadline: ' : 'Pick Up: ';
-        $label2 = ($this->Contract === 0) ? '' : 'Deliver: ';
-        $temp = strtotime($this->pTime);
-        $this->pTime = date('g:i a', $temp);
-        $temp2 = ($this->Contract === 0) ? '' : strtotime($this->dTime);
-        $this->dTime = ($this->Contract === 0) ? '' : date('g:i a', $temp2);
+        if ($this->Contract === 0) {
+          $label1 .= 'Deadline: ';
+          $label2 = '';
+          $this->dTime = '';
+          $timingSource = date('Y-m-d H:i', strtotime($this->ReadyDate) + 60*60*$timingMultiplier);
+        } else {
+          $label1 .= 'Pick Up: ';
+          $label2 = 'Deliver: ';
+          $this->pTime = $readyObj->format('d M g:i a');
+          $timingSource = $readyObj->format('Y-m-d H:i');
+          $dTimeArray = explode(':', $this->dTime);
+          $readyObj->setTime($dTimeArray[0], $dTimeArray[1], $dTimeArray[2]);
+          if ($this->pTime > $this->dTime) {
+            $readyObj->modify('+ 1 day');
+          }
+          $this->dTime = $readyObj->format('d M g:i a');
+        }
       } else {
         if ($this->dTimeStamp === $this->tTest) {
           $this->step = $this->step ?? 'delivered';
@@ -1760,19 +1776,28 @@
           $buttonName = 'Deliver';
           $button2Class = 'declined';
           $button2Name = 'Declined';
-          $label1 = ($this->Contract === 0) ? 'Deadline: ' : 'Deliver: ';
-          $label2 = ($this->Contract === 0) ? '' : 'Return: ';
-          $temp = ($this->Contract === 0) ? '' : strtotime($this->dTime);
-          $this->pTime = ($this->Contract === 0) ? $this->pTime : date('g:i a', $temp);
-          if ($this->Contract === 1) {
-            if ($this->Charge == 6) {
-              $temp2 = strtotime($this->d2Time);
-              $this->dTime = date('g:i a', $temp2);
+          if ($this->Contract === 0) {
+            $label1 = 'Deadline: ';
+            $label2 = '';
+            $this->dTime = '';
+            $timingSource = date('Y-m-d H:i', strtotime($this->ReadyDate) + 60*60*$timingMultiplier);
+          } else {
+            $label1 = 'Deliver: ';
+            $label2 = 'Return: ';
+            $dTimeArray = explode(':', $this->dTime);
+            $readyObj->setTime($dTimeArray[0], $dTimeArray[1], $dTimeArray[2]);
+            $this->pTime = $readyObj->format('d M g:i a');
+            $timingSource = $readyObj->format('Y-m-d H:i');
+            if ($this->Charge === 6) {
+              $d2TimeArray = explode(':', $this->d2Time);
+              $readyObj->setTime($d2TimeArray[0], $d2TimeArray[1], $d2TimeArray[2]);
+              if ($this->dTime > $this->d2Time) {
+                $readyObj->modify('+ 1 day');
+              }
+              $this->dTime = $readyObj->format('d M g:i a');
             } else {
               $this->dTime = '-';
             }
-          } else {
-            $this->dTime = '';
           }
           // Swap the pick up and delivery locations
           $tempClient = $this->pClient;
@@ -1809,11 +1834,18 @@
           $button2Name = '';
           $label1 = 'Return: ';
           $label2 = '-';
-          $temp = strtotime($this->d2Time);
-          $this->pTime = date('g:i a', $temp);
+          $d2TimeArray = explode(':', $this->d2Time);
+          $readyObj->setTime($d2TimeArray[0], $d2TimeArray[1], $d2TimeArray[2]);
+          if ($this->dTime > $this->d2Time) {
+            $readyObj->modify('+ 1 day');
+          }
+          $this->pTime = $readyObj->format('d M g:i a');
+          $timingSource = $readyObj->format('Y-m-d H:i');
           $this->dTime = '-';
         }
       }
+      $timingObj = new \dateTime($timingSource);
+      $timing = $timingObj->format('U');
       $transfersFormValue = ($this->Transfers) ? htmlspecialchars($this->Transfers) : '';
       $confirm = "
             <table class=\"wide confirm\">
@@ -1938,7 +1970,7 @@
         <table class=\"wide\">
           <thead>
             <tr>
-              <td colspan=\"2\">{$label1}<span class=\"timing\">{$this->pTime}</span></td>
+              <td colspan=\"2\">{$label1}{$this->pTime}<span class=\"timing hide\">{$timing}</span></td>
             </tr>
             <tr>
               <td colspan=\"2\"><hr></td>
@@ -2018,6 +2050,7 @@
       if ($this->processTransfer === true) {
         $this->PendingReceiver = $this->multiTicket[0]->PendingReceiver;
       }
+      $readyObj = new \dateTime($this->multiTicket[0]->ReadyDate);
       switch ($this->multiTicket[0]->step) {
         case 'delivered':
           $topClient = self::decode($this->multiTicket[0]->dClient);
@@ -2031,8 +2064,13 @@
             <a class=\"plain\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$topAddressEncoded}\">
               {$this->decode($this->multiTicket[0]->dAddress1)}<br>{$this->decode($this->multiTicket[0]->dAddress2)}
             </a>";
-          $temp = strtotime($this->multiTicket[0]->dTime);
-          $pTime = date('g:i a', $temp);
+          $dTimeArray = explode(':', $this->multiTicket[0]->dTime);
+          $readyObj->setTime($dTimeArray[0], $dTimeArray[1], $dTimeArray[2]);
+          if ($this->multiTicket[0]->pTime > $this->multiTicket[0]->dTime) {
+            $readyObj->modify('+ 1 day');
+          }
+          $pTime = $readyObj->format('d M g:i a');
+          $timing = $readyObj->format('U');
         break;
         default:
           $topClient = self::decode($this->multiTicket[0]->pClient);
@@ -2048,12 +2086,17 @@
             </a>";
           switch ($this->multiTicket[0]->step) {
             case 'pickedUp':
-              $temp = strtotime($this->multiTicket[0]->pTime);
-              $pTime = date('g:i a', $temp);
+              $pTime = $readyObj->format('d M g:i a');
+              $timing = $readyObj->format('U');
             break;
             case 'returned':
-              $temp = strtotime($this->multiTicket[0]->d2Time);
-              $pTime = date('g:i a', $temp);
+              $d2TimeArray = explode(':', $this->multiTicket[0]->d2Time);
+              $readyObj->setTime($d2TimeArray[0], $d2TimeArray[1], $d2TimeArray[2]);
+              if ($this->multiTicket[0]->dTime > $this->multiTicket[0]->d2Time) {
+                $readyObj->modify('+ 1 day');
+              }
+              $pTime = $readyObj->format('d M g:i a');
+              $timing = $readyObj->format('U');
             break;
           }
         break;
@@ -2062,7 +2105,7 @@
           <table class=\"wide\">
             <thead>
               <tr>
-                <td colspan=\"2\" class=\"center\"><h3 class=\"timing\">{$pTime}</h3></td>
+                <td colspan=\"2\" class=\"center\"><h3>{$pTime}</h3><span class=\"timing hide\">{$timing}</span></td>
               </tr>
               <tr>
                 <td colspan=\"2\"><hr></td>
@@ -2805,6 +2848,15 @@
         $diWeightDisabled = '';
       }
       $rtDisplay = ($this->Charge === 6 || $this->Charge === 7) ? 'inline-block' : 'none';
+      if ($this->ReceivedReady === 1) {
+        $readyChecked = 'checked';
+        $readyNote = 'inline-block';
+        $readyDate = 'none';
+      } else {
+        $readyChecked = '';
+        $readyNote = 'none';
+        $readyDate = 'inline-block';
+      }
 
       $emailConfirm0 = $emailConfirm1 = $emailConfirm2 = $emailConfirm3 =
       $emailConfirm4 = $emailConfirm5 = $emailConfirm6 = $emailConfirm7 = '';
@@ -3021,6 +3073,14 @@
                         <label for=\"requestedBy{$this->ticket_index}\">Requested By:</label>
                         <input type=\"text\" name=\"requestedBy\" id=\"requestedBy{$this->ticket_index}\" class=\"requestedBy\" value=\"{$this->RequestedBy}\" form=\"request{$this->ticket_index}\" required />
                       </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <label for=\"receivedReady{$this->ticket_index}\">Ready: <input type=\"checkbox\" name=\"receivedReady\" id=\"receivedReady{$this->ticket_index}\" class=\"receivedReady\" value=\"1\" form=\"request{$this->ticket_index}\" {$readyChecked} /></label>
+                        <p class=\"readyNote\" style=\"display:{$readyNote}\">Now</p>
+                        <input type=\"dateTime-local\" name=\"readyDate\" class=\"readyDate\" style=\"display:{$readyDate}\" value=\"{$this->ReadyDate}\" form=\"request{$this->ticket_index}\" />
+                      </td>
+                      <td></td>
                     </tr>
                   </table>
                 </fieldset>
@@ -3499,7 +3559,7 @@
           break;
       }
       // Define the display for signature request
-      $sigReqTemp = array();
+      $sigReqTemp = [];
       if ($this->pSigReq === 1) {
         $sigReqTemp[] = 'On Pick Up';
       }
@@ -3576,17 +3636,27 @@
       <input type="hidden" name="address2" class="address2" value="' . htmlentities($this->dAddress1 . ' ' . $this->dAddress2, ENT_QUOTES) . '" form="coordinates" />
       <input type="hidden" name="center" class="center" value="' . htmlentities(json_encode($this->center)) . '" form="coordinates" />';
       $displayDryIce = ($this->options['displayDryIce'] === true) ? '' : 'class="hide"';
+      if ($this->ReceivedReady == 1) {
+        $ready = 'Now';
+      } else {
+        try {
+          $temp = new \dateTime($this->ReadyDate);
+          $ready = $temp->format('d M Y \a\t g:i a');
+        } catch(Exception $e) {
+          $ready = "Unavailable<span class=\"hide\">{$e->getMessage()}</span>";
+        }
+      }
       $output .= "
         <table class=\"ticketContainer\">
           <thead>
             <tr {$displayDryIce}>
-              <td colspan=\"2\"><span class=\"bold\">Dry Ice:</span>{$this->number_format_drop_zero_decimals($this->diWeight, 3)}{$this->weightMarker} {$iceChargeDisplay}</td>
+              <td colspan=\"2\"><span class=\"bold\">Dry Ice: </span>{$this->number_format_drop_zero_decimals($this->diWeight, 3)}{$this->weightMarker} {$iceChargeDisplay}</td>
             </tr>
             <tr>
-              <td colspan=\"2\"><span class=\"bold\">Requested By:</span>{$this->RequestedBy}</td>
+              <td colspan=\"2\"><span class=\"bold\">Requested By: </span>{$this->RequestedBy}</td>
             </tr>
             <tr>
-              <td colspan=\"2\"><span class=\"bold\">Email Address:</span>{$this->EmailAddress}</td>
+              <td colspan=\"2\"><span class=\"bold\">Email Address: </span>{$this->EmailAddress}</td>
             </tr>
             <tr>
               <td colspan=\"2\"><span class=\"bold\">Email Confirmation: </span>{$emailAnswer}</td>
@@ -3595,6 +3665,9 @@
             </tr>
             <tr>
               <td colspan=\"2\">{$ticketPriceDisplay} {$totalPriceDisplay}</td>
+            </tr>
+            <tr>
+              <td colspan=\"2\"><span class=\"bold\">Ready: </span> {$ready}</td>
             </tr>
             <tr>
               <td colspan=\"2\"><span class=\"bold\">Notes: </span>{$this->Notes}</td>
@@ -3723,7 +3796,7 @@
       if ($this->updateTicket === true) {
         // Do /not/ display the ticket if new transfer is processed
         $regen = true;
-        $payload = array();
+        $payload = [];
         foreach ($this as $key => $value) {
           if (in_array($key, $this->updateTicketDatabaseKeys) && in_array(lcfirst($key), $this->postKeys)) {
             if ($key === 'Transfers' && $value != false) {
@@ -3796,6 +3869,9 @@
       $this->ReceivedDate = ($this->ReceivedDate === null || $this->ReceivedDate === '') ?
       $this->now->format('Y-m-d H:i:s') : $this->ReceivedDate;
 
+      $this->ReadyDate = ($this->ReadyDate === null || $this->ReadyDate === '') ?
+      $this->now->format('Y-m-d H:i:s') : $this->ReadyDate;
+
       if ($this->DispatchedTo != 0) {
         $this->DispatchTimeStamp = ($this->DispatchTimeStamp === null || $this->DispatchTimeStamp === '') ?
         $this->ReceivedDate : $this->DispatchTimeStamp;
@@ -3842,7 +3918,7 @@
     public function processRouteTicket()
     {
       // multiTicket data has come from the database and doesn't require sanitizing
-      $tempTickets = $crun_index_list = array();
+      $tempTickets = $crun_index_list = [];
       // test each tickets number for uniqueness and solve for price
       $this->mapAvailable = false;
       $this->processingRoute = true;
@@ -3908,7 +3984,7 @@
       $updateLastCompletedDateData['method'] = 'PUT';
       $updateLastCompletedDateData['queryParams'] = [];
       $updateLastCompletedDateData['primaryKey'] = implode(',', $crun_index_list);
-      $updateLastCompletedDateData['payload'] = array();
+      $updateLastCompletedDateData['payload'] = [];
       for ($i = 0; $i < count($crun_index_list); $i++) {
         $newObj = new \stdClass();
         $newObj->LastCompleted = $this->now->format('Y-m-d');
@@ -3942,7 +4018,7 @@
     public function updateTicketProperty()
     {
       if ($this->multiTicket !== null) {
-        $tempIndex = array();
+        $tempIndex = [];
         for ($i = 0; $i < count($this->multiTicket); $i++) {
           foreach ($this->multiTicket[$i] as $key => $value) {
             if ($key === 'ticket_index') $tempIndex[] = (int)$value;
@@ -3993,7 +4069,7 @@
     public function stepTicket()
     {
       if ($this->multiTicket !== null) {
-        $tempIndex = array();
+        $tempIndex = [];
         for ($i = 0; $i < count($this->multiTicket); $i++) {
           foreach ($this->multiTicket[$i] as $key => $value) {
             if ($key === 'ticket_index') $tempIndex[] = (int)$value;
@@ -4076,7 +4152,16 @@
             $micro_date = microtime();
             $date_array = explode(" ",$micro_date);
             $this->DispatchMicroTime = substr($date_array[0], 1, 7);
-            $ticketUpdateData['payload'] = [ 'DispatchTimeStamp'=>$this->DispatchTimeStamp, 'DispatchMicroTime'=>$this->DispatchMicroTime, 'DispatchedTo'=>$this->DispatchedTo, 'DispatchedBy'=>$this->DispatchedBy ];
+            if (!$this->ReadyDate) {
+              $this->ReadyDate = $this->DispatchTimeStamp;
+            }
+            $ticketUpdateData['payload'] = [
+              'ReadyDate'=>$this->ReadyDate,
+              'DispatchTimeStamp'=>$this->DispatchTimeStamp,
+              'DispatchMicroTime'=>$this->DispatchMicroTime,
+              'DispatchedTo'=>$this->DispatchedTo,
+              'DispatchedBy'=>$this->DispatchedBy
+            ];
             $this->stepMarker = 'Dispatched';
             break;
           default:

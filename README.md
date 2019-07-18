@@ -803,6 +803,10 @@ __Note__: The above order is overriding. Canceling a run on a given date superse
 
 A call is made to fetch incomplete routine and round trip contract tickets. If this result is empty a call is made to check if any contract tickets were created for the driver on the current day.
 
+Multiple tickets with the same location and scheduled step time will be grouped together.
+
+A ` span.timing ` element is added to each ` div.sortable ` for use by javascript to order tickets based on their ` ReadyDate ` and ` step `.
+
 Returns HTML content.
 
 ```php
@@ -856,7 +860,7 @@ The ` invoiceQueryResult ` property is an indexed array of invoice datasets used
 $invoice->regenInvoice();
 ```
 
-Uses the data provided in ` invoiceQueryResult ` to displays invoice.
+Uses the data provided in ` invoiceQueryResult ` to display an invoice.
 
 If [dompdf](https://github.com/dompdf/dompdf) is detected a button will be added to display/download the invoice as a pdf.
 

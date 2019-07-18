@@ -197,6 +197,7 @@
       ];
 
       $ticketQueryData['queryParams']['filter'] = [ $roundTripFilter, $routineFilter ];
+      $ticketQueryData['queryParams']['order'] = [ 'pTimeStamp' ];
 
       if (!$ticketQuery = self::createQuery($ticketQueryData)) {
         $temp = $this->error . "\n";
@@ -874,11 +875,14 @@
     {
       $data['multiTicket'] = [];
       foreach ($this->newTickets as $newTicket) {
+        $newTicket['ReadyDate'] = "{$this->dateObject->format('Y-m-d')} {$newTicket['pTime']}";
         $micro_date = microtime();
         $date_array = explode(' ',$micro_date);
         $newTicket['TicketNumber'] = $newTicket['RunNumber'] . $this->dateObject->format('m') . '00';
         $newTicket['Contract'] = 1;
-        $newTicket['DispatchTimeStamp'] = $newTicket['ReceivedDate'] = $this->dateObject->format('Y-m-d H:i:s');
+        $newTicket['DispatchTimeStamp'] =
+          $newTicket['ReceivedDate'] =
+          $this->dateObject->format('Y-m-d H:i:s');
         $newTicket['DispatchMicroTime'] = substr($date_array[0], 1, 7);
         $newTicket['DispatchedTo'] = $this->driverID;
         $newTicket['DispatchedBy'] = '1.1';
@@ -930,17 +934,31 @@
       // Set new keys 1) using client name, department, address1, and schedule time for grouping tickets,
       // 2) indicating what step the ticket is on to ease processing.
       foreach ($this->activeTicketSet as $ticket) {
+        $readyObj = new \dateTime($ticket['ReadyDate']);
         if ($ticket['pTimeStamp'] === $this->tTest) {
-          $ticket['locationTest'] = "{$ticket['pClient']} {$ticket['pDepartment']} {$ticket['pAddress1']} {$ticket['pTime']}";
+          $ticket['locationTest'] =
+            "{$ticket['pClient']}{$ticket['pDepartment']}{$ticket['pAddress1']}{$readyObj->format('Y-m-dH:ia')}";
           $ticket['step'] = 'pickedUp';
           self::sortTickets($ticket);
         } elseif ($ticket['pTimeStamp'] !== $this->tTest && $ticket['dTimeStamp'] === $this->tTest) {
-          $ticket['locationTest'] = "{$ticket['dClient']} {$ticket['dDepartment']} {$ticket['dAddress1']} {$ticket['dTime']}";
+          $dTimeArray = explode(':', $ticket['dTime']);
+          $readyObj->setTime($dTimeArray[0], $dTimeArray[1], $dTimeArray[2]);
+          if ($ticket['pTime'] > $ticket['dTime']) {
+            $readyObj->modify('+ 1 day');
+          }
+          $ticket['locationTest'] =
+            "{$ticket['dClient']}{$ticket['dDepartment']}{$ticket['dAddress1']}{$readyObj->format('Y-m-dH:ia')}";
           $ticket['step'] = 'delivered';
           self::sortTickets($ticket);
         } elseif ($ticket['pTimeStamp'] !== $this->tTest && $ticket['dTimeStamp'] !== $this->tTest) {
           // Non round trip tickets with dTimeStamp !== $tTest will not have been returned from the database. No need to test the charge code.
-          $ticket['locationTest'] = "{$ticket['pClient']} {$ticket['pDepartment']} {$ticket['pAddress1']} {$ticket['d2Time']}";
+          $d2TimeArray = explode(':', $ticket['d2Time']);
+          $readyObj->setTime($d2TimeArray[0], $d2TimeArray[1], $d2TimeArray[2]);
+          if ($ticket['dTime'] > $ticket['d2Time']) {
+            $readyObj->modify('+ 1 day');
+          }
+          $ticket['locationTest'] =
+            "{$ticket['pClient']}{$ticket['pDepartment']}{$ticket['pAddress1']}{$readyObj->format('Y-m-dH:ia')}";
           $ticket['step'] = 'returned';
           self::sortTickets($ticket);
         }

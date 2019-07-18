@@ -56,10 +56,13 @@
     protected $loggingError = false;
     protected $error = '';
     protected $postKeys;
+    protected $paperFormat;
+    protected $paperOrientation;
     private $ints = [ 'dryIce', 'DryIce', 'diWeight', 'fromMe', 'toMe', 'charge', 'Charge', 'type', 'Type', 'contract',
       'Contract', 'DispatchedTo', 'emailConfirm', 'EmailConfirm', 'pSigReq', 'dSigReq', 'd2SigReq', 'repeatClient',
       'RepeatClient', 'ticketNumber', 'TicketNumber', 'sigType', 'PriceOverride', 'RunNumber', 'holder', 'receiver',
-      'TransferState', 'ClientID', 'Organization', 'ListBy', 'same', 'Closed', 'Deleted'
+      'TransferState', 'ClientID', 'Organization', 'ListBy', 'same', 'Closed', 'Deleted', 'receivedReady',
+      'ReceivedReady'
     ];
     // Properties that should always be floats
     private $floats = [ 'diPrice', 'TicketBase', 'RunPrice', 'TicketPrice', 'Multiplier', 'timestamp', 'lat',' lng',
@@ -90,7 +93,7 @@
     protected $nullable = [ 'pTimeStamp', 'dTimeStamp', 'd2TimeStamp', 'Department', 'Contact', 'Telephone', 'pTime',
       'dTime', 'd2Time', 'Notes', 'LastName', 'EmailAddress', 'LastSeen', 'Attention', 'RequestedBy', 'pDepartment',
       'pContact', 'pTelephone', 'dDepartment', 'dContact', 'dTelephone', 'pSigPrint', 'pSig', 'dSigPrint', 'dSig',
-      'd2SigPrint', 'd2Sig', 'DispatchTimeStamp', 'Transfers', 'DatePaid', 'Late30Invoice', 'Late30Value',
+      'd2SigPrint', 'd2Sig', 'ReadyDate', 'DispatchTimeStamp', 'Transfers', 'DatePaid', 'Late30Invoice', 'Late30Value',
       'Late60Invoice', 'Late60Value', 'Late90Invoice', 'Late90Value', 'Over90Invoice', 'Over90Value', 'CheckNumber',
       'pLat', 'pLng', 'dLat', 'dLng', 'd2Lat', 'd2Lng', 'latitude', 'longitude'
     ];
