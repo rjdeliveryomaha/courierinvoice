@@ -2940,21 +2940,21 @@
               <table class=\"centerDiv\">
                 <tr>
                   <td>
-                    <label for=\"dispatchTimeStamp{$this->ticket_index}\">Dispatch Time:</label>
+                    <label for=\"dispatchTimeStamp{$this->ticket_index}\">Dispatch:</label>
                     <input type=\"datetime-local\" name=\"dispatchTimeStamp\" id=\"dispatchTimeStamp{$this->ticket_index}\" value=\"{$dispatchTimeStamp}\" step=\"1\" />
                   </td>
                   <td>
-                    <label for=\"pTimeStamp{$this->ticket_index}\">Pickup Time:</label>
+                    <label for=\"pTimeStamp{$this->ticket_index}\">Pickup:</label>
                     <input type=\"datetime-local\" name=\"pTimeStamp\" id=\"pTimeStamp{$this->ticket_index}\" value=\"{$pTimeStamp}\" step=\"1\" />
                   </td>
                 </tr>
                 <tr>
                   <td>
-                    <label for=\"dTimeStamp{$this->ticket_index}\">Delivery Time:</label>
+                    <label for=\"dTimeStamp{$this->ticket_index}\">Delivery:</label>
                     <input type=\"datetime-local\" name=\"dTimeStamp\" id=\"dTimeStamp{$this->ticket_index}\" value=\"{$dTimeStamp}\" step=\"1\" /></td>
                   </td>
                   <td>
-                    <label for=\"d2TimeStamp{$this->ticket_index}\">Return Time:</label>
+                    <label for=\"d2TimeStamp{$this->ticket_index}\">Return:</label>
                     <input type=\"datetime-local\" name=\"d2TimeStamp\" id=\"d2TimeStamp{$this->ticket_index}\" value=\"{$d2TimeStamp}\" step=\"1\" {$d2TimeStampDisabled} /></td>
                   </td>
                 </tr>
