@@ -259,7 +259,15 @@
             return $this->{$property} = self::test_bool($value);
           }
         } else {
-          $value = (is_array($value)) ? self::recursive_santizer($value) : self::test_input($value);
+          if (is_array($value)) {
+            $value = self::recursive_santizer($value);
+          } else {
+            if (in_array($property, $this->nullable)) {
+              $value = ($value === '' || $value === null) ? null : self::test_input($value);
+            } else {
+              $value = self::test_input($value);
+            }
+          }
           return $this->{$property} = $value;
         }
       }
