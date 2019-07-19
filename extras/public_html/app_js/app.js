@@ -2798,7 +2798,7 @@
           let parser = new DOMParser(),
             newDom = parser.parseFromString(data, "text/html"),
             docFrag = document.createDocumentFragment();
-          Array.from(workspace.querySelectorAll("table:first-of-type, button.ticketEditor")).forEach(element => {
+          Array.from(workspace.querySelectorAll("table, hr, button.ticketEditor")).forEach(element => {
             element.classList.add("hide");
           });
           Array.from(newDom.querySelectorAll("datalist, div")).forEach(element => {
@@ -3059,7 +3059,7 @@
     if (workspace.querySelector(".cancelTicketEditor")) {
       workspace.querySelector(".cancelTicketEditor").addEventListener("click", eve => {
         workspace.removeChild(workspace.querySelector(".removableByEditor"));
-        Array.from(workspace.querySelectorAll("table.hide, button.hide")).forEach(element => {
+        Array.from(workspace.querySelectorAll("table.hide, hr.hide, button.hide")).forEach(element => {
           element.classList.remove("hide");
         })
       });

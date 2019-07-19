@@ -714,17 +714,30 @@ label {
   margin-bottom: 1rem;
 }
 
-#tickets > table,
-.tickets > table {
+.tickets {
   table-layout: fixed;
-  margin: 0 auto;
+  margin: 0 auto 1rem auto;
   border: 0.1rem solid black;
   border-collapse: separate;
-  width: 90%;
+
 }
 
-.tickets > table table {
+.tickets > table {
   border: none;
+}
+
+.tFieldRight {
+  position: relative;
+  float: right;
+  width:50%;
+  clear: right;
+}
+
+.tFieldLeft {
+  position: relative;
+  float: left;
+  width:50%;
+  clear: left;
 }
 
 .billing td:nth-child(odd) {
@@ -735,7 +748,6 @@ label {
   padding-left: 2%;
 }
 
-#tickets fieldset,
 .tickets fieldset {
   padding: 0;
 }
@@ -763,7 +775,7 @@ label {
 }
 
 .regenBilling td {
-  padding-left: 20%;
+  padding-left: 10%;
 }
 
 .ticketContainer {
@@ -1276,6 +1288,7 @@ label {
 }
 
 .barContainer {
+  width: 5rem;
   /* text-align: center; */
   border: solid 0.125rem #e1e1e1;
   border-bottom: none;
@@ -1460,6 +1473,8 @@ label {
   }
   fieldset[id^="timing"] > table > tbody > tr > td,
   fieldset[id^="information"] > table > tbody > tr > td,
+  .deliveryInfo > td,
+  .iceAndNotes > td,
   .criteria,
   .PWform,
   #clientUpdate,

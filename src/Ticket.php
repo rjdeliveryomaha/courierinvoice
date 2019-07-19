@@ -1319,15 +1319,33 @@
           $this->driverDatalist .= "<option value=\"{$driverName}\">{$driverName}</option>";
         }
         $this->driverDatalist .= '</datalist>';
-        $hideTableHead = 'class="hide"';
+        $hideTableHead = 'hide';
       }
-      if ($this->ticketEditor === true) $hideTableHead = 'class="hide"';
+      $ticketType = ($this->Contract === 1) ? 'Contract' : 'On Call';
+      if ($this->ticketEditor === true) $hideTableHead = 'hide';
       try {
         $rDate = new \dateTime($this->ReceivedDate, $this->timezone);
         $rDateDisplay = $rDate->format('d M Y \a\t g:i A');
 	    } catch (Exception $e) {
         $rDateDisplay = 'Not Available<span class="hide">Error: ' . $e->getMessage() . '</span>';
 	    }
+      if ($this->ReadyDate === null) $this->ReadyDate = $this->ReceivedDate;
+      try {
+        $ready = new \dateTime($this->ReadyDate, $this->timezone);
+        $readyDisplay = $ready->format('d M Y \a\t g:i A');
+	    } catch (Exception $e) {
+        $readyDisplay = 'Not Available<span class="hide">Error: ' . $e->getMessage() . '</span>';
+	    }
+      if ($this->DispatchTimeStamp !== $this->tTest) {
+        try {
+          $pDate = new \dateTime($this->DispatchTimeStamp, $this->timezone);
+          $dispatchTimeDisplay = $pDate->format('d M Y \a\t g:i A');
+        } catch (Exception $e) {
+          $dispatchTimeDisplay = 'Not Available<span class="hide">Error: ' . $e->getMessage() . '</span>';
+        }
+      } else {
+        $dispatchTimeDisplay = 'Not Available<span class="hide">Error: None</span>';
+      }
       if ($this->pTimeStamp !== $this->tTest) {
         try {
           $pDate = new \dateTime($this->pTimeStamp, $this->timezone);
@@ -1397,89 +1415,119 @@
       } else {
         $billed = 'Not Billed';
       }
-      $answerIce = ($this->options['displayDryIce'] === true) ? "
-        <table class=\"wide\">
-          <thead>
-            <tr>
-              <th class=\"pullLeft\">Dry Ice:</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>&nbsp;</td>
-            </tr>
-            <tr>
-              <td class=\"center\">{$this->number_format_drop_zero_decimals($this->diWeight, 3)}{$this->weightMarker}</td>
-            </tr>
-            <tr>
-              <td>&nbsp;</td>
-            </tr>
-          </tbody>
-        </table>
-      " : '';
-      $answerIce2 = ($this->options['displayDryIce'] === true) ? "
-	        <td><span class=\"bold\">Dry Ice Price:</span> <span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>{$this->number_format_drop_zero_decimals($this->diPrice, 2)}</td>" : '<td></td>';
-      if (($this->Notes !== null && $this->Notes !== '') || $this->forDisatch === true) {
-        $readonlyNotes = ($this->forDisatch === true) ? "form=\"dispatchForm{$this->ticket_index}\"" : 'readonly';
-        $answerNotes = "
-          <table class=\"wide\">
-            <thead>
-              <tr>
-                <th class=\"pullLeft\">Notes:</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><textarea class=\"notes\" {$readonlyNotes} rows=\"3\">{$this->Notes}</textarea></td>
-              </tr>
-            </tbody>
-  	      </table>
-          ";
+      $iceAndNotes = '';
+      $readonlyNotes = ($this->forDisatch === true) ? "form=\"dispatchForm{$this->ticket_index}\"" : 'readonly';
+      if ($this->options['displayDryIce'] === true) {
+        $cSym = "<span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>";
+        $diPrice = (is_numeric($this->ulevel)) ?
+          $cSym . self::number_format_drop_zero_decimals($this->diPrice, 2) : '';
+        $diWeight = self::number_format_drop_zero_decimals($this->diWeight, 3);
+        $iceAndNotes .= "<table style=\"width: 25%;\" class=\"tFieldLeft\">
+              <thead>
+                <tr class=\"pullLeft\">
+                  <th>Dry Ice</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>&nbsp;</td>
+                </tr>
+                <tr>
+                  <td class=\"center\">
+                    {$diWeight}{$this->weightMarker} {$diPrice}
+                  </td>
+                </tr>
+                <tr>
+                  <td>&nbsp;</td>
+                </tr>
+              </tbody>
+            </table>
+            <table style=\"width: 75%;\">
+              <thead>
+                <tr>
+                  <th class=\"pullLeft\">Notes:</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><textarea class=\"notes\" {$readonlyNotes} rows=\"3\">{$this->Notes}</textarea></td>
+                </tr>
+              </tbody>
+            </table>";
       } else {
-        $answerNotes = '
-          <table class="wide">
-            <thead>
-              <tr>
-                <th class="pullLeft">Notes</th>
-               </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>&nbsp;</td>
-              </tr>
-              <tr>
-                <td>&nbsp;</td>
-              </tr>
-              <tr>
-                <td>&nbsp;</td>
-              </tr>
-            </tbody>
-  	      </table>
-          ';
+        $iceAndNotes .= "<table class=\"tFieldRight\">
+              <thead>
+                <tr>
+                  <th class=\"pullLeft\">Notes:</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><textarea class=\"notes\" {$readonlyNotes} rows=\"3\">{$this->Notes}</textarea></td>
+                </tr>
+              </tbody>
+            </table>";
       }
-      $answerContract1 = $answerContract2 = '';
-      if ($this->Contract == 1) {
-        $answerContract1 = '
-	        <span class="bold">Repeats:</span>  ';
-        $answerContract2 = (float)$this->Multiplier;
-		  }
-      $runPrice1 = $runPrice2 = '';
-      if ($this->dryIce == 1 || $this->Contract == 1) {
-        $runPrice1 = '
-	        <span class="bold">Run Price:</span>
-          ';
-        $runPrice2 = "
+      $iceAndNotes .= '
+          </tr>
+        </table>';
+      $priceDisplay = '';
+      if ($this->Contract === 1) {
+        $priceDisplay .= "
+              <tr class=\"{$hideTableHead}\">
+                <td><span class=\"bold\">Repeats:</span> {$this->Multiplier}</td>
+                <td>
+                  <span class=\"bold\">Ticket Base:</span>
+                  <span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>{$this->TicketBase}
+                </td>
+              </tr>";
+      }
+      $runPrice = "
 		      <span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>{$this->number_format_drop_zero_decimals($this->RunPrice, 2)}";
-          // Reset the run price display if this is an incomplete dedicated run
-          if ($this->Charge === 7 && (($this->d2SigReq === 1 && $this->d2TimeStamp === $this->tTest) || ($this->d2SigReq === 0 && $this->dTimeStamp === $this->tTest))) {
-            $runPrice2 = 'Pending';
-          }
+      $ticketPrice = self::negParenth(self::number_format_drop_zero_decimals($this->TicketPrice, 2));
+      // Reset the run price display if this is an incomplete dedicated run
+      if (
+        $this->Charge === 7 &&
+        (($this->d2SigReq === 1 && $this->d2TimeStamp === $this->tTest) ||
+        ($this->d2SigReq === 0 && $this->dTimeStamp === $this->tTest))
+      ) {
+        $runPrice = $ticketPrice = 'Pending';
       }
-      // Set the ticket price display
-      $ticketPriceDisplay = "<span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>{$this->negParenth($this->TicketPrice)}";
-      // Reset the ticket price display if this is an incomplete dedicated run
-      if ($this->Charge === 7 && (($this->d2SigReq === 1 && $this->d2TimeStamp === $this->tTest) || ($this->d2SigReq === 0 && $this->dTimeStamp === $this->tTest))) {
-        $ticketPriceDisplay = 'Pending';
+      $currencySymbol = ($ticketPrice === 'Pending') ? '' :
+        "<span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>";
+      $priceDisplay = "<tr class=\"{$hideTableHead}\">
+              <td><span class=\"bold\">Run Price:</span> {$runPrice}</td>
+              <td>
+                <span class=\"bold\">Ticket Price:</span>
+                {$currencySymbol}{$ticketPrice}
+              </td>
+            </tr>";
+      $emailConfirm = '';
+      switch($this->EmailConfirm) {
+        case 0:
+          $emailConfirm = 'None';
+          break;
+        case 1:
+          $emailConfirm = 'On Pick Up';
+          break;
+        case 2:
+          $emailConfirm = 'On Delivery';
+          break;
+        case 3:
+          $emailConfirm = 'On Pick Up &amp; Delivery';
+          break;
+        case 4:
+          $emailConfirm = 'On Return';
+          break;
+        case 5:
+          $emailConfirm = 'On Pick Up &amp; Return';
+          break;
+        case 6:
+          $emailConfirm = 'On Delivery &amp; Return';
+          break;
+        case 7:
+          $emailConfirm = 'At Each Step';
+          break;
       }
       $pName = $this->pClient;
       $pName .= ($this->pDepartment == null) ? '<br>&nbsp;' : "<br>{$this->pDepartment}";
@@ -1534,164 +1582,131 @@
       $returnData =
         $this->driverDatalist .
         "<div class=\"tickets sortable\">
-        <table>
-          <tr {$hideTableHead}>
-            <td colspan=\"2\" class=\"center\"><span class=\"imageSpan floatLeft\">{$this->headerLogo2}</span><span class=\"ticketHeadAddress medium\">{$this->config['ShippingAddress1']}<br>{$this->config['ShippingAddress2']}<br><span class=\"{$this->countryClass}\">{$this->config['ShippingCountry']}</span></span><span class=\"floatRight\">{$this->config['Telephone']}</span></td>
-          </tr>
-          <tr>
-            <td>
-              <table class=\"regenBilling\">
-                <tr>
-                  <td><span class=\"bold\">Ticket Number:</span> <span class=\"tNumDisplay\">{$this->TicketNumber}</span></td>
-                </tr>
-                <tr {$hideTableHead}>
-                  <td><span class=\"bold\">Pick Up:</span> {$pTimeStampDispay}</td>
-                </tr>
-                <tr {$hideTableHead}>
-                  <td><span class=\"bold\">Return:</span> {$d2TimeStampDisplay}</td>
-                </tr>
-                <tr>
-                  <td><span class=\"bold\">Requested By:</span> {$requestedByDisplay}</td>
-                </tr>
-                <tr>
-                  <td><span class=\"bold\">Charge:</span> {$this->ticketCharge($this->Charge)}</td>
-                </tr>
-                <tr>
-                  <td>{$this->dispatchForm}</td>
-                </tr>
-                <tr {$hideTableHead}>
-                  <td>{$runPrice1} {$runPrice2}</td>
-                </tr>
-                <tr>
-                  <td></td>
-                </tr>
-              </table>
-            </td>
-            <td>
-              <table class=\"regenBilling\">
-                <tr>
-                  <td><span class=\"bold\">Received:</span> {$rDateDisplay}</td>
-                </tr>
-                <tr {$hideTableHead}>
-                  <td><span class=\"bold\">Drop Off:</span> {$dTimeStampDisplay}</td>
-                </tr>
-                <tr {$hideTableHead}>
-                  <td><span class=\"bold\">Invoice:</span> {$billed}</td>
-                </tr>
-                <tr {$hideTableHead}>
-                  <td>{$answerContract1} {$answerContract2}</td>
-                </tr>
-                <tr {$hideTableHead}>
-                  <td><span class=\"bold\">Email Address:</span> {$this->EmailAddress}</td>
-                </tr>
-                <tr {$hideTableHead}>
-                  {$answerIce2}
-                </tr>
-                <tr {$hideTableHead}>
-                  <td>
-                    <span class=\"bold\">Ticket Price:</span>
-                    <span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>
-                    {$this->negParenth($this->number_format_drop_zero_decimals($this->TicketPrice, 2))}
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-          <tr>
-            <td colspan=\"2\"><hr></td>
-          </tr>
-          <tr>
-            <td>
-              <table class=\"wide\">
-                <tr>
-                  <th colspan=\"2\" class=\"pullLeft\">Pick Up</th>
-                </tr>
-              <tr>
-                <td class=\"ticketSpace\"></td>
-                <td class=\"pullLeft\">{$this->decode($pName)}</td>
-              </tr>
-              <tr>
-                <td class=\"ticketSpace\"></td>
-                <td class=\"pullLeft\">
-                  {$this->decode($this->pAddress1)}<br>
-                  {$this->decode($this->pAddress2)}<br>
-                  <span class=\"{$this->countryClass}\">{$this->countryFromAbbr($this->pCountry)}</span>
-                </td>
-              </tr>
-              <tr>
-                <td class=\"ticketSpace pullRight\">Attn:</td>
-                <td class=\"pullLeft\">{$this->pContact}</td>
-              </tr>
-              <tr>
-                <td class=\"ticketSpace\"></td>
-                <td class=\"pullLeft\">{$this->pTelephone}</td>
-              </tr>
-            </table>
-          </td>
-          <td>
-            <table class=\"wide\">
-              <tr>
-                <th colspan=\"2\" class=\"pullLeft\">Delivery</th>
-              </tr>
-              <tr>
-                <td class=\"ticketSpace\"></td>
-                <td class=\"pullLeft\">{$this->decode($dName)}</td>
-              </tr>
-              <tr>
-                <td class=\"ticketSpace\"></td>
-                <td class=\"pullLeft\">
-                  {$this->decode($this->dAddress1)}<br>
-                  {$this->decode($this->dAddress2)}<br>
-                  <span class=\"{$this->countryClass}\">{$this->countryFromAbbr($this->dCountry)}</span>
-                </td>
-              </tr>
-              <tr>
-                <td class=\"ticketSpace pullRight\">Attn:</td>
-                <td class=\"pullLeft\">{$this->dContact}</td>
-              </tr>
-              <tr>
-                <td class=\"ticketSpace\"></td>
-                <td class=\"pullLeft\">{$this->dTelephone}</td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-        <tr>
-          <td colspan=\"2\"><hr></td>
-        </tr>
-        <tr>
-          <td>
-            {$answerIce}
-          </td>
-          <td>
-            {$answerNotes}
-          </td>
-        </tr>
-        <tr>
-          <td colspan=\"2\"><hr></td>
-        </tr>
-        <tr {$hideTableHead}>
-          <td colspan=\"2\">
-            <table class=\"wide sigTable\">
-              {$pSigDisplay} {$dSigDisplay} {$d2SigDisplay}
-            </table>
-          </td>
-        </tr>
-        <tr>
-          <td colspan=\"2\">
-            <fieldset>
-              <legend>Coordinates</legend>
-              <table class=\"wide\">
-                <tr>
-                  <td class=\"center\"><span class=\"bold line\">Pick Up</span> {$pLoc}</td>
-                  <td class=\"center\"><span class=\"bold line\">Delivery</span> {$dLoc}</td>
-                  <td class=\"center\"><span class=\"bold line\">Return</span> {$d2Loc}</td>
-                </tr>
-              </table>
-            </fieldset>
-          </td>
-        </tr>
-      </table>";
+          <p class=\"center {$hideTableHead}\">
+            <span class=\"imageSpan floatLeft\">{$this->headerLogo2}</span>
+            <span class=\"ticketHeadAddress medium\">{$this->config['ShippingAddress1']}<br>
+            {$this->config['ShippingAddress2']}<br>
+            <span class=\"{$this->countryClass}\">{$this->config['ShippingCountry']}</span></span>
+            <span class=\"floatRight\">{$this->config['Telephone']}</span>
+          </p>
+          <table class=\"regenBilling\">
+            <tr>
+              <td>
+                <span class=\"bold\">Ticket Number:</span> <span class=\"tNumDisplay\">{$this->TicketNumber}</span>
+              </td>
+              <td>{$ticketType}</td>
+            </tr>
+            <tr>
+              <td><span class=\"bold\">Requested By:</span> {$requestedByDisplay}</td>
+              <td><span class=\"bold\">Charge:</span> {$this->ticketCharge($this->Charge)}</td>
+            </tr>
+            {$priceDisplay}
+            <tr class=\"{$hideTableHead}\">
+              <td><span class=\"bold\">Confirmation:</span> {$emailConfirm}</td>
+              <td><span class=\"bold\">Email Address:</span> {$this->EmailAddress}</td>
+            </tr>
+            <tr>
+              <td><span class=\"bold\">Received:</span> {$rDateDisplay}</td>
+              <td><span class=\"bold\">Ready:</span> {$readyDisplay}</td>
+            </tr>
+            <tr class=\"{$hideTableHead}\">
+              <td><span class=\"bold\">Dispatch:</span> {$dispatchTimeDisplay}</td>
+              <td><span class=\"bold\">Pick Up:</span> {$pTimeStampDispay}</td>
+            </tr>
+            <tr class=\"{$hideTableHead}\">
+              <td><span class=\"bold\">Drop Off:</span> {$dTimeStampDisplay}</td>
+              <td><span class=\"bold\">Return:</span> {$d2TimeStampDisplay}</td>
+            </tr>
+            <tr>
+              <td>{$this->dispatchForm}</td>
+              <td class=\"{$hideTableHead}\"><span class=\"bold\">Invoice:</span> {$billed}</td>
+            </tr>
+          </table>
+          <hr>
+          <table class=\"wide\">
+            <tr>
+              <td>
+                <table class=\"wide\">
+                  <tr>
+                    <th colspan=\"2\" class=\"pullLeft\">Pick Up</th>
+                  </tr>
+                  <tr>
+                    <td class=\"ticketSpace\"></td>
+                    <td class=\"pullLeft\">{$this->decode($pName)}</td>
+                  </tr>
+                  <tr>
+                    <td class=\"ticketSpace\"></td>
+                    <td class=\"pullLeft\">
+                      {$this->decode($this->pAddress1)}<br>
+                      {$this->decode($this->pAddress2)}<br>
+                      <span class=\"{$this->countryClass}\">{$this->countryFromAbbr($this->pCountry)}</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class=\"ticketSpace pullRight\">Attn:</td>
+                    <td class=\"pullLeft\">{$this->pContact}</td>
+                  </tr>
+                  <tr>
+                    <td class=\"ticketSpace\"></td>
+                    <td class=\"pullLeft\">{$this->pTelephone}</td>
+                  </tr>
+                </table>
+              </td>
+              <td>
+                <table class=\"wide\">
+                  <tr>
+                    <th colspan=\"2\" class=\"pullLeft\">Delivery</th>
+                  </tr>
+                  <tr>
+                    <td class=\"ticketSpace\"></td>
+                    <td class=\"pullLeft\">{$this->decode($dName)}</td>
+                  </tr>
+                  <tr>
+                    <td class=\"ticketSpace\"></td>
+                    <td class=\"pullLeft\">
+                      {$this->decode($this->dAddress1)}<br>
+                      {$this->decode($this->dAddress2)}<br>
+                      <span class=\"{$this->countryClass}\">{$this->countryFromAbbr($this->dCountry)}</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class=\"ticketSpace pullRight\">Attn:</td>
+                    <td class=\"pullLeft\">{$this->dContact}</td>
+                  </tr>
+                  <tr>
+                    <td class=\"ticketSpace\"></td>
+                    <td class=\"pullLeft\">{$this->dTelephone}</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+          <hr>
+          {$iceAndNotes}
+          <hr>
+          <table class=\"wide {$hideTableHead}\">
+            <tr>
+              <td colspan=\"2\">
+                <table class=\"wide sigTable\">
+                  {$pSigDisplay} {$dSigDisplay} {$d2SigDisplay}
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td colspan=\"2\">
+                <fieldset>
+                  <legend>Coordinates</legend>
+                  <table class=\"wide\">
+                    <tr>
+                      <td class=\"center\"><span class=\"bold line\">Pick Up</span> {$pLoc}</td>
+                      <td class=\"center\"><span class=\"bold line\">Delivery</span> {$dLoc}</td>
+                      <td class=\"center\"><span class=\"bold line\">Return</span> {$d2Loc}</td>
+                    </tr>
+                  </table>
+                </fieldset>
+              </td>
+            </tr>
+          </table>";
       if ($this->ticketEditor === true) $returnData .= "
       <button type=\"button\" class=\"ticketEditor\" data-contract=\"{$this->Contract}\" data-index=\"{$this->ticket_index}\">Edit Ticket</button>";
     $returnData .= '
@@ -1711,7 +1726,7 @@
         if ($this->DispatchTimeStamp === $this->tTest) {
           return false;
         }
-        // Set the completion deadline based on the ready date and charge
+        // Set the completion deadline based on the dispatch time stamp and charge
         switch ($this->Charge) {
           case 1:
           case 2:
@@ -3087,7 +3102,7 @@
               </td>
             </tr>
             {$timing}
-            <tr>
+            <tr class=\"deliveryInfo\">
               <td>
                 <fieldset form=\"request{$this->ticket_index}\" id=\"pickupField{$this->ticket_index}\">
                   <legend>Pick Up</legend>
@@ -3253,7 +3268,7 @@
 	              </fieldset>
               </td>
             </tr>
-            <tr>
+            <tr class=\"iceAndNotes\">
             {$displayDryIce}
             </tr>
             <tr>
