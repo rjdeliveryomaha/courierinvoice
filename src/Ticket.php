@@ -1995,7 +1995,7 @@
             <tr>
               <td>{$this->pClient}</td>
               <td>
-                <a class=\"plain\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$pAddressEncoded}\">
+                <a class=\"plain addressLink\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$pAddressEncoded}\">
                   {$this->pAddress1}<br>{$this->pAddress2}
                 </a>
               </td>
@@ -2021,7 +2021,7 @@
             <tr>
               <td>{$this->dClient}</td>
               <td>
-                <a class=\"plain\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$dAddressEndoded}\">
+                <a class=\"plain addressLink\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$dAddressEndoded}\">
                   {$this->dAddress1}<br>{$this->dAddress2}
                 </a>
               </td>
@@ -2076,7 +2076,7 @@
             "{$this->multiTicket[0]->dAddress1}, {$this->multiTicket[0]->dAddress2}, {$this->multiTicket[0]->dCountry}"
           );
           $topAddress = "
-            <a class=\"plain\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$topAddressEncoded}\">
+            <a class=\"plain addressLink\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$topAddressEncoded}\">
               {$this->decode($this->multiTicket[0]->dAddress1)}<br>{$this->decode($this->multiTicket[0]->dAddress2)}
             </a>";
           $dTimeArray = explode(':', $this->multiTicket[0]->dTime);
@@ -2096,7 +2096,7 @@
             "{$this->multiTicket[0]->pAddress1}, {$this->multiTicket[0]->pAddress2}, {$this->multiTicket[0]->pCountry}"
           );
           $topAddress = "
-            <a class=\"plain\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$topAddressEncoded}\">
+            <a class=\"plain addressLink\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$topAddressEncoded}\">
               {$this->decode($this->multiTicket[0]->pAddress1)}<br>{$this->decode($this->multiTicket[0]->pAddress2)}
             </a>";
           switch ($this->multiTicket[0]->step) {
@@ -2152,7 +2152,7 @@
               "{$this->multiTicket[$i]->pAddress1}, {$this->multiTicket[$i]->pAddress2}, {$this->multiTicket[$i]->pCountry}"
             );
             $address = "
-              <a class=\"plain\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$addressEndoded}\">
+              <a class=\"plain addressLink\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$addressEndoded}\">
                 {$this->decode($this->multiTicket[$i]->pAddress1)}<br>{$this->decode($this->multiTicket[$i]->pAddress2)}
               </a>";
             $contact = ($this->multiTicket[$i]->dContact == null) ?
@@ -2182,7 +2182,7 @@
               "{$this->multiTicket[$i]->dAddress1}, {$this->multiTicket[$i]->dAddress2}, {$this->multiTicket[$i]->dCountry}"
             );
             $address = "
-              <a class=\"plain\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$addressEndoded}\">
+              <a class=\"plain addressLink\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$addressEndoded}\">
                 {$this->decode($this->multiTicket[$i]->dAddress1)}<br>{$this->decode($this->multiTicket[$i]->dAddress2)}
               </a>";
 

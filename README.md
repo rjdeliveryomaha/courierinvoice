@@ -536,11 +536,15 @@ echo $ticket->displaySingleTicket();
 
 Display single ticket for drivers.
 
+Addresses are displayed as ` a.addressLink ` that by default will open Google Maps searching the address in a new window.
+
 ```php
 echo $ticket->displayMultiTicket();
 ```
 
 Display groups of tickets with common pick up or drop off location and time.
+
+Addresses are displayed as ` a.addressLink ` that by default will open Google Maps searching the address in a new window.
 
 ```php
 echo $ticket->ticketsToDispatch();
