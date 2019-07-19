@@ -1550,12 +1550,12 @@
         }
         if ($this->$token !== null) {
           $fileType = "{$token}Type";
-          $showSig = '<img src="data:' . $this->$fileType . ';base64,' . base64_decode($this->$token) . '" height="100" width="375" />';
+          $base64_decode = 'base64_decode';
+          $showSig = "<img src=\"data:{$this->$fileType};base64,{$base64_decode($this->$token)}\" height=\"100\" width=\"375\" />";
         } else {
           $showSig = 'Image Not On File';
         }
         $tempProperty = $token.'Print';
-        $signer = $this->$tempProperty;
         $tokenSet[$token . 'Display'] = "
           <tr class=\"sigPrint\">
             <td colspan=\"2\" class=\"pullLeft\">{$label} Signed For By: {$this->$tempProperty}</td>
