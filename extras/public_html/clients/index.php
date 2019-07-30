@@ -14,15 +14,15 @@
   try {
     SecureSessionHandler::start_session($config);
   } catch (Exception $e) {
-    echo $e->getMessage();
-    exit;
+    echo "<p class=\"center\">{$e->getMessage()}</p>";
+    exit(header('refresh:5;url=logout'));
   }
   if (isset($_SESSION['error'])) exit(header('Location: logout'));
 
   try {
     $functions = new CommonFunctions($config, array());
   } catch(Exception $e) {
-    echo $e->getMessage();
+    echo "<p class=\"center\">{$e->getMessage()}</p>";
     exit(header('refresh:5;url=/'));
   }
   try {
