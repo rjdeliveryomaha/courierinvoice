@@ -40,6 +40,32 @@
 
     'clientAddressExceptions' => [],
 
+    'nonVATClients' => [],
+
+    'exepmtVATClients' => [],
+
+    'zeroVATClients' => [],
+
+    'exepmtDeliveryVATClients' => [],
+
+    'zeroDeliveryVATClients' => [],
+
+    'exepmtIceVATClients' => [],
+
+    'zeroIceVATClients' => [],
+
+    'client0DefaultVAT' => true,
+
+    'client0DefaultVATExceptions' => [],
+
+    'standardDeliveryVATdefault' => true,
+
+    'standardDeliveryVATdefaultExceptions' => [],
+
+    'standardIceVATdefault' => true,
+
+    'standardIceVATdefaultExceptions' => [],
+
     'ignoreValues' => [
       'none', 'test', 'billing correction', '-', 'multiple', 'fuel compensation', 'other charge'
     ],

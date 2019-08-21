@@ -163,6 +163,88 @@ Indexed array
 
 Addresses that should be ignored, for example, due to change of address.
 
+### nonVATClients
+
+Indexed array
+
+If ` ApplyVAT ` is set to 1 in in config clients in this setting will not have VAT applied.
+
+### exepmtVATClients
+
+Indexed array
+
+Client ID numbers always exempt from all VAT.
+
+### zeroVATClients
+
+Indexed array
+
+Client ID numbers always Zero-Rated on all VAT.
+
+### exepmtDeliveryVATClients
+
+Indexed array
+
+Client ID numbers always exempt from VAT on deliveries.
+
+### zeroDeliveryVATClients
+
+Indexed array
+
+Client ID numbers always Zero-Rated VAT on deliveries.
+
+### exepmtIceVATClients
+
+Indexed array
+
+Client ID numbers always exempt from VAT on dry ice.
+
+### zeroIceVATClients
+
+Indexed array
+
+Client ID numbers always Zero-Rated VAT on dry Ice.
+
+### client0DefaultVAT
+
+Boolean
+
+Indicates weather to use Client 0 or currently logged in client VAT rate.
+
+### client0DefaultVATExceptions
+
+Indexed array
+
+This array contains client ID numbers to exclude from client0DefaultVAT setting.
+
+If client0DefaultVAT is ` true ` these clients will use the VAT rate on file for them.
+
+If client0DefaultVAT is ` false ` these clients will use the VAT rate on file for client 0.
+
+### standardDeliveryVATdefault
+
+Boolean
+
+Indicates if the standard or reduced rate should be the default for delivery price.
+
+### standardDeliveryVATdefaultExceptions
+
+Indexed array
+
+Client ID numbers to exclude from standardDeliveryVATdefault setting.
+
+### standardIceVATdefault
+
+Boolean
+
+Indicates if the standard or reduced rate should be the default for dry ice price.
+
+### standardIceVATdefaultExceptions
+
+Indexed array
+
+Client ID numbers to exclude from standardIceVATdefault setting.
+
 ### ignoreValues
 
 Indexed array
