@@ -163,87 +163,47 @@ Indexed array
 
 Addresses that should be ignored, for example, due to change of address.
 
-### nonVATClients
+### deliveryVAT
 
 Indexed array
 
-If ` ApplyVAT ` is set to 1 in in config clients in this setting will not have VAT applied.
+By default, if the ` ApplyVAT ` setting in your Courier Invoice configuration is checked, the standard VAT rate for client 0 will be applied to all deliveries. This setting is for exceptions to that rule. Entries should be associative arrays with the keys ` clientID ` and ` VATtype ` ex:
 
-### exepmtVATClients
+```php
+[
+  [
+    'clientID' => 'all',
+    'VATtype' => 2
+  ]
+  [
+    'clientID' => 23,
+    'VATtype' => 5
+  ],
+  [
+    'clientID' => 't100',
+    'VATtype' => 0
+  ]
+]
+```
 
-Indexed array
+__VATtype values:__
+* 0: Not VAT-able
+* 1: Standard
+* 2: Reduced
+* 3: Client Standard
+* 4: Client Reduced
+* 5: Zero-Rated
+* 6: Exempt
 
-Client ID numbers always exempt from all VAT.
+If ` clientID ` of index 0 is set to 'all' the ` VATtype ` of index 0 will override the default.
 
-### zeroVATClients
+` VATtype ` will define the ticket property of the same name. The ticket property ` VATrate ` will then be pulled from either client 0 or the billed client or set to 0 as appropriate.
 
-Indexed array
+### iceVAT
 
-Client ID numbers always Zero-Rated on all VAT.
+See [deliveryVAT](https://github.com/rjdeliveryomaha/courierinvoice/tree/master/extras/includes#deliveryVAT).
 
-### exepmtDeliveryVATClients
-
-Indexed array
-
-Client ID numbers always exempt from VAT on deliveries.
-
-### zeroDeliveryVATClients
-
-Indexed array
-
-Client ID numbers always Zero-Rated VAT on deliveries.
-
-### exepmtIceVATClients
-
-Indexed array
-
-Client ID numbers always exempt from VAT on dry ice.
-
-### zeroIceVATClients
-
-Indexed array
-
-Client ID numbers always Zero-Rated VAT on dry Ice.
-
-### client0DefaultVAT
-
-Boolean
-
-Indicates weather to use Client 0 or currently logged in client VAT rate.
-
-### client0DefaultVATExceptions
-
-Indexed array
-
-This array contains client ID numbers to exclude from client0DefaultVAT setting.
-
-If client0DefaultVAT is ` true ` these clients will use the VAT rate on file for them.
-
-If client0DefaultVAT is ` false ` these clients will use the VAT rate on file for client 0.
-
-### standardDeliveryVATdefault
-
-Boolean
-
-Indicates if the standard or reduced rate should be the default for delivery price.
-
-### standardDeliveryVATdefaultExceptions
-
-Indexed array
-
-Client ID numbers to exclude from standardDeliveryVATdefault setting.
-
-### standardIceVATdefault
-
-Boolean
-
-Indicates if the standard or reduced rate should be the default for dry ice price.
-
-### standardIceVATdefaultExceptions
-
-Indexed array
-
-Client ID numbers to exclude from standardIceVATdefault setting.
+` VATtype ` will define the ticket property ` VATtypeIce `. The ticket property ` VATrateIce ` will then be pulled from either client 0 or the billed client or set to 0 as appropriate.
 
 ### ignoreValues
 
