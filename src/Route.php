@@ -172,10 +172,9 @@
         return self::getError();
       }
       // Check for active contract tickets
-      // Pull Round Trip ticket
       $ticketQueryData['endPoint'] = 'tickets';
       $ticketQueryData['method'] = 'GET';
-      // Pull RoundTrip tickets
+      // Pull RoundTrip tickets with null d2TimeStamp
       $roundTripFilter = [
         ['Resource'=>'NotForDispatch', 'Filter'=>'eq', 'Value'=>0],
         ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>1],
@@ -185,7 +184,7 @@
         ['Resource'=>'d2TimeStamp', 'Filter'=>'is'],
         ['Resource'=>'TransferState', 'Filter'=>'eq', 'Value'=>0]
       ];
-      // Pull Routine tickets
+      // Pull Routine tickets with null dTimeStamp
       $routineFilter = [
         ['Resource'=>'NotForDispatch', 'Filter'=>'eq', 'Value'=>0],
         ['Resource'=>'Contract', 'Filter'=>'eq', 'Value'=>1],
@@ -504,7 +503,10 @@
     private function fetchRunList()
     {
       $goodVals = [ 'Client', 'Department', 'Contact', 'Telephone', 'Address1', 'Address2', 'Country' ];
-      $runVals = [ 'DryIce', 'diWeight', 'Notes', 'PriceOverride', 'TicketPrice', 'RoundTrip' ];
+      $runVals = [
+        'DryIce', 'diWeight', 'Notes', 'PriceOverride', 'TicketPrice', 'RoundTrip', 'pSigReq', 'dSigReq', 'd2SigReq',
+        'VATable', 'VATrate', 'VATtype', 'VATableIce', 'VATrateIce', 'VATtypeIce'
+      ];
       $rescheduledQueryData['endPoint'] = 'schedule_override';
       $rescheduledQueryData['method'] = 'GET';
       $rescheduleFilter = [

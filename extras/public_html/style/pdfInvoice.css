@@ -143,6 +143,7 @@ p {
 }
 
 .invoiceBody td, .invoiceFoot td {
+  position: relative;
   margin: 0;
   padding: .063rem .313rem;
   border-style: solid;
@@ -169,6 +170,14 @@ p {
 .invoiceBody th, .invoiceBody td {
   font-family: Garamond, serif;
   font-size: .9rem;
+}
+
+.invoiceBody .vatNotice {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  font-size: 0.65rem;
 }
 
 #subTotalCell {

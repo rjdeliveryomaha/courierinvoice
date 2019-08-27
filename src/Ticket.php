@@ -54,6 +54,12 @@
     protected $Contract;
     protected $Multiplier;
     protected $RunPrice;
+    protected $VATable;
+    protected $VATrate;
+    protected $VATtype;
+    protected $VATableIce;
+    protected $VATrateIce;
+    protected $VATtypeIce;
     protected $TicketPrice;
     protected $Notes;
     protected $EmailConfirm;
@@ -135,6 +141,7 @@
     private $selectID;
     private $formName;
     private $userType;
+    protected $renderPDF;
     // variables for creating and calling queries
     private $query;
     private $queryData;
@@ -146,14 +153,15 @@
     private $newTicketDatabaseKeys = [ 'Contract', 'RunNumber', 'TicketNumber', 'TicketBase', 'BillTo', 'RepeatClient',
       'RequestedBy', 'pClient', 'dClient', 'pDepartment', 'dDepartment', 'pAddress1', 'dAddress1', 'pAddress2',
       'dAddress2', 'pCountry', 'dCountry', 'pContact', 'dContact', 'pTelephone', 'dTelephone', 'dryIce', 'diWeight',
-      'diPrice', 'Charge', 'RunPrice', 'TicketPrice', 'EmailConfirm', 'EmailAddress', 'Telephone', 'pTime', 'dTime',
-      'd2Time', 'pSigReq', 'dSigReq', 'd2SigReq', 'DispatchedTo', 'ReceivedDate', 'ReceivedReady', 'ReadyDate',
-      'DispatchTimeStamp', 'DispatchMicroTime', 'DispatchedBy', 'Notes'
+      'diPrice', 'Charge', 'RunPrice', 'VATable', 'VATrate', 'VATtype', 'VATableIce', 'VATrateIce', 'VATtypeIce',
+      'TicketPrice', 'EmailConfirm', 'EmailAddress', 'Telephone', 'pTime', 'dTime', 'd2Time', 'pSigReq', 'dSigReq',
+      'd2SigReq', 'DispatchedTo', 'ReceivedDate', 'ReceivedReady', 'ReadyDate', 'DispatchTimeStamp',
+      'DispatchMicroTime', 'DispatchedBy', 'Notes'
     ];
     private $updateTicketDatabaseKeys = [ 'BillTo', 'Charge', 'EmailAddress', 'EmailConfirm', 'Telephone', 'RequestedBy',
       'pClient', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'dClient', 'dAddress1', 'dAddress2',
       'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'ReceivedReady', 'ReadyDate',
-      'DispatchedTo', 'Transfers', 'TicketBase', 'RunPrice', 'TicketPrice', 'Notes', 'pSigReq', 'dSigReq', 'd2SigReq',
+      'DispatchedTo', 'Transfers', 'TicketBase', 'RunPrice', 'VATable', 'VATrate', 'VATtype', 'VATableIce', 'VATrateIce', 'VATtypeIce', 'TicketPrice', 'Notes', 'pSigReq', 'dSigReq', 'd2SigReq',
       'pLat', 'pLng', 'dLat', 'dLng', 'd2Lat', 'd2Lng'
     ];
     private $postableKeys = [ 'repeatClient', 'fromMe', 'pClient', 'pDepartment', 'pAddress1', 'pAddress2', 'pCountry',
@@ -339,6 +347,76 @@
       }
     }
 
+    private function setVATrates()
+    {
+      if ($this->config['ApplyVAT'] !== 1) {
+        return $this->VATable =
+        $this->VATtype =
+        $this->VATrate =
+        $this->VATableIce =
+        $this->VATtypeIce =
+        $this->VATrateIce = 0;
+      }
+      $clientMarker = ($this->RepeatClient === 1) ? $this->BillTo : "t{$this->BillTo}";
+
+      $this->VATtype = $this->config['deliveryVAT'][$clientMarker] ?? $this->config['deliveryVAT']['default'] ?? 1;
+
+      switch ($this->VATtype) {
+        case 0:
+          $this->VATable =
+          $this->VATrate = 0;
+          break;
+        case 2:
+          $this->VATrate = $this->config['ReducedVAT'][0];
+          break;
+        case 3:
+          $this->VATrate = $this->config['StandardVAT'][$clientMarker];
+          break;
+        case 4:
+          $this->VATrate = $this->config['ReducedVAT'][$clientMarker];
+          break;
+        case 5:
+          // Zero-Rated
+          // no break
+        case 6:
+          // Exempt
+          $this->VATrate = 0;
+          break;
+        default:
+          $this->VATtype = 1;
+          $this->VATrate = $this->config['StandardVAT'][0];
+          break;
+      }
+      $this->VATtypeIce = $this->config['iceVAT'][$clientMarker] ?? $this->config['iceVAT']['default'] ?? 1;
+
+      switch ($this->VATtypeIce) {
+        case 0:
+          $this->VATableIce =
+          $this->VATrateIce = 0;
+          break;
+        case 2:
+          $this->VATrateIce = $this->config['ReducedVAT'][0];
+          break;
+        case 3:
+          $this->VATrateIce = $this->config['StandardVAT'][$clientMarker];
+          break;
+        case 4:
+          $this->VATrateIce = $this->config['ReducedVAT'][$clientMarker];
+          break;
+        case 5:
+          // Zero-Rated
+          // no break
+        case 6:
+          // Exempt
+          $this->VATrateIce = 0;
+          break;
+        default:
+          $this->VATtypeIce = 1;
+          $this->VATrateIce = $this->config['StandardVAT'][0];
+          break;
+      }
+    }
+
     private function solveTicketPrice()
     {
       if ($this->fromMe === 1) {
@@ -378,19 +456,20 @@
           if ($this->enableLogging !== false) self::writeLoop();
           return false;
         }
-        $testTicket = self::callQuery($ticketQuery);
-        if ($testTicket === false) {
+        $ticketQueryResult = self::callQuery($ticketQuery);
+        if ($ticketQueryResult === false) {
           $temp = $this->error;
           $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
           if ($this->enableLogging !== false) self::writeLoop();
           return false;
         }
-        if ($testTicket[0]['Contract'] === 1 && $testTicket[0]['RunNumber'] !== 0) {
+        $testTicket = $ticketQueryResult[0];
+        if ($testTicket['Contract'] === 1 && $testTicket['RunNumber'] !== 0) {
           $contractRunQueryData['endPoint'] = 'contract_runs';
           $contractRunQueryData['method'] = 'GET';
           $contractRunQueryData['queryParams'] = [];
           $contractRunQueryData['queryParams']['filter'] = [
-            ['Resource'=>'RunNumber', 'Filter'=>'eq', 'Value'=>$testTicket[0]['RunNumber']]
+            ['Resource'=>'RunNumber', 'Filter'=>'eq', 'Value'=>$testTicket['RunNumber']]
           ];
           if (!$contractRunQuery = self::createQuery($contractRunQueryData)) {
             $temp = $this->error;
@@ -407,39 +486,38 @@
           }
           if (!empty($contractRunQueryResult[0])) {
             foreach($contractRunQueryResult[0] as $key => $value) {
-              $testTicket[0][$key] = $value;
+              $testTicket[$key] = $value;
             }
           }
         }
-        $originalTicket = self::recursive_santizer($testTicket[0]);
-        $this->PriceOverride = (isset($originalTicket['PriceOverride'])) ? $originalTicket['PriceOverride'] : 0;
-        // If the neither address has changed set flag to prevent recalculating the price
+        $this->PriceOverride = (isset($testTicket['PriceOverride'])) ? $testTicket['PriceOverride'] : 0;
+        // If the neither address has changed set flag to prevent recalculating TicketBase
         $testP = $this->pAddress1 . $this->pAddress2 . $this->pCountry;
-        $originP = $originalTicket['pAddress1'] . $originalTicket['pAddress2'] . $originalTicket['pCountry'];
+        $originP = $testTicket['pAddress1'] . $testTicket['pAddress2'] . $testTicket['pCountry'];
         $testD = $this->dAddress1 . $this->dAddress2 . $this->dCountry;
-        $originD = $originalTicket['dAddress1'] . $originalTicket['dAddress2'] . $originalTicket['dCountry'];
+        $originD = $testTicket['dAddress1'] . $testTicket['dAddress2'] . $testTicket['dCountry'];
         if ($testP === $originP && $testD === $originD) {
           $this->PriceOverride = 1;
-          $this->TicketBase = $originalTicket['TicketBase'];
+          $this->TicketBase = $testTicket['TicketBase'];
         }
-        $this->Contract = $originalTicket['Contract'];
+        $this->Contract = $testTicket['Contract'];
       }
 
-      if ($this->PriceOverride !== 1) {
+      if ($this->PriceOverride !== 1 && $this->Charge !== 7) {
         self::getTicketBase();
       }
       switch ($this->Charge) {
         case 1:
-          $this->RunPrice = round(($this->TicketBase * $this->config['OneHour']), 2, PHP_ROUND_HALF_UP);
+          $this->RunPrice = $this->TicketBase * $this->config['OneHour'];
           break;
         case 2:
-          $this->RunPrice = round(($this->TicketBase * $this->config['TwoHour']), 2, PHP_ROUND_HALF_UP);
+          $this->RunPrice = $this->TicketBase * $this->config['TwoHour'];
           break;
         case 3:
-          $this->RunPrice = round(($this->TicketBase * $this->config['ThreeHour']), 2, PHP_ROUND_HALF_UP);
+          $this->RunPrice = $this->TicketBase * $this->config['ThreeHour'];
           break;
         case 4:
-          $this->RunPrice = round(($this->TicketBase * $this->config['FourHour']), 2, PHP_ROUND_HALF_UP);
+          $this->RunPrice = $this->TicketBase * $this->config['FourHour'];
           break;
         case 5:
           $this->RunPrice = $this->TicketBase;
@@ -452,7 +530,7 @@
           $this->RunPrice = 0;
           break;
         case 8:
-          $this->RunPrice = round(($this->TicketBase * $this->config['DeadRun']), 2, PHP_ROUND_HALF_UP);
+          $this->RunPrice = $this->TicketBase * $this->config['DeadRun'];
           break;
         case 9:
           // credit will currently not be a case here
@@ -461,24 +539,90 @@
           $this->RunPrice = $this->TicketBase;
           break;
       }
-      if ($this->dryIce === 1) {
-        $this->diPrice = $this->config['diPrice'] * $this->diWeight;
-        $this->TicketPrice = $this->RunPrice + $this->diPrice;
-      } else {
-        $this->diPrice = 0;
-        $this->TicketPrice = $this->RunPrice;
-      }
+      $this->diPrice = ($this->dryIce === 1) ? $this->diWeight * $this->config['diPrice'] : 0;
+      if ($this->Charge === 7) return true;
+
+      if ($this->Contract !== 1) self::setVATrates();
+
+      $deliveryVAT = ($this->config['ApplyVAT'] === 1 && $this->VATable === 1) ? 1 + ($this->VATrate / 100) : 1;
+      $iceVAT = ($this->config['ApplyVAT'] === 1 && $this->VATableIce === 1) ? 1 + ($this->VATrateIce / 100) : 1;
+
+      $this->TicketPrice =
+        self::number_format_drop_zero_decimals(($this->RunPrice * $deliveryVAT) + ($this->diPrice * $iceVAT), 2);
       return true;
     }
-    private function shiftGeocoders()
+
+    private function solveDedicatedRunPrice()
     {
-      $geoProviders = json_decode($this->config['Geocoders'], true);
-      if (count($geoProviders) > 1) {
-        $firstKey = array_shift(array_keys($geoProviders));
-        $firstVal = array_shift($geoProviders);
-        $geoProviders[$firstKey] = $firstVal;
-        $this->config['Geocoders'] = json_encode($geoProviders);
+      self::queryTicket();
+      // Define the start and end times based on return signature request
+      if ($this->d2SigReq === 1) {
+        if ($this->d2TimeStamp !== $this->tTest) {
+          try {
+            $start = new \dateTime($this->pTimeStamp, $this->timezone);
+          } catch (Exception $e) {
+            $this->error = __function__ . ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
+            if ($this->enableLogging !== false) self::writeLoop();
+            return false;
+          }
+          try {
+            $end = new \dateTime($this->d2TimeStamp, $this->timezone);
+          } catch (Exception $e) {
+            $this->error = __function__ . ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
+            if ($this->enableLogging !== false) self::writeLoop();
+            return false;
+          }
+        } else {
+          return;
+        }
+      } else {
+        if ($this->dTimeStamp !== $this->tTest) {
+          try {
+            $start = new \dateTime($this->pTimeStamp, $this->timezone);
+          } catch (Exception $e) {
+            $this->error = __function__ . ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
+            if ($this->enableLogging !== false) self::writeLoop();
+            return false;
+          }
+          try {
+            $end = new \dateTime($this->dTimeStamp, $this->timezone);
+          } catch (Exception $e) {
+            $this->error = __function__ . ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
+            if ($this->enableLogging !== false) self::writeLoop();
+            return false;
+          }
+        } else {
+          return;
+        }
       }
+      $interval = date_diff($start, $end);
+      $seconds = $interval->days*86400 + $interval->h*3600 + $interval->i*60 + $interval->s;
+      $rate = $this->TicketBase / 3600;
+      $payload['RunPrice'] = self::number_format_drop_zero_decimals(($seconds * $rate), 2);
+      self::setVATrates();
+      $deliveryVAT = ($this->config['ApplyVAT'] === 1 && $this->VATable === 1) ? 1 + ($this->VATrate / 100) : 1;
+      $iceVAT = ($this->config['ApplyVAT'] === 1 && $this->VATableIce === 1) ? 1 + ($this->VATrateIce / 100) : 1;
+      $payload['TicketPrice'] =
+        self::number_format_drop_zero_decimals(($payload['RunPrice'] * $deliveryVAT) + ($this->diPrice * $iceVAT), 2);
+      $updateTicketPriceData['endPoint'] = 'tickets';
+      $updateTicketPriceData['method'] = 'PUT';
+      $updateTicketPriceData['primaryKey'] = $this->ticket_index;
+      $updateTicketPriceData['payload'] = $payload;
+      $updateTicketPriceData['queryParams'] = [];
+      if (!$updateTicketPrice = self::createQuery($updateTicketPriceData)) {
+        $temp = $this->error;
+        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        if ($this->enableLogging !== false) self::writeLoop();
+        return;
+      }
+      $updateTicketPriceResult = self::callQuery($updateTicketPrice);
+      if ($updateTicketPriceResult === false) {
+        $temp = $this->error;
+        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        if ($this->enableLogging !== false) self::writeLoop();
+        return;
+      }
+      return true;
     }
 
     private function getTicketBase()
@@ -561,7 +705,7 @@
 
       $this->geocoder->registerProvider($this->chain);
       // Use GeoCode to get the coordinates of the two addresses
-      // get the geocoded objects
+      // get the result objects
       try {
         $this->geocoder->geocodeQuery(GeocodeQuery::create($addy1));
       } catch(Exception $e) {
@@ -653,7 +797,8 @@
         pow($this->config['PriceIncrement'], $this->billingCode), 2, PHP_ROUND_HALF_DOWN);
       // Solve for ticketPrice
       if ($this->Contract == 0 && $this->BillTo !== null) {
-        $this->TicketBase = round(($this->TicketBase * $this->config['GeneralDiscount'][$this->BillTo]), 2, PHP_ROUND_HALF_DOWN);
+        $clientMarker = ($this->RepeatClient === 0) ? "t{$this->BillTo}" : $this->BillTo;
+        $this->TicketBase = round(($this->TicketBase * $this->config['GeneralDiscount'][$clientMarker]), 2, PHP_ROUND_HALF_DOWN);
       } elseif ($this->Contract == 1 && $this->BillTo !== null) {
         $this->TicketBase = round(($this->TicketBase * $this->config['ContractDiscount'][$this->BillTo]), 2, PHP_ROUND_HALF_DOWN);
       }
@@ -663,76 +808,15 @@
       return true;
     }
 
-    private function solveDedicatedRunPrice()
+    private function shiftGeocoders()
     {
-      // Define the start and end times based on return signature request
-      if ($this->d2SigReq === 1) {
-        if ($this->d2TimeStamp !== $this->tTest) {
-          try {
-            $start = new \dateTime($this->pTimeStamp, $this->timezone);
-          } catch (Exception $e) {
-            $this->error = __function__ . ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
-            if ($this->enableLogging !== false) self::writeLoop();
-            echo $this->error;
-            return false;
-          }
-          try {
-            $end = new \dateTime($this->d2TimeStamp, $this->timezone);
-          } catch (Exception $e) {
-            $this->error = __function__ . ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
-            if ($this->enableLogging !== false) self::writeLoop();
-            echo $this->error;
-            return false;
-          }
-        } else {
-          return false;
-        }
-      } else {
-        if ($this->dTimeStamp !== $this->tTest) {
-          try {
-            $start = new \dateTime($this->pTimeStamp, $this->timezone);
-          } catch (Exception $e) {
-            $this->error = __function__ . ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
-            if ($this->enableLogging !== false) self::writeLoop();
-            echo $this->error;
-            return false;
-          }
-          try {
-            $end = new \dateTime($this->dTimeStamp, $this->timezone);
-          } catch (Exception $e) {
-            $this->error = __function__ . ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
-            if ($this->enableLogging !== false) self::writeLoop();
-            echo $this->error;
-            return false;
-          }
-        } else {
-          return false;
-        }
+      $geoProviders = json_decode($this->config['Geocoders'], true);
+      if (count($geoProviders) > 1) {
+        $firstKey = array_shift(array_keys($geoProviders));
+        $firstVal = array_shift($geoProviders);
+        $geoProviders[$firstKey] = $firstVal;
+        $this->config['Geocoders'] = json_encode($geoProviders);
       }
-      $interval = date_diff($start, $end);
-      $seconds = $interval->days*86400 + $interval->h*3600 + $interval->i*60 + $interval->s;
-      $rate = $this->TicketBase / 3600;
-      $payload['RunPrice'] = self::number_format_drop_zero_decimals(($seconds * $rate), 2);
-      $payload['TicketPrice'] = self::number_format_drop_zero_decimals(($payload['RunPrice'] + $this->diPrice), 2);
-      $updateTicketPriceData['endPoint'] = 'tickets';
-      $updateTicketPriceData['method'] = 'PUT';
-      $updateTicketPriceData['primaryKey'] = $this->ticket_index;
-      $updateTicketPriceData['payload'] = $payload;
-      $updateTicketPriceData['queryParams'] = [];
-      if (!$updateTicketPrice = self::createQuery($updateTicketPriceData)) {
-        $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== false) self::writeLoop();
-        return false;
-      }
-      $updateTicketPriceResult = self::callQuery($updateTicketPrice);
-      if ($updateTicketPriceResult === false) {
-        $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
-        if ($this->enableLogging !== false) self::writeLoop();
-        return false;
-      }
-      return true;
     }
 
     private function buildLocationList()
@@ -1275,6 +1359,64 @@
       }
       $runPrice = self::negParenth(self::number_format_drop_zero_decimals($this->RunPrice, 2));
       $ticketPrice = self::negParenth(self::number_format_drop_zero_decimals($this->TicketPrice, 2));
+      $forcedVATstyle = ($this->renderPDF === true) ? 'style="font-size:0.65rem;"' : '';
+
+      if ($this->config['ApplyVAT'] === 1) {
+        $vat = 'Error';
+        switch ($this->VATtype) {
+          case 0:
+            $vat = 'NA';
+            break;
+          case 1:
+            $vat = 'Standard';
+            break;
+          case 2:
+            $vat = 'Reduced';
+            break;
+          case 3:
+            $vat = 'Standard';
+            break;
+          case 4:
+            $vat = 'Reduced';
+            break;
+          case 5:
+            $vat = 'Zero-Rated';
+            break;
+          case 6:
+            $vat = 'Exempt';
+            break;
+        }
+        if ($this->dryIce === 1) {
+          $temp = $vat;
+          $vat = "D: {$temp} I: ";
+          switch ($this->VATtypeIce) {
+            case 0:
+              $vat .= 'NA';
+              break;
+            case 1:
+              $vat .= 'Standard';
+              break;
+            case 2:
+              $vat .= 'Reduced';
+              break;
+            case 3:
+              $vat .= 'Standard';
+              break;
+            case 4:
+              $vat .= 'Reduced';
+              break;
+            case 5:
+              $vat .= 'Zero-Rated';
+              break;
+            case 6:
+              $vat .= 'Exempt';
+              break;
+          }
+        }
+        $VATnotice = "<p {$forcedVATstyle} class=\"vatNotice\">{$vat}</p>";
+      } else {
+        $VATnotice = '';
+      }
       return "
               <tr>
                 <td>{$date}</td>
@@ -1284,7 +1426,7 @@
                 <td>{$pClientDisplay}<br>{$this->pAddress1}<br><hr>{$dClientDisplay}<br>{$this->dAddress1}<br><hr>{$answerIce}</td>
                 <td><span class=\"currencySymbol\">{$cSym}</span>{$runPrice}</td>
                 <td>{$this->Multiplier}</td>
-                <td><span class=\"currencySymbol\">{$cSym}</span>{$ticketPrice}</td>
+                <td><span class=\"currencySymbol\">{$cSym}</span>{$ticketPrice}{$VATnotice}</td>
               </tr>";
     }
 
@@ -1382,9 +1524,9 @@
       } else {
         $d2TimeStampDisplay = 'Not Available<span class="hide">Error: None</span>';
       }
-      //Check to see if a name is listed in the requestedBy field
+
       $requestedByDisplay = ($this->RequestedBy === null || $this->RequestedBy === '') ? 'Not On File' : $this->RequestedBy;
-      //Check to see if the ticket has been billed
+
       if ($this->InvoiceNumber !== '-') {
         if ($this->ulevel < 2) {
           if ($this->ulevel === 1) {
@@ -1495,7 +1637,8 @@
       }
       $currencySymbol = ($ticketPrice === 'Pending') ? '' :
         "<span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>";
-      $priceDisplay = "<tr class=\"{$hideTableHead}\">
+      $priceDisplay = "
+            <tr class=\"{$hideTableHead}\">
               <td><span class=\"bold\">Run Price:</span> {$runPrice}</td>
               <td>
                 <span class=\"bold\">Ticket Price:</span>
@@ -1579,6 +1722,59 @@
       'Not On File':
       "<span class=\"coordinates\">{$this->d2Lat}, {$this->d2Lng}</span>";
 
+      $hideVAT = ($this->config['ApplyVAT'] === 1) ? '' : 'hide';
+      if ($this->config['ApplyVAT'] !== 1) {
+        $this->VATable = 0;
+        $this->VATableIce = 0;
+        $this->VATrate = 0;
+        $this->VATrateIce = 0;
+        $this->VATtype = 0;
+        $this->VATtypeIce = 0;
+      }
+      if ($this->VATable === 0) {
+        $this->VATtype = 0;
+        $this->VATrate = 0;
+      }
+      $vatDisplay = '<span class="bold">VAT:</span>';
+      $VATamount = 0;
+      if (0 < $this->VATtype && $this->VATtype < 5) {
+        $vatDisplay .= ($this->VATtype === 1 || $this->VATtype === 3) ? ' Standard' : ' Reduced';
+        $VATamount += ($this->RunPrice * (1 + ($this->VATrate / 100))) - $this->RunPrice;
+      }
+      if ($this->VATtype === 5) {
+        $vatDisplay .= ' Zero-Rated';
+        $this->VATrate = 0;
+      }
+      if ($this->VATtype === 6) {
+        $vatDisplay .= ' Exempt';
+        $this->VATrate = 0;
+      }
+      if ($this->config['ApplyVAT'] !== 1 || $this->VATable === 0) {
+        $vatDisplay = ' Not VAT-able';
+        $this->VATrate = 0;
+      }
+      if ($this->dryIce === 1) {
+        $begin = self::before(' ', $vatDisplay);
+        $end = self::after(' ', $vatDisplay);
+        $vatDisplay = "{$begin} D: {$end} ";
+        if (0 < $this->VATtypeIce && $this->VATtypeIce < 5) {
+          $vatDisplay .= ($this->VATtypeIce === 1 || $this->VATtypeIce === 3) ? 'I: Standard' : 'I: Reduced';
+          $VATamount += ($this->diPrice * (1 + ($this->VATrateIce / 100))) - $this->diPrice;
+        }
+        if ($this->VATtypeIce === 5) {
+          $vatDisplay .= 'I: Zero-Rated';
+          $this->VATrateIce = 0;
+        }
+        if ($this->VATtypeIce === 6) {
+          $vatDisplay .= 'I: Exempt';
+          $this->VATrateIce = 0;
+        }
+        if ($this->VATableIce === 0) {
+          $vatDisplay .= 'I: Not VAT-able';
+          $this->VATrateIce = 0;
+        }
+      }
+
       $returnData =
         $this->driverDatalist .
         "<div class=\"tickets sortable\">
@@ -1601,6 +1797,13 @@
               <td><span class=\"bold\">Charge:</span> {$this->ticketCharge($this->Charge)}</td>
             </tr>
             {$priceDisplay}
+            <tr class=\"{$hideVAT}\">
+              <td>{$vatDisplay}</td>
+              <td>
+                <span class=\"bold\">Ticket VAT:</span>
+                <span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>{$this->number_format_drop_zero_decimals($VATamount, 2)}
+              </td>
+            </tr>
             <tr class=\"{$hideTableHead}\">
               <td><span class=\"bold\">Confirmation:</span> {$emailConfirm}</td>
               <td><span class=\"bold\">Email Address:</span> {$this->EmailAddress}</td>
@@ -2888,6 +3091,10 @@
       }
       $emailNoteDisplay = ($this->EmailConfirm === 0) ? 'hide' : '';
 
+      $hideVAT = ($this->config['ApplyVAT'] === 1) ? '' : 'hide';
+
+      $VATchecked = ($this->config['ApplyVAT'] === 1) ? 'checked' : '';
+
       if ($this->userType === 'client') {
         $this->RepeatClient = $_SESSION['RepeatClient'];
         $billingRowClass = 'hide';
@@ -2988,7 +3195,7 @@
               <td>
                 <fieldset form=\"request{$this->ticket_index}\" id=\"diField{$this->ticket_index}\">
                   <legend>
-                    <label for=\"dryIce{$this->ticket_index}\">Dry Ice:  </label>
+                    <label for=\"dryIce{$this->ticket_index}\">Dry Ice:</label>
                     <input type=\"hidden\" name=\"dryIce\" id=\"dryIceMarker{$this->ticket_index}\" value=\"0\" form=\"request{$this->ticket_index}\" />
                     <input type=\"checkbox\" name=\"dryIce\" id=\"dryIce{$this->ticket_index}\" class=\"dryIce\" value=\"1\" {$dryIceChecked} form=\"request{$this->ticket_index}\" />
                   </legend>
@@ -3041,7 +3248,11 @@
                         <input type=\"hidden\" name=\"repeatClient\" value=\"{$this->RepeatClient}\" form=\"request{$this->ticket_index}\" {$nonRepeatChecked} />
                         {$repeatOption}
                       </td>
-                      <td></td>
+                      <td class=\"{$hideVAT}\">
+                        <label for=\"VATable{$this->ticket_index}\">VAT-able</label>
+                        <input type=\"hidden\" name=\"VATable\" value=\"0\" form=\"request{$this->ticket_index}\" />
+                        <input type=\"checkbox\" name=\"VATable\" id=\"VATable{$this->ticket_index}\" value=\"1\" form=\"request{$this->ticket_index}\" {$VATchecked} />
+                      </td>
                     </tr>
                     <tr class=\"{$billingRowClass}\">
                       <td><label for=\"billTo{$this->ticket_index}\">Bill To: </label><input {$billToType} name=\"billTo\" id=\"billTo{$this->ticket_index}\" class=\"billTo\" value=\"{$billToValue}\" title=\"{$billToValue}\" form=\"request{$this->ticket_index}\" {$billToRequired} /></td>
@@ -3442,8 +3653,8 @@
       $this->pCountry = self::countryFromAbbr($this->pCountry);
       $this->dCountry = self::countryFromAbbr($this->dCountry);
       if ($this->generalDiscount !== null && $this->generalDiscount !== '') {
-        $this->RunPrice *= $this->generalDiscount;
-        $this->TicketPrice - $this->RunPrice + $this->diPrice;
+        $this->RunPrice *= ($this->generalDiscount / 100);
+        $this->TicketPrice = $this->RunPrice + $this->diPrice;
       }
       $returnData = [
         'billTo' => $this->BillTo,
@@ -3986,7 +4197,6 @@
         return false;
       }
       // set $this->now for last completed value.
-      // Doing this any earlier will result in $this->now being overwritten as null
       try {
         $this->now = new \dateTime('now', $this->timezone);
       } catch(Exception $e) {
@@ -4283,12 +4493,14 @@
       }
       if ($this->multiTicket === null) {
         $marker = "{$this->TicketNumber} {$this->stepMarker}";
+        $success = true;
         if ($this->Charge === 7) {
-          self::solveDedicatedRunPrice();
+          $success = self::solveDedicatedRunPrice();
         }
         if (self::sendEmail() === true) {
           self::processEmail();
         }
+        if ($success === false) $marker = "Error: {$this->error}";
       } else {
         $marker = 'group updated';
         for ($i = 0; $i < count($this->multiTicket); $i++) {

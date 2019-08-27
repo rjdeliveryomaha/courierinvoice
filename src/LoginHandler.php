@@ -19,9 +19,11 @@
     private $discountResult;
     private $client;
     private $loginType;
-    // Define an array of key names not to include in the session
+    // key names not to include in the session
     private $exclude = [ 'Password', 'AdminPassword', 'Deleted', 'config' ];
-    // Define key names that will be sent through countryFromAbbr()
+    // key names of percentages
+    private $percentages = [ 'GeneralDiscount', 'ContractDiscount', 'StandardVAT', 'ReducedVAT' ];
+    // key names that will be sent through countryFromAbbr()
     private $countryParams = [ 'ShippingCountry', 'BillingCountry' ];
 
     public function __construct($options, $data=[])
@@ -225,11 +227,14 @@
       } catch (Exception $e) {
         throw $e;
       }
-      $discountMarker = ($this->repeatFlag === 1) ? '' : 't';
+      $clientMarker = ($this->repeatFlag === 1) ? '' : 't';
       foreach ($this->result[0] as $key => $value) {
         if (!in_array($key, $this->exclude)) {
-          if ($key === 'GeneralDiscount' || $key === 'ContractDiscount') {
-            $_SESSION['config'][$key]["{$discountMarker}{$this->result[0]['ClientID']}"] = floatval((100 - $value) / 100);
+          if (in_array($key, $this->percentages)) {
+            $_SESSION['config'][$key]["{$clientMarker}{$this->result[0]['ClientID']}"] =
+              (substr($key, -3) === 'VAT') ?  $value : (100 - $value) / 100;
+          } elseif ($key === 'StandardVAT' || $key === 'ReducedVAT') {
+            $_SESSION[$key] = round(1 + ($value / 100), 2, PHP_ROUND_HALF_UP);
           } else {
             $_SESSION[$key] = (in_array($key, $this->countryParams)) ? self::countryFromAbbr($value) : $value;
           }
@@ -298,25 +303,32 @@
       if (empty($this->configResult[0])) {
         throw new \Exception('Unable To Fetch Configuration');
       }
-      $_SESSION['config']['GeneralDiscount'] = $_SESSION['config']['ContractDiscount'] = [];
+      $_SESSION['config']['GeneralDiscount'] =
+      $_SESSION['config']['ContractDiscount'] =
+      $_SESSION['config']['DeliveryStandardVAT'] =
+      $_SESSION['config']['DeliveryReducedVAT'] = [];
       for ($i = 0; $i < count($this->configResult); $i++) {
         if ($this->configResult[$i]['ClientID'] === 0) {
           $_SESSION['config'] = $this->configResult[$i]['config'][0];
           foreach($this->configResult[$i] as $key => $value) {
-            if (
-              !in_array($key, $this->exclude) &&
-              $key !== 'config' && $key !== 'GeneralDiscount' &&
-              $key !== 'ContractDiscount'
-            ) {
-              $_SESSION['config'][$key] = (in_array($key, $this->countryParams)) ? self::countryFromAbbr($value) : $value;
+            if (!in_array($key, $this->exclude) && !in_array($key, $this->percentages)) {
+              $_SESSION['config'][$key] = (in_array($key, $this->countryParams)) ?
+                self::countryFromAbbr($value) : $value;
             }
           }
         }
-        $discountMarker = ($this->configResult[$i]['RepeatClient'] === 1) ?
+        $clientMarker = ($this->configResult[$i]['RepeatClient'] === 1) ?
         $this->configResult[$i]['ClientID'] : "t{$this->configResult[$i]['ClientID']}";
 
-        $_SESSION['config']['GeneralDiscount'][$discountMarker] = floatval((100 - $this->configResult[$i]['GeneralDiscount']) / 100);
-        $_SESSION['config']['ContractDiscount'][$discountMarker] = floatval((100 - $this->configResult[$i]['ContractDiscount']) / 100);
+        $_SESSION['config']['GeneralDiscount'][$clientMarker] =
+          (100 - $this->configResult[$i]['GeneralDiscount']) / 100;
+
+        $_SESSION['config']['ContractDiscount'][$clientMarker] =
+          (100 - $this->configResult[$i]['ContractDiscount']) / 100;
+
+        $_SESSION['config']['StandardVAT'][$clientMarker] = $this->configResult[$i]['StandardVAT'];
+
+        $_SESSION['config']['ReducedVAT'][$clientMarker] = $this->configResult[$i]['ReducedVAT'];
       }
     }
 

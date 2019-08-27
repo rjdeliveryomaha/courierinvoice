@@ -41,17 +41,11 @@
     'clientAddressExceptions' => [],
 
     'deliveryVAT' => [
-      [
-        'clientID' => 'all',
-        'VATtype' => 1
-      ]
+      'default' => 1
     ],
 
     'iceVAT' => [
-      [
-        'clientID' => 'all',
-        'VATtype' => 1
-      ]
+      'default' => 1
     ],
 
     'ignoreValues' => [
@@ -217,6 +211,9 @@
       'MaximumFee' => 0.0,
       'RangeIncrement' => 0.0,
       'PriceIncrement' => 0.0,
+      'ApplyVAT' => 0,
+      'deliveryVAT' => [ 'default' => 0 ],
+      'iceVAT' => [ 'default' => 0 ],
       'MaxRange' => 0.0,
       'RangeCenter' => [ 'lat' => 41.2125742, 'lng' => -95.9765968 ]
     ];

@@ -62,13 +62,13 @@
       'Contract', 'DispatchedTo', 'emailConfirm', 'EmailConfirm', 'pSigReq', 'dSigReq', 'd2SigReq', 'repeatClient',
       'RepeatClient', 'ticketNumber', 'TicketNumber', 'sigType', 'PriceOverride', 'RunNumber', 'holder', 'receiver',
       'TransferState', 'ClientID', 'Organization', 'ListBy', 'same', 'Closed', 'Deleted', 'receivedReady',
-      'ReceivedReady'
+      'ReceivedReady', 'VATable', 'VATtype', 'VATableIce', 'VATtypeIce'
     ];
     // Properties that should always be floats
     private $floats = [ 'diPrice', 'TicketBase', 'RunPrice', 'TicketPrice', 'Multiplier', 'timestamp', 'lat',' lng',
       'maxRange', 'pLat', 'pLng', 'dLat', 'dLng', 'd2Lat', 'd2Lng', 'latitude', 'longitude', 'BalanceForwarded',
       'InvoiceSubTotal', 'AmountDue', 'InvoiceTotal', 'AmountPaid', 'Balance', 'Late30Value', 'Late60Value',
-      'Late90Value', 'Over90Value'
+      'Late90Value', 'Over90Value', 'VATrate', 'VATrateIce'
     ];
     // Properties that should always be boolean
     private $bools = [ 'newTicket', 'compare', 'compareMembers', 'ticketEditor', 'updateTicket',

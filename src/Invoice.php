@@ -45,6 +45,9 @@
     private $closedMarker;
     private $invoiceDisplay;
     private $counter = 2;
+    private $totalDeliveryVAT;
+    private $totalIceVAT;
+    private $totalVAT;
     private $updateValues = [ 'InvoiceNumber', 'ClientID', 'RepeatClient', 'InvoiceTotal', 'InvoiceSubTotal',
       'BalanceForwarded', 'AmountDue', 'StartDate', 'EndDate', 'DateIssued', 'DatePaid', 'AmountPaid', 'Balance',
       'Late30Invoice', 'Late30Value', 'Late60Invoice', 'Late60Value', 'Late90Invoice', 'Late90Value', 'Over90Invoice',
@@ -134,6 +137,19 @@
 
     private function invoiceBodyTickets()
     {
+      if ($this->config['ApplyVAT'] === 1) {
+        foreach ($this->tickets as $ticket) {
+          $ticket->updateProperty('renderPDF', $this->renderPDF);
+          if (0 < $ticket->getProperty('Charge') && $ticket->getProperty('Charge') < 9) {
+            $temp = $ticket->getProperty('RunPrice') * (1 + ($ticket->getProperty('VATrate') / 100));
+            $this->totalDeliveryVAT = $temp - $ticket->getProperty('RunPrice');
+            $this->totalVAT += $this->totalDeliveryVAT;
+            $temp = $ticket->getProperty('diPrice') * (1 + ($ticket->getProperty('VATrateIce') / 100));
+            $this->totalIceVAT = $temp - ($ticket->getProperty('diWeight') * $_SESSION['config']['diPrice']);
+            $this->totalVAT += $this->totalIceVAT;
+          }
+        }
+      }
       // Check for ticket consolidation request
       if ($this->consolidateContractTicketsOnInvoice === true) {
         $ticketSet = $this->ConsolidatedTickets;
@@ -224,11 +240,21 @@
         }
       }
       if ($singlePage === true) {
+        if ($this->config['ApplyVAT'] === 1) {
+          $body .= '
+              <tr>
+                <td colspan="5" style="border: none;"></td>
+                <th colspan="2" style="border: 0.1rem solid black;">VAT:</th>
+                <td style="border: 0.1rem solid black;">
+                  <span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::number_format_drop_zero_decimals($this->totalVAT, 2) . '
+                </td>
+              </tr>';
+        }
         $body .= '
               <tr>
                 <td colspan="5" style="border:none;"></td>
-                <th colspan="2" style="border:1px solid black; white-space:nowrap;">Subtotal:</th>
-                <td style="border:1px solid black;">
+                <th colspan="2" style="border:0.1rem solid black; white-space:nowrap;">Subtotal:</th>
+                <td style="border:0.1rem solid black;">
                   <span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::negParenth(self::number_format_drop_zero_decimals($this->InvoiceSubTotal, 2)) . '
                 </td>
               </tr>';
@@ -277,6 +303,16 @@
                 <th colspan="8"></th>
               </tr>';
             if ($i === count($page) - 1) {
+              if ($this->config['ApplyVAT'] === 1) {
+                $body .= '
+              <tr>
+                <td colspan="5" style="border: none;"></td>
+                <th colspan="2" style="border: 0.1rem solid black;">VAT:</th>
+                <td style="border: 0.1rem solid black;">
+                  <span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::number_format_drop_zero_decimals($this->totalVAT, 2) . '
+                </td>
+              </tr>';
+              }
                 $body .= '
               <tr>
                 <td colspan="5" style="border:none;"></td>

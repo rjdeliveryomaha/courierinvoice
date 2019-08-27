@@ -758,7 +758,9 @@ label {
 }
 
 #diWeight,
-.diWeight {
+.diWeight,
+#standardVAT,
+#reducedVAT {
   width: 3.5rem;
 }
 
@@ -991,6 +993,7 @@ label {
 }
 
 .invoiceBody td {
+  position: relative;
   margin: 0;
   padding: 0.063rem 0.313rem;
   border-style: solid;
@@ -1002,6 +1005,14 @@ label {
 .invoiceBody td hr {
   margin: 0 0.1rem;
   padding: 0;
+}
+
+.invoiceBody .vatNotice {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  font-size: 0.65rem;
 }
 
 .tableSpace {

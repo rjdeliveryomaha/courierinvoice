@@ -22,6 +22,8 @@
     protected $Attention;
     protected $ContractDiscount;
     protected $GeneralDiscount;
+    protected $StandardVAT;
+    protected $ReducedVAT;
     protected $Organization;
     protected $same;
     protected $currentPw;
@@ -426,7 +428,9 @@
         $billingAddress2 = $_SESSION['BillingAddress2'];
         $billingCountry = $_SESSION['BillingCountry'];
       }
-      $hideCountry = $_SESSION['config']['InternationalAddressing'] === 1 ? '' : 'hide';
+      $hideCountry = ($this->config['InternationalAddressing'] === 1) ? '' : 'hide';
+      $hideVAT = ($this->config['ApplyVAT'] === 1) ? '' : 'hide';
+      $clientMarker = ($_SESSION['RepeatClient'] === 1) ? $_SESSION['ClientID'] : "t{$_SESSION['ClientID']}";
       return "
             <div id=\"clientUpdateForm\">
               <form id=\"clientUpdate\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
@@ -529,6 +533,16 @@
                       <td>
                         <label for=\"credit\">Credit</label>:
                         <span class=\"currencySymbol\">{$_SESSION['config']['CurrencySymbol']}</span>{$this->getCredit()}
+                      </td>
+                    </tr>
+                    <tr class=\"{$hideVAT}\">
+                      <td>
+                        <label for=\"standardVAT\">Standard</label>:
+                        <input type=\"number\" name=\"standardVAT\" id=\"standardVAT\" min=\"0\" max=\"99.99\" step=\"0.01\" value=\"{$_SESSION['config']['StandardVAT'][$clientMarker]}\" form=\"clientUpdate\" />&#37;
+                      </td>
+                      <td>
+                        <label for=\"reducedVAT\">Reduced</label>:
+                        <input type=\"number\" name=\"reducedVAT\" id=\"reducedVAT\" min=\"0\" max=\"99.99\" step=\"0.01\" value=\"{$_SESSION['config']['ReducedVAT'][$clientMarker]}\" form=\"clientUpdate\" />&#37;
                       </td>
                     </tr>
                   </table>

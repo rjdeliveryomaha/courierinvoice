@@ -165,24 +165,15 @@ Addresses that should be ignored, for example, due to change of address.
 
 ### deliveryVAT
 
-Indexed array
+Associative array
 
-By default, if the ` ApplyVAT ` setting in your Courier Invoice configuration is checked, the standard VAT rate for client 0 will be applied to all deliveries. This setting is for exceptions to that rule. Entries should be associative arrays with the keys ` clientID ` and ` VATtype ` ex:
+By default if the ` ApplyVAT ` setting in your Courier Invoice configuration is checked, the standard VAT rate for client 0 will be applied to all deliveries. This setting is for exceptions to that rule. The default can be overridden by assigning a different VAT type to the key 'default'. Keys should be client ID numbers (preceded by 't' for non-repeat clients), values should be an integer VAT type. Ex:
 
 ```php
 [
-  [
-    'clientID' => 'all',
-    'VATtype' => 2
-  ]
-  [
-    'clientID' => 23,
-    'VATtype' => 5
-  ],
-  [
-    'clientID' => 't100',
-    'VATtype' => 0
-  ]
+  'default' => 2,
+  50 => 6,
+  't1000' => 0
 ]
 ```
 
@@ -195,7 +186,7 @@ __VATtype values:__
 * 5: Zero-Rated
 * 6: Exempt
 
-If ` clientID ` of index 0 is set to 'all' the ` VATtype ` of index 0 will override the default.
+If ` ApplyVAT ` is configured as 1 and a VATtype is defined as other than numeric or is greater than 6 the VATtype will be set to 1.
 
 ` VATtype ` will define the ticket property of the same name. The ticket property ` VATrate ` will then be pulled from either client 0 or the billed client or set to 0 as appropriate.
 

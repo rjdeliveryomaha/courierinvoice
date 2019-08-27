@@ -132,7 +132,7 @@
       if (!is_array($this->queryParams) || empty($this->queryParams)) {
         $this->queryURI = "{$this->baseURI}/v2/records/{$this->endPoint}";
       } else {
-        // make sure that the 'include' or 'exclude' key preceeds the 'filter' key
+        // make sure that the 'include' or 'exclude' key precedes the 'filter' key
         self::orderParams();
         foreach ($this->queryParams as $key => $value) {
           if ($key === 'exclude' && (!isset($this->queryParams['include']) || empty($this->queryParams['include']))) {

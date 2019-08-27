@@ -2147,7 +2147,6 @@
             }
           })
           .then(data => {
-            console.log(data);
             clearInterval(dots);
             document.querySelector("#invoiceQueryResults").removeChild(container);
             if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
@@ -2524,8 +2523,26 @@
     if (document.querySelector("#invoicePDF")) {
       document.querySelector("#invoicePDF").addEventListener("click", eve => {
         eve.preventDefault();
-        let cln = document.querySelector("#invoice").cloneNode(true);
+        let cln = document.querySelector("#invoice").cloneNode(true),
+          compStyles,
+          styles = {},
+          styleNames = [ "position", "top", "left", "right", "font-size" ];
+        if (document.querySelector("#invoice .vatNotice") !== null) {
+          compStyles = getComputedStyle(document.querySelector("#invoice .vatNotice"));
+          for (let styleName in compStyles) {
+            if (styleName === "fontSize") styleName = "font-size";
+            if (styleNames.indexOf(styleName) !== -1) {
+              styles[styleName] = compStyles.getPropertyValue(styleName);
+            }
+          }
+        }
         cln.querySelector("#invoicePDFform").remove();
+        Array.from(cln.querySelectorAll(".vatNotice")).forEach(element => {
+          element.parentNode.style.position = "relative";
+          for (let styleName in styles) {
+            element.style[styleName] = styles[styleName];
+          }
+        });
         document.querySelector("#invoicePDFform input[name='content']").value = cln.outerHTML;
         document.querySelector("#invoicePDFform input[name='formKey']").value = document.querySelector("#formKey").value;
         document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
