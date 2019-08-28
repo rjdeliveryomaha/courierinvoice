@@ -161,8 +161,9 @@
     private $updateTicketDatabaseKeys = [ 'BillTo', 'Charge', 'EmailAddress', 'EmailConfirm', 'Telephone', 'RequestedBy',
       'pClient', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'dClient', 'dAddress1', 'dAddress2',
       'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'ReceivedReady', 'ReadyDate',
-      'DispatchedTo', 'Transfers', 'TicketBase', 'RunPrice', 'VATable', 'VATrate', 'VATtype', 'VATableIce', 'VATrateIce', 'VATtypeIce', 'TicketPrice', 'Notes', 'pSigReq', 'dSigReq', 'd2SigReq',
-      'pLat', 'pLng', 'dLat', 'dLng', 'd2Lat', 'd2Lng'
+      'DispatchedTo', 'Transfers', 'TicketBase', 'RunPrice', 'VATable', 'VATrate', 'VATtype', 'VATableIce',
+      'VATrateIce', 'VATtypeIce', 'TicketPrice', 'Notes', 'pSigReq', 'dSigReq', 'd2SigReq', 'pLat', 'pLng', 'dLat',
+      'dLng', 'd2Lat', 'd2Lng'
     ];
     private $postableKeys = [ 'repeatClient', 'fromMe', 'pClient', 'pDepartment', 'pAddress1', 'pAddress2', 'pCountry',
       'pContact', 'pTelephone', 'pSigReq', 'toMe', 'dClient', 'dDepartment', 'dAddress1', 'dAddress2', 'dCountry',
@@ -613,14 +614,14 @@
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
-        return;
+        return false;
       }
       $updateTicketPriceResult = self::callQuery($updateTicketPrice);
       if ($updateTicketPriceResult === false) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
-        return;
+        return false;
       }
       return true;
     }
