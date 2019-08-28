@@ -233,8 +233,6 @@
           if (in_array($key, $this->percentages)) {
             $_SESSION['config'][$key]["{$clientMarker}{$this->result[0]['ClientID']}"] =
               (substr($key, -3) === 'VAT') ?  $value : (100 - $value) / 100;
-          } elseif ($key === 'StandardVAT' || $key === 'ReducedVAT') {
-            $_SESSION[$key] = round(1 + ($value / 100), 2, PHP_ROUND_HALF_UP);
           } else {
             $_SESSION[$key] = (in_array($key, $this->countryParams)) ? self::countryFromAbbr($value) : $value;
           }
@@ -304,9 +302,7 @@
         throw new \Exception('Unable To Fetch Configuration');
       }
       $_SESSION['config']['GeneralDiscount'] =
-      $_SESSION['config']['ContractDiscount'] =
-      $_SESSION['config']['DeliveryStandardVAT'] =
-      $_SESSION['config']['DeliveryReducedVAT'] = [];
+      $_SESSION['config']['ContractDiscount'] = [];
       for ($i = 0; $i < count($this->configResult); $i++) {
         if ($this->configResult[$i]['ClientID'] === 0) {
           $_SESSION['config'] = $this->configResult[$i]['config'][0];
