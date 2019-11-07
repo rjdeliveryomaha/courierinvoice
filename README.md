@@ -14,7 +14,7 @@ A set of classes for the Courier Invoice API
   - [LoginHandler](https://github.com/rjdeliveryomaha/courierinvoice#loginhandler)
   - [Ticket](https://github.com/rjdeliveryomaha/courierinvoice#ticket)
   - [Route](https://github.com/rjdeliveryomaha/courierinvoice#route)
-  - [Scheduling](https://github.com/rjdeliveryomaha/courierinvoice)
+  - [Scheduling](https://github.com/rjdeliveryomaha/courierinvoice#scheduling)
   - [Invoice](https://github.com/rjdeliveryomaha/courierinvoice#invoice)
   - [SearchHandler](https://github.com/rjdeliveryomaha/courierinvoice#searchHandler)
   - [TicketChart](https://github.com/rjdeliveryomaha/courierinvoice#ticketChart)
