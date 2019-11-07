@@ -58,7 +58,7 @@
     {
       try {
         parent::__construct($options, $data);
-      } catch (Exception $e) {
+      } catch (\Exception $e) {
         throw $e;
       }
     }
@@ -67,7 +67,7 @@
     {
       $returnData = '
         <p data-error="error" class="center">Multiple invoices available for ' . date('F Y', strtotime($this->invoiceQueryResult[0]['DateIssued'])) . '.</p>
-        <form class="center" id="multiInvoiceForm" method="post" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '">
+        <form class="center" id="multiInvoiceForm" method="post" action="/">
           <input type="hidden" name="clientID" value="' . $this->invoiceQueryResult[0]['ClientID'] . '" form="multiInvoiceForm" />
           <input type="hidden" name="endPoint" value="invoices" form="multiInvoiceForm" />
           <input type="hidden" name="display" value="invoice" />
@@ -86,7 +86,7 @@
     {
       //Merge contract tickets
       foreach ($this->tickets as $ticket) {
-        if ($ticket->getProperty('Contract') === 1) {
+        if (self::test_bool($ticket->getProperty('Contract')) === true) {
           if ($ticket->getProperty('Charge') !== 0) {
             if (empty($this->ConsolidatedTickets)) {
               $this->ConsolidatedTickets[] = clone $ticket;
@@ -137,7 +137,7 @@
 
     private function invoiceBodyTickets()
     {
-      if ($this->config['ApplyVAT'] === 1) {
+      if ($this->config['ApplyVAT'] === true) {
         foreach ($this->tickets as $ticket) {
           $ticket->updateProperty('renderPDF', $this->renderPDF);
           if (0 < $ticket->getProperty('Charge') && $ticket->getProperty('Charge') < 9) {
@@ -212,7 +212,7 @@
         }
         $pageCount = count($pages) + 1;
       }
-      for ($i=0; $i<count($page1); $i++) {
+      for ($i = 0; $i < count($page1); $i++) {
         if ($i === 0) {
           $body .= '
               <tr>
@@ -240,7 +240,7 @@
         }
       }
       if ($singlePage === true) {
-        if ($this->config['ApplyVAT'] === 1) {
+        if ($this->config['ApplyVAT'] === true) {
           $body .= '
               <tr>
                 <td colspan="5" style="border: none;"></td>
@@ -303,7 +303,7 @@
                 <th colspan="8"></th>
               </tr>';
             if ($i === count($page) - 1) {
-              if ($this->config['ApplyVAT'] === 1) {
+              if ($this->config['ApplyVAT'] === true) {
                 $body .= '
               <tr>
                 <td colspan="5" style="border: none;"></td>
@@ -341,7 +341,7 @@
         }
       }
 
-      $this->ClientID = ($this->RepeatClient === 1) ? $this->ClientID : "t{$this->ClientID}";
+      $this->ClientID = (self::test_bool($this->RepeatClient) === true) ? $this->ClientID : "t{$this->ClientID}";
 
       $this->showCanceledTicketsOnInvoice = in_array($this->ClientID, $this->options['showCanceledTicketsOnInvoiceExceptions'], true);
 
@@ -368,7 +368,7 @@
         }
       }
 
-      if ($this->Closed === 1) {
+      if (self::test_bool($this->Closed) === true) {
         // Format the payment method display
         $paymentDisplay = (is_numeric($this->CheckNumber)) ? 'Check #: ' : '';
         $closedMarker = '
@@ -387,13 +387,17 @@
 
       $invoiceCountry = $this->config['BillingCountry'] ?? $this->config['ShippingCountry'];
 
-      $billingName =  $this->members[$this->ClientID]->getProperty('BillingName') ??  $this->members[$this->ClientID]->getProperty('ClientName');
+      $billingName =  $this->members[$this->ClientID]->getProperty('BillingName') ??
+        $this->members[$this->ClientID]->getProperty('ClientName');
 
-      $billingAddress1 = $this->members[$this->ClientID]->getProperty('BillingAddress1') ?? $this->members[$this->ClientID]->getProperty('ShippingAddress1');
+      $billingAddress1 = $this->members[$this->ClientID]->getProperty('BillingAddress1') ??
+        $this->members[$this->ClientID]->getProperty('ShippingAddress1');
 
-      $billingAddress2 =  $this->members[$this->ClientID]->getProperty('BillingAddress2') ??  $this->members[$this->ClientID]->getProperty('ShippingAddress2');
+      $billingAddress2 =  $this->members[$this->ClientID]->getProperty('BillingAddress2') ??
+        $this->members[$this->ClientID]->getProperty('ShippingAddress2');
 
-      $billingCountry = $this->members[$this->ClientID]->getProperty('BillingCountry') ?? $this->members[$this->ClientID]->getProperty('ShippingCountry');
+      $billingCountry = $this->members[$this->ClientID]->getProperty('BillingCountry') ??
+        $this->members[$this->ClientID]->getProperty('ShippingCountry');
 
       $pdfForm = (class_exists('Dompdf\Dompdf')) ? "
         <form id=\"invoicePDFform\" target=\"_blank\" method=\"post\" action=\"pdf\">
@@ -474,13 +478,22 @@
           <th scope="col">Amount<br>Due</th>
         </tr>
         <tr>
-          <td><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::negParenth(self::number_format_drop_zero_decimals($this->InvoiceSubTotal, 2)) . '</td>
-          <td><span class="currencySymbol">' .  $this->config['CurrencySymbol'] . '</span>' .  self::number_format_drop_zero_decimals($this->Late30Value, 2) . '</td>
-          <td><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::number_format_drop_zero_decimals($this->Late60Value, 2) . '</td>
-          <td><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::number_format_drop_zero_decimals($this->Late90Value, 2) . '</td>
-          <td><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::number_format_drop_zero_decimals($this->Over90Value, 2) . '</td>
-          <td><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::negParenth(self::number_format_drop_zero_decimals($this->BalanceForwarded, 2)) . '</td>
-          <td><span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::number_format_drop_zero_decimals($this->InvoiceTotal, 2) . '</td>
+          <td><span class="currencySymbol">' .
+            $this->config['CurrencySymbol'] . '</span>' .
+            self::negParenth(self::number_format_drop_zero_decimals($this->InvoiceSubTotal, 2)) . '</td>
+          <td><span class="currencySymbol">' .
+            $this->config['CurrencySymbol'] . '</span>' .
+            self::number_format_drop_zero_decimals($this->Late30Value, 2) . '</td>
+          <td><span class="currencySymbol">' . $this->config['CurrencySymbol'] .
+            '</span>' . self::number_format_drop_zero_decimals($this->Late60Value, 2) . '</td>
+          <td><span class="currencySymbol">' . $this->config['CurrencySymbol'] .
+            '</span>' . self::number_format_drop_zero_decimals($this->Late90Value, 2) . '</td>
+          <td><span class="currencySymbol">' . $this->config['CurrencySymbol'] .
+            '</span>' . self::number_format_drop_zero_decimals($this->Over90Value, 2) . '</td>
+          <td><span class="currencySymbol">' . $this->config['CurrencySymbol'] .
+            '</span>' . self::negParenth(self::number_format_drop_zero_decimals($this->BalanceForwarded, 2)) . '</td>
+          <td><span class="currencySymbol">' . $this->config['CurrencySymbol'] .
+            '</span>' . self::number_format_drop_zero_decimals($this->InvoiceTotal, 2) . '</td>
         </tr>
         <tr>
           <th style="border:none;">' . $this->InvoiceNumber . '</th>
@@ -513,7 +526,7 @@
                 <td>
                   <form id="singleInvoiceQuery" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
                     <input type="hidden" name="clientID" value="' . $_SESSION['ClientID'] . '" form="singleInvoiceQuery" />
-                    <input type="hidden" name="repeatClient" value="' . $this->RepeatClient . '" form="singleInvoiceQuery" />
+                    <input type="hidden" name="repeatClient" value="' . (int)$this->RepeatClient . '" form="singleInvoiceQuery" />
                     <input type="hidden" name="method" value="GET" form="singleInvoiceQuery" />
                     <input type="hidden" name="endPoint" value="invoices" form="singleInvoiceQuery" />
                     <input type="hidden" name="display" value="invoice" form="singleInvoiceQuery" />
@@ -521,8 +534,16 @@
                       <legend>Single Invoice Query</legend>
                       <table>
                         <tr>
-                          <td><label for="dateIssued">Date Issued:  </label></td>
-                          <td class="pullLeft">' . self::createLimitedMonthInput([ 'clientIDs' => $_SESSION['ClientID'], 'inputID' => 'dateIssued', 'type' => 'month', 'required' => true, 'form' => 'singleInvoiceQuery' ]) . '</td>
+                          <td><label for="dateIssued">Date Issued:</label></td>
+                          <td class="pullLeft">' .
+                            self::createLimitedMonthInput([
+                              'clientIDs' => $_SESSION['ClientID'],
+                              'inputID' => 'dateIssued',
+                              'type' => 'month',
+                              'required' => true,
+                              'form' => 'singleInvoiceQuery'
+                            ]) .
+                          '</td>
                         </tr>
                         <tr>
                           <td><label for="invoiceNumber">Invoice Number:  </label></td>
@@ -542,7 +563,7 @@
                 <td>
                   <form id="multiInvoiceQuery" action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
                     <input type="hidden" name="clientID" value="' . $_SESSION['ClientID'] . '" form="multiInvoiceQuery" />
-                    <input type="hidden" name="repeatClient" value="' . $this->RepeatClient . '" form="multiInvoiceQuery" />
+                    <input type="hidden" name="repeatClient" value="' . (int)$this->RepeatClient . '" form="multiInvoiceQuery" />
                     <input type="hidden" name="method" value="GET" form="multiInvoiceQuery" />
                     <input type="hidden" name="endPoint" value="invoices" form="multiInvoiceQuery" />
                     <input type="hidden" name="display" value="chart" form="multiInvoiceQuery" />
@@ -551,11 +572,27 @@
                       <table>
                         <tr>
                           <td><label for="startDate">Start Date:</label></td>
-                          <td>' . self::createLimitedMonthInput([ 'clientIDs' => $_SESSION['ClientID'], 'inputID' => 'startDate', 'type' => 'month', 'required' => true, 'form' => 'multiInvoiceQuery' ]) . '</td>
+                          <td>' .
+                            self::createLimitedMonthInput([
+                              'clientIDs' => $_SESSION['ClientID'],
+                              'inputID' => 'startDate',
+                              'type' => 'month',
+                              'required' => true,
+                              'form' => 'multiInvoiceQuery'
+                            ]) .
+                          '</td>
                         </tr>
                         <tr>
                           <td><label for="endDate">End Date:</label></td>
-                          <td>' . self::createLimitedMonthInput([ 'clientIDs' => $_SESSION['ClientID'], 'inputID' => 'endDate', 'type' => 'month', 'required' => true, 'form' => 'multiInvoiceQuery' ]). '</td>
+                          <td>' .
+                            self::createLimitedMonthInput([
+                              'clientIDs' => $_SESSION['ClientID'],
+                              'inputID' => 'endDate',
+                              'type' => 'month',
+                              'required' => true,
+                              'form' => 'multiInvoiceQuery'
+                            ]).
+                          '</td>
                         </tr>
                         <tr>
                           <td colspan="2" title="Range limited to 6 months.">
@@ -602,7 +639,15 @@
                         <table>
                           <tr>
                             <td><label for="dateIssued">Date Issued:</label></td>
-                            <td class="pullLeft">' . self::createLimitedMonthInput([ 'clientIDs' => array_keys($_SESSION['members']), 'inputID' => 'dateIssued', 'type' => 'month', 'required' => true, 'form' => 'singleInvoiceQuery' ]) . '</td>
+                            <td class="pullLeft">' .
+                              self::createLimitedMonthInput([
+                                'clientIDs' => array_keys($_SESSION['members']),
+                                'inputID' => 'dateIssued',
+                                'type' => 'month',
+                                'required' => true,
+                                'form' => 'singleInvoiceQuery'
+                              ]) .
+                            '</td>
                           </tr>
                           <tr>
                             <td colspan="2">&nbsp;</td>
@@ -625,12 +670,26 @@
                         <table>
                           <tr>
                             <td class="pullLeft"><label for="invoiceStartDateMonth">Start Date:</label></td>
-                            <td>' . self::createLimitedMonthInput([ 'clientIDs' => array_keys($_SESSION['members']), 'inputID' => 'invoiceStartDate', 'form' => 'multiInvoiceQuery', 'required' => true ]). '</td>
+                            <td>' .
+                              self::createLimitedMonthInput([
+                                'clientIDs' => array_keys($_SESSION['members']),
+                                'inputID' => 'invoiceStartDate',
+                                'form' => 'multiInvoiceQuery',
+                                'required' => true
+                              ]) .
+                            '</td>
                             <td colspan="2" class="center bold">Compare</td>
                           </tr>
                           <tr>
                             <td class="pullLeft"><label for="invoiceEndDateMonth">End Date:</label></td>
-                            <td class="pullLeft">' . self::createLimitedMonthInput([ 'clientIDs' => array_keys($_SESSION['members']), 'inputID' => 'invoiceEndDate', 'form' => 'multiInvoiceQuery', 'required' => true ]) . '</td>
+                            <td class="pullLeft">' .
+                              self::createLimitedMonthInput([
+                                'clientIDs' => array_keys($_SESSION['members']),
+                                'inputID' => 'invoiceEndDate',
+                                'form' => 'multiInvoiceQuery',
+                                'required' => true
+                              ]) .
+                            '</td>
                             <td class="center">
                               <label for="compareInvoices">Months:</label>
                               <input type="hidden" name="compare" value="0" form="multiInvoiceQuery" />
@@ -668,11 +727,14 @@
       foreach($this as $key => $value) {
         if (in_array($key, $this->updateValues) && in_array(lcfirst($key), $this->postKeys)) {
           if (in_array($key, $this->ints)) {
-            $updateData['payload'][$key] = (in_array($key, $this->nullable) && $value === null) ? null : self::test_int($value);
+            $updateData['payload'][$key] =
+              (in_array($key, $this->nullable) && $value === null) ? null : self::test_int($value);
           } elseif (in_array($key, $this->floats)) {
-            $updateData['payload'][$key] = (in_array($key, $this->nullable) && $value === null) ? null : self::test_float($value);
+            $updateData['payload'][$key] =
+              (in_array($key, $this->nullable) && $value === null) ? null : self::test_float($value);
           } else {
-            $updateData['payload'][$key] = (in_array($key, $this->nullable) && $value === null) ? null : self::test_input($value);
+            $updateData['payload'][$key] =
+              (in_array($key, $this->nullable) && $value === null) ? null : self::test_input($value);
           }
         }
       }

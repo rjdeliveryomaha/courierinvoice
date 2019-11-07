@@ -19,7 +19,6 @@
     private $newInvoices;
     private $DateIssued;
     private $Over90InvoiceList;
-    private $today;
     private $result;
     // update variables
     private $invoice_index;
@@ -30,39 +29,28 @@
     {
       try {
         parent::__construct($options, ['noSession'=>true]);
-      } catch (Exception $e) {
+      } catch (\Exception $e) {
         throw $e;
       }
       // Extend timeout for large queries
       set_time_limit(3600);
       $this->clients = $this->t_clients = $this->clientList = $this->query =
       $this->data = $this->ticketUpdateKeys = $this->ticketUpdateValues = [];
-      // set timezone
+
       try {
-        self::setTimezone();
-      } catch (Exception $e) {
-        $this->error = date('Y-m-d H:i:s') . "\nTimezone Error: {$e->getMessage()}\n\n";
-        if ($this->invoiceCronLogFailure) self::writeLoop();
-        exit;
+        self::createDateObject();
+      } catch (\Exception $e) {
+        throw $e;
       }
-      // set today's date
-      try {
-        $this->today = new \dateTime('NOW', $this->timezone);
-      } catch(Exception $e) {
-        $this->error = date('Y-m-d H:i:s') . "\nDate Error: {$e->getMessage()}\n\n";
-        if ($this->invoiceCronLogFailure) self::writeLoop();
-        exit;
-      }
-      // set the invoice start date
-      $tempDate = clone $this->today;
+
+      $this->DateIssued = $this->dateObject->format('Y-m-d');
+
+      $tempDate = clone $this->dateObject;
       $tempDate->modify('- 1 month');
       $this->startDate = $tempDate->format('Y-m-d');
-      // set the invoice end date
-      $tempDate = clone $this->today;
-      $tempDate->modify('- 1 day');
+
+      $tempDate->modify('+ 1 month - 1 day');
       $this->endDate = $tempDate->format('Y-m-d');
-      // set DateIssued for all invoices
-      $this->DateIssued = $this->today->format('Y-m-d');
     }
 
     public function createInvoices()
@@ -79,7 +67,8 @@
       $this->submitTickets();
       // log success
       if ($this->invoiceCronLogSuccess === true) {
-        $this->error = $this->today->format("d M Y H:i:s.u") . "\n" . count($this->newInvoices) . " Invoices Created\n\n";
+        $this->error =
+          $this->dateObject->format('d M Y H:i:s.u') . "\n" . count($this->newInvoices) . " Invoices Created\n\n";
         self::writeLoop();
       }
       exit;
@@ -93,7 +82,7 @@
       $ticketQueryData['queryParams']['include'] = [ 'ticket_index', 'TicketPrice', 'Charge', 'RepeatClient', 'BillTo' ];
       // Create filter for repeat clients
       $repeatFilter = [
-        [ 'Resource'=>'ReceivedDate', 'Filter'=>'bt', 'Value'=>"{$this->startDate} 00:00:00, {$this->endDate} 11:59:59" ],
+        [ 'Resource'=>'ReceivedDate', 'Filter'=>'bt', 'Value'=>"{$this->startDate} 00:00:00,{$this->endDate} 11:59:59" ],
         [ 'Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>'-' ],
         [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1 ]
       ];
@@ -102,7 +91,7 @@
       ];
       // Create filter for non-repeat clients
       $nonrepeatFilter = [
-        [ 'Resource'=>'ReceivedDate', 'Filter'=>'bt', 'Value'=>"{$this->startDate} 00:00:00, {$this->endDate} 11:59:59" ],
+        [ 'Resource'=>'ReceivedDate', 'Filter'=>'bt', 'Value'=>"{$this->startDate} 00:00:00,{$this->endDate} 11:59:59" ],
         [ 'Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>'-' ],
         [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0 ]
       ];
@@ -111,25 +100,26 @@
       ];
       $ticketQueryData['queryParams']['filter'] = [ $repeatFilter, $nonrepeatFilter ];
       if (!$ticketQuery = self::createQuery($ticketQueryData)) {
-        $this->error = __function__ . ' Line ' . __line__;
+        $this->error .= "\n" . __function__ . ' Line ' . __line__;
         if ($this->invoiceCronLogFailure) self::writeLoop();
         exit;
       }
       $this->result = self::callQuery($ticketQuery);
       if ($this->result === false) {
-        $this->error = __function__ . ' Line ' . __line__;
+        $this->error .= "\n" . __function__ . ' Line ' . __line__;
         if ($this->invoiceCronLogFailure) self::writeLoop();
         exit;
       }
       if (empty($this->result)) {
-        $this->error = "{$this->today->format('d M Y H:i:s.u')}\nNo Tickets To Process\n\n" .
-        print_r($this->data, true) . "\n" . print_r($this->result, true) . "\n----\n";
+        $this->error = "{$this->dateObject->format('d M Y H:i:s.u')}\nNo Tickets To Process\n\n" .
+          print_r($this->data, true) . "\n" . print_r($this->result, true) . "\n----\n";
 
         if ($this->invoiceCronLogFailure) self::writeLoop();
         exit;
       }
       for ($i = 0; $i < count($this->result); $i++) {
-        $key = ($this->result[$i]['RepeatClient'] === 1) ? $this->result[$i]['BillTo'] : "t{$this->result[$i]['BillTo']}";
+        $key = ($this->result[$i]['RepeatClient'] === 1) ?
+          $this->result[$i]['BillTo'] : "t{$this->result[$i]['BillTo']}";
         if (!array_key_exists($key, $this->clientList)) {
           $this->clientList[$key] = [ 'tickets'=>[], 'lastInvoice'=>[], 'openInvoices'=>[] ];
         }
@@ -139,7 +129,8 @@
 
     private function fetchLastInvoice()
     {
-      // Grabbing all invoices in a single call then sorting them seems more efficient than trying to compose multiple queries to filter by Closed state, ClientID, and most recent DateIssued
+      // Grabbing all invoices in a single call then sorting them seems more efficient
+      // than trying to compose multiple queries to filter by Closed, ClientID, RepeatClient, and DateIssued
       $invoiceQueryData['noSession'] = true;
       $invoiceQueryData['endPoint'] = 'invoices';
       $invoiceQueryData['method'] = 'GET';
@@ -173,13 +164,13 @@
         $this->data['filter'] = (empty($nonrepeatFilter)) ? $repeatFilter : $nonrepeatFilter;
       }
       if (!$invoiceQuery = self::createQuery($invoiceQueryData)) {
-        $this->error = __function__ . ' Line ' . __line__;
+        $this->error .= "\n" . __function__ . ' Line ' . __line__;
         if ($this->invoiceCronLogFailure) self::writeLoop();
         exit;
       }
       $this->result = self::callQuery($invoiceQuery);
       if ($this->result === false) {
-        $this->error = __function__ . ' Line ' . __line__;
+        $this->error .= "\n" . __function__ . ' Line ' . __line__;
         if ($this->invoiceCronLogFailure) self::writeLoop();
         exit;
       }
@@ -214,7 +205,7 @@
         if (!empty($value['lastInvoice'])) {
           $invoicePointer = (int)self::between('X', '-', $value['lastInvoice']['InvoiceNumber']) + 1;
         }
-        $tempInvoice->InvoiceNumber = "{$this->today->format('y')}EX{$invoicePointer}-{$key}";
+        $tempInvoice->InvoiceNumber = "{$this->dateObject->format('y')}EX{$invoicePointer}-{$key}";
         // solve the invoice subtotal and prep tickets to be update with new invoice number
         $tempInvoice->InvoiceTotal = $tempInvoice->InvoiceSubTotal = $this->getTotal($value['tickets'], $tempInvoice->InvoiceNumber);
         // solve the amount due for the current invoice
@@ -226,8 +217,8 @@
           for ($i = 0; $i < count($value['openInvoices']); $i++) {
             try {
               $tempDate = new \dateTime($value['openInvoices'][$i]['DateIssued'], $this->timezone);
-            } catch(Exception $e) {
-              $this->content = "{$today->format("d M Y H:i:s.u")}\nDate Error Line " . __line__ . ": {$e->getMessage()}\n\n";
+            } catch(\Exception $e) {
+              $this->content = "{$dateObject->format("d M Y H:i:s.u")}\nDate Error Line " . __line__ . ": {$e->getMessage()}\n\n";
               $this->writeLoop();
               exit;
             }
@@ -237,7 +228,7 @@
             $plusTwoMonth->modify('+ 2 month');
             $plusThreeMonth = clone $tempDate;
             $plusThreeMonth->modify('+ 3 month');
-            $diff = $tempDate->diff($this->today);
+            $diff = $tempDate->diff($this->dateObject);
             if (
               $diff->days >= $tempDate->format('t') &&
               $diff->days < ($tempDate->format('t') + $plusOneMonth->format('t'))
@@ -294,7 +285,8 @@
                 $tempInvoice->Over90Value = $value['openInvoices'][$i]['InvoiceSubTotal'];
               }
             }
-            // Fix the over90Invioce to display a maximum of 4 invoice numbers or 3 invoice numbers and how many are not displayed
+            // Fix the over90Invioce to display a maximum of 4 invoice numbers or
+            // 3 invoice numbers and how many are not displayed
             // only if there is at least one
             if (!empty($this->Over90InvoiceList)) {
               if (count($this->Over90InvoiceList) > 4) {

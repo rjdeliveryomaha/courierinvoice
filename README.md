@@ -6,7 +6,7 @@ A set of classes for the Courier Invoice API
 
 ` composer require "rjdeliveryomaha/courierinvoice" `
 
- Or add "rjdeliveryomaha/courierinvoice":"^1.0.0" to composer.json
+ Or add "rjdeliveryomaha/courierinvoice":"^2.0.0" to composer.json
 # Classes
   - [SecureSessionHandler](https://github.com/rjdeliveryomaha/courierinvoice#securesessionhandler)
   - [CommonFunctions](https://github.com/rjdeliveryomaha/courierinvoice#commonfunctions)
@@ -14,6 +14,7 @@ A set of classes for the Courier Invoice API
   - [LoginHandler](https://github.com/rjdeliveryomaha/courierinvoice#loginhandler)
   - [Ticket](https://github.com/rjdeliveryomaha/courierinvoice#ticket)
   - [Route](https://github.com/rjdeliveryomaha/courierinvoice#route)
+  - [Scheduling](https://github.com/rjdeliveryomaha/courierinvoice)
   - [Invoice](https://github.com/rjdeliveryomaha/courierinvoice#invoice)
   - [SearchHandler](https://github.com/rjdeliveryomaha/courierinvoice#searchHandler)
   - [TicketChart](https://github.com/rjdeliveryomaha/courierinvoice#ticketChart)
@@ -828,6 +829,62 @@ $route->transferredTickets();
 Checks for tickets that have been transferred to or by the current driver.
 
 Returns HTML content.
+
+---
+
+# Scheduling
+
+Static Class with tools to interpreting scheduling codes and literals.
+
+## Public methods
+
+```php
+Scheduling::codeFromIndex($index);
+```
+
+Returns the schedule code ([a-g][1-9] or h5 - h28) associated with a given schedule_index (1-87).
+
+```php
+Scheduling::literalFromIndex($index);
+```
+
+Returns the schedule literal (Every Day, Every Last Thursday, Every 22nd) associated with a given schedule_index (1-87).
+
+```php
+Scheduling::indexFromCode($code);
+```
+
+Returns the schedule_index (1-87) associated with a given schedule code ([a-g][1-9] or h5 - h28).
+
+```php
+Scheduling::literalFromCode($code);
+```
+
+Returns the schedule literal (Every Day, Every Last Thursday, Every 22nd) associated with a schedule code ([a-g][1-9] or h5 - h28).
+
+```php
+Scheduling::indexFromLiteral($literal);
+```
+
+Returns the schedule_index (1-87) associated with a given schedule literal (Every Day, Every Last Thursday, Every 22nd).
+
+```php
+Scheduling::codeFromLiteral($literal);
+```
+
+Returns the schedule code ([a-g][1-9] or h5 - h28) associated with a given schedule literal (Every Day, Every Last Thursday, Every 22nd).
+
+```php
+Scheduling::testIndex($index, $startDate, $testDate);
+Scheduling::testCode($code, $startDate, $testDate);
+Scheduling::testLiteral($literal, $startDate, $testDate);
+```
+
+Compares two ``` DateTime ``` objects to determine if the scheduled interval has elapsed.
+
+Returns ``` boolean ```.
+
+
 
 ---
 

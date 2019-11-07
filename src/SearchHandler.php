@@ -37,21 +37,21 @@
     {
       try {
         parent::__construct($options, $data);
-      } catch (Exception $e) {
+      } catch (\Exception $e) {
         $this->error = $e->getMessage();
         if ($this->enableLogging !== FALSE) self::writeLoop();
         throw $e;
       }
       try {
         self::setTimezone();
-      } catch (Exception $e) {
+      } catch (\Exception $e) {
         $this->error .= "\n" . __function__ . ' Line ' . __line__ . ': ' . $e->getMessage();
         if ($this->enableLogging !== FALSE) self::writeLoop();
         throw $e;
       }
       try {
         $this->today = new \dateTime('NOW', $this->timezone);
-      } catch (Exception $e) {
+      } catch (\Exception $e) {
         $this->error .= "\nDate Error Line " . __line__ . ': ' . $e->getMessage();
         if ($this->enableLogging !== FALSE) self::writeLoop();
         throw $e;
@@ -241,14 +241,14 @@
         $tempStart = $tempEnd = '';
         try {
           $tempStart = new \dateTime($this->startDate, $this->timezone);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
           $this->error .= "\n" . __function__ . ' Line ' . __line__ . ': ' . $e->getMessage();
           if ($this->enableLogging !== FALSE) self::writeLoop();
           return "<p class=\"result center\">{$this->error}</p>";
         }
         try {
           $tempEnd = new \dateTime($this->endDate, $this->timezone);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
           $this->error .= "\n" . __function__ . ' Line ' . __line__ . ': ' . $e->getMessage();
           if ($this->enableLogging !== FALSE) self::writeLoop();
           return "<p class=\"result center\">{$this->error}</p>";
@@ -429,7 +429,7 @@
       }
       try {
         $this->result = self::callQuery($this->query);
-      } catch(Exception $e) {
+      } catch(\Exception $e) {
         $this->error = $e->getMessage();
         if ($this->enableLogging !== FALSE) self::writeLoop();
         return "<p class=\"result center\">{$this->error}</p>";
@@ -534,7 +534,7 @@
       foreach ($this->result as $ticket) {
         try {
           $receivedDate = new \dateTime($ticket['ReceivedDate'], $this->timezone);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
           return '<p class="result center">Processing Error Line ' . __line__ . ': ' . $e->getMessage() . '</p>';
         }
 

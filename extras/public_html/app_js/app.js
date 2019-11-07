@@ -5,7 +5,7 @@
     if (screen.width !== width || screen.height !== height) {
       width = screen.width;
       height = screen.height;
-      if(rjdci.resolutionchange) document.dispatchEvent(rjdci.resolutionchange);
+      if (rjdci.resolutionchange) document.dispatchEvent(rjdci.resolutionchange);
     }
   }, 250);
 }());
@@ -125,6 +125,35 @@
   ucfirst = string => string.charAt(0).toUpperCase() + string.slice(1);
 
   lcfirst = string => string.charAt(0).toLowerCase() + string.slice(1);
+
+  rjdci.logout = count => {
+    let newCount = count || 0,
+      typeTest = document.querySelector("#uid").value;
+    if (!typeTest.match(/(driver|dispatch)\d+/)) return document.querySelector("#logoutLink").submit();
+    rjdci.fetch_template({ url: './logout', postData: { logout: 1, formKey: document.querySelector("#formKey").value } })
+    .then(result => {
+      if (typeof result === "undefined") throw new Error("Result Undefined");
+      if (result.ok) {
+        return result.text();
+      } else {
+        throw new Error(result.status + " " + result.statusText);
+      }
+    })
+    .then(data => {
+      document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
+      if (data.indexOf('error') !== -1) {
+        newCount++;
+        return rjdci.logout(newCount);
+      } else {
+        document.querySelector("#logoutLink").submit();
+      }
+    })
+    .catch(error => {
+      document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
+      newCount++;
+      return newCount > 5 ? document.querySelector("#logoutLink").submit() : rjdci.logout(newCount);
+    });
+  };
 
 // Start Toast
   // Use arrays to make date display pretty
@@ -307,12 +336,32 @@
     form.style.left = diff + "px";
   }
 
+  isStopBeforeNoon = ticket => {
+    timestamp = Number(ticket.querySelector(".timing").innerText) * 1000;
+    let d = new Date(timestamp);
+    return d.getHours() < 12;
+  };
+
+  isStopAfterNoon = ticket => {
+    timestamp = Number(ticket.querySelector(".timing").innerText) * 1000;
+    let d = new Date(timestamp);
+    return d.getHours() >= 12;
+  };
+
   sortRoute = () => {
-    let container = document.querySelector("#route"),
-        items = Array.from(container.querySelectorAll(".sortable"));
-    items.sort((a,b) => {
+    let items,
+      container = document.querySelector("#route"),
+      overnight = (document.getElementById("overnightFlag")) ?
+        document.getElementById("overnightFlag").innerText : 0,
+      morning = Array.from(container.querySelectorAll(".sortable")).filter(isStopBeforeNoon),
+      evening = Array.from(container.querySelectorAll(".sortable")).filter(isStopAfterNoon);
+    morning.sort((a,b) => {
       return (a.querySelector(".timing").textContent > b.querySelector(".timing").textContent) ? 1 : -1;
     });
+    evening.sort((a,b) => {
+      return (a.querySelector(".timing").textContent > b.querySelector(".timing").textContent) ? 1 : -1;
+    });
+    items  = (overnight === "1") ? [...evening, ...morning] : [...morning, ...evening];
     let docFrag = document.createDocumentFragment();
     items.forEach(element => { docFrag.appendChild(element); });
     container.appendChild(docFrag);
@@ -342,7 +391,7 @@
       let parser = new DOMParser(),
         newDom = parser.parseFromString(data, "text/html"),
         docFrag = document.createDocumentFragment();
-      Array.from(newDom.querySelectorAll(".sortable, .result")).forEach(element => {
+      Array.from(newDom.querySelectorAll(".sortable, .result, #overnightFlag")).forEach(element => {
         docFrag.appendChild(element);
       });
       setTimeout(() => {
@@ -1039,7 +1088,12 @@
       document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
       if(data.indexOf("error") === - 1) {
         workspace.innerHTML = data;
-        setTimeout(rjdci.refreshRoute, 3000);
+        setTimeout(async() => {
+          switch (rjdci.getClosest(workspace, ".page").getAttribute("id")) {
+            case "route": return await rjdci.refreshRoute();
+            case "on_call" : return await rjdci.refreshOnCall();
+          }
+        }, 3000);
       } else {
         throw new Error(data);
       }
@@ -2147,6 +2201,7 @@
             }
           })
           .then(data => {
+            console.log(data);
             clearInterval(dots);
             document.querySelector("#invoiceQueryResults").removeChild(container);
             if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
@@ -2482,7 +2537,6 @@
           return false;
         }
         postData.formKey = document.querySelector("#formKey").value;
-        console.log(postData);
         await rjdci.fetch_template({ url: "./updateClientInfo.php", postData: postData })
         .then(result => {
           if (typeof result === "undefined") throw new Error("Result Undefined");
@@ -2505,7 +2559,11 @@
           });
           document.querySelector("#clientUpdateResult").innerHTML = "";
           document.querySelector("#clientUpdateResult").appendChild(docFrag);
-          setTimeout(() => { document.querySelector("#clientUpdateResult").innerHTML = ""; }, 3500);
+          setTimeout(() => {
+            document.querySelector("#clientUpdateResult").innerHTML = "";
+            document.querySelector("#enableInfoUpdate").checked = false;
+            rjdci.triggerEvent(document.querySelector("#enableInfoUpdate"), "change");
+          }, 3500);
         })
         .catch(error => {
           console.error(error.message);
@@ -2530,7 +2588,6 @@
         if (document.querySelector("#invoice .vatNotice") !== null) {
           compStyles = getComputedStyle(document.querySelector("#invoice .vatNotice"));
           for (let styleName in compStyles) {
-            if (styleName === "fontSize") styleName = "font-size";
             if (styleNames.indexOf(styleName) !== -1) {
               styles[styleName] = compStyles.getPropertyValue(styleName);
             }
@@ -3183,7 +3240,9 @@
         document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
         if (data.indexOf("data-value=\"error\"") !== -1) {
           workspace.querySelector(".ticketError").innerHTML = data;
-          Array.from(workspace.querySelectorAll(".submitForm, .cancelTicketEditor")).forEach(element => { element.disabled = false; });
+          Array.from(workspace.querySelectorAll(".submitForm, .cancelTicketEditor")).forEach(element => {
+            element.disabled = false;
+          });
           throw new Error(data);
         } else {
           let parser = new DOMParser(),
@@ -3381,6 +3440,11 @@
     let noData = false;
     // assign data-values to navigation links
     rjdci.assignLinkValues();
+
+    document.querySelector("#logoutLink button").addEventListener("click", eve => {
+      eve.preventDefault();
+      rjdci.logout();
+    });
     // only run this function if the login confirmation form is present indicating a client or driver is loged in
     if (document.querySelector("#confirmLogin")) {
       rjdci.populatePage()
@@ -3482,7 +3546,7 @@
     });
 
     document.querySelector("#cancel").addEventListener("click", () => {
-      window.location = "./logout";
+      window.location.assign("./logout");
     });
   });
 })();

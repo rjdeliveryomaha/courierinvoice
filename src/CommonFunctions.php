@@ -26,7 +26,7 @@
     protected $rangeMarker;
     protected $countryClass;
     protected $countryInput;
-    protected $requireCountry;
+    protected $requireCountry = 'required';
     protected $shippingCountry;
     protected $headerLogo;
     protected $headerLogo2;
@@ -40,6 +40,7 @@
     protected $pwWarning;
     // other variables
     protected $noSession = false;
+    protected $dateObject;
     // string: login name for courier invoice user
     protected $userLogin;
     // maximum number of months to display on a chart
@@ -131,11 +132,16 @@
         throw new \Exception($this->error);
       }
       if ($this->options['testMode'] === true && $this->options['testURL'] === null || $this->options['testURL'] === '') {
-        throw new Exception('Invalid URL');
+        throw new \Exception('Invalid URL');
       }
       $this->postKeys = array_keys($_POST);
       if (!isset($data['noSession'])) {
-        if (empty($_SESSION) || !isset($_SESSION['ulevel']) || !isset($_SESSION['config']) || empty($_SESSION['config'])) {
+        if (
+          empty($_SESSION) ||
+          !isset($_SESSION['ulevel']) ||
+          !isset($_SESSION['config']) ||
+          empty($_SESSION['config'])
+        ) {
           $this->error = 'Session Error';
           if ($this->enableLogging !== false) self::writeLoop();
           throw new \Exception($this->error);
@@ -152,7 +158,8 @@
         if (isset($_SESSION['pwWarning'])) $this->pwWarning = $_SESSION['pwWarning'];
         if (($this->ulevel === 1 || $this->ulevel === 2) && self::after_last('\\', get_class($this)) !== 'Client') {
           $this->RepeatClient = $_SESSION['RepeatClient'];
-          $this->ClientID = ($this->RepeatClient === 1) ? $_SESSION['ClientID'] : "t{$_SESSION['ClientID']}";
+          $this->ClientID = (self::test_bool($this->RepeatClient) === true) ?
+            $_SESSION['ClientID'] : "t{$_SESSION['ClientID']}";
           $clientData = [
             'client_index'=>$_SESSION['client_index'],
             'RepeatClient'=>$_SESSION['RepeatClient'],
@@ -202,11 +209,18 @@
           $this->headerLogo = "<img class=\"invoiceLogo\" src=\"../images/logo/{$this->logo}\" alt=\"{$this->config['ClientName']}\" />";
           $this->headerLogo2 = "<img class=\"ticketLogo\" src=\"../images/logo/{$this->logo}\" alt=\"{$this->config['ClientName']}\" />";
         }
-        $this->weightMarker = ($this->config['WeightsMeasures'] === 0) ? '&#35;' : 'kg';
-        $this->rangeMarker = ($this->config['WeightsMeasures'] === 0) ? 'mi' : 'km';
-        $this->countryClass = ($this->config['InternationalAddressing'] === 0) ? 'hide' : '';
-        $this->countryInput = ($this->config['InternationalAddressing'] === 0) ? 'disabled' : '';
-        $this->requireCountry = ($this->config['InternationalAddressing'] === 1) ? 'required' : '';
+        if (self::test_bool($this->config['WeightsMeasures']) === false) {
+          $this->rangeMarker = 'mi';
+          $this->weightMarker = '&#35;';
+        } else {
+          $this->rangeMarker = 'km';
+          $this->weightMarker = 'kg;';
+        }
+        if (self::test_bool($this->config['InternationalAddressing']) === false) {
+          $this->countryClass = 'hide';
+          $this->countryInput = 'disabled';
+          $this->requireCountry = '';
+        }
         $this->myInfo = [
           'Name' => $this->config['ClientName'],
           'EmailAddress' => $this->config['EmailAddress'],
@@ -362,11 +376,28 @@
       if ($this->timezone === null || !is_object($this->timezone)) {
         try {
           $this->timezone = new \dateTimeZone($this->config['TimeZone']);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
           $this->error = 'Timezone Error Line ' . __line__ . ': ' . $e->getMessage();
           if ($this->enableLogging !== false) self::writeLoop();
           throw new \Exception($this->error);
         }
+      }
+    }
+
+    protected function createDateObject($dateString = 'NOW') {
+      try {
+        self::setTimezone();
+      } catch (\Exception $e) {
+        $this->error = $e->getMessage();
+        if ($this->enableLogging !== false) self::writeLoop();
+        throw $e;
+      }
+      try {
+        $this->dateObject = new \dateTime($dateString, $this->timezone);
+      } catch (\Exception $e) {
+        $this->error = __function__ . ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
+        if ($this->enableLogging !== false) self::writeLoop();
+        throw $e;
       }
     }
 
@@ -602,11 +633,6 @@
         preg_match('/(2[0-3]|[01][0-9]):[0-5][0-9]/', $val);
     }
 
-    protected function test_phone($val)
-    {
-      return preg_match('/(\d{3})-(\d{3})-(\d{4})x(\d+)/i', $val) || preg_match('/(\d{3})-(\d{3})-(\d{4})/', $val);
-    }
-
     protected function test_invoice_number($val)
     {
       return (preg_match('/(^[\d]{2}EX[\d]+-t[\d]+$)/', $val) || preg_match('/(^[\d]{2}EX[\d]+-[\d]+$)/', $val));
@@ -707,7 +733,7 @@
     {
       try {
         $obj = new Client($this->options, $data);
-      } catch(Exception $e) {
+      } catch(\Exception $e) {
         $this->error = $e->getMessage();
         return false;
       }
@@ -718,7 +744,7 @@
     {
       try {
         $obj = new Ticket($this->options, $data);
-      } catch(Exception $e) {
+      } catch(\Exception $e) {
         $this->error = $e->getMessage();
         return false;
       }
@@ -729,7 +755,7 @@
     {
       try {
         $obj = new TicketChart($this->options, $data);
-      } catch(Exception $e) {
+      } catch(\Exception $e) {
         $this->error = $e->getMessage();
         return false;
       }
@@ -740,7 +766,7 @@
     {
       try {
         $obj = new Invoice($this->options, $data);
-      } catch(Exception $e) {
+      } catch(\Exception $e) {
         $this->error = $e->getMessage();
         return false;
       }
@@ -751,7 +777,7 @@
     {
       try {
         $obj = new InvoiceChart($this->options, $data);
-      } catch(Exception $e) {
+      } catch(\Exception $e) {
         $this->error = $e->getMessage();
         return false;
       }
@@ -762,7 +788,7 @@
     {
       try {
         $obj = new Query($this->options, $data);
-      } catch (Exception $e) {
+      } catch (\Exception $e) {
         $this->error = $e->getMessage();
         return false;
       }
@@ -773,7 +799,7 @@
     {
       try {
         $result = $query->buildURI()->call();
-      } catch (Exception $e) {
+      } catch (\Exception $e) {
         $this->error = $e->getMessage();
         return false;
       }
@@ -940,6 +966,7 @@
           $credit = $test;
         }
       }
+      $credit['Balance'] *= -1;
       $data['endPoint'] = 'tickets';
       $data['queryParams']['include'] = ['TicketPrice'];
       $data['queryParams']['filter'] = [

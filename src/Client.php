@@ -54,26 +54,26 @@
     {
       try {
         parent::__construct($options, $data);
-      } catch (Exception $e) {
+      } catch (\Exception $e) {
         throw $e;
       }
       if ($this->ulevel === 1 || $this->ulevel === 2) {
         $this->clientInfo = [
-          'client_index'=>$_SESSION['client_index'],
-          'RepeatClient'=>$_SESSION['RepeatClient'],
-          'ClientID'=>$_SESSION['ClientID'],
-          'ClientName'=>$_SESSION['ClientName'],
-          'Department'=>$_SESSION['Department'],
-          'ShippingAddress1'=>$_SESSION['ShippingAddress1'],
-          'ShippingAddress2'=>$_SESSION['ShippingAddress2'],
-          'ShippingCountry'=>$_SESSION['ShippingCountry'],
-          'BillingName'=>$_SESSION['BillingName'],
-          'BillingAddress1'=>$_SESSION['BillingAddress1'],
-          'BillingAddress2'=>$_SESSION['BillingAddress2'],
-          'BillingCountry'=>$_SESSION['BillingCountry'],
-          'Telephone'=>$_SESSION['Telephone'],
-          'EmailAddress'=>$_SESSION['EmailAddress'],
-          'Organization'=>$_SESSION['Organization'],
+          'client_index' => $_SESSION['client_index'],
+          'RepeatClient' => $_SESSION['RepeatClient'],
+          'ClientID' => $_SESSION['ClientID'],
+          'ClientName' => $_SESSION['ClientName'],
+          'Department' => $_SESSION['Department'],
+          'ShippingAddress1' => $_SESSION['ShippingAddress1'],
+          'ShippingAddress2' => $_SESSION['ShippingAddress2'],
+          'ShippingCountry' => $_SESSION['ShippingCountry'],
+          'BillingName' => $_SESSION['BillingName'],
+          'BillingAddress1' => $_SESSION['BillingAddress1'],
+          'BillingAddress2' => $_SESSION['BillingAddress2'],
+          'BillingCountry' => $_SESSION['BillingCountry'],
+          'Telephone' => $_SESSION['Telephone'],
+          'EmailAddress' => $_SESSION['EmailAddress'],
+          'Organization' => $_SESSION['Organization'],
         ];
       }
     }
@@ -145,7 +145,7 @@
         echo '<p class="result">', $this->error, '</p>';
         return false;
       }
-      // Now that we have the data to test againt start building the update query
+      // Now that we have the data to test against start building the update query
       // queryData['endPoint'] does not change
       $this->queryData['method'] = 'PUT';
       $this->queryData['primaryKey'] = $this->result[0][$this->primaryKey];
@@ -175,7 +175,7 @@
       } else {
         if ($this->secondTest) {
           $hash2 = $this->result[0][$this->testAgainst];
-          //Compare new admin password to current daily password
+          // Compare new admin password to current daily password
           if (password_verify($this->newPw1, $hash2)) {
             echo '
             <p class="result center">
@@ -188,7 +188,7 @@
          'cost' => 12,
         ];
         $this->newPass = password_hash($this->newPw1, PASSWORD_DEFAULT, $options);
-        $this->queryData['payload'] = [$this->resourceName=>$this->newPass];
+        $this->queryData['payload'] = [$this->resourceName => $this->newPass];
         $this->query = self::createQuery($this->queryData);
         if ($this->query === false) {
           echo '<p class="result">', $this->error, ' No chages were made to the account.</p>';
@@ -241,26 +241,21 @@
 
     public function updateInfo()
     {
-      if ($this->same === 1) {
+      if (self::test_bool($this->same) === true) {
         $this->BillingName = $this->ClientName;
         $this->BillingAddress1 = $this->ShippingAddress1;
         $this->BillingAddress2 = $this->ShippingAddress2;
         $this->BillingCountry = $this->ShippingCountry;
-      }
-      if ($this->Telephone !== '' && $this->Telephone !== null) {
-        if (!self::test_phone($this->Telephone)) {
-          $this->error = 'Invalid Telephone Number: Please use the format 555-321-1234x567';
-          echo '<p class="result">', $this->error, '</p>';
-          return false;
-        }
       }
       // clear the query data of values used i fetchClientIndex
       $this->queryData = [];
       $this->queryData['method'] = 'PUT';
       $this->queryData['primaryKey'] = $this->clientInfo['client_index'];
       $this->queryData['endPoint'] = 'clients';
+      $this->error = self::safe_print([ $this->updateValues, $this->postKeys ]);
+      self::writeLoop();
       for ($i = 0; $i < count($this->updateValues); $i++) {
-        if (in_array(lcfirst($this->updateValues[$i]), $this->postKeys)) {
+        if (in_array($this->updateValues[$i], $this->postKeys)) {
           $this->queryData['payload'][$this->updateValues[$i]] =
           (strpos($this->updateValues[$i], 'Country') !== false) ?
           self::countryFromAbbr($this->{$this->updateValues[$i]}) :
@@ -294,14 +289,14 @@
         $flag = 'admin';
         $type = 'client';
         $id = $_SESSION['ClientID'];
-        $repeatClient = '<input type="hidden" name="repeatClient" value="' . $_SESSION['RepeatClient'] . '" />';
+        $repeatClient = '<input type="hidden" name="repeatClient" value="' . (int)$_SESSION['RepeatClient'] . '" />';
       } elseif ($this->userType === 'daily') {
         $showPWwarning = ($this->pwWarning === 1 || $this->pwWarning === 3) ? '' : 'hide';
         $formID = 'pwUpdate';
         $flag = 'daily';
         $type = 'client';
         $id = $_SESSION['ClientID'];
-        $repeatClient = '<input type="hidden" name="repeatClient" value="' . $_SESSION['RepeatClient'] . '" />';
+        $repeatClient = '<input type="hidden" name="repeatClient" value="' . (int)$_SESSION['RepeatClient'] . '" />';
       } elseif ($this->userType === 'org') {
         $showPWwarning = ($this->pwWarning === 4) ? '' : 'hide';
         $formID = 'opwUpdate';
@@ -414,23 +409,25 @@
 
     public function updateInfoForm()
     {
-      $requireCountry = $requireCountry2 = $_SESSION['config']['InternationalAddressing'] === 1 ? 'required' : '';
-      if ($_SESSION['Same'] === 1) {
+      $requireCountry = (self::test_bool($_SESSION['config']['InternationalAddressing']) === true) ?
+        'required' : '';
+      if (self::test_bool($_SESSION['Same']) === true) {
         $sameChecked = 'checked';
-        $sameDisabled = $requireCountry2 = 'disabled';
+        $sameDisabled = 'disabled';
         $hideClass = 'hide';
         $billingName = $billingAddress1 = $billingAddress2 = $billingCountry = '';
       } else {
         $sameChecked = $hideClass = '';
-         $sameDisabled = 'required';
+        $sameDisabled = 'required';
         $billingName = $_SESSION['BillingName'];
         $billingAddress1 = $_SESSION['BillingAddress1'];
         $billingAddress2 = $_SESSION['BillingAddress2'];
         $billingCountry = $_SESSION['BillingCountry'];
       }
-      $hideCountry = ($this->config['InternationalAddressing'] === 1) ? '' : 'hide';
-      $hideVAT = ($this->config['ApplyVAT'] === 1) ? '' : 'hide';
-      $clientMarker = ($_SESSION['RepeatClient'] === 1) ? $_SESSION['ClientID'] : "t{$_SESSION['ClientID']}";
+      $hideCountry = (self::test_bool($this->config['InternationalAddressing']) === true) ? '' : 'hide';
+      $hideVAT = (self::test_bool($this->config['ApplyVAT']) === true) ? '' : 'hide';
+      $clientMarker = (self::test_bool($_SESSION['RepeatClient']) === true) ?
+        $_SESSION['ClientID'] : "t{$_SESSION['ClientID']}";
       return "
             <div id=\"clientUpdateForm\">
               <form id=\"clientUpdate\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
@@ -447,7 +444,7 @@
                       <tr>
                         <td>
                           <label for=\"clientID\">Client ID</label>:  {$_SESSION['ClientID']}
-                          <input type=\"hidden\" name=\"clientID\" value=\"{$_SESSION['ClientID']}\" form=\"clientUpdate\" />
+                          <input type=\"hidden\" name=\"ClientID\" value=\"{$_SESSION['ClientID']}\" form=\"clientUpdate\" />
                         </td>
                         <td></td>
                       </tr>
@@ -522,7 +519,7 @@
                         <td></td>
                         <td>
                           <lable for=\"billingCountry\">Billing Country:</label>
-                          <input list=\"countries\" name=\"BillingCountry\" class=\"billingCountry\" value=\"{$billingCountry}\" {$requireCountry2} form=\"clientUpdate\" /><span class=\"error . {$hideClass}\">*</span>
+                          <input list=\"countries\" name=\"BillingCountry\" class=\"billingCountry\" value=\"{$billingCountry}\" {$requireCountry} form=\"clientUpdate\" /><span class=\"error . {$hideClass}\">*</span>
                         </td>
                       </tr>
                     <tr>

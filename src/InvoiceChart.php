@@ -63,7 +63,7 @@
     {
       try {
         parent::__construct($options, $data);
-      } catch (Exception $e) {
+      } catch (\Exception $e) {
         throw $e;
       }
     }
@@ -210,7 +210,8 @@
                   <form action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
                     <input type="hidden" name="endPoint" value="invoices" />
                     <input type="hidden" name="display" value="invoice" />
-                    <input type="hidden" name="dateIssued" value="' . date('Y-m', strtotime($this->monthKeys[$i])) . '" />'
+                    <input type="hidden" name="dateIssued" value="' .
+                      date('Y-m', strtotime($this->monthKeys[$i])) . '" />'
                     . $this->memberInput .
                     '
                     <button type="submit" class="bar' . $i . 'Label invoiceQuery">' . $this->monthKeys[$i] . '</button>
@@ -218,7 +219,7 @@
         }
 
         $this->maxVal = max($this->testMax);
-        $this->ratio = $this->options['chart_height']/$this->maxVal;
+        $this->ratio = $this->options['chart_height'] / $this->maxVal;
         foreach ($this->orderedData as $key => $value) {
           foreach ($value as $k => $v) {
             $this->heights[$k . '_height'][] = $v * $this->ratio;
@@ -293,7 +294,8 @@
               if (!isset($this->totals[$this->monthKeys[$i]][$value])) {
                 $this->totals[$this->monthKeys[$i]][$value] = 0;
               }
-              $this->totals[$this->monthKeys[$i]][$value] += $this->orderedData[$this->monthKeys[$i]][$this->memberList[$j]]['counts'][$value];
+              $this->totals[$this->monthKeys[$i]][$value] +=
+                $this->orderedData[$this->monthKeys[$i]][$this->memberList[$j]]['counts'][$value];
               $temp += $this->orderedData[$this->monthKeys[$i]][$this->memberList[$j]]['counts'][$value];
             }
           }
@@ -392,7 +394,10 @@
       foreach ($this->monthKeys as $_ => $month) {
         foreach ($membergroup as $__ => $memberList) {
           for ($i = 0; $i < count($this->tableLabelGroups); $i++) {
-            $page_break = ((count($memberList) < 6 && $i === count($this->tableLabelGroups) - 1) || count($memberList) > 5) ? 'style="page-break-after: always;"' : '';
+            $page_break =
+              ((count($memberList) < 6 && $i === count($this->tableLabelGroups) - 1) || count($memberList) > 5) ?
+              'style="page-break-after: always;"' : '';
+
             $this->tableOutput .= "
         <table class=\"invoiceTable member centerDiv\" {$page_break}>
           <tr>
@@ -423,11 +428,15 @@
           <tr>
             <th>{$month}:</th>";
             for ($y = 0; $y < count($this->tableLabelGroups[$i]); $y++) {
+              $total = $this->totals[$month][$this->tableLabelGroups[$i][$y]];
+              $percentage = self::displayPercentage(
+                $this->totals[$month][$this->tableLabelGroups[$i][$y]],
+                $this->totals[$this->tableLabelGroups[$i][$y]]
+              );
               $this->tableOutput .= "
             <td class=\"center highlight2 error\">
-              <span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>{$this->totals[$month][$this->tableLabelGroups[$i][$y]]}
-              <br>
-              {$this->displayPercentage($this->totals[$month][$this->tableLabelGroups[$i][$y]], $this->totals[$this->tableLabelGroups[$i][$y]])}&#37;
+              <p><span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>$total</p>
+              <p>{$percentage}&#37;</p>
             </td>";
             }
             $this->tableOutput .= "
@@ -435,9 +444,10 @@
           <tr>
             <th>{$this->tableHead}</th>";
             for ($y = 0; $y < count($this->tableLabelGroups[$i]); $y++) {
+              $total = self::number_format_drop_zero_decimals($this->totals[$this->tableLabelGroups[$i][$y]], 2);
               $this->tableOutput .= "
             <td class=\"center highlight2\">
-              <span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>{$this->number_format_drop_zero_decimals($this->totals[$this->tableLabelGroups[$i][$y]], 2)}
+              <span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>$total
             </td>";
             }
             $this->tableOutput .= '
@@ -451,7 +461,8 @@
 
     private function displayTable()
     {
-      $this->tableOutput = (class_exists('Dompdf\Dompdf') && $this->addPDFbutton === true && $this->options['enableChartPDF'] === true) ? '
+      $this->tableOutput =
+        (class_exists('Dompdf\Dompdf') && $this->addPDFbutton === true && $this->options['enableChartPDF'] === true) ? '
         <form id="invoiceChartPDFform" target="_blank" method="post" action="pdf">
           <input type="hidden" name="title" value="invoiceChart" form="invoiceChartPDFform" />
           <input type="hidden" name="type" value="chart" form="invoiceChartPDFform" />
@@ -496,7 +507,10 @@
             }
             $this->tableOutput .= '
               <td class="center"><span class="currencySymbol">
-                ' . $this->config['CurrencySymbol'] . '</span>' . self::negParenth(self::number_format_drop_zero_decimals($this->totals[$this->tableLabelGroups[$i][$y]][$x], 2)) . '
+                ' . $this->config['CurrencySymbol'] . '</span>' .
+                  self::negParenth(
+                    self::number_format_drop_zero_decimals($this->totals[$this->tableLabelGroups[$i][$y]][$x], 2)
+                  ) . '
               </td>';
 
             if ($y === count($this->tableLabelGroups[$i]) - 1) $this->tableOutput .= '
@@ -524,7 +538,9 @@
               <td class="barContainer">';
           for ($k = 0; $k < count($this->monthKeys); $k++) {
             $margin = ($k === 0) ? "margin-left: {$firstBarMargin}%;" : '';
-            $titleValue = ($this->compareMembers === true) ? $this->totals[$this->monthKeys[$k]][$this->tableLabelGroups[$i][$j]] : $this->totals[$this->tableLabelGroups[$i][$j]][$k];
+            $titleValue = ($this->compareMembers === true) ?
+              $this->totals[$this->monthKeys[$k]][$this->tableLabelGroups[$i][$j]] :
+              $this->totals[$this->tableLabelGroups[$i][$j]][$k];
             $heightKey = "{$this->tableLabelGroups[$i][$j]}_height";
             $this->graphOutput .= "<div title=\"{$this->arrayValueToChartLabel($this->tableLabelGroups[$i][$j])}
             &#10;{$this->config['CurrencySymbol']}{$this->number_format_drop_zero_decimals($titleValue, 2)}\"

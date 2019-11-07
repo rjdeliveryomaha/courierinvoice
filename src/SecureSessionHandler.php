@@ -9,15 +9,15 @@ class SecureSessionHandler extends \SessionHandler
   {
     try {
       static::create_session($config);
-    } catch(Exception $e) {
+    } catch(\Exception $e) {
       throw $e;
     }
     // Make sure the session hasn't expired, and destroy it if it has
     if (static::validateSession()) {
       // Check to see if the session is new or a hijacking attempt
       if(!static::preventHijacking())	{
-        $_SESSION['IPaddress'] = $_SERVER['REMOTE_ADDR'];
-        $_SESSION['userAgent'] = $_SERVER['HTTP_USER_AGENT'];
+        $_SESSION['IPaddress'] = $_SERVER['REMOTE_ADDR'] ?? null;
+        $_SESSION['userAgent'] = $_SERVER['HTTP_USER_AGENT'] ?? null;
         static::regenerate_session();
         // Give a 5% chance of the session id changing on any request
       } elseif (rand(1, 100) <= 5) {
@@ -52,7 +52,7 @@ class SecureSessionHandler extends \SessionHandler
   {
     try {
       static::create_session($config);
-    } catch(Exception $e) {
+    } catch(\Exception $e) {
       throw $e;
     }
     $_SESSION['formKey'] = mt_rand();

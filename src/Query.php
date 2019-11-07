@@ -25,13 +25,14 @@
     {
       try {
         parent::__construct($options, $data);
-      } catch (Exception $e) {
+      } catch (\Exception $e) {
         throw $e;
       }
       // username, publicKey, and privateKey will be set in CommonFunctions
       $this->baseURI = ($this->options['testMode'] === true) ? $this->options['testURL'] : 'https://rjdeliveryomaha.com';
-      $this->validTables = [ 'config', 'tickets', 'invoices', 'clients', 'o_clients', 'contract_locations',
-        'contract_runs', 'schedule_override', 'drivers', 'dispatchers', 'categories' ];
+      $this->validTables = [ 'clients', 'config', 'contract_locations', 'contract_runs', 'c_run_schedule',
+        'dispatchers', 'drivers', 'invoices', 'o_clients', 'routes', 'route_schedule', 'route_tickets',
+        'schedule_override', 'tickets' ];
     }
 
     private function responseError() {

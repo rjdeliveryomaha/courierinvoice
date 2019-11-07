@@ -46,7 +46,7 @@
     {
       try {
         parent::__construct($options, $data);
-      } catch (Exception $e) {
+      } catch (\Exception $e) {
         throw $e;
       }
       if ($this->organizationFlag === true && (is_array($this->clientID) && count($this->clientID) > 1)) {
@@ -208,7 +208,7 @@
           }
         }
         $this->tableHead = $this->monthKeys[0] . ' &amp; ' . $this->monthKeys[count($this->monthKeys) - 1];
-        // Set $this->nonZero equal to array keys of the first month in $this->orderedData that this member has tickets in
+        // Set $this->nonZero equal to array keys of the first month in $this->orderedData that this member has tickets
         $monthKeyIndex = 0;
         for ($i = 0; $i < count($this->monthKeys); $i++) {
           if (array_key_exists($this->monthKeys[$i], $this->orderedData)) {
@@ -275,8 +275,8 @@
             ) {
               $this->totals[$this->monthKeys[$i]][$value] = 0;
             }
-
-            $this->totals[$this->monthKeys[$i]][$value] += $this->orderedData[$this->monthKeys[$i]][$this->memberList[$j]]['counts'][$value];
+            $this->totals[$this->monthKeys[$i]][$value] +=
+              $this->orderedData[$this->monthKeys[$i]][$this->memberList[$j]]['counts'][$value];
             $temp += $this->orderedData[$this->monthKeys[$i]][$this->memberList[$j]]['counts'][$value];
           }
         }
@@ -375,7 +375,9 @@
       foreach ($this->monthKeys as $_ => $month) {
         foreach ($membergroup as $__ => $memberList) {
           for ($i = 0; $i < count($this->tableLabelGroups); $i++) {
-            $page_break = ((count($memberList) < 6 && $i === count($this->tableLabelGroups) - 1) || count($memberList) > 5) ? 'style="page-break-after: always;"' : '';
+            $page_break =
+              ((count($memberList) < 6 && $i === count($this->tableLabelGroups) - 1) || count($memberList) > 5) ?
+              'style="page-break-after: always;"' : '';
             $this->tableOutput .= "
         <table class=\"ticketTable member centerDiv\" {$page_break}>
           <tr>
@@ -392,11 +394,14 @@
           <tr class=\"highlight\" {$pdfHighlight}>
             <td class=\"bar{$x}Label center\">{$this->clientListBy($memberList[$x])}</td>";
               for ($y = 0; $y < count($this->tableLabelGroups[$i]); $y++) {
+                $percentage = self::displayPercentage(
+                  $this->orderedData[$month][$memberList[$x]]['counts'][$this->tableLabelGroups[$i][$y]],
+                  $this->totals[$this->tableLabelGroups[$i][$y]]
+                );
                 $this->tableOutput .= "
             <td class=\"center highlight2\">
-              {$this->orderedData[$month][$memberList[$x]]['counts'][$this->tableLabelGroups[$i][$y]]}
-              <br>
-              {$this->displayPercentage($this->orderedData[$month][$memberList[$x]]['counts'][$this->tableLabelGroups[$i][$y]], $this->totals[$this->tableLabelGroups[$i][$y]])}&#37;
+              <p>{$this->orderedData[$month][$memberList[$x]]['counts'][$this->tableLabelGroups[$i][$y]]}</p>
+              <p>{$percentage}&#37;</p>
             </td>";
               }
               $this->tableOutput .= "
@@ -406,11 +411,14 @@
           <tr>
             <th>{$month}:</th>";
             for ($y = 0; $y < count($this->tableLabelGroups[$i]); $y++) {
+              $percentage = self::displayPercentage(
+                $this->totals[$month][$this->tableLabelGroups[$i][$y]],
+                $this->totals[$this->tableLabelGroups[$i][$y]]
+              );
               $this->tableOutput .= "
             <td class=\"center highlight2 error\">
-              {$this->totals[$month][$this->tableLabelGroups[$i][$y]]}
-              <br>
-              {$this->displayPercentage($this->totals[$month][$this->tableLabelGroups[$i][$y]], $this->totals[$this->tableLabelGroups[$i][$y]])}&#37;
+              <p>{$this->totals[$month][$this->tableLabelGroups[$i][$y]]}</p>
+              <p>{$percentage}&#37;</p>
             </td>";
             }
             $this->tableOutput .= "
@@ -434,7 +442,8 @@
 
     private function displayTable()
     {
-      $this->tableOutput = (class_exists('Dompdf\Dompdf') && $this->addPDFbutton === true && $this->options['enableChartPDF'] === true) ? '
+      $this->tableOutput =
+        (class_exists('Dompdf\Dompdf') && $this->addPDFbutton === true && $this->options['enableChartPDF'] === true) ? '
         <form id="ticketPDFform" target="_blank" method="post" action="pdf">
           <input type="hidden" name="title" value="ticketChart" form="ticketPDFform" />
           <input type="hidden" name="type" value="chart" form="ticketPDFform" />
@@ -454,7 +463,7 @@
         <p class=\"center displayHeader\">{$this->tableHeadPrefix}{$this->tableHead}</p>
         <p class=\"center\">No Data On File</p>
       </div>";
-      return $this->tableOutput;
+        return $this->tableOutput;
       }
       $this->tableOutput .= "
       <table class=\"ticketTable\">

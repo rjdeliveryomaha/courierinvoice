@@ -133,7 +133,6 @@
     // Other needed properties
     private $activeTicketSet = [];
     private $today;
-    private $dateObject;
     public $index = 0;
     public $edit;
     private $memberInput;
@@ -161,9 +160,8 @@
     private $updateTicketDatabaseKeys = [ 'BillTo', 'Charge', 'EmailAddress', 'EmailConfirm', 'Telephone', 'RequestedBy',
       'pClient', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'dClient', 'dAddress1', 'dAddress2',
       'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'ReceivedReady', 'ReadyDate',
-      'DispatchedTo', 'Transfers', 'TicketBase', 'RunPrice', 'VATable', 'VATrate', 'VATtype', 'VATableIce',
-      'VATrateIce', 'VATtypeIce', 'TicketPrice', 'Notes', 'pSigReq', 'dSigReq', 'd2SigReq', 'pLat', 'pLng', 'dLat',
-      'dLng', 'd2Lat', 'd2Lng'
+      'DispatchedTo', 'Transfers', 'TicketBase', 'RunPrice', 'VATable', 'VATrate', 'VATtype', 'VATableIce', 'VATrateIce', 'VATtypeIce', 'TicketPrice', 'Notes', 'pSigReq', 'dSigReq', 'd2SigReq',
+      'pLat', 'pLng', 'dLat', 'dLng', 'd2Lat', 'd2Lng'
     ];
     private $postableKeys = [ 'repeatClient', 'fromMe', 'pClient', 'pDepartment', 'pAddress1', 'pAddress2', 'pCountry',
       'pContact', 'pTelephone', 'pSigReq', 'toMe', 'dClient', 'dDepartment', 'dAddress1', 'dAddress2', 'dCountry',
@@ -243,7 +241,7 @@
     {
       try {
         parent::__construct($options, $data);
-      } catch (Exception $e) {
+      } catch (\Exception $e) {
         $this->error = $e->getMessage();
         if ($this->enableLogging !== false) self::writeLoop();
         throw $e;
@@ -267,14 +265,14 @@
         }
         try {
           self::setTimezone();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
           $this->error .= "\n" . __function__ . ' Line ' . __line__ . ': ' . $e->getMessage();
           if ($this->enableLogging !== false) self::writeLoop();
           throw $e;
         }
         try {
           $this->today = new \dateTime('NOW', $this->timezone);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
           $this->error .= "\nDate Error Line " . __line__ . ': ' . $e->getMessage();
           if ($this->enableLogging !== false) self::writeLoop();
           throw $e;
@@ -350,7 +348,7 @@
 
     private function setVATrates()
     {
-      if ($this->config['ApplyVAT'] !== 1) {
+      if ($this->config['ApplyVAT'] === false) {
         return $this->VATable =
         $this->VATtype =
         $this->VATrate =
@@ -358,7 +356,7 @@
         $this->VATtypeIce =
         $this->VATrateIce = 0;
       }
-      $clientMarker = ($this->RepeatClient === 1) ? $this->BillTo : "t{$this->BillTo}";
+      $clientMarker = (self::test_bool($this->RepeatClient) === true) ? $this->BillTo : "t{$this->BillTo}";
 
       $this->VATtype = $this->config['deliveryVAT'][$clientMarker] ?? $this->config['deliveryVAT']['default'] ?? 1;
 
@@ -465,7 +463,7 @@
           return false;
         }
         $testTicket = $ticketQueryResult[0];
-        if ($testTicket['Contract'] === 1 && $testTicket['RunNumber'] !== 0) {
+        if (self::test_bool($testTicket['Contract']) === true && $testTicket['RunNumber'] !== 0) {
           $contractRunQueryData['endPoint'] = 'contract_runs';
           $contractRunQueryData['method'] = 'GET';
           $contractRunQueryData['queryParams'] = [];
@@ -504,7 +502,7 @@
         $this->Contract = $testTicket['Contract'];
       }
 
-      if ($this->PriceOverride !== 1 && $this->Charge !== 7) {
+      if (self::test_bool($this->PriceOverride) === false && $this->Charge !== 7) {
         self::getTicketBase();
       }
       switch ($this->Charge) {
@@ -540,13 +538,13 @@
           $this->RunPrice = $this->TicketBase;
           break;
       }
-      $this->diPrice = ($this->dryIce === 1) ? $this->diWeight * $this->config['diPrice'] : 0;
+      $this->diPrice = (self::test_bool($this->dryIce) === true) ? $this->diWeight * $this->config['diPrice'] : 0;
       if ($this->Charge === 7) return true;
 
-      if ($this->Contract !== 1) self::setVATrates();
+      if (self::test_bool($this->Contract) === false) self::setVATrates();
 
-      $deliveryVAT = ($this->config['ApplyVAT'] === 1 && $this->VATable === 1) ? 1 + ($this->VATrate / 100) : 1;
-      $iceVAT = ($this->config['ApplyVAT'] === 1 && $this->VATableIce === 1) ? 1 + ($this->VATrateIce / 100) : 1;
+      $deliveryVAT = ($this->config['ApplyVAT'] === true && $this->VATable === true) ? 1 + ($this->VATrate / 100) : 1;
+      $iceVAT = ($this->config['ApplyVAT'] === true && $this->VATableIce === true) ? 1 + ($this->VATrateIce / 100) : 1;
 
       $this->TicketPrice =
         self::number_format_drop_zero_decimals(($this->RunPrice * $deliveryVAT) + ($this->diPrice * $iceVAT), 2);
@@ -557,18 +555,18 @@
     {
       self::queryTicket();
       // Define the start and end times based on return signature request
-      if ($this->d2SigReq === 1) {
+      if (self::test_bool($this->d2SigReq) === true) {
         if ($this->d2TimeStamp !== $this->tTest) {
           try {
             $start = new \dateTime($this->pTimeStamp, $this->timezone);
-          } catch (Exception $e) {
+          } catch (\Exception $e) {
             $this->error = __function__ . ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
             if ($this->enableLogging !== false) self::writeLoop();
             return false;
           }
           try {
             $end = new \dateTime($this->d2TimeStamp, $this->timezone);
-          } catch (Exception $e) {
+          } catch (\Exception $e) {
             $this->error = __function__ . ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
             if ($this->enableLogging !== false) self::writeLoop();
             return false;
@@ -580,14 +578,14 @@
         if ($this->dTimeStamp !== $this->tTest) {
           try {
             $start = new \dateTime($this->pTimeStamp, $this->timezone);
-          } catch (Exception $e) {
+          } catch (\Exception $e) {
             $this->error = __function__ . ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
             if ($this->enableLogging !== false) self::writeLoop();
             return false;
           }
           try {
             $end = new \dateTime($this->dTimeStamp, $this->timezone);
-          } catch (Exception $e) {
+          } catch (\Exception $e) {
             $this->error = __function__ . ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
             if ($this->enableLogging !== false) self::writeLoop();
             return false;
@@ -601,8 +599,8 @@
       $rate = $this->TicketBase / 3600;
       $payload['RunPrice'] = self::number_format_drop_zero_decimals(($seconds * $rate), 2);
       self::setVATrates();
-      $deliveryVAT = ($this->config['ApplyVAT'] === 1 && $this->VATable === 1) ? 1 + ($this->VATrate / 100) : 1;
-      $iceVAT = ($this->config['ApplyVAT'] === 1 && $this->VATableIce === 1) ? 1 + ($this->VATrateIce / 100) : 1;
+      $deliveryVAT = ($this->config['ApplyVAT'] === true && $this->VATable === true) ? 1 + ($this->VATrate / 100) : 1;
+      $iceVAT = ($this->config['ApplyVAT'] === true && $this->VATableIce === true) ? 1 + ($this->VATrateIce / 100) : 1;
       $payload['TicketPrice'] =
         self::number_format_drop_zero_decimals(($payload['RunPrice'] * $deliveryVAT) + ($this->diPrice * $iceVAT), 2);
       $updateTicketPriceData['endPoint'] = 'tickets';
@@ -614,14 +612,14 @@
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
-        return false;
+        return;
       }
       $updateTicketPriceResult = self::callQuery($updateTicketPrice);
       if ($updateTicketPriceResult === false) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
-        return false;
+        return;
       }
       return true;
     }
@@ -672,7 +670,7 @@
             if (count($value) > 1) {
               try {
                 $newProvider = new $testClass($this->adapter, $value[1], $value[0]);
-              } catch(Exception $e) {
+              } catch(\Exception $e) {
                 if ($this->enableLogging !== false) {
                   $this->error = "Geocoder Error {$e->getMessage()}";
                   self::writeLoop();
@@ -683,7 +681,7 @@
             } else {
               try {
                 $newProvider = new $testClass($this->adapter, $value[0]);
-              } catch(Exception $e) {
+              } catch(\Exception $e) {
                 if ($this->enableLogging !== false) {
                   $this->error = "Geocoder Error {$e->getMessage()}";
                   self::writeLoop();
@@ -709,7 +707,7 @@
       // get the result objects
       try {
         $this->geocoder->geocodeQuery(GeocodeQuery::create($addy1));
-      } catch(Exception $e) {
+      } catch(\Exception $e) {
         $this->error = $e->getMessage();
         if ($this->enableLogging !== false) self::writeLoop();
         if ($this->ticketBaseRetries < $this->geoRetry) {
@@ -743,7 +741,7 @@
       }
       try {
         $this->geocoder->geocodeQuery(GeocodeQuery::create($addy2));
-      } catch(Exception $e) {
+      } catch(\Exception $e) {
         $this->error = $e->getMessage();
         if ($this->enableLogging !== false) self::writeLoop();
         if ($this->ticketBaseRetries < $this->geoRetry) {
@@ -812,8 +810,9 @@
     private function shiftGeocoders()
     {
       $geoProviders = json_decode($this->config['Geocoders'], true);
+      $keys = array_keys($geoProviders);
       if (count($geoProviders) > 1) {
-        $firstKey = array_shift(array_keys($geoProviders));
+        $firstKey = array_shift($keys);
         $firstVal = array_shift($geoProviders);
         $geoProviders[$firstKey] = $firstVal;
         $this->config['Geocoders'] = json_encode($geoProviders);
@@ -949,7 +948,7 @@
         return $this->clientList = $this->tClientList = 'empty';
       }
       for ($i = 0; $i < count($tempClients); $i++) {
-        if ($tempClients[$i]['RepeatClient'] === 1) {
+        if (self::test_bool($tempClients[$i]['RepeatClient']) === true) {
           $repeatList[] = $tempClients[$i];
         } else {
           $nrList[] = $tempClients[$i];
@@ -1047,14 +1046,14 @@
           foreach (json_decode(urldecode($this->tClientList), true) as $tclient) {
             $tclientVal = ($tclient['Department'] === null || $tclient['Department'] === '') ?
             $tclient['ClientName'] . '; t' . $tclient['ClientID'] :
-            $tclient['ClientName'] . ', ' . $tclient['Department'] . '; t' . $client['ClientID'];
+            $tclient['ClientName'] . ', ' . $tclient['Department'] . '; t' . $tclient['ClientID'];
 
             $returnData .= "<option value=\"{$tclientVal}\">" . html_entity_decode($tclientVal) . '</option>';
           }
           $returnData .= '</datalist>';
         }
       }
-      if ($this->config['InternationalAddressing'] !== 0) {
+      if (self::test_bool($this->config['InternationalAddressing']) === true) {
         $returnData .= '<datalist id="countries">';
         $lines = file( __dir__ . '/countryList.php', FILE_IGNORE_NEW_LINES);
         // countryList.php was originally supposed to echo these values so start at line two
@@ -1145,14 +1144,14 @@
 
     private function buildSelectElement()
     {
-      $locations = json_decode(urldecode($this->locationList), true);
-      $returnData = '';
       if ($this->locationList === 'empty') {
         return false;
       }
+      $locations = json_decode(urldecode($this->locationList), true);
+      $returnData = '';
       $returnData = "
         <select name=\"{$this->selectID}\" class=\"clientSelect\" form=\"request\" disabled>";
-      for ($i=0; $i<count($locations); $i++) {
+      for ($i = 0; $i < count($locations); $i++) {
         $val = $locations[$i][strtolower(substr($this->selectID, 1))];
         $display = html_entity_decode($locations[$i][strtolower(substr($this->selectID, 1))]);
         $returnData .= "
@@ -1242,7 +1241,7 @@
                 $this->$k = ($value === null || $value === '') ? null : $value;
               } elseif (strtolower($key) === 'transferstate' || strtolower($key) === 'pendingreceiver') {
                 $this->$k = ($this->processTransfer === true) ? $v : $value;
-                $tempkey = strtolower(substr($k, 0, 1)) . substr($k, 1) . 'Old';
+                $tempkey = lcfirst($k) . 'Old';
                 $this->$tempkey = $value;
               } else {
                 $this->$k = $value;
@@ -1291,7 +1290,7 @@
         // $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
         $mail->send();
         //echo 'Message has been sent';
-      } catch (Exception $e) {
+      } catch (\Exception $e) {
         if ($this->enableLogging !== false) {
           $this->error = 'Email Not Sent: ' . $mail->ErrorInfo;
           self::writeLoop();
@@ -1343,7 +1342,7 @@
       }
       $cSym = $this->config['CurrencySymbol'];
       // Define the dry ice display
-      if ($this->dryIce === 1 && $this->options['displayDryIce'] === true) {
+      if (self::test_bool($this->dryIce) === true && $this->options['displayDryIce'] === true) {
         $weight = self::number_format_drop_zero_decimals($this->diWeight, 3) . $this->weightMarker;
         $val = self::number_format_drop_zero_decimals($this->diPrice, 2);
         $answerIce = "Weight: {$weight} | Price: <span class=\"currencySymbol\">{$cSym}</span>{$val}";
@@ -1362,7 +1361,7 @@
       $ticketPrice = self::negParenth(self::number_format_drop_zero_decimals($this->TicketPrice, 2));
       $forcedVATstyle = ($this->renderPDF === true) ? 'style="font-size:0.65rem;"' : '';
 
-      if ($this->config['ApplyVAT'] === 1) {
+      if ($this->config['ApplyVAT'] === true) {
         $vat = 'Error';
         switch ($this->VATtype) {
           case 0:
@@ -1387,7 +1386,7 @@
             $vat = 'Exempt';
             break;
         }
-        if ($this->dryIce === 1) {
+        if (self::test_bool($this->dryIce) === true) {
           $temp = $vat;
           $vat = "D: {$temp} I: ";
           switch ($this->VATtypeIce) {
@@ -1433,7 +1432,6 @@
 
     public function regenTicket()
     {
-      //Prepare the received, pick up, drop of, and return time stamps for display
       $hideTableHead = '';
       if ($this->forDisatch === true) {
         $dispatchValue = '';
@@ -1464,26 +1462,26 @@
         $this->driverDatalist .= '</datalist>';
         $hideTableHead = 'hide';
       }
-      $ticketType = ($this->Contract === 1) ? 'Contract' : 'On Call';
+      $ticketType = (self::test_bool($this->Contract) === true) ? 'Contract' : 'On Call';
       if ($this->ticketEditor === true) $hideTableHead = 'hide';
       try {
         $rDate = new \dateTime($this->ReceivedDate, $this->timezone);
         $rDateDisplay = $rDate->format('d M Y \a\t g:i A');
-	    } catch (Exception $e) {
+	    } catch (\Exception $e) {
         $rDateDisplay = 'Not Available<span class="hide">Error: ' . $e->getMessage() . '</span>';
 	    }
       if ($this->ReadyDate === null) $this->ReadyDate = $this->ReceivedDate;
       try {
         $ready = new \dateTime($this->ReadyDate, $this->timezone);
         $readyDisplay = $ready->format('d M Y \a\t g:i A');
-	    } catch (Exception $e) {
+	    } catch (\Exception $e) {
         $readyDisplay = 'Not Available<span class="hide">Error: ' . $e->getMessage() . '</span>';
 	    }
       if ($this->DispatchTimeStamp !== $this->tTest) {
         try {
           $pDate = new \dateTime($this->DispatchTimeStamp, $this->timezone);
           $dispatchTimeDisplay = $pDate->format('d M Y \a\t g:i A');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
           $dispatchTimeDisplay = 'Not Available<span class="hide">Error: ' . $e->getMessage() . '</span>';
         }
       } else {
@@ -1493,7 +1491,7 @@
         try {
           $pDate = new \dateTime($this->pTimeStamp, $this->timezone);
           $pTimeStampDispay = $pDate->format('d M Y \a\t g:i A');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
           $pTimeStampDispay = 'Not Available<span class="hide">Error: ' . $e->getMessage() . '</span>';
         }
       } else {
@@ -1503,7 +1501,7 @@
         try {
           $dDate = new \dateTime($this->dTimeStamp, $this->timezone);
           $dTimeStampDisplay = $dDate->format('d M Y \a\t g:i A');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
           $dTimeStampDisplay = 'Not Available<span class="hide">Error: ' . $e->getMessage() . '</span>';
         }
       } else {
@@ -1513,12 +1511,12 @@
         try {
           $d2Date = new \dateTime($this->d2TimeStamp, $this->timezone);
           $d2TimeStampDisplay = $d2Date->format('d M Y \a\t g:i A');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
           $d2TimeStampDisplay = 'Not Available<span class="hide">Error: ' . $e->getMessage() . '</span>';
         }
       } elseif ($this->Charge !== 6) {
         if ($this->Charge === 7) {
-          $d2TimeStampDisplay = ($this->d2SigReq === 0) ? 'Not Scheduled' : 'Not Available';
+          $d2TimeStampDisplay = (self::test_bool($this->d2SigReq) === false) ? 'Not Scheduled' : 'Not Available';
         } else {
           $d2TimeStampDisplay = 'Not Scheduled';
         }
@@ -1537,7 +1535,7 @@
           } else {
             $url = 'error';
           }
-          $repeatMarker = ($this->RepeatClient === 1) ? '' : 't';
+          $repeatMarker = (self::test_bool($this->RepeatClient) === true) ? '' : 't';
           if ($this->organizationFlag === true) {
             $this->memberInput = "<input type=\"hidden\" name=\"clientID[]\" value=\"{$repeatMarker}{$this->BillTo}\" />";
           } else {
@@ -1615,7 +1613,7 @@
           </tr>
         </table>';
       $priceDisplay = '';
-      if ($this->Contract === 1) {
+      if (self::test_bool($this->Contract) === true) {
         $priceDisplay .= "
               <tr class=\"{$hideTableHead}\">
                 <td><span class=\"bold\">Repeats:</span> {$this->Multiplier}</td>
@@ -1631,8 +1629,8 @@
       // Reset the run price display if this is an incomplete dedicated run
       if (
         $this->Charge === 7 &&
-        (($this->d2SigReq === 1 && $this->d2TimeStamp === $this->tTest) ||
-        ($this->d2SigReq === 0 && $this->dTimeStamp === $this->tTest))
+        ((self::test_bool($this->d2SigReq) === true && $this->d2TimeStamp === $this->tTest) ||
+        (self::test_bool($this->d2SigReq) === false && $this->dTimeStamp === $this->tTest))
       ) {
         $runPrice = $ticketPrice = 'Pending';
       }
@@ -1723,8 +1721,8 @@
       'Not On File':
       "<span class=\"coordinates\">{$this->d2Lat}, {$this->d2Lng}</span>";
 
-      $hideVAT = ($this->config['ApplyVAT'] === 1) ? '' : 'hide';
-      if ($this->config['ApplyVAT'] !== 1) {
+      $hideVAT = ($this->config['ApplyVAT'] === true) ? '' : 'hide';
+      if ($this->config['ApplyVAT'] === false) {
         $this->VATable = 0;
         $this->VATableIce = 0;
         $this->VATrate = 0;
@@ -1732,7 +1730,7 @@
         $this->VATtype = 0;
         $this->VATtypeIce = 0;
       }
-      if ($this->VATable === 0) {
+      if (self::test_bool($this->VATable) === false) {
         $this->VATtype = 0;
         $this->VATrate = 0;
       }
@@ -1750,11 +1748,11 @@
         $vatDisplay .= ' Exempt';
         $this->VATrate = 0;
       }
-      if ($this->config['ApplyVAT'] !== 1 || $this->VATable === 0) {
+      if ($this->config['ApplyVAT'] === false || $this->VATable === false) {
         $vatDisplay = ' Not VAT-able';
         $this->VATrate = 0;
       }
-      if ($this->dryIce === 1) {
+      if (self::test_bool($this->dryIce) === true) {
         $begin = self::before(' ', $vatDisplay);
         $end = self::after(' ', $vatDisplay);
         $vatDisplay = "{$begin} D: {$end} ";
@@ -1912,10 +1910,10 @@
             </tr>
           </table>";
       if ($this->ticketEditor === true) $returnData .= "
-      <button type=\"button\" class=\"ticketEditor\" data-contract=\"{$this->Contract}\" data-index=\"{$this->ticket_index}\">Edit Ticket</button>";
-    $returnData .= '
-    </div>';
-    return $returnData;
+        <button type=\"button\" class=\"ticketEditor\" data-contract=\"{$this->Contract}\" data-index=\"{$this->ticket_index}\">Edit Ticket</button>";
+      $returnData .= '
+      </div>';
+      return $returnData;
     }
 
     public function displaySingleTicket()
@@ -1925,7 +1923,7 @@
       }
       $readyObj = new \dateTime($this->ReadyDate);
       $singleTicket = '';
-      if ($this->Contract === 0) {
+      if (self::test_bool($this->Contract) === false) {
         // Test for fault in query. There should be no null dispatch times here
         if ($this->DispatchTimeStamp === $this->tTest) {
           return false;
@@ -1951,12 +1949,12 @@
       $timingMultiplier = ($this->Charge < 6) ? $this->Charge : 5;
       $timingSource = 'now';
       if ($this->pTimeStamp === $this->tTest) {
-        $label1 = ($this->Contract === 1) ?
+        $label1 = (self::test_bool($this->Contract) === true) ?
           '' :
           '<p>Ready: ' . date('d M \a\t g:i a', strtotime($this->ReadyDate)) . '</p>';
         $this->step = $this->step ?? 'pickedUp';
         $sigName = 'pSig';
-        if ($this->pSigReq === 1) {
+        if (self::test_bool($this->pSigReq) === true) {
           $sigClass = 'pulse';
           $sigActive = 'required';
           $sigPlaceholder = 'REQUIRED';
@@ -1965,7 +1963,7 @@
         $buttonName = 'Pick Up';
         $button2Class = 'deadRun';
         $button2Name = 'Dead Run';
-        if ($this->Contract === 0) {
+        if (self::test_bool($this->Contract) === false) {
           $label1 .= 'Deadline: ';
           $label2 = '';
           $this->dTime = '';
@@ -1986,7 +1984,7 @@
         if ($this->dTimeStamp === $this->tTest) {
           $this->step = $this->step ?? 'delivered';
           $sigName = 'dSig';
-          if ($this->dSigReq === 1) {
+          if (self::test_bool($this->dSigReq) === true) {
             $sigClass =  'pulse';
             $sigActive = 'required';
             $sigPlaceholder = 'REQUIRED';
@@ -1995,7 +1993,7 @@
           $buttonName = 'Deliver';
           $button2Class = 'declined';
           $button2Name = 'Declined';
-          if ($this->Contract === 0) {
+          if (self::test_bool($this->Contract) === false) {
             $label1 = 'Deadline: ';
             $label2 = '';
             $this->dTime = '';
@@ -2043,7 +2041,7 @@
         } elseif ($this->dTimeStamp !== $this->tTest) {
           $this->step = $this->step ?? 'returned';
           $sigName = 'd2Sig';
-          if ($this->d2SigReq === 1) {
+          if (self::test_bool($this->d2SigReq) === true) {
             $sigClass = 'pulse';
             $sigActive = 'required';
             $sigPlaceholder = 'REQUIRED';
@@ -2115,12 +2113,10 @@
                   <td><button type="button" class="declineTransfer">Decline Transfer</button>';
       }
       // Make the client name look good for display
-      if ($this->pDepartment != null) {
-        $this->pClient .= "<br>{$this->pDepartment}";
-      }
-      if ($this->dDepartment != null) {
-        $this->dClient .= "<br>{$this->dDepartment}";
-      }
+      $this->pClient .= ($this->pDepartment != null) ? "<br>{$this->pDepartment}" : '';
+
+      $this->dClient .= ($this->dDepartment != null) ? "<br>{$this->dDepartment}" : '';
+
       if ($this->diWeight == 0) {
         $iceWeight = '-';
       } else {
@@ -2663,7 +2659,7 @@
             $ticket['pTimeStamp'] !== $this->tTest &&
             $ticket['dTimeStamp'] !== $this->tTest &&
             $ticket['d2TimeStamp'] === $this->tTest &&
-            ($ticket['Charge'] === 6 || ($ticket['Charge'] === 7 && $ticket['d2SigReq'] === 1))
+            ($ticket['Charge'] === 6 || ($ticket['Charge'] === 7 && self::test_bool($ticket['d2SigReq']) === true))
           ) {
             $this->activeTicketSet[] = $ticket;
           }
@@ -2928,11 +2924,7 @@
     private function createChargeSelectOptions()
     {
       $returnData = '';
-      if (isset($this->Charge)) {
-        $testCharge = $this->Charge;
-      } else {
-        $testCharge = (isset($this->options['initialCharge'])) ? $this->options['initialCharge'] : null;
-      }
+      $testCharge = $this->Charge ?? $this->options['initialCharge'] ?? 'NAN';
       if ($this->userType === 'client') {
         if ($this->ClientID === 0) {
           $excludes = (isset($this->options["client0Charges{$this->formType}Exclude"])) ?
@@ -2997,7 +2989,7 @@
 
     public function ticketForm()
     {
-      $this->Contract = $this->Contract ?? 0;
+      $this->Contract = (int)$this->Contract ?? 0;
       $this->RunNumber = $this->RunNumber ?? 0;
       $returnData = '';
       $this->action = self::esc_url($_SERVER['REQUEST_URI']);
@@ -3006,7 +2998,7 @@
         if ($this->newTicket !== false || ($this->ticket_index !== null && $this->updateTicket !== false)) {
           return self::processTicket();
         }
-        if ($this->edit === '0') {
+        if ($this->edit !== null && self::test_bool($this->edit) === false) {
           return self::confirmRequest();
         }
       }
@@ -3018,7 +3010,7 @@
       $returnData .= self::javascriptVars();
       try {
         $returnData .= self::buildDatalists();
-      } catch (Exception $e) {
+      } catch (\Exception $e) {
         throw $e;
       }
       if ($this->ticket_index !== null) {
@@ -3052,16 +3044,20 @@
         }
       }
       // Check boxes and display notices based on values
-      $toMeChecked = ($this->toMe === 1) ? 'checked' : '';
-      $fromMeCheked = ($this->fromMe === 1) ? 'checked' : '';
-      $pSigChecked = ($this->pSigReq === 1) ? 'checked' : '';
-      $dSigChecked = ($this->dSigReq === 1) ? 'checked' : '';
-      $d2SigChecked = ($this->d2SigReq === 1) ? 'checked' : '';
-      $sigNoteClass = ($this->pSigReq === 1 || $this->dSigReq === '1' || $this->d2SigReq === '1') ? '' : 'hide';
-      $emailNoteClass = ($this->EmailConfirm === 0 || $this->EmailConfirm === null) ? 'hide' : '';
+      $toMeChecked = (self::test_bool($this->toMe) === true) ? 'checked' : '';
+      $fromMeCheked = (self::test_bool($this->fromMe) === true) ? 'checked' : '';
+      $pSigChecked = (self::test_bool($this->pSigReq) === true) ? 'checked' : '';
+      $dSigChecked = (self::test_bool($this->dSigReq) === true) ? 'checked' : '';
+      $d2SigChecked = (self::test_bool($this->d2SigReq) === true) ? 'checked' : '';
+      $sigNoteClass = (
+        self::test_bool($this->pSigReq) === true ||
+        self::test_bool($this->dSigReq) === true ||
+        self::test_bool($this->d2SigReq) === true
+      ) ? '' : 'hide';
+      $emailNoteClass = (self::test_bool($this->EmailConfirm) === false) ? 'hide' : '';
       $dryIceChecked = $diWeightMarkerDisabled = '';
       $diWeightDisabled = 'disabled';
-      if ($this->dryIce === 1) {
+      if (self::test_bool($this->dryIce) === true) {
         $dryIceChecked = 'checked';
         $diWeightMarkerDisabled = 'disabled';
         $diWeightDisabled = '';
@@ -3081,20 +3077,36 @@
       $emailConfirm4 = $emailConfirm5 = $emailConfirm6 = $emailConfirm7 = '';
 
       switch ($this->EmailConfirm) {
-        case 0: $emailConfirm0 = 'selected'; break;
-        case 1: $emailConfirm1 = 'selected'; break;
-        case 2: $emailConfirm2 = 'selected'; break;
-        case 3: $emailConfirm3 = 'selected'; break;
-        case 4: $emailConfirm4 = 'selected'; break;
-        case 5: $emailConfirm5 = 'selected'; break;
-        case 6: $emailConfirm6 = 'selected'; break;
-        case 7: $emailConfirm7 = 'selected'; break;
+        case 0:
+          $emailConfirm0 = 'selected';
+          break;
+        case 1:
+          $emailConfirm1 = 'selected';
+          break;
+        case 2:
+          $emailConfirm2 = 'selected';
+          break;
+        case 3:
+          $emailConfirm3 = 'selected';
+          break;
+        case 4:
+          $emailConfirm4 = 'selected';
+          break;
+        case 5:
+          $emailConfirm5 = 'selected';
+          break;
+        case 6:
+          $emailConfirm6 = 'selected';
+          break;
+        case 7:
+          $emailConfirm7 = 'selected';
+          break;
       }
-      $emailNoteDisplay = ($this->EmailConfirm === 0) ? 'hide' : '';
+      $emailNoteDisplay = (self::test_bool($this->EmailConfirm) === false) ? 'hide' : '';
 
-      $hideVAT = ($this->config['ApplyVAT'] === 1) ? '' : 'hide';
+      $hideVAT = ($this->config['ApplyVAT'] === true) ? '' : 'hide';
 
-      $VATchecked = ($this->config['ApplyVAT'] === 1) ? 'checked' : '';
+      $VATchecked = ($this->config['ApplyVAT'] === true) ? 'checked' : '';
 
       if ($this->userType === 'client') {
         $this->RepeatClient = $_SESSION['RepeatClient'];
@@ -3113,9 +3125,7 @@
         $billingRowClass = '';
         $dispatchInputType = ($this->userType === 'dispatch' || $this->CanDispatch === 2) ?
         'list="drivers"' :
-        (($this->CanDispatch === 1) ?
-        'type="text"' :
-        'type="hidden"');
+        (($this->CanDispatch === 1) ? 'type="text"' : 'type="hidden"');
 
         $readonlyDispatch = ($this->CanDispatch === 1) ? 'readonly' : '';
         $requiredDispatch = ($this->CanDispatch === 2) ? 'required' : '';
@@ -3123,13 +3133,13 @@
           $dispatchInputValue = $this->DriverName . '; ' . $this->DispatchedTo;
         } else {
           $dispatchInputValue = ($this->CanDispatch === 1) ?
-          $this->config['driverName'] . '; ' . $_SESSION['ClientID'] : '';
+          $_SESSION['driverName'] . '; ' . $_SESSION['DriverID'] : '';
         }
         $dispatchedBy = ($this->ticketEditor === false) ? "
           <input type=\"hidden\" name=\"dispatchedBy\" class=\"dispatchedBy\" value=\"{$this->DispatchedBy}\" />" : '';
         $hideDispatch = ($this->CanDispatch >= 1) ? '' : 'class="hide"';
-        $billToType = ($this->RepeatClient === 0) ? 'list="t_clients"' : 'list="clients"';
-        $nonRepeatChecked = ($this->RepeatClient === 0) ? 'checked' : '';
+        $billToType = (self::test_bool($this->RepeatClient) === false) ? 'list="t_clients"' : 'list="clients"';
+        $nonRepeatChecked = (self::test_bool($this->RepeatClient) === false) ? 'checked' : '';
         $billToValue = $this->BillTo;
         $billToRequired = 'required';
         $repeatOption = "
@@ -3494,26 +3504,26 @@
             </tr>
           </table>
           <p class=\"ticketError\"></p>";
-  if ($this->ticketEditor === false) {
-    $returnData .= "
+    if ($this->ticketEditor === false) {
+      $returnData .= "
           <p class=\"sigNote {$sigNoteClass}\">Unless a specific request to the contrary is made all deliveries will be completed to the best of our ability even if a signature request is declined.</p>
           <p class=\"emailNote {$emailNoteClass}\">Please add noreply@rjdeliveryomaha.com to your contacts. This will prevent notifications from being marked as spam.</p>";
-  }
-  $returnData .= '
+    }
+    $returnData .= '
           <p class="dedicatedNote">To indicate a round trip request return signature.</p>
 	      </form>
       </div>';
-  if ($this->edit === null && $this->ticketEditor === false) $returnData .= "
-    <div class=\"subContainer\">
-      <div id=\"terms\">
-        <p class=\"error switch center\">*TERMS</p>
-        <p style=\"display: none;\">Responsibility for remittance is implicit when requesting a delivery via this web service. If you do not wish to be held responsible for the payment for services rendered please contact the responsible party and have them request the delivery either on-line or by phone at {$this->config['Telephone']}.<br><br>
-        Routine or Round Trip deliveries that are canceled within one hour of being requested will not be billed. Canceled stat deliveries, Routine or Round Trip deliveries canceled more than one hour after being requested, and scheduled deliveries canceled less than two hours prior to pick up will be billed at 77.5%.<br><br>
-        Unless a greater value has been placed on a shipment prior to the time that a request for delivery service is made through this web service, it is agreed that in consideration of the rate being charged, the liability of the company for damages is limited to $100.00. If the shipper declares to the company\'s office that the value of the shipment exceeds $100.00, the company can furnish a rate which will provide insurance against damage to, or loss or delay of, the shipment at the higher value so declared by the shipper subject to certain limitations. In any event, we won\'t be liable for any damages whether direct, incidental, special or consequential, in excess of the declared value; including but not limited to loss, of income or profits, whether or not we had knowledge that such damages might be incurred. We will not be liable for your acts or omissions including but not limited to incorrect declaration of cargo, improper or insufficient packing, securing, marking or addressing of your shipment, or for the acts or omissions of the recipient. We will not be liable for loss, damage or delay caused by events we cannot control, including but not limited to acts of God, perils of the air, weather conditions, acts of public enemies, war, strikes, civil commotion or acts or omissions of public authorities including customs and health officials with actual or apparent authority. All complaints regarding damage to, loss or delay of any shipment and any special or consequential damages must be submitted in writing to the company's office, within 15 days of delivery of the shipment.</p>
-      </div>
-      <div class=\"mapContainer\" id=\"map\"></div>
-    </div>";
-    return $returnData;
+    if ($this->edit === null && $this->ticketEditor === false) $returnData .= "
+      <div class=\"subContainer\">
+        <div id=\"terms\">
+          <p class=\"error switch center\">*TERMS</p>
+          <p style=\"display: none;\">Responsibility for remittance is implicit when requesting a delivery via this web service. If you do not wish to be held responsible for the payment for services rendered please contact the responsible party and have them request the delivery either on-line or by phone at {$this->config['Telephone']}.<br><br>
+          Routine or Round Trip deliveries that are canceled within one hour of being requested will not be billed. Canceled stat deliveries, Routine or Round Trip deliveries canceled more than one hour after being requested, and scheduled deliveries canceled less than two hours prior to pick up will be billed at 77.5%.<br><br>
+          Unless a greater value has been placed on a shipment prior to the time that a request for delivery service is made through this web service, it is agreed that in consideration of the rate being charged, the liability of the company for damages is limited to $100.00. If the shipper declares to the company\'s office that the value of the shipment exceeds $100.00, the company can furnish a rate which will provide insurance against damage to, or loss or delay of, the shipment at the higher value so declared by the shipper subject to certain limitations. In any event, we won\'t be liable for any damages whether direct, incidental, special or consequential, in excess of the declared value; including but not limited to loss, of income or profits, whether or not we had knowledge that such damages might be incurred. We will not be liable for your acts or omissions including but not limited to incorrect declaration of cargo, improper or insufficient packing, securing, marking or addressing of your shipment, or for the acts or omissions of the recipient. We will not be liable for loss, damage or delay caused by events we cannot control, including but not limited to acts of God, perils of the air, weather conditions, acts of public enemies, war, strikes, civil commotion or acts or omissions of public authorities including customs and health officials with actual or apparent authority. All complaints regarding damage to, loss or delay of any shipment and any special or consequential damages must be submitted in writing to the company's office, within 15 days of delivery of the shipment.</p>
+        </div>
+        <div class=\"mapContainer\" id=\"map\"></div>
+      </div>";
+      return $returnData;
     }
 
     public function runPriceForm()
@@ -3683,7 +3693,7 @@
       $this->queryData['queryParams']['filter'] = [
         ['Resource'=>'NotForDispatch', 'Filter'=>'eq', 'Value'=>0],
         ['Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=>(int)$_SESSION['ClientID']],
-        [ 'Resource'=>'ReceivedDate', 'Filter'=>'sw', 'Value'=>$this->today->format('Y-m-d')]
+        ['Resource'=>'ReceivedDate', 'Filter'=>'sw', 'Value'=>$this->today->format('Y-m-d')]
       ];
       if (!$this->query = self::createQuery($this->queryData)) {
         $temp = $this->error;
@@ -3758,7 +3768,7 @@
           $chargeAnswer = '<p class="rollUp">Dedicated Run</p>';
           break;
       }
-      //Define the display for email confirmation
+
       switch ($this->EmailConfirm) {
         case 0:
           $emailAnswer = 'None';
@@ -3785,7 +3795,7 @@
           $emailAnswer = 'At Each Step';
           break;
       }
-      // Define the display for signature request
+
       $sigReqTemp = [];
       if ($this->pSigReq === 1) {
         $sigReqTemp[] = 'On Pick Up';
@@ -3869,7 +3879,7 @@
         try {
           $temp = new \dateTime($this->ReadyDate);
           $ready = $temp->format('d M Y \a\t g:i a');
-        } catch(Exception $e) {
+        } catch(\Exception $e) {
           $ready = "Unavailable<span class=\"hide\">{$e->getMessage()}</span>";
         }
       }
@@ -4087,7 +4097,7 @@
       }
       try {
         $this->now = new \dateTime('NOW', $this->timezone);
-      } catch(Exception $e) {
+      } catch(\Exception $e) {
         $this->error = __function__ . ' Received Date Error Line ' . __line__ . ': ' . $e->getMessage();
         if ($this->enableLogging !== false) self::writeLoop();
         echo $this->error;
@@ -4200,7 +4210,7 @@
       // set $this->now for last completed value.
       try {
         $this->now = new \dateTime('now', $this->timezone);
-      } catch(Exception $e) {
+      } catch(\Exception $e) {
         $this->error = __function__ . ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
         if ($this->enableLogging !== false) self::writeLoop();
         echo $this->error;
@@ -4305,7 +4315,7 @@
       }
       try {
         $this->now = new \dateTime('now', $this->timezone);
-      } catch(Exception $e) {
+      } catch(\Exception $e) {
         $this->error = __function__ . ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
         if ($this->enableLogging !== false) self::writeLoop();
         return $this->error;
@@ -4543,10 +4553,10 @@
         case 'cancel':
           if ($this->multiTicket === null) {
             $ticketUpdateData['payload'] = [
-              'Charge'=>'0',
-              'TicketPrice'=>'0',
-              'pTimeStamp'=>$this->today->format('Y-m-d H:i:s'),
-              'Notes'=>$this->Notes
+              'Charge' => 0,
+              'TicketPrice' => 0,
+              'pTimeStamp' => $this->today->format('Y-m-d H:i:s'),
+              'Notes' => $this->Notes
             ];
           } else {
             $ticketUpdateData['payload'] = [];
@@ -4565,11 +4575,11 @@
           if ($this->multiTicket === null) {
             $newPrice = self::number_format_drop_zero_decimals($this->TicketBase * $this->config['DeadRun'], 2);
             $ticketUpdateData['payload'] = [
-              'Charge'=>'8',
-              'pTimeStamp'=>$this->today->format('Y-m-d H:i:s'),
-              'RunPrice'=>$newPrice,
-              'TicketPrice'=>$newPrice,
-              'Notes'=>$this->Notes
+              'Charge' => 8,
+              'pTimeStamp' => $this->today->format('Y-m-d H:i:s'),
+              'RunPrice' => $newPrice,
+              'TicketPrice' => $newPrice,
+              'Notes' => $this->Notes
             ];
             if ($this->latitude !== null) $ticketUpdateData['payload']['pLat'] = $this->latitude;
             if ($this->longitude !== null) $ticketUpdateData['payload']['pLng'] = $this->longitude;
@@ -4601,16 +4611,16 @@
               case 5:
                 $newPrice = self::number_format_drop_zero_decimals(($this->TicketBase * 2), 2);
                 $ticketUpdateData['payload'] = [
-                  'dryIce'=>0,
-                  'diPrice'=>0,
-                  'Charge'=>6,
-                  'dTimeStamp'=>$this->today->format('Y-m-d H:i:s'),
-                  'RunPrice'=>$newPrice,
-                  'TicketPrice'=>$newPrice,
-                  'Notes'=>"Delivery declined.\n" . $this->Notes
+                  'dryIce' => 0,
+                  'diPrice' => 0,
+                  'Charge' => 6,
+                  'dTimeStamp' => $this->today->format('Y-m-d H:i:s'),
+                  'RunPrice' => $newPrice,
+                  'TicketPrice' => $newPrice,
+                  'Notes' => "Delivery declined.\n" . $this->Notes
                 ];
-                if ($this->latitude !== null) $ticketUpdateData['payload']['pLat'] = $this->latitude;
-                if ($this->longitude !== null) $ticketUpdateData['payload']['pLng'] = $this->longitude;
+                if ($this->latitude !== null) $ticketUpdateData['payload']['dLat'] = $this->latitude;
+                if ($this->longitude !== null) $ticketUpdateData['payload']['dLng'] = $this->longitude;
                 break;
             }
           } else {
@@ -4633,8 +4643,8 @@
                   $tempObj->TicketPrice = $newPrice;
                   $tempObj->Notes = $this->sanitized[$multiTicketIndex]['Notes'];
               }
-              if ($this->latitude !== null) $tempObj->pLat = $this->latitude;
-              if ($this->longitude !== null) $tempObj->pLng = $this->longitude;
+              if ($this->latitude !== null) $tempObj->dLat = $this->latitude;
+              if ($this->longitude !== null) $tempObj->dLng = $this->longitude;
               $ticketUpdateData['payload'][] = $tempObj;
             }
           }
@@ -4652,9 +4662,9 @@
             case 1:
               if ($this->multiTicket === null) {
                 $ticketUpdateData['payload'] = [
-                  'TransferState'=>(int)$this->TransferState,
-                  'PendingReceiver'=>(int)self::after_last(';', $this->pendingReceiver),
-                  'Notes'=>$this->Notes
+                  'TransferState' => (int)$this->TransferState,
+                  'PendingReceiver' => (int)self::after_last(';', $this->pendingReceiver),
+                  'Notes' => $this->Notes
                 ];
                 $this->receiverName = self::test_input(self::before_last(';', $this->pendingReceiver));
               } else {
@@ -4693,10 +4703,10 @@
             case 3:
               if ($this->multiTicket === null) {
                 $ticketUpdateData['payload'] = [
-                  'TransferState'=>0,
-                  'PendingReceiver'=>0,
-                  'Notes'=>$this->Notes,
-                  'DispatchedTo'=>$this->DispatchedTo
+                  'TransferState' => 0,
+                  'PendingReceiver' => 0,
+                  'Notes' => $this->Notes,
+                  'DispatchedTo' => $this->DispatchedTo
                 ];
               } else {
                 $ticketUpdateData['payload'] = [];
@@ -4730,11 +4740,11 @@
                   $this->Transfers = [ $tempTransfer ];
                 }
                 $ticketUpdateData['payload'] = [
-                  'TransferState'=>0,
-                  'PendingReceiver'=>0,
-                  'Notes'=>$this->Notes,
-                  'DispatchedTo'=>$this->driverID,
-                  'Transfers'=>$this->Transfers
+                  'TransferState' => 0,
+                  'PendingReceiver' => 0,
+                  'Notes' => $this->Notes,
+                  'DispatchedTo' => $this->driverID,
+                  'Transfers' => $this->Transfers
                 ];
               } else {
                 $ticketUpdateData['payload'] = [];
