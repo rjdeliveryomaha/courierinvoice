@@ -80,7 +80,7 @@
     protected $d2Sig;
     protected $d2SigType;
     protected $d2SigFile;
-    protected $RepeatClient;
+    protected $RepeatClient = 1;
     protected $DispatchedTo;
     protected $driverID;
     protected $FirstName;
