@@ -10,37 +10,6 @@
   }, 250);
 }());
 ((global) => {
-// Start no back button
-  // https://stackoverflow.com/a/12381873
-  if (typeof (global) === "undefined") {
-    throw new Error("window is undefined");
-  }
-  var _hash = "!";
-  var noBackPlease = function () {
-    global.location.href += "#";
-    // making sure we have the fruit available for juice (^__^)
-    global.setTimeout(function () {
-      global.location.href += "!";
-    }, 50);
-  };
-  global.onhashchange = function () {
-    if (global.location.hash !== _hash) {
-      global.location.hash = _hash;
-    }
-  };
-  global.onload = function () {
-    noBackPlease();
-    // disables backspace on page except on input fields and textarea..
-    document.body.onkeydown = function (eve) {
-      var elm = eve.target.nodeName.toLowerCase();
-      if (eve.which === 8 && (elm !== 'input' && elm  !== 'textarea')) {
-        eve.preventDefault();
-      }
-      // stopping event bubbling up the DOM tree..
-      if (eve.which === 8) eve.stopPropagation();
-    };
-  }
-// End no back button
 /*!
  * Swipe 2.2.14
  *
@@ -2201,7 +2170,6 @@
             }
           })
           .then(data => {
-            console.log(data);
             clearInterval(dots);
             document.querySelector("#invoiceQueryResults").removeChild(container);
             if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
@@ -3246,9 +3214,10 @@
           throw new Error(data);
         } else {
           let parser = new DOMParser(),
-            newDom = parser.parseFromString(data, "text/html");
+            newDom = parser.parseFromString(data, "text/html"),
+            content = newDom.querySelector("#deliveryConfirmation") || newDom.querySelector(".editorConfirmation");
           workspace.querySelector(".removableByEditor").innerHTML = "";
-          workspace.querySelector(".removableByEditor").appendChild(newDom.querySelector("#deliveryConfirmation"));
+          workspace.querySelector(".removableByEditor").appendChild(content);
           if (postData.mapAvailable) {
             scroll(0,0);
             let options = {};
@@ -3445,7 +3414,7 @@
       eve.preventDefault();
       rjdci.logout();
     });
-    // only run this function if the login confirmation form is present indicating a client or driver is loged in
+    // only run this function if the login confirmation form is present indicating a client or driver is logged in
     if (document.querySelector("#confirmLogin")) {
       rjdci.populatePage()
       .then(() => {
