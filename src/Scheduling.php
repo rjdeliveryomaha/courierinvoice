@@ -12,6 +12,11 @@
         'literal' => 'Every Day'
       ],
       [
+        'schedule_index' => 1,
+        'code' => 'a1',
+        'literal' => 'Every Day'
+      ],
+      [
         'schedule_index' => 2,
         'code' => 'a2',
         'literal' => 'Every Weekday'
