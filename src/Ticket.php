@@ -3810,6 +3810,19 @@
         $sigReqTemp[] = 'None';
       }
       $sigReq = self::arrayToList($sigReqTemp);
+
+      if ($this->ReceivedReady == 1 || strlen($this->ReadyDate) == 0) {
+        $ready = 'Now';
+        $this->ReceivedReady = 1;
+      } else {
+        try {
+          $temp = new \dateTime($this->ReadyDate);
+          $ready = $temp->format('d M Y \a\t g:i a');
+        } catch(\Exception $e) {
+          $ready ="Now<span class=\"hide\">{$e->getMessage()}</span>";
+          $this->ReceivedReady = 1;
+        }
+      }
       // Generate the hidden form
       // Add the values that we just solved for
       $newTicketInput = ($this->ticket_index === null) ?
@@ -3873,16 +3886,6 @@
       <input type="hidden" name="address2" class="address2" value="' . htmlentities($this->dAddress1 . ' ' . $this->dAddress2, ENT_QUOTES) . '" form="coordinates" />
       <input type="hidden" name="center" class="center" value="' . htmlentities(json_encode($this->center)) . '" form="coordinates" />';
       $displayDryIce = ($this->options['displayDryIce'] === true) ? '' : 'class="hide"';
-      if ($this->ReceivedReady == 1) {
-        $ready = 'Now';
-      } else {
-        try {
-          $temp = new \dateTime($this->ReadyDate);
-          $ready = $temp->format('d M Y \a\t g:i a');
-        } catch(\Exception $e) {
-          $ready = "Unavailable<span class=\"hide\">{$e->getMessage()}</span>";
-        }
-      }
       $output .= "
         <table class=\"ticketContainer\">
           <thead>
