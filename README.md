@@ -352,7 +352,17 @@ try {
 
             * Invoice to tickets
 
-            * Contract Run to contract locations
+            * Contract run to contract locations
+
+            * Contract run to contract run schedule
+
+            * Contract run to schedule override
+
+            * Route to route schedule
+
+            * Route to schedule override
+
+            * Route to route tickets
 
 ## Public Methods
 
