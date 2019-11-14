@@ -3259,10 +3259,12 @@
                         <input type=\"hidden\" name=\"repeatClient\" value=\"{$this->RepeatClient}\" form=\"request{$this->ticket_index}\" {$nonRepeatChecked} />
                         {$repeatOption}
                       </td>
-                      <td class=\"{$hideVAT}\">
-                        <label for=\"VATable{$this->ticket_index}\">VAT-able</label>
-                        <input type=\"hidden\" name=\"VATable\" value=\"0\" form=\"request{$this->ticket_index}\" />
-                        <input type=\"checkbox\" name=\"VATable\" id=\"VATable{$this->ticket_index}\" value=\"1\" form=\"request{$this->ticket_index}\" {$VATchecked} />
+                      <td>
+                        <span  class=\"{$hideVAT}\">
+                          <label for=\"VATable{$this->ticket_index}\">VAT-able</label>
+                          <input type=\"hidden\" name=\"VATable\" value=\"0\" form=\"request{$this->ticket_index}\" />
+                          <input type=\"checkbox\" name=\"VATable\" id=\"VATable{$this->ticket_index}\" value=\"1\" form=\"request{$this->ticket_index}\" {$VATchecked} />
+                      </span>
                       </td>
                     </tr>
                     <tr class=\"{$billingRowClass}\">
