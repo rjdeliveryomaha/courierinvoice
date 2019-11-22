@@ -18,8 +18,7 @@
     private $headers;
     private $jsonData;
     private $ch;
-    private $result;
-    protected $testVal;
+    protected $result;
 
     public function __construct($options, $data=[])
     {
