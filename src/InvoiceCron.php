@@ -118,7 +118,7 @@
         exit;
       }
       for ($i = 0; $i < count($this->result); $i++) {
-        $key = ($this->result[$i]['RepeatClient'] === 1) ?
+        $key = (self::test_bool($this->result[$i]['RepeatClient']) === true) ?
           $this->result[$i]['BillTo'] : "t{$this->result[$i]['BillTo']}";
         if (!array_key_exists($key, $this->clientList)) {
           $this->clientList[$key] = [ 'tickets'=>[], 'lastInvoice'=>[], 'openInvoices'=>[] ];
