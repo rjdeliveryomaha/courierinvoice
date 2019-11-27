@@ -31,7 +31,7 @@
       $this->baseURI = ($this->options['testMode'] === true) ? $this->options['testURL'] : 'https://rjdeliveryomaha.com';
       $this->validTables = [ 'clients', 'config', 'contract_locations', 'contract_runs', 'c_run_schedule',
         'dispatchers', 'drivers', 'invoices', 'o_clients', 'routes', 'route_schedule', 'route_tickets',
-        'schedule_override', 'tickets' ];
+        'schedule_override', 'tickets', 'webhooks' ];
     }
 
     private function responseError() {
