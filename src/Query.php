@@ -30,7 +30,7 @@
       // username, publicKey, and privateKey will be set in CommonFunctions
       $this->baseURI = (self::test_bool($this->options['testMode']) === true) ?
         $this->options['testURL'] : 'https://rjdeliveryomaha.com';
-        
+
       $this->validTables = [ 'clients', 'config', 'contract_locations', 'contract_runs', 'c_run_schedule',
         'dispatchers', 'drivers', 'invoices', 'o_clients', 'routes', 'route_schedule', 'route_tickets',
         'schedule_override', 'tickets', 'webhooks' ];
@@ -64,24 +64,6 @@
           break;
       }
       if ($this->enableLogging !== false) self::writeLoop();
-    }
-
-    private function testResponse()
-    {
-      // A simple test to make sure an appropriate response was received
-      switch (strtoupper($this->method)) {
-        // POST: Expects the id of the last created resource
-        // PUT, DELETE: Expects the number of rows affected
-        // Expects an array of ids or rows affected when creating, updating, or deleting with array
-        // Receives the string 'null' on failure
-        case 'DELETE':
-        case 'PUT':
-        case 'POST': return (is_numeric($this->result) || substr($this->result, 0, 1) === '[');
-        // Expects a json encoded object or array of objects
-        case 'GET': return (substr($this->result,0,1) === '{' || substr($this->result,0,1) === '[');
-
-        default: return false;
-      }
     }
 
     private function orderParams()
@@ -231,8 +213,7 @@
       curl_setopt($this->ch, CURLOPT_HTTPHEADER, $this->headers);
       curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, true);
       $this->result = curl_exec($this->ch);
-      if (!$this->result) {
-        // TODO Implement retry with backoff here
+      if ($this->result === false) {
         $this->result = curl_error($this->ch);
         self::responseError();
         curl_close($this->ch);
