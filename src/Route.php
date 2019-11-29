@@ -85,7 +85,9 @@
     {
       $output = '';
       if (!self::buildRoute()) {
-        if ($this->enableLogging !== false) self::writeLoop();
+        if ($this->cancelRoute === false) {
+          if ($this->enableLogging !== false) self::writeLoop();
+        }
         return '<p class="center result">' . self::getError() . '</p>';
       }
       // Check for active contract tickets
@@ -256,6 +258,10 @@
         if ($this->enableLogging !== false) self::writeLoop();
         return false;
       }
+      if ($this->cancelRoute === true) {
+        $this->error = '<p class="center">All Routes Canceled</p>';
+        return false;
+      }
       // Filter runs by schedule, check them against the schedule override, and add them to the daily ticket set
       self::filterRuns();
       if ($this->dateObject->format('Y-m-d') !== $this->today) {
@@ -384,7 +390,7 @@
         ['Resource'=>'EndDate', 'Filter'=>'ge', 'Value'=>$this->today]
       ];
       $rescheduledQueryData['queryParams']['filter'] = [ $rescheduleFilter, $cancelFilter ];
-      $rescheduledQueryData['queryParams']['order'] = [ 'Cancel,desc', 'RunNumber' ];
+      $rescheduledQueryData['queryParams']['order'] = [ 'Cancel,desc', 'crun_index' ];
       if (!$rescheduledQuery = self::createQuery($rescheduledQueryData)) {
         $temp = $this->error . "\n";
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
@@ -402,34 +408,35 @@
         if ($this->cancelRoute === true) break;
         switch ((int)$this->rescheduledRuns[$i]['Cancel']) {
           case 1:
-            if ($this->rescheduledRuns[$i]['RunNumber'] === 0) $this->cancelRoute = true;
-            $this->cancelations[] = $this->rescheduledRuns[$i]['RunNumber'];
+            if ($this->rescheduledRuns[$i]['crun_index'] === 1) $this->cancelRoute = true;
+            $this->cancelations[] = $this->rescheduledRuns[$i]['crun_index'];
             break;
           case 0:
             if (
               $this->cancelRoute === true ||
-              in_array($this->rescheduledRuns[$i]['RunNumber'], $this->cancelations, true)
+              in_array($this->rescheduledRuns[$i]['crun_index'], $this->cancelations, true)
             ) break;
-            $this->rescheduledRunsList[] = $this->rescheduledRuns[$i]['RunNumber'];
+            $this->rescheduledRunsList[] = $this->rescheduledRuns[$i]['crun_index'];
             break;
         }
       }
       if ($this->cancelRoute === true) return false;
       $runListQueryData['endPoint'] = 'contract_runs';
       $runListQueryData['method'] = 'GET';
-      $runListQueryData['queryParams']['filter'][] = [
-        [
-          'Resource'=>'crun_index',
-          'Filter'=>'in',
-          'Value'=>implode(',', array_column($this->todaysRouteTickets, 'crun_index'))
-        ],
-        ['Resource'=>'RunNumber', 'Filter'=>'nin', 'Value'=>implode(',', $this->cancelations)],
-        ['Resource'=>'LastCompleted', 'Filter'=>'ne', 'Value'=>$this->today]
-      ];
-      $runListQueryData['queryParams']['filter'][] = [
-        ['Resource'=>'RunNumber', 'Filter'=>'in', 'Value'=>implode(',', $this->rescheduledRunsList)],
-        ['Resource'=>'LastCompleted', 'Filter'=>'ne', 'Value'=>$this->today]
-      ];
+      $filtered = array_diff(array_column($this->todaysRouteTickets, 'crun_index'), $this->cancelations);
+      if (!empty($filtered)) {
+        $runListQueryData['queryParams']['filter'][] = [
+          ['Resource'=>'crun_index', 'Filter'=>'in', 'Value'=>implode(',', $filtered)],
+          ['Resource'=>'LastCompleted', 'Filter'=>'ne', 'Value'=>$this->today]
+        ];
+      }
+      $filtered = array_diff($this->rescheduledRunsList, $this->cancelations);
+      if (!empty($filtered)) {
+        $runListQueryData['queryParams']['filter'][] = [
+          ['Resource'=>'crun_index', 'Filter'=>'in', 'Value'=>implode(',', $filtered)],
+          ['Resource'=>'LastCompleted', 'Filter'=>'ne', 'Value'=>$this->today]
+        ];
+      }
       $runListQueryData['queryParams']['join'] = [ 'contract_locations', 'c_run_schedule' ];
       if (!$runListQuery = self::createQuery($runListQueryData)) {
         $temp = $this->error . "\n";
@@ -467,7 +474,7 @@
         }
         unset($runList[$i]['dropoff_id']);
       }
-      $this->runList = $runList;
+      return $this->runList = $runList;
     }
 
     private function filterRuns()
