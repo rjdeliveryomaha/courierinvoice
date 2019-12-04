@@ -35,6 +35,7 @@
     protected $LastSeen;
     // List of drivers on file for transfer data list for drivers without dispatch authorization
     protected $transferList;
+    private $timestamp;
     private $tTest;
 
     public function __construct($options, $data=[])
@@ -52,6 +53,7 @@
       } catch (\Exception $e) {
         throw $e;
       }
+      $this->timestamp = $this->dateObject->getTimestamp();
       $this->today = $this->dateObject->format('Y-m-d');
       $temp = clone $this->dateObject;
       $this->yesterday = $temp->modify('- 1 day')->format('Y-m-d');
@@ -234,7 +236,7 @@
         $this->testDateObject->setTimestamp(strtotime($this->testDate . ' ' . $this->config['routes'][$i]['StartTime']));
         for($j = 0; $j < count($schedule); $j++) {
           if ($this->dateObject->format('Y-m-d') !== $this->today) {
-            $this->dateObject->setDate(...explode('-', $this->today));
+            $this->dateObject->setTimestamp($this->timestamp);
           }
           if (self::compareSchedule($schedule[$j], $this->config['routes'][$i]['route_index'], true) === true) {
             $this->todaysRoutes[] = $this->config['routes'][$i];
@@ -265,7 +267,7 @@
       // Filter runs by schedule, check them against the schedule override, and add them to the daily ticket set
       self::filterRuns();
       if ($this->dateObject->format('Y-m-d') !== $this->today) {
-        $this->dateObject->setDate(...explode('-', $this->today));
+        $this->dateObject->setTimestamp($this->timestamp);
       }
       if (!empty($this->newTickets)) {
         if (!self::submitRouteTickets()) {
@@ -285,6 +287,7 @@
           $setStartDate[] = $route['route_index'];
         }
       }
+      $this->dateObject->setTimestamp($this->timestamp);
       if (!empty($setStartDate)) {
         $startDateData['method'] = 'PUT';
         $startDateData['endPoint'] = 'routes';
@@ -495,7 +498,7 @@
         $schedule = array_column($this->runList[$i]['c_run_schedule'], 'schedule_index');
         for ($x = 0; $x < count($schedule); $x++) {
           if ($this->dateObject->format('Y-m-d') !== $this->today) {
-            $this->dateObject->setDate(...explode('-', $this->today));
+            $this->dateObject->setTimestamp($this->timestamp);
           }
           if (self::compareSchedule($schedule[$x], $this->runList[$i]['route_index']) === true) {
             // Set a flag indicating that the ticket should be added to the new ticket set
