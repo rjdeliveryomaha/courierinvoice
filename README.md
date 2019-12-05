@@ -820,6 +820,10 @@ A call is made to fetch incomplete routine and round trip contract tickets. If t
 
 Multiple tickets with the same location and scheduled step time will be grouped together.
 
+Soft delete (setting the 'Deleted' property to 1) of contract runs, contract run schedules, rescheduling events, cancelations, and route schedules is respected.
+
+Soft delete of contract locations that are associated with active contract runs is not respected.
+
 A ` span.timing ` element is added to each ` div.sortable ` for use by javascript to order tickets based on their ` ReadyDate ` and ` step `.
 
 Returns HTML content.
@@ -936,6 +940,8 @@ Uses the data provided in ` invoiceQueryResult ` to display an invoice.
 If [dompdf](https://github.com/dompdf/dompdf) is detected a button will be added to display/download the invoice as a pdf.
 
 If multiple datasets are provided a form will be returned to select which invoice to recreate by invoice number.
+
+Soft delete (setting the 'Deleted' property to 1) will result in a discreet message being displayed at the top of the invoice indicating that it has been flagged for deletion.
 
 ```php
 $invoice->invoiceQueryForm();
@@ -1439,6 +1445,8 @@ Updates tickets with new invoice number.
 Can be configured to ignore clients and non-repeat clients.
 
 Checks for past due invoices.
+
+Respects soft delete (setting the 'Deleted' property to 1) when checking for past due invoices.
 
 ## Usage:
 
