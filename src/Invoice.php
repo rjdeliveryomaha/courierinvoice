@@ -21,6 +21,7 @@
     protected $Balance;
     protected $CheckNumber;
     protected $Closed;
+    protected $Deleted;
     protected $consolidateContractTicketsOnInvoice = true;
     protected $showCanceledTicketsOnInvoice = false;
     protected $tickets;
@@ -337,15 +338,18 @@
         return self::multiInvoiceForm();
       } else {
         foreach ($this->invoiceQueryResult[0] as $key => $value) {
-          if ($value !== null) self::updateProperty($key, $value);
+          self::updateProperty($key, $value);
         }
       }
 
       $this->ClientID = (self::test_bool($this->RepeatClient) === true) ? $this->ClientID : "t{$this->ClientID}";
 
-      $this->showCanceledTicketsOnInvoice = in_array($this->ClientID, $this->options['showCanceledTicketsOnInvoiceExceptions'], true);
+      $this->showCanceledTicketsOnInvoice =
+        in_array($this->ClientID, $this->options['showCanceledTicketsOnInvoiceExceptions'], true);
 
-      $this->consolidateContractTicketsOnInvoice = !in_array($this->ClientID, $this->options['consolidateContractTicketsOnInvoiceExceptions'], true);
+      $this->consolidateContractTicketsOnInvoice =
+        !in_array($this->ClientID, $this->options['consolidateContractTicketsOnInvoiceExceptions'], true);
+
       $temp = [];
       for ($i = 0; $i < count($this->tickets); $i++) {
         if (!$temp[] = self::createTicket($this->tickets[$i])) {
@@ -398,6 +402,9 @@
 
       $billingCountry = $this->members[$this->ClientID]->getProperty('BillingCountry') ??
         $this->members[$this->ClientID]->getProperty('ShippingCountry');
+
+      $flagedForDeletion = (self::test_bool($this->Deleted) === true) ?
+        '<p class="center small" style="z-index: 1;">Flagged For Deletion.</p>' : '';
 
       $pdfForm = (class_exists('Dompdf\Dompdf')) ? "
         <form id=\"invoicePDFform\" target=\"_blank\" method=\"post\" action=\"pdf\">
@@ -462,8 +469,9 @@
         <p>' . $this->members[$this->ClientID]->getProperty('Department'). '</p>
         <p>Subtotal: <span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::negParenth(self::number_format_drop_zero_decimals($this->InvoiceSubTotal, 2)) . '</p>
       </div>
-    </div>
-    <div class="smallTableSpace"></div>';
+    </div>'
+    . $flagedForDeletion .
+    '<div class="smallTableSpace"></div>';
       $this->invoiceDisplay .= self::invoiceBodyTickets();
 		  $this->invoiceDisplay .= '
     <table class="invoiceBody wide" style="margin-top: 1rem;">
