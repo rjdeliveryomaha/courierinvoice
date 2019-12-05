@@ -385,12 +385,14 @@
           'Value'=>implode(',', array_column($this->todaysRoutes, 'route_index'))
         ],
         ['Resource'=>'StartDate', 'Filter'=>'le', 'Value'=>$this->today],
-        ['Resource'=>'EndDate', 'Filter'=>'ge', 'Value'=>$this->today]
+        ['Resource'=>'EndDate', 'Filter'=>'ge', 'Value'=>$this->today],
+        ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0]
       ];
       $cancelFilter = [
         ['Resource'=>'Cancel', 'Filter'=>'eq', 'Value'=>1],
         ['Resource'=>'StartDate', 'Filter'=>'le', 'Value'=>$this->today],
-        ['Resource'=>'EndDate', 'Filter'=>'ge', 'Value'=>$this->today]
+        ['Resource'=>'EndDate', 'Filter'=>'ge', 'Value'=>$this->today],
+        ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0]
       ];
       $rescheduledQueryData['queryParams']['filter'] = [ $rescheduleFilter, $cancelFilter ];
       $rescheduledQueryData['queryParams']['order'] = [ 'Cancel,desc', 'crun_index' ];
@@ -430,14 +432,16 @@
       if (!empty($filtered)) {
         $runListQueryData['queryParams']['filter'][] = [
           ['Resource'=>'crun_index', 'Filter'=>'in', 'Value'=>implode(',', $filtered)],
-          ['Resource'=>'LastCompleted', 'Filter'=>'ne', 'Value'=>$this->today]
+          ['Resource'=>'LastCompleted', 'Filter'=>'ne', 'Value'=>$this->today],
+          ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0]
         ];
       }
       $filtered = array_diff($this->rescheduledRunsList, $this->cancelations);
       if (!empty($filtered)) {
         $runListQueryData['queryParams']['filter'][] = [
           ['Resource'=>'crun_index', 'Filter'=>'in', 'Value'=>implode(',', $filtered)],
-          ['Resource'=>'LastCompleted', 'Filter'=>'ne', 'Value'=>$this->today]
+          ['Resource'=>'LastCompleted', 'Filter'=>'ne', 'Value'=>$this->today],
+          ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0]
         ];
       }
       $runListQueryData['queryParams']['join'] = [ 'contract_locations', 'c_run_schedule' ];
