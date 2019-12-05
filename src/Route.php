@@ -232,7 +232,10 @@
         }
         $startDate = $this->config['routes'][$i]['StartDate'] ?? $this->testDate ?? $this->today;
         $this->startDateObject->setDate(...explode('-', $startDate));
-        $schedule = array_column($this->config['routes'][$i]['route_schedule'], 'schedule_index');
+        $schedule = [];
+        foreach ($this->config['routes'][$i]['route_schedule'] as $route_schedule) {
+          if (self::test_bool($route_schedule['Deleted']) === false) $schedule[] = $route_schedule['schedule_index'];
+        }
         $this->testDateObject->setTimestamp(strtotime($this->testDate . ' ' . $this->config['routes'][$i]['StartTime']));
         for($j = 0; $j < count($schedule); $j++) {
           if ($this->dateObject->format('Y-m-d') !== $this->today) {
