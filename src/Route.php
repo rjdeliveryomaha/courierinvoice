@@ -487,7 +487,7 @@
     private function filterRuns()
     {
       $this->startDateObject = clone $this->dateObject;
-      for($i = 0; $i < count($this->runList); $i++) {
+      for ($i = 0; $i < count($this->runList); $i++) {
         if (isset($this->runList[$i]['Rescheduled'])) {
           $this->newTickets[] = $this->runList[$i];
           continue;
@@ -499,7 +499,10 @@
         if ($this->runList[$i]['StartDate'] > $this->today) continue;
         $this->startDateObject->setDate(...explode('-', $this->runList[$i]['StartDate']));
         $this->testDateObject->setTimestamp(strtotime($this->runList[$i]['LastCompleted'] . ' ' . $this->runList[$i]['pTime']));
-        $schedule = array_column($this->runList[$i]['c_run_schedule'], 'schedule_index');
+        $schedule = [];
+        foreach ($this->runList[$i]['c_run_schedule'] as $run_schedule) {
+          if (self::test_bool($run_schedule['Deleted']) === false) $schedule[] = $run_schedule['schedule_index'];
+        }
         for ($x = 0; $x < count($schedule); $x++) {
           if ($this->dateObject->format('Y-m-d') !== $this->today) {
             $this->dateObject->setTimestamp($this->timestamp);
