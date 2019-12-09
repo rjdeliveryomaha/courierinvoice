@@ -241,7 +241,11 @@
           if ($this->dateObject->format('Y-m-d') !== $this->today) {
             $this->dateObject->setTimestamp($this->timestamp);
           }
-          if (self::compareSchedule($schedule[$j], $this->config['routes'][$i]['route_index'], true) === true) {
+          if (
+            self::compareSchedule($schedule[$j], $this->config['routes'][$i]['route_index'], true) === true &&
+            (!isset($this->config['routes'][$i]['dispatched']) ||
+            (isset($this->config['routes'][$i]['dispatched']) && $this->config['routes'][$i]['dispatched'] !== true))
+          ) {
             $this->todaysRoutes[] = $this->config['routes'][$i];
             break;
           }
@@ -268,7 +272,12 @@
         return false;
       }
       // Filter runs by schedule, check them against the schedule override, and add them to the daily ticket set
-      self::filterRuns();
+      if (!self::filterRuns()) {
+        $temp = $this->error . "\n";
+        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        if ($this->enableLogging !== false) self::writeLoop();
+        return false;
+      }
       if ($this->dateObject->format('Y-m-d') !== $this->today) {
         $this->dateObject->setTimestamp($this->timestamp);
       }
@@ -447,6 +456,7 @@
           ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0]
         ];
       }
+      if (empty($runListQueryData['queryParams']['filter'])) return $this->runList = [];
       $runListQueryData['queryParams']['join'] = [ 'contract_locations', 'c_run_schedule' ];
       if (!$runListQuery = self::createQuery($runListQueryData)) {
         $temp = $this->error . "\n";
@@ -530,6 +540,7 @@
           }
         }
       }
+      return true;
     }
 
     private function compareSchedule($scheduleFrequency, $route_index = null, $routeTest = false)
