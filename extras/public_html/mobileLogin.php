@@ -49,13 +49,13 @@
             <td><label for="clientID">Login ID</label></td>
           </tr>
           <tr>
-            <td><input type="text" class="clientID" id="clientID" autofocus="autofocus" /></td>
+            <td><input type="text" class="clientID" id="clientID" autocomplete="username" autofocus="autofocus" /></td>
           </tr>
           <tr>
             <td><label for="upw">Password</label></td>
           </tr>
           <tr>
-            <td><input type="password" class="upw" id="upw" /></td>
+            <td><input type="password" class="upw" id="upw" autocomplete="current-password" /></td>
           </tr>
           <tr>
             <td>

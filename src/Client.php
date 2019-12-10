@@ -329,15 +329,15 @@
                   <table>
                     <tr>
                       <td><label for=\"currentPw\">Current Password</label>:</td>
-                      <td><input type=\"password\" name=\"currentPw\" class=\"currentPw\"  form=\"{$formID}\" /></td>
+                      <td><input type=\"password\" name=\"currentPw\" class=\"currentPw\" autocomplete=\"current-password\"  form=\"{$formID}\" /></td>
                     </tr>
                     <tr>
                       <td><label for=\"newPw1\">New Password</label>:</td>
-                      <td><input type=\"password\" name=\"newPw1\" class=\"newPw1\" form=\"{$formID}\" />
+                      <td><input type=\"password\" name=\"newPw1\" class=\"newPw1\" autocomplete=\"new-password\" form=\"{$formID}\" />
                     </tr>
                     <tr>
                       <td><label for=\"newPw2\">Confirm Password</label>:</td>
-                      <td><input type=\"password\" name=\"newPw2\" class=\"newPw2\" form=\"{$formID}\" /></td>
+                      <td><input type=\"password\" name=\"newPw2\" class=\"newPw2\" autocomplete=\"new-password\" form=\"{$formID}\" /></td>
                     </tr>
                     <tr>
                       <td>

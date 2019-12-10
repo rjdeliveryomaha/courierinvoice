@@ -78,7 +78,7 @@
           <tr>
             <td class="pullRight bold"><label for="upw">Password:</label></td>
             <td class="pullLeft">
-              <input type="password" name="upw" id="upw" />
+              <input type="password" name="upw" id="upw" autocomplete="current-password" />
               <input type="hidden" name="uid" id="uid" value="<?php echo $loginName; ?>" />
             </td>
           </tr>

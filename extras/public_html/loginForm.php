@@ -21,8 +21,8 @@
     </tfoot>
     <tbody>
       <tr>
-        <td><input type="text" name="clientID" id="clientID" autocomplete="off" placeholder="ID Number*" /></td>
-        <td><input type="password" name="upw" id="upw" placeholder="password" /></td>
+        <td><input type="text" name="clientID" id="clientID" autocomplete="username" placeholder="ID Number*" /></td>
+        <td><input type="password" name="upw" id="upw" autocomplete="current-password" placeholder="password" /></td>
         <td><button type="submit" id="login">Login</button></td>
       </tr>
     </tbody>
