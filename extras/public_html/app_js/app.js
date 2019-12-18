@@ -2862,18 +2862,20 @@
   };
 
   assignTicketFormListeners = workspace => {
+    let repeatHandler = workspace => {
+      workspace.querySelector(".billTo").setAttribute("list", (eve.target.checked) ? "t_clients" : "clients");
+      workspace.querySelector(".billTo").value = "";
+      if (workspace.querySelector("checkbox.contract")) {
+        workspace.querySelector(".contract").disabled = eve.target.checked;
+        if (eve.target.checked) workspace.querySelector(".contract").checked = false;
+      }
+    };
     if (workspace.querySelector(".repeat")) {
-      workspace.querySelector(".repeat").addEventListener("change", eve => {
-        workspace.querySelector(".billTo").setAttribute("list", (eve.target.checked) ? "t_clients" : "clients");
-        workspace.querySelector(".billTo").value = "";
-        if (workspace.querySelector("checkbox.contract")) {
-          workspace.querySelector(".contract").disabled = eve.target.checked;
-          if (eve.target.checked) workspace.querySelector(".contract").checked = false;
-        }
-      });
+      workspace.querySelector(".repeat").removeEventListener("change", repeatHandler);
+      workspace.querySelector(".repeat").addEventListener("change", repeatHandler);
     };
 
-    workspace.querySelector(".emailConfirm").addEventListener("change", eve => {
+    let emailConfirmHandler = eve => {
       let form = rjdci.getClosest(eve.target, "form");
       if (eve.target.value !== "0") {
         form.querySelector(".emailAddress").required = true;
@@ -2882,27 +2884,31 @@
         form.querySelector(".emailAddress").required = false;
         if (form.querySelector(".emailNote")) form.querySelector(".emailNote").classList.add("hide");
       }
-    });
+    };
+    workspace.querySelector(".emailConfirm").removeEventListener("change", emailConfirmHandler);
+    workspace.querySelector(".emailConfirm").addEventListener("change", emailConfirmHandler);
 
+    let dryIceHandler = eve => {
+      let field = rjdci.getClosest(eve.target, "fieldset");
+      if(eve.target.checked){
+        field.querySelector(".diWeight").value = "0";
+        field.querySelector(".diWeight").disabled = false;
+        field.querySelector(".diWeight").focus();
+        field.querySelector(".diWeightMarker").value = "0";
+        field.querySelector(".diWeightMarker").disabled = true;
+      } else{
+        field.querySelector(".diWeightMarker").value = "0"
+        field.querySelector(".diWeightMarker").disabled = false;
+        field.querySelector(".diWeight").value = "0";
+        field.querySelector(".diWeight").disabled = true;
+      }
+    };
     Array.from(workspace.querySelectorAll(".dryIce")).forEach(element => {
-      element.addEventListener("change", eve => {
-        let field = rjdci.getClosest(eve.target, "fieldset");
-        if(eve.target.checked){
-          field.querySelector(".diWeight").value = "0";
-          field.querySelector(".diWeight").disabled = false;
-          field.querySelector(".diWeight").focus();
-          field.querySelector(".diWeightMarker").value = "0";
-          field.querySelector(".diWeightMarker").disabled = true;
-        } else{
-          field.querySelector(".diWeightMarker").value = "0"
-          field.querySelector(".diWeightMarker").disabled = false;
-          field.querySelector(".diWeight").value = "0";
-          field.querySelector(".diWeight").disabled = true;
-        }
-      });
+      element.removeEventListener("change", dryIceHandler);
+      element.addEventListener("change", dryIceHandler);
     });
 
-    workspace.querySelector(".charge").addEventListener("change", eve => {
+    let chargeHandler = eve => {
       Array.from(workspace.querySelectorAll(".rtMarker")).forEach(element => {
         if (eve.target.value === "6" || eve.target.value === "7") {
           element.style.display = "inline";
@@ -2921,6 +2927,10 @@
       } else {
         workspace.querySelector(".dedicatedNote").style.display = "none";
       }
+    }
+    Array.from(workspace.querySelectorAll(".charge")).forEach(element => {
+      element.removeEventListener("change", chargeHandler);
+      element.addEventListener("change", chargeHandler);
     });
 
     Array.from(workspace.querySelectorAll("input[type='number']")).forEach(element => {
@@ -3079,7 +3089,7 @@
       });
     });
 
-    workspace.querySelector(".readyDate").addEventListener("change", eve => {
+    let readyHandler = eve => {
       let d1 = new Date(),
         d2 = new Date(eve.target.value);
       if (d1 >= d2) {
@@ -3096,7 +3106,9 @@
         }
       }
       workspace.querySelector(".submitForm").disabled = workspace.querySelector(".readyError") !== null;
-    });
+    }
+    workspace.querySelector(".readyDate").removeEventListener("change", readyHandler);
+    workspace.querySelector(".readyDate").addEventListener("change", readyHandler);
 
     if (workspace.querySelector(".cancelTicketEditor")) {
       workspace.querySelector(".cancelTicketEditor").addEventListener("click", eve => {
@@ -3107,10 +3119,11 @@
       });
     }
 
-    workspace.querySelector(".submitForm").addEventListener("click", async eve => {
+    let submitHandler = async eve => {
       eve.preventDefault();
       eve.target.disabled = true;
-      if (workspace.querySelector(".cancelTicketEditor")) workspace.querySelector(".cancelTicketEditor").disabled = true;
+      if (workspace.querySelector(".cancelTicketEditor"))
+        workspace.querySelector(".cancelTicketEditor").disabled = true;
       let diStep = 1,
         ele = document.createElement("span");
       if (workspace.querySelector(".diWeight")) {
@@ -3239,7 +3252,9 @@
           element.disabled = false;
         });
       });
-    });
+    }
+    workspace.querySelector(".submitForm").removeEventListener("click", submitHandler);
+    workspace.querySelector(".submitForm").addEventListener("click", submitHandler);
   }
 
   assignConfirmationListeners = workspace => {
