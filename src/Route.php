@@ -595,6 +595,7 @@
 
     private function submitRouteTickets()
     {
+      $this->dateObject->setTimestamp($this->timestamp);
       $data['multiTicket'] = [];
       foreach ($this->newTickets as $newTicket) {
         $micro_date = microtime();
