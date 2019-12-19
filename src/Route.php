@@ -610,7 +610,7 @@
         $newTicket['DispatchedBy'] = '1.1';
         $newTicket['Charge'] = (self::test_bool($newTicket['RoundTrip']) === true) ? 6 : 5;
         $newTicket['TicketBase'] = $newTicket['TicketPrice'];
-
+        $newTicket['ReceivedReady'] = 0;
         $data['multiTicket'][] = $newTicket;
       }
       if (!$ticketPrime = self::createTicket($data)) {
