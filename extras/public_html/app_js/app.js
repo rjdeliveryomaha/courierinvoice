@@ -67,6 +67,7 @@
 (function(rjdci, undefined) {
   // loading animation
   const spinner = document.createElement("div");
+  const parser = new DOMParser();
   spinner.classList.add("showbox");
   spinner.innerHTML = '<!-- New spinner from http://codepen.io/collection/HtAne/ --><div class="loader"><svg class="circular" viewBox="25 25 50 50"><circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/></svg></div>';
 // Start custom events
@@ -357,8 +358,7 @@
       }
       document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
       if (data.indexOf("error") !== -1) throw new Error(data);
-      let parser = new DOMParser(),
-        newDom = parser.parseFromString(data, "text/html"),
+      let newDom = parser.parseFromString(data, "text/html"),
         docFrag = document.createDocumentFragment();
       Array.from(newDom.querySelectorAll(".sortable, .result, #overnightFlag")).forEach(element => {
         docFrag.appendChild(element);
@@ -422,8 +422,7 @@
       }
       document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
       if (data.indexOf("error") !== -1) throw new Error(data);
-      let parser = new DOMParser(),
-        newDom = parser.parseFromString(data, "text/html"),
+      let newDom = parser.parseFromString(data, "text/html"),
         docFrag = document.createDocumentFragment();
       Array.from(newDom.querySelectorAll(".sortable, .result")).forEach(element => {
         docFrag.appendChild(element);
@@ -477,8 +476,7 @@
       }
       document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
       if (data.indexOf("error") !== -1) throw new Error(data);
-      let parser = new DOMParser(),
-        newDom = parser.parseFromString(data, "text/html"),
+      let newDom = parser.parseFromString(data, "text/html"),
         docFrag = document.createDocumentFragment();
       Array.from(newDom.querySelectorAll("#deliveryRequest")).forEach(element => {
         docFrag.appendChild(element);
@@ -530,8 +528,7 @@
       }
       document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
       if (data.indexOf("error") !== -1) throw new Error(data);
-      let parser = new DOMParser(),
-        newDom = parser.parseFromString(data, "text/html"),
+      let newDom = parser.parseFromString(data, "text/html"),
         docFrag = document.createDocumentFragment();
       Array.from(newDom.querySelectorAll(".sortable, .result")).forEach(element => {
         docFrag.appendChild(element);
@@ -595,8 +592,7 @@
       }
       document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
       if (data.indexOf("error") !== -1) throw new Error(data);
-      let parser = new DOMParser(),
-        newDom = parser.parseFromString(data, "text/html"),
+      let newDom = parser.parseFromString(data, "text/html"),
         docFrag = document.createDocumentFragment();
       Array.from(newDom.querySelectorAll(".sortable, .result")).forEach(element => {
         docFrag.appendChild(element);
@@ -1461,17 +1457,58 @@
 
     if (document.querySelector("form[id^='dispatchForm']")) {
       Array.from(document.querySelectorAll("form[id^='dispatchForm'] .stepTicket")).forEach(element => {
-        element.onclick = eve => { rjdci.stepTicket( eve ); }
+        element.removeEventListener("click", rjdci.stepTicket);
+        element.addEventListener("click", rjdci.stepTicket);
       });
     }
 
+    let colorChange = eve => {
+      eve.target.classList.add("red");
+      setTimeout(() => { eve.target.classList.remove("red"); }, 3000);
+    };
+
     Array.from(document.querySelectorAll("button")).forEach(element => {
-      element.addEventListener("click", () => {
-        element.classList.add("red");
-        setTimeout(() => { element.classList.remove("red"); }, 3000);
-      });
+      element.addEventListener("click", colorChange);
     });
     // start driver and dispatcher app
+    let updateNotes = async eve => {
+      let workspace = rjdci.getClosest(eve.target, ".tickets").querySelector(".message2");
+        postData = {};
+      postData.ticket_index = document.querySelector(".ticket_index[form='" + eve.target.getAttribute("form") + "']").value;
+      postData.notes = document.querySelector(".notes[form='" + eve.target.getAttribute("form") + "']").value;
+      postData.formKey = document.querySelector("#formKey").value;
+      await rjdci.fetch_template({ url: "./updateTicket.php", postData: postData })
+      .then(result => {
+        if (typeof result === "undefined") throw new Error("Result Undefined");
+        if (result.ok) {
+          return result.text();
+        } else {
+          throw new Error(result.status + " " + result.statusText);
+        }
+      })
+      .then(data => {
+        if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
+        document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
+        if (data.indexOf("error") === - 1) {
+          let newDom = parser.parseFromString(data, "text/html");
+          workspace.appendChild(newDom.querySelector(".result"));
+          setTimeout(() => { workspace.innerHTML = ""; }, 3500)
+        } else {
+          throw new Error(data);
+        }
+      })
+      .catch(error => {
+        console.error(error.message);
+        workspace.innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + "</p>";
+        setTimeout(() => {
+          workspace.innerHTML = "";
+        }, 5000);
+      });
+    };
+    Array.from(document.querySelectorAll(".updateNotes")).forEach(element => {
+      element.removeEventListener("click", updateNotes);
+      element.addEventListener("click", updateNotes);
+    });
     Array.from(document.querySelectorAll(".dTicket")).forEach(element => {
       element.addEventListener("click", eve => {
         eve.preventDefault();
@@ -1486,8 +1523,8 @@
           elem.disabled = true;
         });
         let container = ticket.querySelector(".message2"),
-            cancelButton = getCancelThis(),
-            confirmButton = getStepTicket(eve.target.getAttribute("form"));
+          cancelButton = getCancelThis(),
+          confirmButton = getStepTicket(eve.target.getAttribute("form"));
         container.innerHTML = "Confirm " + eve.target.innerText + ":<br>";
         container.appendChild(confirmButton);
         container.appendChild(cancelButton);
@@ -2174,8 +2211,7 @@
             document.querySelector("#invoiceQueryResults").removeChild(container);
             if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
             document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
-            let parser = new DOMParser(),
-              newDom = parser.parseFromString(data, "text/html"),
+            let newDom = parser.parseFromString(data, "text/html"),
               docFrag = document.createDocumentFragment();
             Array.from(newDom.querySelectorAll("#invoiceChartPDFform, .bargraph, .graphKey, #invoice, .invoiceTable, p.displayHeader, .result")).forEach(element => {
               docFrag.appendChild(element);
@@ -2355,8 +2391,7 @@
             clearInterval(dots);
             if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
             document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
-            let parser = new DOMParser(),
-              newDom = parser.parseFromString(data, "text/html"),
+            let newDom = parser.parseFromString(data, "text/html"),
               docFrag = document.createDocumentFragment();
             Array.from(newDom.querySelectorAll("#ticketPDFform, .bargraph, .graphKey, .tickets, .ticketTable, .ticketGraphContainer, .result")).forEach(element => {
               docFrag.appendChild(element);
@@ -2429,8 +2464,7 @@
             clearInterval(dots);
             if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
             document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
-            let parser = new DOMParser(),
-              newDom = parser.parseFromString(data, "text/html"),
+            let newDom = parser.parseFromString(data, "text/html"),
               docFrag = document.createDocumentFragment();
             Array.from(newDom.querySelectorAll("#ticketPDFform, .tickets, .ticketTable, .bargraph, .graphKey, .result")).forEach(element => {
               docFrag.appendChild(element);
@@ -2519,8 +2553,7 @@
           clearInterval(dots);
           if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
           document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
-          let parser = new DOMParser(),
-            newDom = parser.parseFromString(data, "text/html"),
+          let newDom = parser.parseFromString(data, "text/html"),
             docFrag = document.createDocumentFragment();
           Array.from(newDom.querySelectorAll(".result")).forEach(element => {
             docFrag.appendChild(element);
@@ -2630,8 +2663,7 @@
         .then(data => {
           if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
           document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
-          let parser = new DOMParser(),
-            newDom = parser.parseFromString(data, "text/html"),
+          let newDom = parser.parseFromString(data, "text/html"),
             docFrag = document.createDocumentFragment();
           Array.from(newDom.querySelectorAll("#invoice, .invoiceTable, .invoiceGraphContainer, p.displayHeader, .result")).forEach(element => {
             docFrag.appendChild(element);
@@ -2702,8 +2734,7 @@
           clearInterval(dots);
           if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
           document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
-          let parser = new DOMParser(),
-            newDom = parser.parseFromString(data, "text/html"),
+          let newDom = parser.parseFromString(data, "text/html"),
             docFrag = document.createDocumentFragment();
           Array.from(newDom.querySelectorAll("#invoice, .result")).forEach(element => {
             docFrag.appendChild(element);
@@ -2770,8 +2801,7 @@
           clearInterval(dots);
           if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
           document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
-          let parser = new DOMParser(),
-            newDom = parser.parseFromString(data, "text/html"),
+          let newDom = parser.parseFromString(data, "text/html"),
             docFrag = document.createDocumentFragment();
           Array.from(newDom.querySelectorAll(".tickets, .result")).forEach(element => {
             docFrag.appendChild(element);
@@ -2837,8 +2867,7 @@
         .then(data => {
           if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
           document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
-          let parser = new DOMParser(),
-            newDom = parser.parseFromString(data, "text/html"),
+          let newDom = parser.parseFromString(data, "text/html"),
             docFrag = document.createDocumentFragment();
           Array.from(workspace.querySelectorAll("table, hr, button.ticketEditor")).forEach(element => {
             element.classList.add("hide");
@@ -3226,8 +3255,7 @@
           });
           throw new Error(data);
         } else {
-          let parser = new DOMParser(),
-            newDom = parser.parseFromString(data, "text/html"),
+          let newDom = parser.parseFromString(data, "text/html"),
             content = newDom.querySelector("#deliveryConfirmation") || newDom.querySelector(".editorConfirmation");
           workspace.querySelector(".removableByEditor").innerHTML = "";
           workspace.querySelector(".removableByEditor").appendChild(content);
@@ -3258,7 +3286,6 @@
   }
 
   assignConfirmationListeners = workspace => {
-    let parser = new DOMParser();
     Array.from(workspace.querySelectorAll(".confirmed, .editForm")).forEach(element => {
       element.addEventListener("click", async eve => {
         eve.preventDefault();

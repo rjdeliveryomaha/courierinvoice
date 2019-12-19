@@ -2151,7 +2151,7 @@
         <table class=\"tFieldRight\" style=\"width:75%;\">
           <thead>
             <tr>
-              <th class=\"pullLeft\">Notes:</th>
+              <th class=\"pullLeft\">Notes: <button type=\"button\" class=\"updateNotes\" form=\"ticketForm{$this->ticket_index}\">Update</button></th>
             </tr>
           </thead>
           <tbody>
@@ -2165,7 +2165,7 @@
         <table class=\"tFieldRight\">
           <thead>
             <tr>
-              <th class=\"pullLeft\">Notes:</th>
+              <th class=\"pullLeft\">Notes: <button type=\"button\" class=\"updateNotes\" form=\"ticketForm{$this->ticket_index}\">Update</button></th>
             </tr>
           </thead>
           <tbody>
@@ -2440,7 +2440,7 @@
                 </table>
                 <table class=\"tFieldRight\" style=\"width:75%;\">
                   <tr>
-                    <th class=\"pullLeft\">Notes:</th>
+                    <th class=\"pullLeft\">Notes: <button type=\"button\" class=\"updateNotes\" form=\"ticketForm{$this->ticket_index}\">Update</button></th>
                   </tr>
                   <tr>
                     <td>
@@ -2452,7 +2452,7 @@
               <td colspan=\"2\">
                 <table class=\"tFieldRight\">
                   <tr>
-                    <th class=\"pullLeft\">Notes:</th>
+                    <th class=\"pullLeft\">Notes: <button type=\"button\" class=\"updateNotes\" form=\"ticketForm{$this->ticket_index}\">Update</button></th>
                   </tr>
                   <tr>
                     <td>
