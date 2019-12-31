@@ -2075,6 +2075,7 @@
                       <input type=\"hidden\" name=\"longitude\" class=\"longitude\" form=\"ticketForm{$this->ticket_index}\" value=\"\" />
                       <input type=\"hidden\" name=\"step\" class=\"step\" value=\"{$this->step}\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"ticket_index\" class=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"ticketNumber\" class=\"ticketNumber\" value=\"{$this->TicketNumber}\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"dispatchedTo\" class=\"dispatchedTo\" value=\"{$this->DispatchedTo}\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"charge\" class=\"charge\" value=\"{$this->Charge}\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"emailConfirm\" class=\"emailConfirm\" value=\"{$this->EmailConfirm}\" form=\"ticketForm{$this->ticket_index}\" />
@@ -2100,6 +2101,7 @@
                   <td colspan=\"2\">
                     <form id=\"ticketForm{$this->ticket_index}\" class=\"routeStop\">
                       <input type=\"hidden\" name=\"ticket_index\" class=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"ticketNumber\" class=\"ticketNumber\" value=\"{$this->TicketNumber}\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"dispatchedTo\" class=\"dispatchedTo\" value=\"{$this->DispatchedTo}\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"transfers\" class=\"transfers\" value=\"{$transfersFormValue}\" form=\"ticketForm{$this->ticket_index}\" />
                     </form>
@@ -2481,6 +2483,7 @@
               <td colspan=\"2\" class=\"center\">
                 <form id=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" class=\"routeStop\">
                   <input type=\"hidden\" name=\"ticket_index\" class=\"ticket_index\" value=\"{$this->multiTicket[$i]->ticket_index}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
+                  <input type=\"hidden\" name=\"ticketNumber\" class=\"ticketNumber\" value=\"{$this->multiTicket[$i]->TicketNumber}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                   <input type=\"hidden\" name=\"dispatchedTo\" class=\"dispatchedTo\" value=\"{$this->multiTicket[$i]->DispatchedTo}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                   <input type=\"hidden\" name=\"runNumber\" class=\"runNumber\" value=\"{$this->multiTicket[$i]->RunNumber}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                   <input type=\"hidden\" name=\"charge\" class=\"charge\" value=\"{$this->multiTicket[$i]->Charge}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
