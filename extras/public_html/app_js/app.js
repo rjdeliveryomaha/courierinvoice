@@ -539,7 +539,8 @@
         rjdci.assignListeners();
         rjdci.countDispatch(oldCount);
         Array.from(document.querySelectorAll("#dispatch .dTicket")).forEach(element => {
-          element.onclick = rjdci.stepTicket();
+          element.removeEventListener("click", rjdci.stepTicket);
+          element.addEventListener("click", rjdci.stepTicket);
         });
       }, 2000);
     })
