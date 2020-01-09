@@ -1610,6 +1610,8 @@ If the user agent supports both the [permissions](https://developer.mozilla.org/
 
   + Can be independently refreshed.
 
+    - Window event ` rjdci_refreshed_route ` is dispatched when the refresh is completed.
+
 * On Call
 
   + Uses Route class to fetch on call tickets for a given driver.
@@ -1630,6 +1632,8 @@ If the user agent supports both the [permissions](https://developer.mozilla.org/
 
   + Can be independently refreshed.
 
+    - Window event ` rjdci_refreshed_oncall ` is dispatched when the refresh is completed.
+
 * Transfers
 
   + Uses Route class to fetch tickets either transferred by or transferred to a given driver.
@@ -1646,6 +1650,8 @@ If the user agent supports both the [permissions](https://developer.mozilla.org/
 
   + Can be independently refreshed.
 
+    - Window event ` rjdci_refreshed_transfers ` is dispatched when the refresh is completed.
+
 * Ticket Entry and Dispatch page for drivers with dispatch privileges. Described below.
 
 * Active Tickets page for drivers with dispatch privileges. Described below.
@@ -1661,6 +1667,10 @@ If the user agent supports both the [permissions](https://developer.mozilla.org/
   + Uses Ticket class to check for tickets that have not been dispatched.
 
   + Displays single tickets with ability to dispatch.
+
+  + Can be independently refreshed.
+
+    - Window event ` rjdci_refreshed_dispatch ` is dispatched when the refresh is completed.
 
 * Price Calculator
 

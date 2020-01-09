@@ -86,6 +86,10 @@
   rjdci.resolutionchange = new Event("rjdci_resolutionchange");
   rjdci.loaded = new Event("rjdci_loaded");
   rjdci.pageChange = new Event("rjdci_pageChange");
+  rjdci.refreshedRoute = new Event("rjdci_refreshed_route");
+  rjdci.refreshedOnCall = new Event("rjdci_refreshed_oncall");
+  rjdci.refreshedTransfers = new Event("rjdci_refreshed_transfers");
+  rjdci.refreshedDispatch = new Event("rjdci_refreshed_dispatch");
   rjdci.triggerEvent = (element, eventName) => {
     // safari, webkit, gecko
     if (document.createEvent) {
@@ -379,6 +383,7 @@
         rjdci.assignListeners();
         rjdci.fixDeadRunButton();
         sortRoute();
+        document.dispatchEvent(rjdci.refreshedRoute);
       }, 2000);
     })
     .catch(error => {
@@ -444,6 +449,7 @@
         rjdci.fixDeadRunButton();
         sortOnCall();
         countOnCallTickets(ticketCount);
+        document.dispatchEvent(rjdci.refreshedOnCall);
       }, 2000);
     })
     .catch(error => {
@@ -552,6 +558,7 @@
           element.removeEventListener("click", rjdci.stepTicket);
           element.addEventListener("click", rjdci.stepTicket);
         });
+        document.dispatchEvent(rjdci.refreshedDispatch);
       }, 2000);
     })
     .catch(error => {
@@ -613,6 +620,7 @@
         document.querySelector("#transfers").appendChild(docFrag);
         rjdci.assignListeners();
         countTransferTickets(transferCount);
+        document.dispatchEvent(rjdci.refreshedTransfers);
       }, 2000);
     })
     .catch(error => {
