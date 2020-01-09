@@ -40,20 +40,30 @@
     },
     transitionEnd: function(index, elem) {
       // runs at the end of a slide transition
-      let titleText,
-        buttonTitles = [ "Route", "On Call", "Dispatch", "Transfers", "Ticket Entry" ];
+      let buttonTitles = [ "Route", "On Call", "Dispatch", "Transfers", "Ticket Entry" ],
+        parser = new DOMParser();
       document.querySelector(".menu__list__active").classList.remove("menu__list__active");
       Array.from(document.querySelectorAll(".page")).forEach(page => {
         (page.id === elem.id) ? page.classList.add("active") : page.classList.remove("active");
         if (page.id === elem.id) {
           let eleTest = document.querySelector("a.nav[data-id='" + page.id + "']").innerHTML.split("<");
           if (buttonTitles.indexOf(eleTest[0]) !== -1) {
-            titleText = '<button type="button" onclick="rjdci.refresh' + eleTest[0].replace(/\s/g, '') + '()">' + eleTest[0] + '</button>';
-            titleText += (eleTest[0] === "Route") ? "" : "<" + eleTest[1] + "<" + eleTest[2];
+            let button = document.createElement("button"),
+              func = "refresh" + eleTest[0].replace(/\s/g, "");
+            button.setAttribute("type", "button");
+            button.addEventListener("click", window["rjdci"][func]);
+            button.innerHTML = eleTest[0];
+            document.querySelector(".pageTitle").innerHTML = "";
+            document.querySelector(".pageTitle").appendChild(button);
+            if (eleTest.length > 1) {
+              let htmlString = "<" + eleTest[1] + "<" + eleTest[2],
+                newDom = parser.parseFromString(htmlString, "text/html"),
+                element = newDom.querySelector("span");
+              if (element) document.querySelector(".pageTitle").appendChild(element);
+            }
           } else {
-            titleText = document.querySelectorAll("[data-id='" + page.id + "']")[0].innerHTML;
+            document.querySelector(".pageTitle").innerHTML = document.querySelector("a.nav[data-id='" + page.id + "']").innerHTML;
           }
-          document.querySelector(".pageTitle").innerHTML = titleText;
           document.querySelector("a.nav[data-id='" + page.id + "']").parentNode.classList.add("menu__list__active");
         }
       });
@@ -621,19 +631,28 @@
 
   rjdci.assignLinkValues = () => {
     let eles = document.getElementsByClassName("nav"),
-      titleText,
-      buttonTitles = [ "Route", "On Call", "Dispatch", "Transfers", "Ticket Entry" ];;
+      buttonTitles = [ "Route", "On Call", "Dispatch", "Transfers", "Ticket Entry" ];
     for (let i = 0; i < eles.length; i++) {
       eles[i].setAttribute("data-value", i);
       if (i === 0) {
         let eleTest = eles[i].innerHTML.split("<");
         if (buttonTitles.indexOf(eleTest[0]) !== -1) {
-          titleText = '<button type="button" onclick="rjdci.refresh' + eleTest[0].replace(/\s/g, '') + '()">' + eleTest[0] + '</button>';
-          titleText += (eleTest[0] === "Route") ? "" : "<" + eleTest[1] + "<" + eleTest[2];
+          let button = document.createElement("button"),
+            func = "refresh" + eleTest[0].replace(/\s/g, "");
+          button.setAttribute("type", "button");
+          button.addEventListener("click", window["rjdci"][func]);
+          button.innerHTML = eleTest[0];
+          document.querySelector(".pageTitle").innerHTML = "";
+          document.querySelector(".pageTitle").appendChild(button);
+          if (eleTest.length > 1) {
+            let htmlString = "<" + eleTest[1] + "<" + eleTest[2],
+              newDom = parser.parseFromString(htmlString, "text/html"),
+              element = newDom.querySelector("span");
+            if (element) document.querySelector(".pageTitle").appendChild(element);
+          }
         } else {
-          titleText = eles[i].innerHTML;
+          document.querySelector(".pageTitle").innerHTML = eles[i].innerHTML;
         }
-        document.querySelector(".pageTitle").innerHTML = titleText;
       }
     }
   }
@@ -789,7 +808,7 @@
     element.type = "button";
     element.innerHTML = "Go Back";
     element.classList.add("cancelThis");
-    element.onclick = eve => { rjdci.cancelThis( eve ); }
+    element.addEventListener("click", rjdci.cancelThis);
     return element;
   }
 
@@ -805,7 +824,7 @@
     element.innerHTML = "Confirm";
     element.classList.add("stepTicket");
     element.setAttribute("form", form);
-    element.onclick = eve => { rjdci.stepTicket( eve ); }
+    element.addEventListener("click", rjdci.stepTicket);
     return element;
   }
 
@@ -909,7 +928,7 @@
     element.type = "button";
     element.innerHTML = "Confirm";
     element.classList.add("stepAll");
-    element.onclick = eve => { rjdci.stepAll( eve ); }
+    element.addEventListener("click", rjdci.stepAll);
     return element;
   }
 
@@ -1002,7 +1021,7 @@
     element.innerHTML = "Confirm";
     element.classList.add("confirm" + type);
     element.setAttribute("form", form);
-    element.onclick = eve => { rjdci.confirmCancel( eve ); }
+    element.addEventListener("click", rjdci.confirmCancel);
     return element;
   }
 
@@ -1083,7 +1102,7 @@
     element.innerHTML = "Confirm";
     element.classList.add("confirmTransfer");
     element.setAttribute("form", form);
-    element.onclick = eve => { rjdci.transferTicket( eve ); }
+    element.addEventListener("click", rjdci.transferTicket);
     return element;
   }
 
@@ -1171,7 +1190,7 @@
     element.innerHTML = "Confirm";
     element.classList.add("confirmTransferGroup");
     element.setAttribute("form", form);
-    element.onclick = eve => { rjdci.transferGroup( eve ); }
+    element.addEventListener("click", rjdci.transferGroup);
     return element;
   }
 
@@ -1262,7 +1281,7 @@
     element.type = "button";
     element.innerHTML = "Confirm";
     element.classList.add("confirm"+ucfirst(type));
-    element.onclick = eve => { rjdci.processTransfer( eve ); }
+    element.addEventListener("click", processTransfer);
     return element;
   }
 
@@ -1361,7 +1380,7 @@
     element.type = "button";
     element.innerHTML = "Confirm";
     element.classList.add("confirm"+ucfirst(type));
-    element.onclick = eve => { rjdci.processTransferAll( eve ); }
+    element.addEventListener("click", rjdci.processTransferAll);
     return element;
   }
 
