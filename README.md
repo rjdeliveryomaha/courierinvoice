@@ -1694,6 +1694,10 @@ If the user agent supports both the [permissions](https://developer.mozilla.org/
 
   + ` <div class="mapContainer" id="map"></div> ` available to display a map
 
+  + Can be independently refreshed.
+
+    - Window event ` rjdci_refreshed_ticketEntry ` is dispatched when the refresh is completed.
+
 * Change Password
 
   + Provides a simple form to update the password

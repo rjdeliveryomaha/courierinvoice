@@ -90,6 +90,7 @@
   rjdci.refreshedOnCall = new Event("rjdci_refreshed_oncall");
   rjdci.refreshedTransfers = new Event("rjdci_refreshed_transfers");
   rjdci.refreshedDispatch = new Event("rjdci_refreshed_dispatch");
+  rjdci.refreshedTicketEntry = new Event("rjdci_refreshed_ticketEntry");
   rjdci.triggerEvent = (element, eventName) => {
     // safari, webkit, gecko
     if (document.createEvent) {
@@ -502,6 +503,7 @@
         workspace.appendChild(docFrag);
         workspace.appendChild(target);
         rjdci.assignListeners();
+        document.dispatchEvent(rjdci.refreshedTicketEntry);
       }, 2000);
     })
     .catch(error => {
