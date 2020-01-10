@@ -1610,7 +1610,8 @@ If the user agent supports both the [permissions](https://developer.mozilla.org/
 
   + Can be independently refreshed.
 
-    - Window event ` rjdci_refreshed_route ` is dispatched when the refresh is completed.
+    - CustomEvent ` rjdci_refreshed ` with ` e.detail.type() = "route" `  
+      is dispatched when the refresh is completed.
 
 * On Call
 
@@ -1632,7 +1633,8 @@ If the user agent supports both the [permissions](https://developer.mozilla.org/
 
   + Can be independently refreshed.
 
-    - Window event ` rjdci_refreshed_oncall ` is dispatched when the refresh is completed.
+    - CustomEvent ` rjdci_refreshed ` with ` e.detail.type() = "oncall" `  
+      is dispatched when the refresh is completed.
 
 * Transfers
 
@@ -1650,7 +1652,8 @@ If the user agent supports both the [permissions](https://developer.mozilla.org/
 
   + Can be independently refreshed.
 
-    - Window event ` rjdci_refreshed_transfers ` is dispatched when the refresh is completed.
+    - CustomEvent ` rjdci_refreshed ` with ` e.detail.type() = "transfers" `  
+      is dispatched when the refresh is completed.
 
 * Ticket Entry and Dispatch page for drivers with dispatch privileges. Described below.
 
@@ -1670,7 +1673,8 @@ If the user agent supports both the [permissions](https://developer.mozilla.org/
 
   + Can be independently refreshed.
 
-    - Window event ` rjdci_refreshed_dispatch ` is dispatched when the refresh is completed.
+    - CustomEvent ` rjdci_refreshed ` with ` e.detail.type() = "dispatch" `  
+      is dispatched when the refresh is completed.
 
 * Price Calculator
 
@@ -1696,7 +1700,8 @@ If the user agent supports both the [permissions](https://developer.mozilla.org/
 
   + Can be independently refreshed.
 
-    - Window event ` rjdci_refreshed_ticketEntry ` is dispatched when the refresh is completed.
+    - CustomEvent ` rjdci_refreshed ` with ` e.detail.type() = "ticketEntry" `  
+      is dispatched when the refresh is completed.
 
 * Change Password
 

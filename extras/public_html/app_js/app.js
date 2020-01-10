@@ -86,11 +86,11 @@
   rjdci.resolutionchange = new Event("rjdci_resolutionchange");
   rjdci.loaded = new Event("rjdci_loaded");
   rjdci.pageChange = new Event("rjdci_pageChange");
-  rjdci.refreshedRoute = new Event("rjdci_refreshed_route");
-  rjdci.refreshedOnCall = new Event("rjdci_refreshed_oncall");
-  rjdci.refreshedTransfers = new Event("rjdci_refreshed_transfers");
-  rjdci.refreshedDispatch = new Event("rjdci_refreshed_dispatch");
-  rjdci.refreshedTicketEntry = new Event("rjdci_refreshed_ticketEntry");
+  rjdci.refreshedRoute = new CustomEvent("rjdci_refreshed", { bubbles: true, detail: { type: () => "route" } });
+  rjdci.refreshedOnCall = new CustomEvent("rjdci_refreshed", { bubbles: true, detail: { type: () => "oncall" } });
+  rjdci.refreshedTransfers = new CustomEvent("rjdci_refreshed", { bubbles: true, detail: { type: () => "transfers" } });
+  rjdci.refreshedDispatch = new CustomEvent("rjdci_refreshed", { bubbles: true, detail: { type: () => "dispatch" } });
+  rjdci.refreshedTicketEntry = new CustomEvent("rjdci_refreshed", { bubbles: true, detail: { type: () => "ticketEntry" } });
   rjdci.triggerEvent = (element, eventName) => {
     // safari, webkit, gecko
     if (document.createEvent) {
