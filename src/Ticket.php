@@ -2562,6 +2562,7 @@
     {
       $returnData = '';
       $htmlentities = 'htmlentities';
+      $lcfirst = 'lcfirst';
       foreach ($this as $key => $value) {
         // Don't include values ending with 'List' in the form to add a new ticket
         if (substr($this->formName, 0, 12) === 'submitTicket' && substr($key, -4) === 'List') {
@@ -2569,7 +2570,7 @@
         }
         if (in_array($key, $this->postableKeys)) {
           $returnData .= "
-            <input type=\"hidden\" name=\"{$key}\" value=\"{$htmlentities($value)}\" form=\"{$this->formName}\" />";
+            <input type=\"hidden\" name=\"{$lcfirst($key)}\" value=\"{$htmlentities($value)}\" form=\"{$this->formName}\" />";
         }
       }
       return $returnData;
@@ -2999,7 +3000,12 @@
       $this->formType = 'Entry';
       if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($this->newTicket !== false || ($this->ticket_index !== null && $this->updateTicket !== false)) {
-          return self::processTicket();
+          try {
+            $returnData = self::processTicket();
+          } catch (\Exception $e) {
+            throw $e;
+          }
+          return $returnData;
         }
         if ($this->edit !== null && self::test_bool($this->edit) === false) {
           return self::confirmRequest();
@@ -4078,29 +4084,25 @@
           $temp = $this->error;
           $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
           if ($this->enableLogging !== false) self::writeLoop();
-          echo $this->error;
-          return false;
+          throw new \Exception($this->error);
         }
         $ticketUpdateResult = self::callQuery($ticketUpdate);
         if ($ticketUpdateResult === false) {
           $temp = $this->error;
           $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
           if ($this->enableLogging !== false) self::writeLoop();
-          echo $this->error;
-          return false;
+          throw new \Exception($this->error);
         }
         if ($regen === true) {
           $this->ticketEditor = true;
           return self::regenTicket();
         } else {
-          echo 'remove';
-          return false;
+          return 'remove';
         }
       }
       if ($this->ticket_index === null) {
         if (!self::testTicketNumber()) {
-          echo $this->error;
-          return false;
+          throw new \Exception($this->error);
         }
       }
       try {
@@ -4108,8 +4110,7 @@
       } catch(\Exception $e) {
         $this->error = __function__ . ' Received Date Error Line ' . __line__ . ': ' . $e->getMessage();
         if ($this->enableLogging !== false) self::writeLoop();
-        echo $this->error;
-        return false;
+        throw new \Exception($this->error);
       }
       $this->ReceivedDate = ($this->ReceivedDate === null || $this->ReceivedDate === '') ?
       $this->now->format('Y-m-d H:i:s') : $this->ReceivedDate;
@@ -4141,23 +4142,20 @@
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
-        echo $this->error;
-        return false;
+        throw new \Exception($this->error);
       }
       $postTicketResult = self::callQuery($postTicket);
       if ($postTicketResult === false) {
         $temp = $this->error;
         $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
-        echo $this->error;
-        return false;
+        throw new \Exception($this->error);
       }
-      echo "
+      return "
         <div id=\"deliveryRequestComplete\">
           <h1>request submitted</h1>
           <p class=\"center\">Your request has been received.<br>The ticket number for this delivery is {$this->TicketNumber}.</p>
         </div>";
-      return false;
     }
 
     public function processRouteTicket()
@@ -4256,7 +4254,11 @@
     {
       $this->mapAvailable = false;
       self::solveTicketPrice();
-      self::processTicket();
+      try {
+        self::processTicket();
+      } catch (\Exception $e) {
+        throw $e;
+      }
     }
 
     public function updateTicketProperty()
