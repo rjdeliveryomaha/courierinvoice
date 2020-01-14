@@ -157,17 +157,19 @@
       'd2SigReq', 'DispatchedTo', 'ReceivedDate', 'ReceivedReady', 'ReadyDate', 'DispatchTimeStamp',
       'DispatchMicroTime', 'DispatchedBy', 'Notes'
     ];
-    private $updateTicketDatabaseKeys = [ 'BillTo', 'Charge', 'EmailAddress', 'EmailConfirm', 'Telephone', 'RequestedBy',
-      'pClient', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'dClient', 'dAddress1', 'dAddress2',
-      'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice', 'ReceivedReady', 'ReadyDate',
-      'DispatchedTo', 'Transfers', 'TicketBase', 'RunPrice', 'VATable', 'VATrate', 'VATtype', 'VATableIce', 'VATrateIce', 'VATtypeIce', 'TicketPrice', 'Notes', 'pSigReq', 'dSigReq', 'd2SigReq',
+    private $updateTicketDatabaseKeys = [ 'BillTo', 'Charge', 'EmailAddress', 'EmailConfirm', 'Telephone',
+      'RequestedBy', 'pClient', 'pAddress1', 'pAddress2', 'pCountry', 'pContact', 'pTelephone', 'dClient',
+      'dAddress1', 'dAddress2', 'dCountry', 'dContact', 'dTelephone', 'dryIce', 'diWeight', 'diPrice',
+      'ReceivedReady', 'ReadyDate', 'DispatchedTo', 'Transfers', 'TicketBase', 'RunPrice', 'VATable', 'VATrate',
+      'VATtype', 'VATableIce', 'VATrateIce', 'VATtypeIce', 'TicketPrice', 'Notes', 'pSigReq', 'dSigReq', 'd2SigReq',
       'pLat', 'pLng', 'dLat', 'dLng', 'd2Lat', 'd2Lng'
     ];
     private $postableKeys = [ 'repeatClient', 'fromMe', 'pClient', 'pDepartment', 'pAddress1', 'pAddress2', 'pCountry',
       'pContact', 'pTelephone', 'pSigReq', 'toMe', 'dClient', 'dDepartment', 'dAddress1', 'dAddress2', 'dCountry',
       'dContact', 'dTelephone', 'dSigReq', 'dryIce', 'diWeight', 'Notes', 'Charge', 'ReceivedReady', 'ReadyDate',
       'DispatchedTo', 'd2SigReq', 'EmailAddress', 'EmailConfirm', 'Telephone', 'RequestedBy', 'locationList',
-      'clientList', 'tClientList', 'driverList'
+      'clientList', 'tClientList', 'driverList', 'DispatchTimeStamp', 'pTimeStamp', 'dTimeStamp', 'd2TimeStamp',
+      'BillTo', 'ticket_index'
     ];
     private $javascriptKeys = [ 'ClientName', 'Department', 'ShippingAddress1', 'ShippingAddress2', 'ShippingCountry' ];
     // Results form geocoder
@@ -3027,9 +3029,11 @@
           return $this->error;
         }
         $this->action = '/drivers/ticketEditor';
+      }
+      if ($this->BillTo !== null) {
         if ($this->RepeatClient === 1) {
           foreach (json_decode(urldecode($this->clientList), true) as $client) {
-            if ($client['ClientID'] === (int)$this->BillTo) {
+            if ($client['ClientID'] == $this->BillTo) {
               $this->BillTo = ($client['Department'] == null) ?
               "{$client['ClientName']}; {$client['ClientID']}" :
               "{$client['ClientName']}, {$client['Department']}; {$client['ClientID']}";
@@ -3037,19 +3041,19 @@
           }
         } else {
           foreach (json_decode(urldecode($this->tClientList), true) as $client) {
-            if ($client['ClientID'] === (int)$this->BillTo) {
+            if ($client['ClientID'] == $this->BillTo) {
               $this->BillTo = ($client['Department'] == null) ?
               "{$client['ClientName']}; {$client['ClientID']}" :
               "{$client['ClientName']}, {$client['Department']}; {$client['ClientID']}";
             }
           }
         }
-        foreach (json_decode(urldecode($this->driverList), true) as $driver) {
-          if ($driver['DriverID'] == $this->DispatchedTo) {
-            $this->DriverName = ($driver['LastName'] === null) ?
-            $driver['FirstName'] :
-            $driver['FirstName'] . ' ' . $driver['LastName'];
-          }
+      }
+      foreach (json_decode(urldecode($this->driverList), true) as $driver) {
+        if ($driver['DriverID'] == $this->DispatchedTo) {
+          $this->DriverName = ($driver['LastName'] === null) ?
+          $driver['FirstName'] :
+          $driver['FirstName'] . ' ' . $driver['LastName'];
         }
       }
       // Check boxes and display notices based on values
@@ -3075,11 +3079,13 @@
       if ($this->ReceivedReady === 1) {
         $readyChecked = 'checked';
         $readyNote = 'inline-block';
-        $readyDate = 'none';
+        $readyDateDisplay = 'none';
+        $readyDate = '';
       } else {
         $readyChecked = '';
         $readyNote = 'none';
-        $readyDate = 'inline-block';
+        $readyDateDisplay = 'inline-block';
+        $readyDate = preg_replace('/\s/', 'T', $this->ReadyDate);
       }
 
       $emailConfirm0 = $emailConfirm1 = $emailConfirm2 = $emailConfirm3 =
@@ -3142,7 +3148,8 @@
           $dispatchInputValue = $this->DriverName . '; ' . $this->DispatchedTo;
         } else {
           $dispatchInputValue = ($this->CanDispatch === 1) ?
-          $_SESSION['driverName'] . '; ' . $_SESSION['DriverID'] : '';
+          $_SESSION['driverName'] . '; ' . $_SESSION['DriverID'] :
+          ($this->DispatchedTo == null) ? '' : $this->DriverName . '; ' . $this->DispatchedTo;
         }
         $dispatchedBy = ($this->ticketEditor === false) ? "
           <input type=\"hidden\" name=\"dispatchedBy\" class=\"dispatchedBy\" value=\"{$this->DispatchedBy}\" />" : '';
@@ -3183,21 +3190,21 @@
                 <tr>
                   <td>
                     <label for=\"dispatchTimeStamp{$this->ticket_index}\">Dispatch:</label>
-                    <input type=\"datetime-local\" name=\"dispatchTimeStamp\" id=\"dispatchTimeStamp{$this->ticket_index}\" value=\"{$dispatchTimeStamp}\" step=\"1\" />
+                    <input type=\"datetime-local\" name=\"dispatchTimeStamp\" id=\"dispatchTimeStamp{$this->ticket_index}\" class=\"dispatchTimeStamp\" value=\"{$dispatchTimeStamp}\" step=\"1\" form=\"request{$this->ticket_index}\" />
                   </td>
                   <td>
                     <label for=\"pTimeStamp{$this->ticket_index}\">Pickup:</label>
-                    <input type=\"datetime-local\" name=\"pTimeStamp\" id=\"pTimeStamp{$this->ticket_index}\" value=\"{$pTimeStamp}\" step=\"1\" />
+                    <input type=\"datetime-local\" name=\"pTimeStamp\" id=\"pTimeStamp{$this->ticket_index}\" class=\"pTimeStamp\" value=\"{$pTimeStamp}\" step=\"1\" form=\"request{$this->ticket_index}\" />
                   </td>
                 </tr>
                 <tr>
                   <td>
                     <label for=\"dTimeStamp{$this->ticket_index}\">Delivery:</label>
-                    <input type=\"datetime-local\" name=\"dTimeStamp\" id=\"dTimeStamp{$this->ticket_index}\" value=\"{$dTimeStamp}\" step=\"1\" /></td>
+                    <input type=\"datetime-local\" name=\"dTimeStamp\" id=\"dTimeStamp{$this->ticket_index}\" class=\"dTimeStamp\" value=\"{$dTimeStamp}\" step=\"1\" form=\"request{$this->ticket_index}\" /></td>
                   </td>
                   <td>
                     <label for=\"d2TimeStamp{$this->ticket_index}\">Return:</label>
-                    <input type=\"datetime-local\" name=\"d2TimeStamp\" id=\"d2TimeStamp{$this->ticket_index}\" value=\"{$d2TimeStamp}\" step=\"1\" {$d2TimeStampDisabled} /></td>
+                    <input type=\"datetime-local\" name=\"d2TimeStamp\" id=\"d2TimeStamp{$this->ticket_index}\" class=\"d2TimeStamp\" value=\"{$d2TimeStamp}\" step=\"1\" form=\"request{$this->ticket_index}\" {$d2TimeStampDisabled} /></td>
                   </td>
                 </tr>
               </table>
@@ -3210,6 +3217,7 @@
       }
       $ticketEditorValues = ($this->ticket_index === null) ? '' : "<input type=\"hidden\" name=\"ticketBase\" value=\"{$this->TicketBase}\" form=\"request{$this->ticket_index}\" />
           <input type=\"hidden\" name=\"runPrice\" value=\"{$this->RunPrice}\" form=\"request{$this->ticket_index}\" />
+          <input type=\"hidden\" name=\"receivedDate\" value=\"{$this->ReceivedDate}\" form=\"request{$this->ticket_index}\" />
           ";
       $displayDryIce = ($this->options['displayDryIce'] === true) ? "
               <td>
@@ -3326,7 +3334,7 @@
                       <td>
                         <label for=\"receivedReady{$this->ticket_index}\">Ready: <input type=\"checkbox\" name=\"receivedReady\" id=\"receivedReady{$this->ticket_index}\" class=\"receivedReady\" value=\"1\" form=\"request{$this->ticket_index}\" {$readyChecked} /></label>
                         <p class=\"readyNote\" style=\"display:{$readyNote}\">Now</p>
-                        <input type=\"dateTime-local\" name=\"readyDate\" class=\"readyDate\" style=\"display:{$readyDate}\" value=\"{$this->ReadyDate}\" form=\"request{$this->ticket_index}\" />
+                        <input type=\"dateTime-local\" name=\"readyDate\" class=\"readyDate\" style=\"display:{$readyDateDisplay}\" value=\"{$readyDate}\" form=\"request{$this->ticket_index}\" />
                       </td>
                       <td></td>
                     </tr>

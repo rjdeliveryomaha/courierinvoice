@@ -2921,7 +2921,7 @@
   };
 
   assignTicketFormListeners = workspace => {
-    let repeatHandler = workspace => {
+    let repeatHandler = eve => {
       workspace.querySelector(".billTo").setAttribute("list", (eve.target.checked) ? "t_clients" : "clients");
       workspace.querySelector(".billTo").value = "";
       if (workspace.querySelector("checkbox.contract")) {
@@ -3149,6 +3149,7 @@
     });
 
     let readyHandler = eve => {
+      if (/(deliveryRequest\d+)/.test(rjdci.getClosest(eve.target, "div").id)) return;
       let d1 = new Date(),
         d2 = new Date(eve.target.value);
       if (d1 >= d2) {
@@ -3220,23 +3221,164 @@
             } else {
               element.classList.remove("elementError");
             }
-            if (element.getAttribute("name") === "readyDate" && element.style.display !== "none") {
-              let d1 = new Date(),
-                d2 = new Date(element.value);
-              if (d1 >= d2) {
-                breakFunction = true;
+            if (rjdci.getClosest(element, "div").id === "deliveryRequest") {
+              if (element.getAttribute("name") === "readyDate" && element.style.display !== "none") {
                 let readyError = document.createElement("p");
                   readyError.classList.add("readyError");
                   readyError.classList.add("center");
-                  readyError.innerHTML = 'Ready Time should be either "Now" or a time in the future.';
-                if (!workspace.querySelector(".readyError")) {
-                  workspace.querySelector(".ticketError").parentNode.appendChild(readyError);
+                  readyError.innerHTML = 'Ready Time should be either "Now" or a time in the future.',
+                  d1 = new Date(),
+                  d2 = new Date(element.value);
+                if (d1 >= d2 || element.value === "") {
+                  breakFunction = true;
+                  if (!workspace.querySelector(".readyError")) {
+                    workspace.querySelector(".ticketError").parentNode.appendChild(readyError);
+                  }
+                  element.classList.add("elementError");
+                  setTimeout(() => {
+                    element.classList.remove("elementError");
+                    if (workspace.querySelector(".readyError")) readyError.parentNode.removeChild(readyError);
+                  }, 3000);
                 }
-                element.classList.add("elementError");
-                setTimeout(() => {
-                  element.classList.remove("elementError");
-                  if (workspace.querySelector(".readyError")) readyError.parentNode.removeChild(readyError);
-                }, 3000);
+              }
+            }
+            if (/(deliveryRequest\d+)/.test(rjdci.getClosest(element, "div").id)) {
+              let timingError = document.createElement("p");
+              timingError.classList.add("timingError");
+              timingError.classList.add("center");
+              timingError.innerHTML = "Timing Error";
+              switch (element.getAttribute("name")) {
+                case "readyDate":
+                  if (element.style.display !== "none") {
+                    if (element.value === "") {
+                      breakFunction = true;
+                      if (!workspace.querySelector(".timingError")) {
+                        workspace.querySelector(".ticketError").parentNode.appendChild(timingError);
+                      }
+                      element.classList.add("elementError");
+                      setTimeout(() => {
+                        element.classList.remove("elementError");
+                        if (workspace.querySelector(".timingError")) timingError.parentNode.removeChild(timingError);
+                      }, 3000);
+                    }
+                    if (
+                      workspace.querySelector(".pTimeStamp").value !== "" &&
+                      workspace.querySelector(".pTimeStamp").value < element.value
+                    ) {
+                      breakFunction = true;
+                      if (!workspace.querySelector(".timingError")) {
+                        workspace.querySelector(".ticketError").parentNode.appendChild(timingError);
+                      }
+                      workspace.querySelector(".pTimeStamp").classList.add("elementError");
+                      setTimeout(() => {
+                        workspace.querySelector(".pTimeStamp").classList.remove("elementError");
+                        if (workspace.querySelector(".timingError")) timingError.parentNode.removeChild(timingError);
+                      }, 3000);
+                    }
+                    if (
+                      workspace.querySelector(".dTimeStamp").value !== "" &&
+                      workspace.querySelector(".dTimeStamp").value < element.value
+                    ) {
+                      breakFunction = true;
+                      if (!workspace.querySelector(".timingError")) {
+                        workspace.querySelector(".ticketError").parentNode.appendChild(timingError);
+                      }
+                      workspace.querySelector(".dTimeStamp").classList.add("elementError");
+                      setTimeout(() => {
+                        workspace.querySelector(".dTimeStamp").classList.remove("elementError");
+                        if (workspace.querySelector(".timingError")) timingError.parentNode.removeChild(timingError);
+                      }, 3000);
+                    }
+                    if (
+                      workspace.querySelector(".d2TimeStamp").value !== "" &&
+                      workspace.querySelector(".d2TimeStamp").value < element.value
+                    ) {
+                      breakFunction = true;
+                      if (!workspace.querySelector(".timingError")) {
+                        workspace.querySelector(".ticketError").parentNode.appendChild(timingError);
+                      }
+                      workspace.querySelector(".d2TimeStamp").classList.add("elementError");
+                      setTimeout(() => {
+                        workspace.querySelector(".d2TimeStamp").classList.remove("elementError");
+                        if (workspace.querySelector(".timingError")) timingError.parentNode.removeChild(timingError);
+                      }, 3000);
+                    }
+                  }
+                  break;
+                case "d2TimeStamp":
+                  if (element.value !== "") {
+                    if (
+                      (workspace.querySelector(".dTimeStamp").value === "" ||
+                      workspace.querySelector(".dTimeStamp").value > element.value) ||
+                      (workspace.querySelector(".pTimeStamp").value === "" ||
+                      workspace.querySelector(".pTimeStamp").value > element.value) ||
+                      (workspace.querySelector(".dispatchTimeStamp").value === "" ||
+                      workspace.querySelector(".dispatchTimeStamp").value > element.value)
+                    ) {
+                      breakFunction = true;
+                      if (!workspace.querySelector(".timingError")) {
+                        workspace.querySelector(".ticketError").parentNode.appendChild(timingError);
+                      }
+                      element.classList.add("elementError");
+                      setTimeout(() => {
+                        element.classList.remove("elementError");
+                        if (workspace.querySelector(".timingError")) timingError.parentNode.removeChild(timingError);
+                      }, 3000);
+                    }
+                  }
+                  break;
+                case "dTimeStamp":
+                  if (element.value !== "") {
+                    if (
+                      (workspace.querySelector(".pTimeStamp").value === "" ||
+                      workspace.querySelector(".pTimeStamp").value > element.value) ||
+                      (workspace.querySelector(".dispatchTimeStamp").value === "" ||
+                      workspace.querySelector(".dispatchTimeStamp").value > element.value)
+                    ) {
+                      breakFunction = true;
+                      if (!workspace.querySelector(".timingError")) {
+                        workspace.querySelector(".ticketError").parentNode.appendChild(timingError);
+                      }
+                      element.classList.add("elementError");
+                      setTimeout(() => {
+                        element.classList.remove("elementError");
+                        if (workspace.querySelector(".timingError")) timingError.parentNode.removeChild(timingError);
+                      }, 3000);
+                    }
+                  }
+                  break;
+                case "pTimeStamp":
+                  if (element.value !== "") {
+                    console.log(workspace.querySelector(".dispatchTimeStamp").value, element.value, workspace.querySelector(".dispatchTimeStamp").value > element.value);
+                    if (
+                      workspace.querySelector(".dispatchTimeStamp").value === "" ||
+                      workspace.querySelector(".dispatchTimeStamp").value > element.value
+                    ) {
+                      breakFunction = true;
+                      if (!workspace.querySelector(".timingError")) {
+                        workspace.querySelector(".ticketError").parentNode.appendChild(timingError);
+                      }
+                      element.classList.add("elementError");
+                      setTimeout(() => {
+                        element.classList.remove("elementError");
+                        if (workspace.querySelector(".timingError")) timingError.parentNode.removeChild(timingError);
+                      }, 3000);
+                    }
+                  }
+                  break;
+                case "dispatchTimeStamp":
+                  if (element.value === "") {
+                    breakFunction = true;
+                    if (!workspace.querySelector(".timingError")) {
+                      workspace.querySelector(".ticketError").parentNode.appendChild(timingError);
+                    }
+                    element.classList.add("elementError");
+                    setTimeout(() => {
+                      element.classList.remove("elementError");
+                      if (workspace.querySelector(".timingError")) timingError.parentNode.removeChild(timingError);
+                    }, 3000);
+                  }
+                  break;
               }
             }
             postData[element.getAttribute("name")] = element.value;
