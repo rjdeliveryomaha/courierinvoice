@@ -4137,6 +4137,8 @@
         $this->DispatchMicroTime = ($this->DispatchMicroTime === null || $this->DispatchMicroTime === '') ?
         substr($date_array[0], 1, 7) : $this->DispatchMicroTime;
 
+      } else {
+        $this->DispatchTimeStamp = $this->DispatchMicroTime = null;
       }
       // Create a new query object to post the new ticket
       $postTicketData = [];
