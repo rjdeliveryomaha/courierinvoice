@@ -3049,11 +3049,13 @@
           }
         }
       }
-      foreach (json_decode(urldecode($this->driverList), true) as $driver) {
-        if ($driver['DriverID'] == $this->DispatchedTo) {
-          $this->DriverName = ($driver['LastName'] === null) ?
-          $driver['FirstName'] :
-          $driver['FirstName'] . ' ' . $driver['LastName'];
+      if ($this->driverList !== null) {
+        foreach (json_decode(urldecode($this->driverList), true) as $driver) {
+          if ($driver['DriverID'] == $this->DispatchedTo) {
+            $this->DriverName = ($driver['LastName'] === null) ?
+            $driver['FirstName'] :
+            $driver['FirstName'] . ' ' . $driver['LastName'];
+          }
         }
       }
       // Check boxes and display notices based on values
