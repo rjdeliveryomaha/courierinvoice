@@ -898,7 +898,9 @@ Compares two ``` DateTime ``` objects to determine if the scheduled interval has
 
 Returns ``` boolean ```.
 
+__Note__: For 'Every Other' schedules with day names, if the start date does not land on the named day, perhaps because the schedule changed, the date will be tested against the day of the scheduled name in the same Sunday through Saturday week as the start date.
 
+For example if an Every Other Saturday schedule starting on 01 JUL 2017 were changed to an Every Other Tuesday schedule the current date would be tested against the Tuesday in the same week as 01 JUL 2017 which is 27 JUN 2017.
 
 ---
 
