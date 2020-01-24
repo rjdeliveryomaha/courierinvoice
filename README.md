@@ -848,7 +848,7 @@ Returns HTML content.
 
 # Scheduling
 
-Static Class with tools to interpreting scheduling codes and literals.
+Static Class with tools for interpreting scheduling codes, literals, and indices.
 
 ## Public methods
 
