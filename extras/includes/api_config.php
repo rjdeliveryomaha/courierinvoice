@@ -214,6 +214,10 @@
       'ApplyVAT' => 0,
       'deliveryVAT' => [ 'default' => 0 ],
       'iceVAT' => [ 'default' => 0 ],
+      'DefaultTerms'=>1,
+      'DiscountRate'=>0,
+      'DiscountWindow'=>0,
+      'TermLength'=>0,
       'MaxRange' => 0.0,
       'RangeCenter' => [ 'lat' => 41.2125742, 'lng' => -95.9765968 ]
     ];

@@ -57,6 +57,8 @@
     {
       // fetch all tickets that have not been billed this cycle
       $this->fetchTickets();
+      // fetch the terms for each client with tickets
+      $this->fetchTerms();
       // fetch most recent invoice numbers and forwarded balances
       $this->fetchLastInvoice();
       // process new invoices
@@ -121,21 +123,29 @@
         $key = (self::test_bool($this->result[$i]['RepeatClient']) === true) ?
           $this->result[$i]['BillTo'] : "t{$this->result[$i]['BillTo']}";
         if (!array_key_exists($key, $this->clientList)) {
-          $this->clientList[$key] = [ 'tickets'=>[], 'lastInvoice'=>[], 'openInvoices'=>[] ];
+          $this->clientList[$key] = [
+            'tickets'=>[],
+            'lastInvoice'=>[],
+            'openInvoices'=>[],
+            'terms'=>[
+              'InvoiceTerms'=>1,
+              'DiscountRate'=>0,
+              'DiscountWindow'=>0,
+              'TermLength'=>0
+            ]
+          ];
         }
         $this->clientList[$key]['tickets'][] = $this->result[$i];
       }
     }
 
-    private function fetchLastInvoice()
+    private function fetchTerms()
     {
-      // Grabbing all invoices in a single call then sorting them seems more efficient
-      // than trying to compose multiple queries to filter by Closed, ClientID, RepeatClient, and DateIssued
-      $invoiceQueryData['noSession'] = true;
-      $invoiceQueryData['endPoint'] = 'invoices';
-      $invoiceQueryData['method'] = 'GET';
-      $invoiceQueryData['queryParams']['include'] = [
-        'InvoiceNumber', 'RepeatClient', 'BalanceForwarded', 'InvoiceSubTotal', 'DateIssued', 'Closed', 'Deleted'
+      $termsQueryData['noSession'] = true;
+      $termsQueryData['endPoint'] = 'clients';
+      $termsQueryData['method'] = 'GET';
+      $termsQueryData['queryParams']['include'] = [
+        'ClientID', 'RepeatClient', 'ClientTerms', 'DiscountRate', 'DiscountWindow', 'TermLength'
       ];
       // Split repeat and non-repeat clientIDs into separate arrays
       $repeats = $nonrepeats = $repeatFilter = $nonrepeatFilter = [];
@@ -159,9 +169,74 @@
         ];
       }
       if (!empty($repeatFilter) && !empty($nonrepeatFilter)) {
-        $this->data['filter'] = [ $repeatFilter, $nonrepeatFilter ];
+        $termsQueryData['queryParams']['filter'] = [ $repeatFilter, $nonrepeatFilter ];
       } else {
-        $this->data['filter'] = (empty($nonrepeatFilter)) ? $repeatFilter : $nonrepeatFilter;
+        $termsQueryData['queryParams']['filter'] = (empty($nonrepeatFilter)) ? $repeatFilter : $nonrepeatFilter;
+      }
+      if (!$termsQuery = self::createQuery($termsQueryData)) {
+        $this->error .= "\n" . __function__ . ' Line ' . __line__;
+        if ($this->invoiceCronLogFailure) self::writeLoop();
+        exit;
+      }
+      $this->result = self::callQuery($termsQuery);
+      if ($this->result === false) {
+        $this->error .= "\n" . __function__ . ' Line ' . __line__;
+        if ($this->invoiceCronLogFailure) self::writeLoop();
+        exit;
+      }
+      for ($i = 0; $i < count($this->result); $i++) {
+        $key = (self::test_bool($this->result[$i]['RepeatClient']) === true) ?
+          $this->result[$i]['ClientID'] : "t{$this->result[$i]['ClientID']}";
+        if ($this->result[$i]['ClientTerms'] == 0) {
+          $this->clientList[$key]['terms']['InvoiceTerms'] = $this->config['DefaultTerms'];
+          $this->clientList[$key]['terms']['DiscountRate'] = $this->config['DiscountRate'];
+          $this->clientList[$key]['terms']['DiscountWindow'] = $this->config['DiscountWindow'];
+          $this->clientList[$key]['terms']['TermLength'] = $this->config['TermLength'];
+        } else {
+          $this->clientList[$key]['terms']['InvoiceTerms'] = $this->result[$i]['ClientTerms'];
+          $this->clientList[$key]['terms']['DiscountRate'] = $this->result[$i]['DiscountRate'];
+          $this->clientList[$key]['terms']['DiscountWindow'] = $this->result[$i]['DiscountWindow'];
+          $this->clientList[$key]['terms']['TermLength'] = $this->result[$i]['TermLength'];
+        }
+      }
+    }
+
+    private function fetchLastInvoice()
+    {
+      // Grabbing all invoices in a single call then sorting them seems more efficient
+      // than trying to compose multiple queries to filter by Closed, ClientID, RepeatClient, and DateIssued
+      $invoiceQueryData['noSession'] = true;
+      $invoiceQueryData['endPoint'] = 'invoices';
+      $invoiceQueryData['method'] = 'GET';
+      $invoiceQueryData['queryParams']['include'] = [
+        'ClientID', 'InvoiceNumber', 'RepeatClient', 'BalanceForwarded', 'InvoiceSubTotal', 'DateIssued',
+        'Closed', 'Deleted'
+      ];
+      // Split repeat and non-repeat clientIDs into separate arrays
+      $repeats = $nonrepeats = $repeatFilter = $nonrepeatFilter = [];
+      foreach($this->clientList as $key => $value) {
+        if (strpos($key,'t') === false) {
+          $repeats[] = $key;
+        } else {
+          $nonrepeats[] = substr($key, 1);
+        }
+      }
+      if (!empty($repeats)) {
+        $repeatFilter = [
+          ['Resource'=>'ClientID', 'Filter'=>'in', 'Value'=>implode(',', $repeats)],
+          ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1]
+        ];
+      }
+      if (!empty($nonrepeats)) {
+        $nonrepeatFilter = [
+          ['Resource'=>'ClientID', 'Filter'=>'in', 'Value'=>implode(',', $nonrepeats)],
+          ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0]
+        ];
+      }
+      if (!empty($repeatFilter) && !empty($nonrepeatFilter)) {
+        $invoiceQueryData['queryParams']['filter'] = [ $repeatFilter, $nonrepeatFilter ];
+      } else {
+        $invoiceQueryData['queryParams']['filter'] = (empty($nonrepeatFilter)) ? $repeatFilter : $nonrepeatFilter;
       }
       if (!$invoiceQuery = self::createQuery($invoiceQueryData)) {
         $this->error .= "\n" . __function__ . ' Line ' . __line__;
@@ -175,7 +250,8 @@
         exit;
       }
       for ($i = 0; $i < count($this->result); $i++) {
-        $tempID = substr($this->result[$i]['InvoiceNumber'], strpos($this->result[$i]['InvoiceNumber'],'-') + 1);
+        $tempID = ($this->result[$i]['RepeatClient'] == 0) ? 't' : '';
+        $tempID .= $this->result[$i]['ClientID'];
         if ($this->result[$i]['Closed'] === 0 && $this->result[$i]['Deleted'] === 0) {
             $this->clientList[$tempID]['openInvoices'][] = $this->result[$i];
         }
@@ -200,6 +276,9 @@
         $tempInvoice->StartDate = $this->startDate;
         $tempInvoice->EndDate = $this->endDate;
         $tempInvoice->DateIssued = $this->DateIssued;
+        foreach ($value['terms'] as $k => $v) {
+          $tempInvoice->$k = $v;
+        }
         // create new InvoiceNumber
         $invoicePointer = mt_rand(1000, 1100);
         if (!empty($value['lastInvoice'])) {
@@ -215,6 +294,7 @@
         if (array_key_exists('openInvoices', $value) && !empty($value['openInvoices'])) {
           // Past due invoices need to be sortted by age and added to InvoiceTotal
           for ($i = 0; $i < count($value['openInvoices']); $i++) {
+            $flag30 = $flag60 = $flag90 = $flagover90 = false;
             try {
               $tempDate = new \dateTime($value['openInvoices'][$i]['DateIssued'], $this->timezone);
             } catch(\Exception $e) {
@@ -222,17 +302,79 @@
               $this->writeLoop();
               exit;
             }
-            $plusOneMonth = clone $tempDate;
-            $plusOneMonth->modify('+ 1 month');
-            $plusTwoMonth = clone $tempDate;
-            $plusTwoMonth->modify('+ 2 month');
-            $plusThreeMonth = clone $tempDate;
-            $plusThreeMonth->modify('+ 3 month');
-            $diff = $tempDate->diff($this->dateObject);
-            if (
-              $diff->days >= $tempDate->format('t') &&
-              $diff->days < ($tempDate->format('t') + $plusOneMonth->format('t'))
-            ) {
+            if ($vale['openInvoices'][$i]['InvoiceTerms'] == 3) {
+              if (
+                (
+                  ($this->dateObject->format('n') - $tempDate->format('n') == 1 ||
+                  $this->dateObject->format('n') - $tempDate->format('n') == -11) &&
+                  $this->dateObject->format('j') > $vale['openInvoices'][$i]['TermLength']
+                ) ||
+                (
+                  ($this->dateObject->format('n') - $tempDate->format('n') == 2 ||
+                  $this->dateObject->format('n') - $tempDate->format('n') == -10) &&
+                  $this->dateObject->format('j') <= $vale['openInvoices'][$i]['TermLength']
+                )
+              ) {
+                $flag30 = true;
+              } elseif (
+                (
+                  ($this->dateObject->format('n') - $tempDate->format('n') == 2 ||
+                  $this->dateObject->format('n') - $tempDate->format('n') == -10) &&
+                  $this->dateObject->format('j') > $vale['openInvoices'][$i]['TermLength']
+                ) ||
+                (
+                  ($this->dateObject->format('n') - $tempDate->format('n') == 3 ||
+                  $this->dateObject->format('n') - $tempDate->format('n') == -9) &&
+                  $this->dateObject->format('j') <= $vale['openInvoices'][$i]['TermLength']
+                )
+              ) {
+                $flag60 = true;
+              } elseif (
+                (
+                  ($this->dateObject->format('n') - $tempDate->format('n') == 3 ||
+                  $this->dateObject->format('n') - $tempDate->format('n') == -9) &&
+                  $this->dateObject->format('j') > $vale['openInvoices'][$i]['TermLength']) ||
+                (
+                  ($this->dateObject->format('n') - $tempDate->format('n') == 4 ||
+                  $this->dateObject->format('n') - $tempDate->format('n') == -8) &&
+                  $this->dateObject->format('j') <= $vale['openInvoices'][$i]['TermLength']
+                )
+              ) {
+                $flag90 = true;
+              } else {
+                $flagover90 = true;
+              }
+            } else {
+              $diff = $tempDate->diff($this->dateObject);
+              if (
+                (
+                  $vale['openInvoices'][$i]['InvoiceTerms'] == 1 &&
+                  $diff->days > $vale['openInvoices'][$i]['TermLength']
+                ) ||
+                (
+                  $vale['openInvoices'][$i]['InvoiceTerms'] > 1 &&
+                  (
+                    $vale['openInvoices'][$i]['TermLength'] <= $diff->days &&
+                    $diff->days < $vale['openInvoices'][$i]['TermLength'] * 2
+                  )
+                )
+              ) {
+                $flag30 = true;
+              } elseif (
+                $vale['openInvoices'][$i]['TermLength'] * 2 <= $diff->days &&
+                $diff->days < $vale['openInvoices'][$i]['TermLength'] * 3
+              ) {
+                $flag60 = true;
+              } elseif (
+                $vale['openInvoices'][$i]['TermLength'] * 3 <= $diff->days &&
+                $diff->days < $vale['openInvoices'][$i]['TermLength'] * 4
+              ) {
+                $flag90 = true;
+              } else {
+                $flagover90 = true;
+              }
+            }
+            if ($flag30 === true) {
               $tempInvoice->InvoiceTotal += $value['openInvoices'][$i]['InvoiceSubTotal'];
               if (property_exists($tempInvoice, 'Late30Invoice')) {
                 $tempInvoice->Late30Invoice .= (strpos($tempInvoice->Late30Invoice, '+') === false) ? '+' : '';
@@ -244,10 +386,7 @@
               } else {
                 $tempInvoice->Late30Value = $value['openInvoices'][$i]['InvoiceSubTotal'];
               }
-            } elseif (
-              $diff->days >= ($tempDate->format('t') + $plusOneMonth->format('t')) &&
-              $diff->days < ($tempDate->format('t') + $plusOneMonth->format('t') + $plusTwoMonth->format('t'))
-            ) {
+            } elseif ($flag60 === true) {
               $tempInvoice->InvoiceTotal += $value['openInvoices'][$i]['InvoiceSubTotal'];
               if (property_exists($tempInvoice, 'Late60Invoice')) {
                 $tempInvoice->Late60Invoice .= (strpos($tempInvoice->Late60Invoice, '+') === false) ? '+' : '';
@@ -259,10 +398,7 @@
               } else {
                 $tempInvoice->Late60Value = $value['openInvoices'][$i]['InvoiceSubTotal'];
               }
-            } elseif (
-              $diff->days >= ($tempDate->format('t') + $plusOneMonth->format('t') + $plusTwoMonth->format('t')) &&
-              $diff->days < ($tempDate->format('t') + $plusOneMonth->format('t') + $plusTwoMonth->format('t') + $plusThreeMonth->format('t'))
-            ) {
+            } elseif ($flag90 === true) {
               $tempInvoice->InvoiceTotal += $value['openInvoices'][$i]['InvoiceSubTotal'];
               if (property_exists($tempInvoice, 'Late90Invoice')) {
                 $tempInvoice->Late90Invoice .= (strpos($tempInvoice->Late90Invoice, '+') === false) ? '+' : '';
@@ -274,9 +410,7 @@
               } else {
                 $tempInvoice->Late90Value = $value['openInvoices'][$i]['InvoiceSubTotal'];
               }
-            } elseif (
-              $diff->days >= ($tempDate->format('t') + $plusOneMonth->format('t') + $plusTwoMonth->format('t') + $plusThreeMonth->format('t'))
-            ) {
+            } elseif ($flagover90 === true) {
               $tempInvoice->InvoiceTotal += $value['openInvoices'][$i]['InvoiceSubTotal'];
               $this->Over90InvoiceList[] = $value['openInvoices'][$i]['InvoiceNumber'];
               if (property_exists($tempInvoice, 'Over90Value')) {

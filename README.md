@@ -1440,13 +1440,11 @@ Extends [CommonFunctions](https://github.com/rjdeliveryomaha/courierinvoice#comm
 
 Automatically creates invoices with a [cron](https://en.wikipedia.org/wiki/Cron) job run on the day following the end of a monthly billing cycle.
 
-This class does not account for leap years and assumes that invoices will not be generated after the 28th of any month.
-
 Updates tickets with new invoice number.
 
 Can be configured to ignore clients and non-repeat clients.
 
-Checks for past due invoices.
+Checks for past due invoices according to the terms defined per invoice.
 
 Respects soft delete (setting the 'Deleted' property to 1) when checking for past due invoices.
 

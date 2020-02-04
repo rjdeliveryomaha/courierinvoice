@@ -7,6 +7,10 @@
   {
     protected $invoice_index;
     protected $InvoiceNumber;
+    protected $InvoiceTerms;
+    protected $DiscountRate;
+    protected $DiscountWindow;
+    protected $TermLength;
     protected $ClientID;
     protected $RepeatClient;
     protected $InvoiceTotal;
@@ -61,6 +65,19 @@
         parent::__construct($options, $data);
       } catch (\Exception $e) {
         throw $e;
+      }
+    }
+
+    private function displayTerms()
+    {
+      if ($this->InvoiceTerms <= 1 || $this->InvoiceTerms > 4) return 'Due Upon Receipt';
+      if ($this->InvoiceTerms == 2 || $this->InvoiceTerms == 3) {
+        $eom = ($this->InvoiceTerms == 2) ? '' : 'EOM ';
+        return ($this->TermLength < 1) ? 'Due Upon Receipt' : "Net $eom{$this->TermLength}";
+      }
+      if ($this->InvoiceTerms == 4) {
+        if ($this->DiscountRate <= 0 || $this->DiscountWindow <= 0 || $this->TermLength < 1) return 'Due Upon Receipt';
+        return "{$this->DiscountRate}/{$this->DiscountWindow} Net {$this->TermLength}";
       }
     }
 
@@ -171,7 +188,9 @@
         $filteredTicketSet = $ticketSet;
       }
       $displayName = $this->members[$this->ClientID]->getProperty('ClientName');
-      $displayName .= ($this->members[$this->ClientID]->getProperty('Department') !== null) ? "; {$this->members[$this->ClientID]->getProperty('Department')}" : '';
+      $displayName .= ($this->members[$this->ClientID]->getProperty('Department') !== null) ?
+        "; {$this->members[$this->ClientID]->getProperty('Department')}" : '';
+
       switch (strtolower($this->options['paperFormat'])) {
         case 'a4':
           if (strtolower($this->options['paperOrientation']) === 'landscape') {
@@ -273,6 +292,7 @@
                 <th>Invoice</th>
                 <th>Issued</th>
                 <th>Subtotal</th>
+                <th>Terms</th>
                 <th>Client</th>
                 <th>Page</th>
               </tr>
@@ -282,6 +302,7 @@
                 <td>
                   <span class="currencySymbol">' . $_SESSION['config']['CurrencySymbol'] . '</span>'. self::negParenth(self::number_format_drop_zero_decimals($this->InvoiceSubTotal, 2)) . '
                 </td>
+                <td>' . self::displayTerms() . '</td>
                 <td>' . $displayName . '</td>
                 <td>' . $this->counter . ' / ' . $pageCount . '</td>
               </tr>
@@ -468,6 +489,7 @@
         <p>' . $this->members[$this->ClientID]->getProperty('ClientName') . '</p>
         <p>' . $this->members[$this->ClientID]->getProperty('Department'). '</p>
         <p>Subtotal: <span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::negParenth(self::number_format_drop_zero_decimals($this->InvoiceSubTotal, 2)) . '</p>
+        <p>Terms: ' . self::displayTerms . '</p>
       </div>
     </div>'
     . $flagedForDeletion .
