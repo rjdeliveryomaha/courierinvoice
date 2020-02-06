@@ -341,7 +341,10 @@
                   $diff->days < $value['openInvoices'][$i]['TermLength'] * 4)
               ) {
                 $flag90 = true;
-              } else {
+              } elseif (
+                ($value['openInvoices'][$i]['InvoiceTerms'] == 1 && ($diff->days >= 180)) ||
+                $diff->days >= $value['openInvoices'][$i]['TermLength'] * 4
+              ) {
                 $flagover90 = true;
               }
             }
