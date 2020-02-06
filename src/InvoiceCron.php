@@ -295,79 +295,50 @@
           // Past due invoices need to be sortted by age and added to InvoiceTotal
           for ($i = 0; $i < count($value['openInvoices']); $i++) {
             $flag30 = $flag60 = $flag90 = $flagover90 = false;
+            $date1 = $this->dateObject;
             try {
-              $tempDate = new \dateTime($value['openInvoices'][$i]['DateIssued'], $this->timezone);
+              $date2 = new \dateTime($value['openInvoices'][$i]['DateIssued'], $this->timezone);
             } catch(\Exception $e) {
               $this->content = "{$dateObject->format("d M Y H:i:s.u")}\nDate Error Line " . __line__ . ": {$e->getMessage()}\n\n";
               $this->writeLoop();
               exit;
             }
-            if ($vale['openInvoices'][$i]['InvoiceTerms'] == 3) {
-              if (
-                (
-                  ($this->dateObject->format('n') - $tempDate->format('n') == 1 ||
-                  $this->dateObject->format('n') - $tempDate->format('n') == -11) &&
-                  $this->dateObject->format('j') > $vale['openInvoices'][$i]['TermLength']
-                ) ||
-                (
-                  ($this->dateObject->format('n') - $tempDate->format('n') == 2 ||
-                  $this->dateObject->format('n') - $tempDate->format('n') == -10) &&
-                  $this->dateObject->format('j') <= $vale['openInvoices'][$i]['TermLength']
-                )
-              ) {
-                $flag30 = true;
-              } elseif (
-                (
-                  ($this->dateObject->format('n') - $tempDate->format('n') == 2 ||
-                  $this->dateObject->format('n') - $tempDate->format('n') == -10) &&
-                  $this->dateObject->format('j') > $vale['openInvoices'][$i]['TermLength']
-                ) ||
-                (
-                  ($this->dateObject->format('n') - $tempDate->format('n') == 3 ||
-                  $this->dateObject->format('n') - $tempDate->format('n') == -9) &&
-                  $this->dateObject->format('j') <= $vale['openInvoices'][$i]['TermLength']
-                )
-              ) {
-                $flag60 = true;
-              } elseif (
-                (
-                  ($this->dateObject->format('n') - $tempDate->format('n') == 3 ||
-                  $this->dateObject->format('n') - $tempDate->format('n') == -9) &&
-                  $this->dateObject->format('j') > $vale['openInvoices'][$i]['TermLength']) ||
-                (
-                  ($this->dateObject->format('n') - $tempDate->format('n') == 4 ||
-                  $this->dateObject->format('n') - $tempDate->format('n') == -8) &&
-                  $this->dateObject->format('j') <= $vale['openInvoices'][$i]['TermLength']
-                )
-              ) {
-                $flag90 = true;
-              } else {
-                $flagover90 = true;
+            $diff = $date2->diff($date1);
+            if ($value['openInvoices'][$i]['InvoiceTerms'] == 3) {
+              switch ($diff->m) {
+                case 0:
+                  $flag30 = $date1->format('n') != $date2->format('n') &&
+                    $date1->format('j') >= $value['openInvoices'][$i]['TermLength'];
+                  break;
+                case 1:
+                  $flag30 = true;
+                  break;
+                case 2:
+                  $flag60 = true;
+                  break;
+                case 3:
+                  $flag90 = true;
+                  break;
+                default: $flagover90 = true;
               }
             } else {
-              $diff = $tempDate->diff($this->dateObject);
               if (
-                (
-                  $vale['openInvoices'][$i]['InvoiceTerms'] == 1 &&
-                  $diff->days > $vale['openInvoices'][$i]['TermLength']
-                ) ||
-                (
-                  $vale['openInvoices'][$i]['InvoiceTerms'] > 1 &&
-                  (
-                    $vale['openInvoices'][$i]['TermLength'] <= $diff->days &&
-                    $diff->days < $vale['openInvoices'][$i]['TermLength'] * 2
-                  )
-                )
+                ($value['openInvoices'][$i]['InvoiceTerms'] == 1 && $diff->days < 60) ||
+                ($value['openInvoices'][$i]['InvoiceTerms'] > 1 &&
+                ($value['openInvoices'][$i]['TermLength'] <= $diff->days &&
+                  $diff->days < $value['openInvoices'][$i]['TermLength'] * 2))
               ) {
                 $flag30 = true;
               } elseif (
-                $vale['openInvoices'][$i]['TermLength'] * 2 <= $diff->days &&
-                $diff->days < $vale['openInvoices'][$i]['TermLength'] * 3
+                ($value['openInvoices'][$i]['InvoiceTerms'] == 1 && (60 <= $diff->days && $diff->days < 90)) ||
+                ($value['openInvoices'][$i]['TermLength'] * 2 <= $diff->days &&
+                  $diff->days < $value['openInvoices'][$i]['TermLength'] * 3)
               ) {
                 $flag60 = true;
               } elseif (
-                $vale['openInvoices'][$i]['TermLength'] * 3 <= $diff->days &&
-                $diff->days < $vale['openInvoices'][$i]['TermLength'] * 4
+                ($value['openInvoices'][$i]['InvoiceTerms'] == 1 && (90 <= $diff->days && $diff->days < 180)) ||
+                ($value['openInvoices'][$i]['TermLength'] * 3 <= $diff->days &&
+                  $diff->days < $value['openInvoices'][$i]['TermLength'] * 4)
               ) {
                 $flag90 = true;
               } else {
