@@ -2771,6 +2771,7 @@
           });
           document.querySelector("#invoiceQueryResults").innerHTML = "";
           document.querySelector("#invoiceQueryResults").appendChild(docFrag);
+          assignQueriedInvoiceListeners();
         })
         .catch(error => {
           console.error(error.message);
