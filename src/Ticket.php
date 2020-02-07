@@ -1538,6 +1538,7 @@
             $url = 'error';
           }
           $repeatMarker = (self::test_bool($this->RepeatClient) === true) ? '' : 't';
+          $repeatVal = (self::test_bool($this->RepeatClient) === true) ? '1' : '0';
           if ($this->organizationFlag === true) {
             $this->memberInput = "<input type=\"hidden\" name=\"clientID[]\" value=\"{$repeatMarker}{$this->BillTo}\" />";
           } else {
@@ -1548,6 +1549,8 @@
             <input type=\"hidden\" name=\"endPoint\" value=\"invoices\" />
             <input type=\"hidden\" name=\"display\" value=\"invoice\" />
             <input type=\"hidden\" name=\"invoiceNumber\" value=\"{$this->InvoiceNumber}\" />
+            <input type=\"hidden\" name=\"method\" value=\"GET\" />
+            <input type=\"hidden\" name=\"repeatClient\" value=\"$repeatVal\" />
             {$this->memberInput}
             <button type=\"submit\" class=\"invoiceQuery\">{$this->InvoiceNumber}</button>
           </form>
