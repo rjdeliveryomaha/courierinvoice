@@ -489,7 +489,7 @@
         <p>' . $this->members[$this->ClientID]->getProperty('ClientName') . '</p>
         <p>' . $this->members[$this->ClientID]->getProperty('Department'). '</p>
         <p>Subtotal: <span class="currencySymbol">' . $this->config['CurrencySymbol'] . '</span>' . self::negParenth(self::number_format_drop_zero_decimals($this->InvoiceSubTotal, 2)) . '</p>
-        <p>Terms: ' . self::displayTerms . '</p>
+        <p>Terms: ' . self::displayTerms() . '</p>
       </div>
     </div>'
     . $flagedForDeletion .
@@ -536,7 +536,6 @@
       <tfoot>
         <tr>
           <td colspan="7" style="padding:0px;border:none;">
-            <p class="center medium">Payment is due upon receipt.</p>
             <p class="center medium">Make all checks payable to ' . $this->config['ClientName'] . '.</p>
             <p class="center bold medium">Thank You for your business!</p>
           </td>
