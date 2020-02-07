@@ -403,7 +403,7 @@
       }
       foreach ($this->result[0]['clients'] as $member) {
         if ($member['Deleted'] === 1) continue;
-        $marker = ($member['RepeatClient'] === 0) ? 't' : '';
+        $marker = (self::test_bool($member['RepeatClient']) === false) ? 't' : '';
         $_SESSION['members'][$marker . $member['ClientID']] = [];
         foreach ($member as $key => $value) {
           if (!in_array($key, $this->exclude)) {
