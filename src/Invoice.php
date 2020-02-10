@@ -566,7 +566,7 @@
                           <td><label for="dateIssued">Date Issued:</label></td>
                           <td class="pullLeft">' .
                             self::createLimitedMonthInput([
-                              'clientIDs' => $_SESSION['ClientID'],
+                              'clientIDs' => (($_SESSION['RepeatClient'] == false) ? 't' : '') . $_SESSION['ClientID'],
                               'inputID' => 'dateIssued',
                               'type' => 'month',
                               'required' => true,
@@ -603,7 +603,7 @@
                           <td><label for="startDate">Start Date:</label></td>
                           <td>' .
                             self::createLimitedMonthInput([
-                              'clientIDs' => $_SESSION['ClientID'],
+                              'clientIDs' => (($_SESSION['RepeatClient'] == false) ? 't' : '') . $_SESSION['ClientID'],
                               'inputID' => 'startDate',
                               'type' => 'month',
                               'required' => true,
@@ -615,7 +615,7 @@
                           <td><label for="endDate">End Date:</label></td>
                           <td>' .
                             self::createLimitedMonthInput([
-                              'clientIDs' => $_SESSION['ClientID'],
+                              'clientIDs' => (($_SESSION['RepeatClient'] == false) ? 't' : '') . $_SESSION['ClientID'],
                               'inputID' => 'endDate',
                               'type' => 'month',
                               'required' => true,

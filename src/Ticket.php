@@ -135,7 +135,6 @@
     private $today;
     public $index = 0;
     public $edit;
-    private $memberInput;
     private $ticketNumberList;
     private $selectID;
     private $formName;
@@ -1538,20 +1537,14 @@
             $url = 'error';
           }
           $repeatMarker = (self::test_bool($this->RepeatClient) === true) ? '' : 't';
-          $repeatVal = (self::test_bool($this->RepeatClient) === true) ? '1' : '0';
-          if ($this->organizationFlag === true) {
-            $this->memberInput = "<input type=\"hidden\" name=\"clientID[]\" value=\"{$repeatMarker}{$this->BillTo}\" />";
-          } else {
-            $this->memberInput = "<input type=\"hidden\" name=\"clientID\" value=\"{$this->ClientID}\" />";
-          }
           $billed = "
           <form class=\"noPrint\" action=\"{$url}\" method=\"post\">
             <input type=\"hidden\" name=\"endPoint\" value=\"invoices\" />
             <input type=\"hidden\" name=\"display\" value=\"invoice\" />
             <input type=\"hidden\" name=\"invoiceNumber\" value=\"{$this->InvoiceNumber}\" />
             <input type=\"hidden\" name=\"method\" value=\"GET\" />
-            <input type=\"hidden\" name=\"repeatClient\" value=\"$repeatVal\" />
-            {$this->memberInput}
+            <input type=\"hidden\" name=\"repeatClient\" value=\"{$this->RepeatClient}\" />
+            <input type=\"hidden\" name=\"clientID\" value=\"{$repeatMarker}{$this->BillTo}\" />
             <button type=\"submit\" class=\"invoiceQuery\">{$this->InvoiceNumber}</button>
           </form>
           <span class=\"printOnly\">{$this->InvoiceNumber}</span>";

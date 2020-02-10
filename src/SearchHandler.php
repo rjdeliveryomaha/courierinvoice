@@ -119,7 +119,7 @@
       $this->queryData['method'] = 'GET';
       $this->queryData['endPoint'] = $this->endPoint;
       if (!is_array($this->clientID)) {
-        $marker = ($this->RepeatClient === 1) ? $this->clientID : "t{$this->clientID}";
+        $marker = (self::test_bool($this->RepeatClient) === true) ? $this->clientID : "t{$this->clientID}";
         $this->clientID = [ $marker ];
       }
       for ($i = 0; $i < count($this->clientID); $i++) {
@@ -540,12 +540,13 @@
 
         $monthLabel = $receivedDate->format('M Y');
 
-        // group tickets by month
-        if (isset($this->months[$monthLabel][$ticket['BillTo']])) {
+        // group tickets by month and client
+        $marker = (self::test_bool($ticket['RepeatClient']) === true) ? '' : 't';
+        if (isset($this->months[$monthLabel][$marker . $ticket['BillTo']])) {
           $this->months[$monthLabel][$ticket['BillTo']]['monthTotal']++;
           $this->months[$monthLabel][$ticket['BillTo']]['endDate'] = $receivedDate->format('Y-m-d');
         } else {
-          $this->months[$monthLabel][$ticket['BillTo']] = [
+          $this->months[$monthLabel][$marker . $ticket['BillTo']] = [
             'billTo'=>$ticket['BillTo'],
             'monthTotal'=>1,
             'contract'=>0,
@@ -630,7 +631,8 @@
       // Split $this->months up by clientID if this is an organization call
       if ($this->organizationFlag === TRUE) {
         foreach ($this->result as $invoice) {
-          $invoiceGroup = $invoice['ClientID'];
+          $invoiceGroup = (self::test_bool($invoice['RepeatClient']) === true) ?
+            $invoice['ClientID'] : "t{$invoice['ClientID']}";
           $invoiceLabel = date('M Y', strtotime($invoice['DateIssued']));
           if (isset($this->months[$invoiceLabel][$invoiceGroup])) {
             $this->months[$invoiceLabel][$invoiceGroup]['invoices'][] = $invoice['InvoiceNumber'];
@@ -740,54 +742,55 @@
             }
           }
         } elseif ($this->organizationFlag === TRUE) {
+          $flag = (self::test_bool($ticket['RepeatClient']) === true) ? '' : 't';
           switch ($ticket['Charge']) {
             case 0:
-              $this->months[$targetKey][$ticket['BillTo']]['canceled'] += $ticket['TicketPrice'];
+              $this->months[$targetKey][$flag . $ticket['BillTo']]['canceled'] += $ticket['TicketPrice'];
               break;
             case 1:
-              $this->months[$targetKey][$ticket['BillTo']]['oneHour'] += $ticket['TicketPrice'];
+              $this->months[$targetKey][$flag . $ticket['BillTo']]['oneHour'] += $ticket['TicketPrice'];
               break;
             case 2:
-              $this->months[$targetKey][$ticket['BillTo']]['twoHour'] += $ticket['TicketPrice'];
+              $this->months[$targetKey][$flag . $ticket['BillTo']]['twoHour'] += $ticket['TicketPrice'];
               break;
             case 3:
-              $this->months[$targetKey][$ticket['BillTo']]['threeHour'] += $ticket['TicketPrice'];
+              $this->months[$targetKey][$flag . $ticket['BillTo']]['threeHour'] += $ticket['TicketPrice'];
               break;
             case 4:
-              $this->months[$targetKey][$ticket['BillTo']]['fourHour'] += $ticket['TicketPrice'];
+              $this->months[$targetKey][$flag . $ticket['BillTo']]['fourHour'] += $ticket['TicketPrice'];
               break;
             case 5:
-              $this->months[$targetKey][$ticket['BillTo']]['routine'] += $ticket['TicketPrice'];
+              $this->months[$targetKey][$flag . $ticket['BillTo']]['routine'] += $ticket['TicketPrice'];
               break;
             case 6:
-              $this->months[$targetKey][$ticket['BillTo']]['roundTrip'] += $ticket['TicketPrice'];
+              $this->months[$targetKey][$flag . $ticket['BillTo']]['roundTrip'] += $ticket['TicketPrice'];
               break;
             case 7:
-              $this->months[$targetKey][$ticket['BillTo']]['dedicatedRun'] += $ticket['TicketPrice'];
+              $this->months[$targetKey][$flag . $ticket['BillTo']]['dedicatedRun'] += $ticket['TicketPrice'];
               break;
             case 8:
-              $this->months[$targetKey][$ticket['BillTo']]['deadRun'] += $ticket['TicketPrice'];
+              $this->months[$targetKey][$flag . $ticket['BillTo']]['deadRun'] += $ticket['TicketPrice'];
               break;
             case 9:
-              $this->months[$targetKey][$ticket['BillTo']]['credit'] += $ticket['TicketPrice'];
+              $this->months[$targetKey][$flag . $ticket['BillTo']]['credit'] += $ticket['TicketPrice'];
               break;
           }
           switch ($ticket['Contract']) {
             case 1:
               if ($ticket['Charge'] !== 0) {
-                $this->months[$targetKey][$ticket['BillTo']]['contract'] += $ticket['TicketPrice'];
+                $this->months[$targetKey][$flag . $ticket['BillTo']]['contract'] += $ticket['TicketPrice'];
               }
               break;
             case 0:
               if ($ticket['Charge'] !== 9 && $ticket['Charge'] !== 0) {
-                $this->months[$targetKey][$ticket['BillTo']]['onCall'] += $ticket['TicketPrice'];
+                $this->months[$targetKey][$flag . $ticket['BillTo']]['onCall'] += $ticket['TicketPrice'];
               }
               break;
           }
           if ($ticket['dryIce'] === 1) {
             if ($ticket['Charge'] !== 0) {
-              $this->months[$targetKey][$ticket['BillTo']]['dryIce'] += $ticket['diPrice'];
-              $this->months[$targetKey][$ticket['BillTo']]['iceDelivery'] += $ticket['RunPrice'];
+              $this->months[$targetKey][$flag . $ticket['BillTo']]['dryIce'] += $ticket['diPrice'];
+              $this->months[$targetKey][$flag . $ticket['BillTo']]['iceDelivery'] += $ticket['RunPrice'];
             }
           }
         }

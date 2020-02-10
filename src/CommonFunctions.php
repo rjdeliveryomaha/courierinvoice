@@ -848,13 +848,13 @@
         $queryData['queryParams']['include'] = ['DateIssued'];
         if (!empty($repeatClients)) {
           $repeatFilter = [
-            ['Resource'=>'InvoiceNumber', 'Filter'=>'ncs', 'Value'=>'t'],
+            ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1],
             ['Resource'=>'ClientID', 'Filter'=>'in', 'Value'=>implode(',', $repeatClients)]
           ];
         }
         if (!empty($nonRepeatClients)) {
           $nonRepeatFilter = [
-            ['Resource'=>'InvoiceNumber', 'Filter'=>'cs', 'Value'=>'t'],
+            ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0],
             ['Resource'=>'ClientID', 'Filter'=>'in', 'Value'=>implode(',', $nonRepeatClients)]
           ];
         }
@@ -917,7 +917,7 @@
       $queryData['endPoint'] = 'invoices';
       $queryData['queryParams']['include'] = ['InvoiceNumber', 'Closed'];
       $queryData['queryParams']['filter'] = [ ['Resource'=>'ClientID','Filter'=>'eq','Value'=>$search] ];
-      $queryData['queryParams']['filter'][] = ($this->RepeatClient === 0) ?
+      $queryData['queryParams']['filter'][] = (self::test_bool($this->RepeatClient) === false) ?
         ['Resource'=>'InvoiceNumber', 'Filter'=>'cs', 'Value'=>'t'] :
         ['Resource'=>'InvoiceNumber', 'Filter'=>'ncs', 'Value'=>'t'];
       $queryData['queryParams']['order'] = ['InvoiceNumber,desc'];

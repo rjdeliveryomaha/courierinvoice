@@ -388,6 +388,7 @@
         $this->queryData['noSession'] = true;
         $this->queryData['method'] = 'GET';
         $this->queryData['endPoint'] = 'clients';
+        $this->queryData['queryParams']['filter'] = [ ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0] ];
         $this->query = self::createQuery($this->queryData);
         if ($this->query === false) {
           throw new \Exception($this->error);
@@ -402,7 +403,6 @@
         $this->result[0]['clients'] = $this->clientResult;
       }
       foreach ($this->result[0]['clients'] as $member) {
-        if ($member['Deleted'] === 1) continue;
         $marker = (self::test_bool($member['RepeatClient']) === false) ? 't' : '';
         $_SESSION['members'][$marker . $member['ClientID']] = [];
         foreach ($member as $key => $value) {

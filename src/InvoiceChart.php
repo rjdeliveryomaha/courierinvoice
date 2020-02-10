@@ -82,7 +82,7 @@
       }
       if ($this->organizationFlag === true) {
         foreach ($this->members as $key => $value) {
-          if (in_array($key, $this->clientID)) {
+          if (in_array((string)$key, $this->clientID, true)) {
             $this->memberList[] = $key;
           }
         }
@@ -202,18 +202,26 @@
         }
         for ($i = 0; $i < count($this->monthKeys); $i++) {
           if ($this->singleMember !== null) {
-            $this->memberInput = '<input type="hidden" name="clientID[]" value="' . $this->singleMember . '" />';
+            $repeatMarker = (strpos($this->singleMember, 't') === false) ? '1' : '0';
+            $this->memberInput = "
+                    <input type=\"hidden\" name=\"clientID\" value=\"{$this->singleMember}\" />
+                    <input type=\"hidden\" name=\"repeatClient\" value=\"$repeatMarker\" />
+                    ";
           } else {
-            $this->memberInput = '<input type="hidden" name="clientID" value="' . $this->clientID[0] . '" />';
+            $repeatMarker = (strpos($this->clientID[0], 't') === false) ? '1' : '0';
+            $this->memberInput = "
+                    <input type=\"hidden\" name=\"clientID\" value=\"{$this->clientID[0]}\" />
+                    <input type=\"hidden\" name=\"repeatClient\" value=\"$repeatMarker\" />
+                    ";
           }
           $this->groupLabels[] = '
                   <form action="' . self::esc_url($_SERVER['REQUEST_URI']) . '" method="post">
                     <input type="hidden" name="endPoint" value="invoices" />
                     <input type="hidden" name="display" value="invoice" />
+                    <input type="hidden" name="single" value="1" />
                     <input type="hidden" name="dateIssued" value="' .
                       date('Y-m', strtotime($this->monthKeys[$i])) . '" />'
-                    . $this->memberInput .
-                    '
+                    . $this->memberInput . '
                     <button type="submit" class="bar' . $i . 'Label invoiceQuery">' . $this->monthKeys[$i] . '</button>
                   </form>';
         }
