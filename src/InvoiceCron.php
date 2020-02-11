@@ -250,9 +250,12 @@
         exit;
       }
       for ($i = 0; $i < count($this->result); $i++) {
-        $tempID = ($this->result[$i]['RepeatClient'] == 0) ? 't' : '';
+        $tempID = (self::test_bool($this->result[$i]['RepeatClient']) === false) ? 't' : '';
         $tempID .= $this->result[$i]['ClientID'];
-        if ($this->result[$i]['Closed'] === 0 && $this->result[$i]['Deleted'] === 0) {
+        if (
+          self::test_bool($this->result[$i]['Closed']) === false &&
+          self::test_bool($this->result[$i]['Deleted']) === false
+        ) {
             $this->clientList[$tempID]['openInvoices'][] = $this->result[$i];
         }
         if (empty($this->clientList[$tempID]['lastInvoice'])) {
