@@ -210,7 +210,7 @@
       $invoiceQueryData['method'] = 'GET';
       $invoiceQueryData['queryParams']['include'] = [
         'ClientID', 'InvoiceNumber', 'RepeatClient', 'BalanceForwarded', 'InvoiceSubTotal', 'DateIssued',
-        'Closed', 'Deleted'
+        'InvoiceTerms', 'DiscountRate', 'DiscountWindow', 'TermLength', 'Closed', 'Deleted'
       ];
       // Split repeat and non-repeat clientIDs into separate arrays
       $repeats = $nonrepeats = $repeatFilter = $nonrepeatFilter = [];
