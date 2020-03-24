@@ -133,8 +133,8 @@
               for ($i = 0; $i < count($value); $i++) {
                 $filter_index = ($key === 'filter') ? $i + 1 : '';
                 for ($j = 0; $j < count($value[$i]); $j++) {
-                  $this->query["{$key}{$filter_index}"][] = (count($value[$i] > 1)) ?
-                  implode(',', array_values($value[$i][$j])) : $value[$i][$j];
+                  $this->query["{$key}{$filter_index}"][] = (count($value[$i]) > 1) ?
+                    implode(',', array_values($value[$i][$j])) : $value[$i][$j];
                 }
               }
             }
