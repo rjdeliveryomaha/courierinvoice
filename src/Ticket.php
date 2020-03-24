@@ -278,8 +278,9 @@
           if ($this->enableLogging !== false) self::writeLoop();
           throw $e;
         }
-        $this->geoRetry = (count(json_decode($this->config['Geocoders'])) < 5) ?
-        5 : count(json_decode($this->config['Geocoders']));
+        $temp = json_decode($this->config['Geocoders']);
+        $this->geoRetry = (count((array)$temp) < 5) ?
+          5 : count((array)$temp);
       }
       // forms will send ticketNumber, contract, charge while the API and this class expect TicketNumber, Contract, Charge
       if ($this->ticketNumber !== null) {
