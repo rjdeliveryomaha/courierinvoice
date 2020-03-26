@@ -1447,6 +1447,7 @@
             <input type=\"hidden\" name=\"emailConfirm\" class=\"emailConfirm\" value=\"{$this->EmailConfirm}\" form=\"dispatchForm{$this->ticket_index}\" />
             <input type=\"hidden\" name=\"emailAddress\" class=\"emailAddress\" value=\"{$this->EmailAddress}\" form=\"dispatchForm{$this->ticket_index}\" />
             <input type=\"hidden\" name=\"dispatchedBy\" class=\"dispatchedBy\" value=\"{$this->DispatchedBy}\" form=\"dispatchForm{$this->ticket_index}\" />
+            <input type=\"hidden\" name=\"readyDate\" class=\"readyDate\" value=\"{$this->ReadyDate}\" form=\"dispatchForm{$this->ticket_index}\" />
             <button type=\"submit\" class=\"stepTicket\" form=\"dispatchForm{$this->ticket_index}\">Dispatch</button>
             <label for=\"dispatch{$this->ticket_index}\" class=\"hide\">Dispatch To: </label>
             <input list=\"drivers\" id=\"dispatch{$this->ticket_index}\" name=\"dispatchedTo\" class=\"dispatchedTo\" value=\"{$dispatchValue}\" form=\"dispatchForm{$this->ticket_index}\" />
