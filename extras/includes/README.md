@@ -447,7 +447,7 @@ Boolean indicates if failure of the cron job should be logged.
 
 ---
 
-Providing your basic Courier Invoice configuration options is necessary when using these classes without a session, for example, when offering a public delivery price calculator or creating invoices with a cron job. An example is provided at the end of [APIToolConfig.php](https://github.com/rjdeliveryomaha/courierinvoice/blob/master/extras/includes/APIToolConfig.php).
+Providing your basic Courier Invoice configuration options is necessary when using these classes without a session, for example, when offering a public delivery price calculator or creating invoices with a cron job. An example is provided at the end of [APIToolConfig.php](https://github.com/rjdeliveryomaha/courierinvoice/blob/master/extras/includes/APIToolsConfig.php).
 
 ---
 
