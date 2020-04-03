@@ -1,4 +1,6 @@
 (function(user_scripts, undefined) {
+  pause = duration => { return new Promise(resolve => setTimeout(resolve, duration)) };
+
   user_scripts.fetch_template = async({ url, postData = {}, method = "POST", retry = 0 }) => {
     if (!url) throw new Error("URL not defined");
     let fetchOptions = {
@@ -13,7 +15,7 @@
     } catch(err) {
       retry++;
       if (retry === 20) throw err;
-      await pause(250 * retry)
+      await pause(250 * retry);
       return await rjdci.fetch_template({ url, postData, method, retry });
     }
   }
