@@ -3334,7 +3334,7 @@
                       <td>
                         <label for=\"receivedReady{$this->ticket_index}\">Ready: <input type=\"checkbox\" name=\"receivedReady\" id=\"receivedReady{$this->ticket_index}\" class=\"receivedReady\" value=\"1\" form=\"request{$this->ticket_index}\" {$readyChecked} /></label>
                         <p class=\"readyNote\" style=\"display:{$readyNote}\">Now</p>
-                        <input type=\"dateTime-local\" name=\"readyDate\" class=\"readyDate\" style=\"display:{$readyDateDisplay}\" value=\"{$readyDate}\" form=\"request{$this->ticket_index}\" />
+                        <input type=\"datetime-local\" name=\"readyDate\" class=\"readyDate\" style=\"display:{$readyDateDisplay}\" value=\"{$readyDate}\" form=\"request{$this->ticket_index}\" />
                       </td>
                       <td></td>
                     </tr>
