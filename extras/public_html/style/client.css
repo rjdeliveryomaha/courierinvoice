@@ -524,6 +524,10 @@ label {
   font-family: DejaVu Sans;
 }
 
+#ticketQueryOptions p span {
+  display: inline-block;
+}
+
 #logoutRefresh {
   display: flex;
   height: 50%;

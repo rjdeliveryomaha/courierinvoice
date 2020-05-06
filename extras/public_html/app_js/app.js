@@ -2290,18 +2290,22 @@
           });
           Array.from(document.querySelectorAll("#deliveryQuery .ticketDate, #deliveryQuery .chartDate")).forEach(element => {
             if (eve.target.value === "tickets") {
-              element.style.display = (element.classList.contains("ticketDate")) ? "inline" : "none";
+              element.style.display = (element.classList.contains("ticketDate")) ? "inline-block" : "none";
               if (element.querySelector("input")) {
-                element.querySelector("input").disabled = element.querySelector("input").getAttribute("type") === "month";
-                element.querySelector("input").value = "";
-                if (element.querySelector("input").disabled === false) element.querySelector("input").disabled = document.querySelector("#allTime").checked;
+                Array.from(element.querySelectorAll("input")).forEach(elm => {
+                  elm.disabled = elm.classList.contains("startDateMonth") || elm.classList.contains("endDateMonth");
+                  elm.value = "";
+                  if (elm.disabled === false) elm.disabled = document.querySelector("#allTime").checked;
+                });
               }
             } else {
-              element.style.display = (element.classList.contains("ticketDate")) ? "none" : "inline";
+              element.style.display = (element.classList.contains("ticketDate")) ? "none" : "inline-block";
               if (element.querySelector("input")) {
-                element.querySelector("input").disabled = element.querySelector("input").getAttribute("type") !== "month";
-                element.querySelector("input").value = "";
-                if (element.querySelector("input").disabled === false)element.querySelector("input").disabled = document.querySelector("#allTime").checked;
+                Array.from(element.querySelectorAll("input")).forEach(elm => {
+                  elm.disabled = !elm.classList.contains("startDateMonth") && !elm.classList.contains("endDateMonth");
+                  elm.value = "";
+                  if (elm.disabled === false) elm.disabled = document.querySelector("#allTime").checked;
+                });
               }
             }
           });
@@ -2311,9 +2315,9 @@
       document.querySelector("#allTime").addEventListener("change", eve => {
         let selector = (document.querySelector("#display") && document.querySelector("#display").value === "chart") ? ".chartDate" : ".ticketDate";
         if (eve.target.checked === true) {
-          Array.from(rjdci.getClosest(eve.target, "form").querySelectorAll("input[name='startDate'], input[name='endDate'], #ticketNumber")).forEach(element => { element.value = ""; element.disabled = true; });
+          Array.from(rjdci.getClosest(eve.target, "form").querySelectorAll(selector + " input, #ticketNumber")).forEach(element => { element.value = ""; element.disabled = true; });
         } else {
-           Array.from(rjdci.getClosest(eve.target, "form").querySelectorAll(selector + " input[name='startDate'], " + selector + " input[name='endDate']")).forEach(element => { element.disabled = false; });
+           Array.from(rjdci.getClosest(eve.target, "form").querySelectorAll(selector + " input")).forEach(element => { element.disabled = false; });
            (document.querySelector("#display")) ? document.querySelector("#ticketNumber").disabled = document.querySelector("#display").value === "chart" :  document.querySelector("#ticketNumber").disabled = false;
         }
       });
