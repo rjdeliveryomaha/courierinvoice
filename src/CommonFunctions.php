@@ -933,7 +933,7 @@
       }
       $returnData = '<select name="invoiceNumber" id="invoiceNumber" form="singleInvoiceQuery" disabled>';
       foreach ($invoiceList as $invoice) {
-        $flag = ($invoice['Closed'] === 0) ? '*' : '';
+        $flag = (self::test_bool($invoice['Closed']) === false) ? '*' : '';
         $returnData .= "<option value=\"{$invoice['InvoiceNumber']}\">{$invoice['InvoiceNumber']}{$flag}</option>";
       }
       $returnData .= '</select>';
