@@ -2970,26 +2970,26 @@
     {
       return "
             <form id=\"ticketEditor\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
-              <input type=\"hidden\" name=\"ticketEditor\" value=\"1\" />
+              <input type=\"hidden\" name=\"ticketEditor\" value=\"1\" form=\"ticketEditor\" />
               <p>
                 <span class=\"item\">
-                  <label for=\"driverID\">Driver:</label>
-                  <input list=\"drivers\" name=\"driverID\" class=\"driverID\">
+                  <label for=\"dispatchedTo\">Driver:</label>
+                  <input list=\"drivers\" name=\"dispatchedTo\" class=\"dispatchedTo\" form=\"ticketEditor\" />
                 </span>
                 <span class=\"item\">
                   <label for=\"contract\">Type:</label>
-                  <select name=\"contract\" class=\"contract\">
+                  <select name=\"contract\" class=\"contract\" form=\"ticketEditor\">
                     <option value=\"0\">On Call</option>
                     <option value=\"1\">Contract</option>
                   </select>
                 </span>
                 <span class=\"item\">
                   <label for=\"ticketEditorDate\">Date</label>
-                  <input type=\"date\" name=\"ticketEditorSearchDate\" class=\"ticketEditorSearchDate\" value=\"{$this->today->format('Y-m-d')}\" />
+                  <input type=\"date\" name=\"ticketEditorSearchDate\" class=\"ticketEditorSearchDate\" value=\"{$this->today->format('Y-m-d')}\" form=\"ticketEditor\" />
                 </span>
                 <span class=\"item\">
-                  <button type=\"submit\" id=\"ticketEditorSubmit\">Submit</button>
-                  <button type=\"button\" id=\"clearTicketEditorResults\">Clear Results</button>
+                  <button type=\"submit\" id=\"ticketEditorSubmit\" form=\"ticketEditor\">Submit</button>
+                  <button type=\"button\" id=\"clearTicketEditorResults\" form=\"ticketEditor\">Clear Results</button>
                 </span>
               </p>
             </form>

@@ -1736,9 +1736,9 @@
         let workspace = document.querySelector("#ticketEditorResultContainer"),
           postData = {},
           form = document.querySelector("#ticketEditor");
-        postData.dispatchedTo = form.querySelector(".driverID").value;
-        postData.contract = form.querySelector(".contract").value;
-        postData.ticketEditorSearchDate = form.querySelector(".ticketEditorSearchDate").value;
+        Array.from(form.querySelectorAll("input[name], select")).forEach((item, i) => {
+          postData[item.getAttribute("name")] = item.value;
+        });
         postData.formKey = document.querySelector("#formKey").value;
         if (!postData.dispatchedTo || !postData.ticketEditorSearchDate) return false;
         let ele = document.createElement("span");
