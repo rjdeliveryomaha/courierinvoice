@@ -75,11 +75,6 @@
 })(window);
 
 (function(rjdci, undefined) {
-  // loading animation
-  const spinner = document.createElement("div");
-  const parser = new DOMParser();
-  spinner.classList.add("showbox");
-  spinner.innerHTML = '<!-- New spinner from http://codepen.io/collection/HtAne/ --><div class="loader"><svg class="circular" viewBox="25 25 50 50"><circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/></svg></div>';
 // Start custom events
   rjdci.loggedout = new Event("rjdci_loggedout");
   rjdci.loggedin = new Event("rjdci_loggedin");
@@ -105,11 +100,63 @@
   }
 // End custom events
 // utilities
+  const parser = new DOMParser();
+
   rjdci.updateMap = ({ coords1, address1, coords2, address2, center, mapDivID }) => { return false; };
 
   ucfirst = string => string.charAt(0).toUpperCase() + string.slice(1);
 
   lcfirst = string => string.charAt(0).toLowerCase() + string.slice(1);
+
+  isArray = a => {
+    return Object.prototype.toString.call(a) === "[object Array]";
+  };
+  // https://stackoverflow.com/a/2947012/3899333
+  make = desc => {
+    let name = desc[0],
+      attributes = desc[1],
+      el = document.createElement(name),
+      start = 1;
+    if (typeof attributes === "object" && attributes !== null && !isArray(attributes)) {
+      for (let attr in attributes) {
+        el.setAttribute(attr, attributes[attr]);
+      }
+      start = 2;
+    }
+
+    for (let i = start; i < desc.length; i++) {
+      if (isArray(desc[i])) {
+        el.appendChild(make(desc[i]));
+      } else {
+        el.appendChild(document.createTextNode(desc[i]));
+      }
+    }
+
+    return el;
+  };
+  // loading animation
+  // New spinner from http://codepen.io/collection/HtAne/
+  let circleProperties = { class: "path", cx: "50", cy: "50", r: "20", fill: "none" };
+  circleProperties["stroke-width"] = "2";
+  circleProperties["stroke-miterlimit"] = "10";
+  const spinner = make(
+  [
+    "div",
+    {
+      class: "showbox"
+    },
+    [
+      "svg",
+      {
+        class: "circular",
+        viewBox: "25 25 50 50"
+      },
+      [
+        "circle",
+        circleProperties
+      ]
+    ]
+  ]);
 
   rjdci.logout = count => {
     let newCount = count || 0,
@@ -148,7 +195,7 @@
   rjdci.toast = (msg, options) => {
     if (!msg) return;
 
-    let toastContainer = document.querySelector(".toast__container");
+    if (!isArray(msg)) msg = [ msg ];
 
     options = options || {};
 
@@ -160,14 +207,19 @@
 
     options.datatime = options.datatime || new Date().getTime();
 
-    let toastMsg = document.createElement("div");
+    let toastContainer = document.querySelector(".toast__container");
+      toastMsg = document.createElement("div"),
+      d = new Date(Number(options.datatime)),
+      mins = d.getMinutes();
 
     toastMsg.className = options.eleClass;
     toastMsg.title = options.title;
-    let d = new Date(Number(options.datatime))
-    let minutes = d.getMinutes();
-    minutes = (minutes < 10) ?  `0${minutes.toString()}` : minutes.toString();
-    toastMsg.innerHTML = `${msg} <p>${days[d.getDay()]} ${months[d.getMonth()]} ${d.getDate()}</p><p>${d.getHours()}:${minutes}</p>`;
+
+    minutes = (mins < 10) ?  `0${mins.toString()}` : mins.toString();
+    msg.push(...[`${days[d.getDay()]} ${months[d.getMonth()]} ${d.getDate()}`, `${d.getHours()}:${minutes}`]);
+    for (let i = 0; i < msg.length; i++) {
+      toastMsg.appendChild(make(["p", msg[i]]));
+    }
     toastMsg.setAttribute("data-time", options.datatime);
     if (toastMsg.className === "deliveryLocation") {
       toastMsg.addEventListener("click", eve => {
@@ -187,12 +239,12 @@
       toastContainer.appendChild(toastMsg);
     }
 
-    //Show toast for 3secs and hide it
+    // Show toast for 4 secs or configured time and hide it
     setTimeout(() => {
       if (toastMsg.classList.contains("toast__msg")) toastMsg.classList.add("toast__msg--hide");
     }, options.time);
 
-    //Remove the element after hiding
+    // Remove the element after hiding
     // Wait one second longer than the passed value and loop over all of the children.
     setTimeout(() => {
       for (let i = 0; i < toastContainer.children.length; i++) {
@@ -200,7 +252,7 @@
         if (elem.classList.contains("toast__msg")) elem.parentNode.removeChild(elem);
       }
     }, options.time + 1000);
-  }
+  };
 // End Toast
 // https://gomakethings.com/climbing-up-and-down-the-dom-tree-with-vanilla-javascript/
   rjdci.getClosest = function ( elem, selector ) {
@@ -218,13 +270,13 @@
           while (--i >= 0 && matches.item(i) !== this) {}
           return i > -1;
         };
-      }
-      // Get closest match
-      for ( ; elem && elem !== document; elem = elem.parentNode ) {
-        if ( elem.matches( selector ) ) return elem;
-      }
-      return null;
-    };
+    }
+    // Get closest match
+    for ( ; elem && elem !== document; elem = elem.parentNode ) {
+      if ( elem.matches( selector ) ) return elem;
+    }
+    return null;
+  };
 
   pause = duration => { return new Promise(resolve => setTimeout(resolve, duration)) };
 
@@ -388,7 +440,18 @@
       }, 2000);
     })
     .catch(error => {
-      document.querySelector("#route").innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + "</p>";
+      document.querySelector("#route").appendChild(make(
+        [
+          "p",
+          {class: "center"},
+          [
+            "span",
+            {class: "error"},
+            "Error"
+          ],
+          `: ${error.message}`
+        ]
+      ));
     });
   }
 
@@ -455,7 +518,18 @@
     })
     .catch(error => {
       console.error(error.message);
-      document.querySelector("#on_call").innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + "</p>";
+      document.querySelector("#on_call").appendChild(make(
+        [
+          "p",
+          {class: "center"},
+          [
+            "span",
+            {class: "error"},
+            "Error"
+          ],
+          `: ${error.message}`
+        ]
+      ));
     });
   }
 
@@ -507,7 +581,19 @@
       }, 2000);
     })
     .catch(error => {
-      workspace.innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + '</p>';
+      workspace.innerHTML = "";
+      workspace.appendChild(make(
+        [
+          "p",
+          {class: "center"},
+          [
+            "span",
+            {class: "error"},
+            "Error"
+          ],
+          `: ${error.message}`
+        ]
+      ));
       target.classList.remove("hide");
     });
   }
@@ -730,7 +816,7 @@
       toast_options = {};
     toast_options.title = "Updating Location";
     toast_options.eleClass = "deliveryLocation";
-    rjdci.toast("Updating Location<br>Do not<br>disable screen", toast_options);
+    rjdci.toast([ "Updating Location", "Do not", "disable screen" ], toast_options);
     navigator.permissions.query({name: "geolocation"}).then(PermissionStatus => {
       let options = { enableHighAccuracy: true, timeout: 25000, maximumAge: 0},
         success = pos => {
@@ -748,15 +834,15 @@
         },
         error = err => {
           error_count++;
-          rjdci.toast("Location Not Available<br>" + err.message + "<br>Tap to dismiss", toast_options);
+          rjdci.toast([ "Location Not Available", err.message, "Tap to dismiss" ], toast_options);
           if (success_count > max_attempt || error_count > max_attempt) {
             navigator.geolocation.clearWatch(watch_id);
             return sendResult(result);
           }
         },
         sendResult = async data => {
-          if (!data) return rjdci.toast("Location Not Available<br>Tap to dismiss", toast_options);
-          if (ticket_index.length !== step.length || ticket_index.length === 0) return rjdci.toast("Location Data Error<br>Tap to dismiss", toast_options);
+          if (!data) return rjdci.toast([ "Location Not Available", "Tap to dismiss" ], toast_options);
+          if (ticket_index.length !== step.length || ticket_index.length === 0) return rjdci.toast([ "Location Data Error", "Tap to dismiss" ], toast_options);
           let postData = {},
             tempData = {};
           postData.formKey = document.querySelector("#formKey").value;
@@ -787,11 +873,11 @@
             if (data.indexOf("Session Error") !== -1) throw new Error("Session Error");
             document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
             if (data.indexOf("error") !== - 1) throw new Error(data);
-            return rjdci.toast("Location Updated<br>Tap to dismiss", toast_options);
+            return rjdci.toast([ "Location Updated", "Tap to dismiss" ], toast_options);
           })
           .catch(error => {
             console.error(error.message);
-            return rjdci.toast(error.message + "<br>Tap to dismiss", toast_options);
+            return rjdci.toast([ error.message, "Tap to dismiss" ], toast_options);
           });
         };
       if (PermissionStatus.state == "granted") {
@@ -1771,7 +1857,12 @@
           workspace.innerHTML = (data.indexOf("Session Error") === -1) ? '' : '<p class="center">Select Driver &amp; Ticket Type</p>';
           if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
           document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
-          workspace.innerHTML = data;
+          let newDom = parser.parseFromString(data, "text/html"),
+            docFrag = document.createDocumentFragment();
+          Array.from(newDom.querySelectorAll(".tickets")).forEach(element => {
+            docFrag.appendChild(element);
+          });
+          workspace.appendChild(docFrag);
           assignTicketEditorListener();
         })
         .catch(error => {
@@ -1792,9 +1883,9 @@
           day = (d.getDate() < 10) ? `0${d.getDate()}` : d.getDate(),
           test_month = d.getMonth() + 1,
           month = (test_month < 10) ? `0${test_month}` : test_month;
-        form.querySelector(".driverID").value = "";
+        form.querySelector(".dispatchedTo").value = "";
         form.querySelector(".contract").value = 0;
-        form.querySelector(".ticketEditorSearchDate").value = `${d.getFullYear()}-${month}-${day}`;
+        form.querySelector("input.ticketEditorSearchDate").value = `${d.getFullYear()}-${month}-${day}`;
         document.querySelector("#ticketEditorResultContainer").innerHTML = '<p class="center">Select Driver &amp; Ticket Type</p>';
       });
     }
@@ -2907,10 +2998,18 @@
           Array.from(workspace.querySelectorAll("table, hr, button.ticketEditor")).forEach(element => {
             element.classList.add("hide");
           });
-          Array.from(newDom.querySelectorAll("datalist, div")).forEach(element => {
+          Array.from(newDom.querySelectorAll(".removableByEditor")).forEach(element => {
             docFrag.appendChild(element);
           });
           workspace.appendChild(docFrag);
+          if (workspace.parentNode.querySelector("datalist")) {
+            while (workspace.parentNode.querySelector("datalist")) {
+              workspace.parentNode.removeChild(workspace.parentNode.querySelector("datalist"));
+            }
+          }
+          Array.from(newDom.querySelectorAll("datalist")).forEach(element => {
+            workspace.parentNode.prepend(element);
+          });
           assignTicketFormListeners(workspace);
         })
         .catch(error => {
@@ -3178,6 +3277,11 @@
     if (workspace.querySelector(".cancelTicketEditor")) {
       workspace.querySelector(".cancelTicketEditor").addEventListener("click", eve => {
         workspace.removeChild(workspace.querySelector(".removableByEditor"));
+        if (document.querySelectorAll(".cancelTicketEditor").length === 0) {
+          while (workspace.parentNode.querySelector("datalist")) {
+            workspace.parentNode.removeChild(workspace.parentNode.querySelector("datalist"));
+          }
+        }
         Array.from(workspace.querySelectorAll("table.hide, hr.hide, button.hide")).forEach(element => {
           element.classList.remove("hide");
         })

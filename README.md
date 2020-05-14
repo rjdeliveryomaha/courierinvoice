@@ -1564,7 +1564,7 @@ Usage:
 
 ```javascript
   let options = {},
-      msg = "Test Message";
+      msg = "Test Message"; // or ['Test Message'] or [ 'Multi-line', 'Test Message' ];
   options.title = "sample div title"; // title attribute of toast div. default ""
   options.time = 3000; // milliseconds to show toast div. div will be removed 1 second after it is hidden. default 4000
   options.eleClass = "ticketOncallReceived"; // custom class for the toast div. The function will display only the newest of a custom class, removing previous messages. All default class divs will be displayed for the configured time. default "toast__msg"
