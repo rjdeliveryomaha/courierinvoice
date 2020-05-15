@@ -37,7 +37,16 @@
     }
 
     private function responseError() {
-      switch (self::test_int($this->result)) {
+      switch (curl_getinfo($this->ch, CURLINFO_RESPONSE_CODE)) {
+        case 301:
+          if (strpos($this->result, 'href') === false) {
+            $this->error = 'Code 301. Please contact support.';
+          } else {
+            $temp = self::between('href', '?', $this->result);
+            $url = self::between_last('"', '/', $temp);
+            $this->error = "Resource Moved To $url";
+          }
+          break;
         case 400:
           $this->error = 'Invalid Request URI.';
           break;
@@ -137,6 +146,7 @@
                     implode(',', array_values($value[$i][$j])) : $value[$i][$j];
                 }
               }
+              self::writeLoop();
             }
           }
         }
@@ -189,18 +199,22 @@
       $this->token = hash_hmac('sha256', $this->after($this->baseURI, $this->queryURI) . $this->timeVal, $this->privateKey);
       $this->ch = curl_init();
       curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, strtoupper($this->method));
-      curl_setopt($this->ch, CURLOPT_URL, $this->queryURI);
       curl_setopt($this->ch, CURLOPT_FAILONERROR, true);
-      //CURLOPT_SSL_VERIFYPEER set to false for testing only
-      curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, ($this->options['testMode'] === false));
+      curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, true);
+      curl_setopt($this->ch, CURLOPT_URL, $this->queryURI);
+      curl_setopt($this->ch, CURLOPT_CAINFO, __DIR__ . DIRECTORY_SEPARATOR . 'cacert.pem');
+      // CURLOPT_SSL_VERIFYPEER set to false for testing only
+      $ssl_verifypeer = true;
+      if ($this->options['testMode'] === true) {
+        $ssl_verifypeer = substr($this->options['testURL'], 0, 5) === 'https';
+      }
+      curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, $ssl_verifypeer);
       // CURLOPT_SSL_VERIFYHOST disabled for testing only
-      curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, ($this->options['testMode'] === false) ? 0 : 2);
-      /**
-      ** How to create and store cacert.pem:
-      ** http://unitstep.net/blog/2009/05/05/using-curl-in-php-to-access-https-ssltls-protected-sites/
-      **/
-      if ($this->options['testMode'] === false) curl_setopt($this->ch, CURLOPT_CAINFO, __DIR__ . DIRECTORY_SEPARATOR . "cacert.pem");
-      // Set the authorization headers");
+      $ssl_verifyhost = 2;
+      if ($this->options['testMode'] === true) {
+        $ssl_verifyhost = (substr($this->options['testURL'], 0, 5) === 'https') ? 2 : 0;
+      }
+      curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, $ssl_verifyhost);
       $this->headers[] = 'Authorization: Basic ' . base64_encode("{$this->username}:{$this->publicKey}");
       $this->headers[] = "auth: {$this->token}";
       $this->headers[] = "time: {$this->timeVal}";
@@ -211,14 +225,19 @@
         $this->headers[] = 'Content-Length: ' . strlen($this->jsonData);
       }
       curl_setopt($this->ch, CURLOPT_HTTPHEADER, $this->headers);
-      curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, true);
       $this->result = curl_exec($this->ch);
+      if (curl_getinfo($this->ch, CURLINFO_RESPONSE_CODE) == 301) {
+        self::responseError();
+        curl_close($this->ch);
+        throw new \Exception($this->error);
+      }
       if ($this->result === false) {
         $this->result = curl_error($this->ch);
         self::responseError();
         curl_close($this->ch);
         throw new \Exception($this->error);
       }
+      curl_close($this->ch);
       return $this->result;
     }
   }
