@@ -1569,6 +1569,10 @@
   rjdci.assignListeners = () => {
     if (document.querySelector("#deliveryRequest")) {
       assignTicketFormListeners(rjdci.getClosest(document.querySelector("#deliveryRequest"), ".page"));
+      document.querySelector("#switchTerms").addEventListener("click", e => {
+        document.querySelector("#deliveryTerms").style.display =
+          (document.querySelector("#deliveryTerms").style.display == "none") ? "block" : "none";
+      });
     }
 
     if (document.querySelector("form[id^='dispatchForm']")) {

@@ -184,6 +184,10 @@ a:active {
   cursor: pointer;
 }
 
+#deliveryTerms {
+  display: none;
+}
+
 input[name=clientID]::-webkit-outer-spin-button,
 input[name=clientID]::-webkit-inner-spin-button,
 #ticketNumber::-webkit-inner-spin-button,

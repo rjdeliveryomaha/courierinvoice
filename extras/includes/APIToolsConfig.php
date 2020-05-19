@@ -30,6 +30,10 @@
 
     'paperOrientation' => 'letter',
 
+    'deliveryTerms' => '
+      <p>Responsibility for remittance is implicit when requesting a delivery via this web service. If you do not wish to be held responsible for the payment for services rendered please contact the responsible party and have them request the delivery either on-line or by phone at <a href="tel:Your-Phone-Number">Your-Phone-Number</a>.</p>
+      <p>Routine or Round Trip deliveries that are canceled within one hour of being requested will not be billed. Canceled 1 hour deliveries, Routine or Round Trip deliveries canceled more than one hour after being requested, and scheduled deliveries canceled less than two hours prior to pick up will be billed at a reduced rate.</p>',
+
     'enableChartPDF' => false,
 
     'showCanceledTicketsOnInvoiceExceptions' => [],

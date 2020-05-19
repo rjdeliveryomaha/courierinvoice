@@ -125,6 +125,14 @@ String
 
 portrait or landscape
 
+### deliveryTerms
+
+String
+
+Terms and conditions asscosiated with making deliveries. This can contain HTML elements that can then be styled by targeting ` #deliveryTerms _yourElement_ `.
+
+An example is provided in the config file.
+
 ### enableChartPDF
 
 Boolean
