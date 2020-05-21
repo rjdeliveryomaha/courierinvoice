@@ -19,6 +19,7 @@
     private $jsonData;
     private $ch;
     protected $result;
+    protected $responseHeaders;
 
     public function __construct($options, $data=[])
     {
@@ -36,15 +37,31 @@
         'schedule_override', 'tickets', 'webhooks' ];
     }
 
-    private function responseError() {
+    private function responseError()
+    {
       switch (curl_getinfo($this->ch, CURLINFO_RESPONSE_CODE)) {
+        case 200:
+          $this->error = null;
+          break;
         case 301:
-          if (strpos($this->result, 'href') === false) {
+        case 302:
+          if (
+            !array_key_exists('location', $this->responseHeaders) ||
+            count($this->responseHeaders['location']) == 0
+          ) {
             $this->error = 'Code 301. Please contact support.';
           } else {
-            $temp = self::between('href', '?', $this->result);
-            $url = self::between_last('"', '/', $temp);
-            $this->error = "Resource Moved To $url";
+            $locations = [];
+            $this->error = 'Resourse moved to ';
+            for ($i = 0; $i < count($this->responseHeaders['location']); $i++) {
+              if (strpos($this->responseHeaders['location'][$i], '?') === false) {
+                $locations[] = $this->responseHeaders['location'][$i];
+              } else {
+                $locations[] =
+                substr($this->responseHeaders['location'][$i], 0, strpos($this->responseHeaders['location'][$i], '?'));
+              }
+            }
+            $this->error .= implode(' or ', $locations);
           }
           break;
         case 400:
@@ -59,8 +76,15 @@
         case 404:
           $this->error = 'Server Failed to locate record.';
           break;
+        case 405:
+          $this->error = "Method {$this->method} no allowed. Allow: {$this->responseHeaders['Allow'][0]}";
+          break;
         case 422:
-          $this->error = "Failed Data Validation. {$this->after('422', $this->result)}";
+          $temp = json_decode($this->result, true);
+          $this->error = "{$temp['message']}:";
+          foreach ($temp['details'] as $key => $value) {
+            $this->error .= " $key: $value";
+          }
           break;
         case 500:
           $this->error = 'Internal Server Error.';
@@ -69,7 +93,7 @@
           $this->error = 'Service temporarily unavailable.';
           break;
         default:
-          $this->error = "{$this->result}.";
+          $this->error = curl_error($this->ch);
           break;
       }
       if ($this->enableLogging !== false) self::writeLoop();
@@ -100,7 +124,8 @@
       $this->queryParams = array_merge(array_flip($paramList), $params);
     }
 
-    public function buildURI() {
+    public function buildURI()
+    {
       if (!in_array($this->endPoint, $this->validTables)) {
         $this->error = "Invalid End Point\n";
         if ($this->enableLogging !== false) self::writeLoop();
@@ -186,34 +211,40 @@
       return $this;
     }
 
+    private function readResponseHeaders($curl, $header)
+    {
+      $len = strlen($header);
+      $header = explode(':', $header, 2);
+      if (count($header) < 2) return $len;
+      $this->responseHeaders[strtolower(trim($header[0]))][] = trim($header[1]);
+      return $len;
+    }
+
     public function call()
     {
       if ($this->primaryKey !== null) {
         $this->queryURI .= '/' . $this->primaryKey;
       }
-      // clear $this->headers
       $this->headers = [];
-      // Use api key to generate security token
+      $this->responseHeaders = [];
       $this->timeVal = time();
-      // Generate the security key using the REQUEST_URI
-      $this->token = hash_hmac('sha256', $this->after($this->baseURI, $this->queryURI) . $this->timeVal, $this->privateKey);
+      $this->token =
+        hash_hmac('sha256', $this->after($this->baseURI, $this->queryURI) . $this->timeVal, $this->privateKey);
       $this->ch = curl_init();
-      curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, strtoupper($this->method));
-      curl_setopt($this->ch, CURLOPT_FAILONERROR, true);
-      curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, true);
       curl_setopt($this->ch, CURLOPT_URL, $this->queryURI);
+      curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, strtoupper($this->method));
+      curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, true);
       curl_setopt($this->ch, CURLOPT_CAINFO, __DIR__ . DIRECTORY_SEPARATOR . 'cacert.pem');
+      curl_setopt($this->ch, CURLOPT_HEADERFUNCTION, array(&$this, 'readResponseHeaders'));
       // CURLOPT_SSL_VERIFYPEER set to false for testing only
       $ssl_verifypeer = true;
-      if ($this->options['testMode'] === true) {
-        $ssl_verifypeer = substr($this->options['testURL'], 0, 5) === 'https';
-      }
-      curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, $ssl_verifypeer);
       // CURLOPT_SSL_VERIFYHOST disabled for testing only
       $ssl_verifyhost = 2;
       if ($this->options['testMode'] === true) {
+        $ssl_verifypeer = substr($this->options['testURL'], 0, 5) === 'https';
         $ssl_verifyhost = (substr($this->options['testURL'], 0, 5) === 'https') ? 2 : 0;
       }
+      curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, $ssl_verifypeer);
       curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, $ssl_verifyhost);
       $this->headers[] = 'Authorization: Basic ' . base64_encode("{$this->username}:{$this->publicKey}");
       $this->headers[] = "auth: {$this->token}";
@@ -226,18 +257,11 @@
       }
       curl_setopt($this->ch, CURLOPT_HTTPHEADER, $this->headers);
       $this->result = curl_exec($this->ch);
-      if (curl_getinfo($this->ch, CURLINFO_RESPONSE_CODE) == 301) {
-        self::responseError();
-        curl_close($this->ch);
-        throw new \Exception($this->error);
-      }
-      if ($this->result === false) {
-        $this->result = curl_error($this->ch);
-        self::responseError();
-        curl_close($this->ch);
-        throw new \Exception($this->error);
-      }
+      self::responseError();
       curl_close($this->ch);
+      if ($this->error !== null) {
+        throw new \Exception($this->error);
+      }
       return $this->result;
     }
   }
