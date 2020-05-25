@@ -1478,7 +1478,7 @@ Respects soft delete (setting the 'Deleted' property to 1) when checking for pas
 
 This is an extendable drop-in implementation of this set of classes using vanilla javascript.
 
-Functionality is contained in an module called ` rjdci `.
+Functionality is enclosed in a global variable: ` rjdci `.
 
 The [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API#Browser_compatibility) is used extensively and a template is provided. This will retry a call failing due to network issues 20 times waiting ` n * 250 ` milliseconds between calls where n is the retry count. The Content-Type header is left generic for versatility. As a result the PHP ` $_POST ` super global is not populated; data must be read from the stream.
 
@@ -1572,13 +1572,15 @@ Usage:
   rjdci.toast(msg, options);
 ```
 
+The method ` rjdci.getSpinner() ` can be called to return a copy of the loading icon.
+
 ### Features
 
 Uses ticket information from database to populate datalist elements to assist form completion.
 
 Single page design navigated by either swipe or menu. Offers unique features based upon user type. Once each page has been loaded a window event ` rjdci_loaded ` is triggered.
 
-[Swipe](https://github.com/lyfeyaj/swipe) is used for navigation. [Public methods](https://github.com/lyfeyaj/swipe#api)  can be accessed via the ` rjdciSwipe ` instance.
+[Swipe](https://github.com/lyfeyaj/swipe) is used for navigation. [Public methods](https://github.com/lyfeyaj/swipe#api)  can be accessed via the ` rjdci.Swipe ` instance.
 
 At the end of the transition between pages ` scroll(0,0) ` is called and a window event  ` rjdci_pageChange ` is triggered.
 
