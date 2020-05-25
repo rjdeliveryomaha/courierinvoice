@@ -24,7 +24,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
 	<meta name="viewport" content="width=device-width">
   <link rel="stylesheet" type="text/css" href="/style/mobileLogin.css">
-  <link rel="stylesheet" type="text/css" href="/style/app_style.css">
+  <link rel="stylesheet" type="text/css" href="/style/style_addons.css">
   <meta name="theme-color" content="#ffffff">
   <title>Mobile Login</title>
 </head>
