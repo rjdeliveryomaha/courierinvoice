@@ -1,81 +1,56 @@
-(function () {
-  let width = screen.width,
-    height = screen.height;
-  setInterval(() => {
-    if (screen.width !== width || screen.height !== height) {
-      width = screen.width;
-      height = screen.height;
-      if (rjdci.resolutionchange) document.dispatchEvent(rjdci.resolutionchange);
-    }
-  }, 250);
-}());
-((global) => {
-/*!
- * Swipe 2.2.14
- *
- * Brad Birdsall
- * Copyright 2013, MIT License
- * https://github.com/lyfeyaj/swipe
-*/
-  !function(t,e){"function"==typeof define&&define.amd?define([],function(){return t.Swipe=e(),t.Swipe}):"object"==typeof module&&module.exports?module.exports=e():t.Swipe=e()}(this,function(){var e,W="object"==typeof self&&self.self===self&&self||"object"==typeof global&&global.global===global&&global||this,Y=W.document;function Swipe(r,a){"use strict";var s,t,u={},l={},c=(a=a||{}).auto||0,e=!1,n=function(){},v=function(t){setTimeout(t||n,0)},i=function(t){return!!t&&("boolean"!=typeof t.cancelable||t.cancelable)},d={addEventListener:!!W.addEventListener,passiveEvents:function(){var e=!1;try{var t=Object.defineProperty({},"passive",{get:function(){e=!0}});W.addEventListener("testEvent",null,t),W.removeEventListener("testEvent",null,t)}catch(t){e=!1}return e}(),touch:"ontouchstart"in W||W.DocumentTouch&&Y instanceof DocumentTouch,transitions:function(t){var e=["transitionProperty","WebkitTransition","MozTransition","OTransition","msTransition"];for(var n in e)if(void 0!==t.style[e[n]])return!0;return!1}(Y.createElement("swipe"))};if(r){var f,h,m,p,E=r.children[0],y=parseInt(a.startSlide,10)||0,b=a.speed||300;a.continuous=void 0===a.continuous||a.continuous;var o,g,T,x=(g="direction",(o=r).currentStyle?T=o.currentStyle[g]:W.getComputedStyle&&(T=W.getComputedStyle(o,null).getPropertyValue(g)),"rtl"===T?"right":"left");a.autoRestart=void 0!==a.autoRestart&&a.autoRestart;var L=function(n,i){i=i||100;var o=null;function s(){o&&clearTimeout(o)}function t(){var t=this,e=arguments;s(),o=setTimeout(function(){o=null,n.apply(t,e)},i)}return t.cancel=s,t}(M),w={handleEvent:function(t){if(!e){switch(t.type){case"mousedown":case"touchstart":this.start(t);break;case"mousemove":case"touchmove":this.move(t);break;case"mouseup":case"mouseleave":case"touchend":this.end(t);break;case"webkitTransitionEnd":case"msTransitionEnd":case"oTransitionEnd":case"otransitionend":case"transitionend":this.transitionEnd(t);break;case"resize":L()}a.stopPropagation&&t.stopPropagation()}},start:function(t){var e;Q(t)?(e=t).preventDefault():e=t.touches[0],u={x:e.pageX,y:e.pageY,time:+new Date},s=void 0,l={},Q(t)?(E.addEventListener("mousemove",this,!1),E.addEventListener("mouseup",this,!1),E.addEventListener("mouseleave",this,!1)):(E.addEventListener("touchmove",this,!!d.passiveEvents&&{passive:!1}),E.addEventListener("touchend",this,!1))},move:function(t){var e;if(Q(t))e=t;else{if(1<t.touches.length||t.scale&&1!==t.scale)return;a.disableScroll&&i(t)&&t.preventDefault(),e=t.touches[0]}l={x:e.pageX-u.x,y:e.pageY-u.y},void 0===s&&(s=!!(s||Math.abs(l.x)<Math.abs(l.y))),s||(i(t)&&t.preventDefault(),N(),a.continuous?(C(j(y-1),l.x+h[j(y-1)],0),C(y,l.x+h[y],0),C(j(y+1),l.x+h[j(y+1)],0)):(l.x=l.x/(!y&&0<l.x||y===f.length-1&&l.x<0?Math.abs(l.x)/m+1:1),C(y-1,l.x+h[y-1],0),C(y,l.x+h[y],0),C(y+1,l.x+h[y+1],0)))},end:function(t){var e=+new Date-u.time,n=Number(e)<250&&20<Math.abs(l.x)||Math.abs(l.x)>m/2,i=!y&&0<l.x||y===f.length-1&&l.x<0;a.continuous&&(i=!1);var o=Math.abs(l.x)/l.x;s||(n&&!i?(y=o<0?(a.continuous?(R(j(y-1),-m,0),R(j(y+2),m,0)):R(y-1,-m,0),R(y,h[y]-m,b),R(j(y+1),h[j(y+1)]-m,b),j(y+1)):(a.continuous?(R(j(y+1),m,0),R(j(y-2),-m,0)):R(y+1,m,0),R(y,h[y]+m,b),R(j(y-1),h[j(y-1)]+m,b),j(y-1)),z(O(),f[y],o)):a.continuous?(R(j(y-1),-m,b),R(y,0,b),R(j(y+1),m,b)):(R(y-1,-m,b),R(y,0,b),R(y+1,m,b))),Q(t)?(E.removeEventListener("mousemove",w,!1),E.removeEventListener("mouseup",w,!1),E.removeEventListener("mouseleave",w,!1)):(E.removeEventListener("touchmove",w,!!d.passiveEvents&&{passive:!1}),E.removeEventListener("touchend",w,!1))},transitionEnd:function(t){parseInt(t.target.getAttribute("data-index"),10)===y&&((c||a.autoRestart)&&X(),A(O(),f[y]))}};return M(),I(),{setup:M,slide:function(t,e){N(),P(t,e)},prev:function(){N(),function(){if(e)return;a.continuous?P(y-1):y&&P(y-1)}()},next:function(){N(),S()},restart:X,stop:N,getPos:O,disable:function(){N(),e=!0},enable:function(){e=!1,X()},getNumSlides:function(){return p},kill:function(){N(),r.style.visibility="",E.style.width="",E.style[x]="";var t=f.length;for(;t--;){d.transitions&&C(t,0,0);var e=f[t];if(e.getAttribute("data-cloned")){var n=e.parentElement;n.removeChild(e)}e.style.width="",e.style[x]="",e.style.webkitTransitionDuration=e.style.MozTransitionDuration=e.style.msTransitionDuration=e.style.OTransitionDuration=e.style.transitionDuration="",e.style.webkitTransform=e.style.msTransform=e.style.MozTransform=e.style.OTransform=""}D(),L.cancel()}}}function D(){d.addEventListener?(E.removeEventListener("touchstart",w,!!d.passiveEvents&&{passive:!0}),E.removeEventListener("mousedown",w,!1),E.removeEventListener("webkitTransitionEnd",w,!1),E.removeEventListener("msTransitionEnd",w,!1),E.removeEventListener("oTransitionEnd",w,!1),E.removeEventListener("otransitionend",w,!1),E.removeEventListener("transitionend",w,!1),W.removeEventListener("resize",w,!1)):W.onresize=null}function k(t){var e=t.cloneNode(!0);E.appendChild(e),e.setAttribute("data-cloned",!0),e.removeAttribute("id")}function M(t){if(null!=t)for(var e in t)a[e]=t[e];f=E.children,p=f.length;for(var n=0;n<f.length;n++)f[n].getAttribute("data-cloned")&&p--;if(f.length<2&&(a.continuous=!1),d.transitions&&a.continuous&&f.length<3&&(k(f[0]),k(f[1]),f=E.children),"right"===x)for(var i=0;i<f.length;i++)f[i].style.float="right";h=new Array(f.length),m=r.getBoundingClientRect().width||r.offsetWidth,E.style.width=f.length*m*2+"px";for(var o=f.length;o--;){var s=f[o];s.style.width=m+"px",s.setAttribute("data-index",o),d.transitions&&(s.style[x]=o*-m+"px",R(o,o<y?-m:y<o?m:0,0))}a.continuous&&d.transitions&&(R(j(y-1),-m,0),R(j(y+1),m,0)),d.transitions||(E.style[x]=y*-m+"px"),r.style.visibility="visible",D(),d.addEventListener?(d.touch&&E.addEventListener("touchstart",w,!!d.passiveEvents&&{passive:!0}),a.draggable&&E.addEventListener("mousedown",w,!1),d.transitions&&(E.addEventListener("webkitTransitionEnd",w,!1),E.addEventListener("msTransitionEnd",w,!1),E.addEventListener("oTransitionEnd",w,!1),E.addEventListener("otransitionend",w,!1),E.addEventListener("transitionend",w,!1)),W.addEventListener("resize",w,!1)):W.onresize=L}function S(){e||(a.continuous?P(y+1):y<f.length-1&&P(y+1))}function z(t,e,n){a.callback&&a.callback(t,e,n)}function A(t,e){a.transitionEnd&&a.transitionEnd(t,e)}function j(t){return(f.length+t%f.length)%f.length}function O(){var t=y;return p<=t&&(t-=p),t}function P(t,e){if(t="number"!=typeof t?parseInt(t,10):t,y!==t){if(d.transitions){var n=Math.abs(y-t)/(y-t);if(a.continuous){var i=n;(n=-h[j(t)]/m)!==i&&(t=-n*f.length+t)}for(var o=Math.abs(y-t)-1;o--;)R(j((y<t?t:y)-o-1),m*n,0);t=j(t),R(y,m*n,e||b),R(t,0,e||b),a.continuous&&R(j(t-n),-m*n,0)}else t=j(t),function(e,n,i){if(!i)return E.style[x]=n+"px";var o=+new Date,s=setInterval(function(){var t=+new Date-o;if(i<t)return E.style[x]=n+"px",(c||a.autoRestart)&&X(),A(O(),f[y]),void clearInterval(s);E.style[x]=(n-e)*(Math.floor(t/i*100)/100)+e+"px"},4)}(y*-m,t*-m,e||b);y=t,v(function(){z(O(),f[y],n)})}}function R(t,e,n){C(t,e,n),h[t]=e}function C(t,e,n){var i=f[t],o=i&&i.style;o&&(o.webkitTransitionDuration=o.MozTransitionDuration=o.msTransitionDuration=o.OTransitionDuration=o.transitionDuration=n+"ms",o.webkitTransform=o.msTransform=o.MozTransform=o.OTransform=o.transform="translateX("+e+"px)")}function I(){(c=a.auto||0)&&(t=setTimeout(S,c))}function N(){c=0,clearTimeout(t)}function X(){N(),I()}function Q(t){return/^mouse/.test(t.type)}}return(W.jQuery||W.Zepto)&&((e=W.jQuery||W.Zepto).fn.Swipe=function(t){return this.each(function(){e(this).data("Swipe",new Swipe(e(this)[0],t))})}),Swipe});
-
-  /*!
-  * domready (c) Dustin Diaz 2014 - License MIT
-  * https://github.com/ded/domready
-  */
-  !function(e,t){typeof module!="undefined"?module.exports=t():typeof define=="function"&&typeof define.amd=="object"?define(t):this[e]=t()}("domready",function(){var e=[],t,n=typeof document=="object"&&document,r=n&&n.documentElement.doScroll,i="DOMContentLoaded",s=n&&(r?/^loaded|^c/:/^loaded|^i|^c/).test(n.readyState);return!s&&n&&n.addEventListener(i,t=function(){n.removeEventListener(i,t),s=1;while(t=e.shift())t()}),function(t){s?setTimeout(t,0):e.push(t)}})
-
-  rjdciSwipe = new Swipe(document.querySelector("#slider"), {
-    startSlide: 0,
-    speed: 300,
-    // auto: 300,
-    draggable: false,
-    continuous: true,
-    autoRestart: false,
-    disablescroll: false,
-    stopPropagation: false,
-    callback: function(index, elem, dir) {
-      // runs at slide change
-      // direction: 1 for left or backward, -1 for right or forward
-    },
-    transitionEnd: function(index, elem) {
-      // runs at the end of a slide transition
-      let buttonTitles = [ "Route", "On Call", "Dispatch", "Transfers", "Ticket Entry" ],
-        parser = new DOMParser();
-      document.querySelector(".menu__list__active").classList.remove("menu__list__active");
-      Array.from(document.querySelectorAll(".page")).forEach(page => {
-        (page.id === elem.id) ? page.classList.add("active") : page.classList.remove("active");
-        if (page.id === elem.id) {
-          let eleTest = document.querySelector("a.nav[data-id='" + page.id + "']").innerHTML.split("<");
-          if (buttonTitles.indexOf(eleTest[0]) !== -1) {
-            let button = document.createElement("button"),
-              func = "refresh" + eleTest[0].replace(/\s/g, "");
-            button.setAttribute("type", "button");
-            button.addEventListener("click", window["rjdci"][func]);
-            button.innerHTML = eleTest[0];
-            document.querySelector(".pageTitle").innerHTML = "";
-            document.querySelector(".pageTitle").appendChild(button);
-            if (eleTest.length > 1) {
-              let htmlString = "<" + eleTest[1] + "<" + eleTest[2],
-                newDom = parser.parseFromString(htmlString, "text/html"),
-                element = newDom.querySelector("span");
-              if (element) document.querySelector(".pageTitle").appendChild(element);
-            }
-          } else {
-            document.querySelector(".pageTitle").innerHTML = document.querySelector("a.nav[data-id='" + page.id + "']").innerHTML;
-          }
-          document.querySelector("a.nav[data-id='" + page.id + "']").parentNode.classList.add("menu__list__active");
-        }
-      });
-      scroll(0,0);
-      document.dispatchEvent(rjdci.pageChange);
-    }
-  });
-// End Swipe
-})(window);
-
 (function(rjdci, undefined) {
-// Start custom events
+  parser = new DOMParser();
+
+  rjdci.updateMap = ({ coords1, address1, coords2, address2, center, mapDivID }) => { return false; };
+
+  if (typeof Swipe !== "undefined") {
+    rjdci.Swipe = new Swipe(document.querySelector("#slider"), {
+      startSlide: 0,
+      speed: 300,
+      // auto: 300,
+      draggable: false,
+      continuous: true,
+      autoRestart: false,
+      disablescroll: false,
+      stopPropagation: false,
+      callback: function(index, elem, dir) {
+        // runs at slide change
+        // direction: 1 for left or backward, -1 for right or forward
+      },
+      transitionEnd: function(index, elem) {
+        // runs at the end of a slide transition
+        let buttonTitles = [ "Route", "On Call", "Dispatch", "Transfers", "Ticket Entry" ];
+        document.querySelector(".menu__list__active").classList.remove("menu__list__active");
+        Array.from(document.querySelectorAll(".page")).forEach(page => {
+          (page.id === elem.id) ? page.classList.add("active") : page.classList.remove("active");
+          if (page.id === elem.id) {
+            let eleTest = document.querySelector("a.nav[data-id='" + page.id + "']").innerHTML.split("<");
+            if (buttonTitles.indexOf(eleTest[0]) !== -1) {
+              let button = make([ "button", { type: "button" }, eleTest[0] ]),
+                func = "refresh" + eleTest[0].replace(/\s/g, "");
+              button.addEventListener("click", window["rjdci"][func]);
+              clearElement(document.querySelector(".pageTitle"));
+              document.querySelector(".pageTitle").appendChild(button);
+              if (eleTest.length > 1) {
+                let htmlString = "<" + eleTest[1] + "<" + eleTest[2],
+                  newDom = parser.parseFromString(htmlString, "text/html"),
+                  element = newDom.querySelector("span");
+                if (element) document.querySelector(".pageTitle").appendChild(element);
+              }
+            } else {
+              let newElement = make([ "span", document.querySelector("a.nav[data-id='" + page.id + "']").innerHTML ]);
+              clearElement(document.querySelector(".pageTitle"));
+              document.querySelector(".pageTitle").appendChild(newElement);
+            }
+            document.querySelector("a.nav[data-id='" + page.id + "']").parentNode.classList.add("menu__list__active");
+          }
+        });
+        scroll(0,0);
+        document.dispatchEvent(rjdci.pageChange);
+      }
+    });
+  }
+  // Start custom events
   rjdci.loggedout = new Event("rjdci_loggedout");
   rjdci.loggedin = new Event("rjdci_loggedin");
   rjdci.resolutionchange = new Event("rjdci_resolutionchange");
@@ -97,13 +72,9 @@
     if (element.fireEvent) {
       return element.fireEvent('on' + eventName);
     }
-  }
-// End custom events
-// utilities
-  const parser = new DOMParser();
-
-  rjdci.updateMap = ({ coords1, address1, coords2, address2, center, mapDivID }) => { return false; };
-
+  };
+  // End custom events
+  // utilities
   ucfirst = string => string.charAt(0).toUpperCase() + string.slice(1);
 
   lcfirst = string => string.charAt(0).toLowerCase() + string.slice(1);
@@ -134,29 +105,39 @@
 
     return el;
   };
-  // loading animation
-  // New spinner from http://codepen.io/collection/HtAne/
-  let circleProperties = { class: "path", cx: "50", cy: "50", r: "20", fill: "none" };
-  circleProperties["stroke-width"] = "2";
-  circleProperties["stroke-miterlimit"] = "10";
-  const spinner = make(
-  [
-    "div",
-    {
-      class: "showbox"
-    },
-    [
-      "svg",
-      {
-        class: "circular",
-        viewBox: "25 25 50 50"
-      },
+
+  rjdci.getSpinner = () => {
+    return make(
       [
-        "circle",
-        circleProperties
+        "div",
+        { class: "loader" },
+        [
+          "div",
+          { class: "face" },
+          [
+            "div",
+            { class: "circle" }
+          ]
+        ],
+        [
+          "div",
+          { class: "face" },
+          [
+            "div",
+            { class: "circle" }
+          ]
+        ]
       ]
-    ]
-  ]);
+    );
+  };
+
+  displayErrorMessage = error => {
+    return make([ "p", { class: "ceneter" }, [ "span", { class: "error" }, "Error" ], `: ${error.message}` ]);
+  };
+
+  clearElement = element => {
+    while (element.firstChild) element.removeChild(element.firstChild);
+  };
 
   rjdci.logout = count => {
     let newCount = count || 0,
@@ -187,12 +168,10 @@
     });
   };
 
-// Start Toast
-  // Use arrays to make date display pretty
-  let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-    days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  //To show notification
   rjdci.toast = (msg, options) => {
+    // Use arrays to make date display pretty
+    let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     if (!msg) return;
 
     if (!isArray(msg)) msg = [ msg ];
@@ -253,8 +232,8 @@
       }
     }, options.time + 1000);
   };
-// End Toast
-// https://gomakethings.com/climbing-up-and-down-the-dom-tree-with-vanilla-javascript/
+  // End Toast
+  // https://gomakethings.com/climbing-up-and-down-the-dom-tree-with-vanilla-javascript/
   rjdci.getClosest = function ( elem, selector ) {
     // Element.matches() polyfill
     if (!Element.prototype.matches) {
@@ -297,14 +276,14 @@
       await pause(250 * retry)
       return await rjdci.fetch_template({ url: url, postData: postData, method: method, retry: retry });
     }
-  }
+  };
 
   rjdci.showLogin = () => {
     let elem = document.getElementById("confirmLogin");
     if (!(elem.offsetWidth > 0 && elem.offsetHeight > 0)) elem.classList.remove("hide");
     rjdci.centerForm(elem);
     document.dispatchEvent(rjdci.loggedout);
-  }
+  };
 
   rjdci.enableApp = () => {
     document.querySelector("header").classList.remove("loggedout");
@@ -312,7 +291,7 @@
     Array.from(document.querySelectorAll("button")).forEach(element => {
       element.disabled = false;
     });
-  }
+  };
 
   rjdci.disableApp = () => {
     let header = document.querySelector("header"),
@@ -325,34 +304,34 @@
     Array.from(document.querySelectorAll("button")).forEach(element => {
       if(element.id !== "confirm" && element.id !== "cancel") element.disabled = true;
     });
-  }
-// isTarget is called by datalist validation
+  };
+  // isTarget is called by datalist validation
   rjdci.isTarget = ele => {
     let targets = [ "billTo", "dispatchedTo", "dispatchedByUser", "shippingCountry", "billingCountry", "pCountry", "dCountry" ];
     for (let i = 0; i < targets.length; i++) {
       if (ele.classList.contains(targets[i])) return true;
     }
     return false;
-  }
-// count organization members for ticket page
+  };
+  // count organization members for ticket page
   rjdci.disableButtonsTickets = () => {
     let howMany = 0,
-        boxes = document.querySelectorAll("#ticket_query .orgMember"),
-        compareMembers = document.querySelector("#compareMembersTickets");
+      boxes = document.querySelectorAll("#ticket_query .orgMember"),
+      compareMembers = document.querySelector("#compareMembersTickets");
     for (let i = 0; i < boxes.length; i++) {
       if (boxes[i].checked === true) howMany++;
     }
     compareMembers.disabled = !(howMany > 1 && document.querySelector("#display").value === "chart");
     if (compareMembers.disabled === true) compareMembers.checked = false;
-  }
+  };
 
   rjdci.disable_scroll = () => {
     window.ontouchmove  = e => e.preventDefault();
-  }
+  };
 
   rjdci.enable_scroll = () => {
     window.ontouchmove  = e => true;
-  }
+  };
 
   rjdci.fixDeadRunButton = () => {
     let element = document.querySelector(".cancelRun:not(.hide)");
@@ -362,16 +341,16 @@
       element.innerHTML = "Dead Run";
       if (element.offsetHeight > h1) element.innerHTML = "D. Run";
     });
-  }
+  };
 
   rjdci.centerForm = form => {
     let obj = document.body.getBoundingClientRect(),
-        pageWidth = obj.width,
-        obj2 = form.getBoundingClientRect(),
-        eleWidth = obj2.width,
-        diff = (pageWidth - eleWidth) / 2;
+      pageWidth = obj.width,
+      obj2 = form.getBoundingClientRect(),
+      eleWidth = obj2.width,
+      diff = (pageWidth - eleWidth) / 2;
     form.style.left = diff + "px";
-  }
+  };
 
   isStopBeforeNoon = ticket => {
     timestamp = Number(ticket.querySelector(".timing").innerText) * 1000;
@@ -402,14 +381,17 @@
     let docFrag = document.createDocumentFragment();
     items.forEach(element => { docFrag.appendChild(element); });
     container.appendChild(docFrag);
-  }
+  };
 
   rjdci.refreshRoute = async () => {
-    let localSpinner = spinner.cloneNode(true);
-    document.querySelector("#route").innerHTML = "";
+    let localSpinner = rjdci.getSpinner();
+    clearElement(document.querySelector("#route"));
     document.querySelector("#route").appendChild(localSpinner);
     scrollTo(0,0);
-    await rjdci.fetch_template({ url: "./refreshRoute.php", postData: { formKey: document.querySelector("#formKey").value } })
+    await rjdci.fetch_template({
+      url: "./refreshRoute.php",
+      postData: { formKey: document.querySelector("#formKey").value }
+    })
     .then(result => {
       if (typeof result === "undefined") throw new Error("Result Undefined");
       if (result.ok) {
@@ -440,20 +422,11 @@
       }, 2000);
     })
     .catch(error => {
-      document.querySelector("#route").appendChild(make(
-        [
-          "p",
-          {class: "center"},
-          [
-            "span",
-            {class: "error"},
-            "Error"
-          ],
-          `: ${error.message}`
-        ]
-      ));
+      console.error(error.message);
+      localSpinner.parentNode.removeChild(localSpinner);
+      document.querySelector("#route").appendChild(displayErrorMessage(error));
     });
-  }
+  };
 
   countOnCallTickets = oldCount => {
     let newCount = Array.from(document.querySelectorAll("#on_call .tickets")).length;
@@ -464,28 +437,31 @@
     }
     if (newCount === 0) document.querySelector(".alert").classList.remove("onCallAlert");
     let cList = document.querySelector(".alert").getAttribute("class").split(/\s+/);
-    if (cList.length === 1) document.querySelector(".alert").innerHTML = "";
+    if (cList.length === 1) clearElement(document.querySelector(".alert"));
     Array.from(document.querySelectorAll(".ticketCount")).forEach(element => { element.innerHTML = newCount; });
-  }
+  };
 
   sortOnCall = () => {
     let container = document.querySelector("#on_call"),
-        items = Array.from(container.querySelectorAll(".sortable"));
+      items = Array.from(container.querySelectorAll(".sortable")),
+      docFrag = document.createDocumentFragment();
     items.sort((a,b) => {
       return (a.querySelector(".timing").textContent > b.querySelector(".timing").textContent) ? 1 : -1;
     });
-    let docFrag = document.createDocumentFragment();
     items.forEach(element => { docFrag.appendChild(element); });
     container.appendChild(docFrag);
-  }
+  };
 
   rjdci.refreshOnCall = async () => {
     let ticketCount = document.querySelector(".ticketCount").innerHTML,
-      localSpinner = spinner.cloneNode(true);
-    document.querySelector("#on_call").innerHTML = "";
+      localSpinner = rjdci.getSpinner();
+    clearElement(document.querySelector("#on_call"));
     document.querySelector("#on_call").appendChild(localSpinner);
     scrollTo(0,0);
-    await rjdci.fetch_template({ url: "./refreshOnCall.php", postData: { formKey: document.querySelector("#formKey").value } })
+    await rjdci.fetch_template({
+      url: "./refreshOnCall.php",
+      postData: { formKey: document.querySelector("#formKey").value }
+    })
     .then(result => {
       if (typeof result === "undefined") throw new Error("Result Undefined");
       if (result.ok) {
@@ -518,20 +494,10 @@
     })
     .catch(error => {
       console.error(error.message);
-      document.querySelector("#on_call").appendChild(make(
-        [
-          "p",
-          {class: "center"},
-          [
-            "span",
-            {class: "error"},
-            "Error"
-          ],
-          `: ${error.message}`
-        ]
-      ));
+      localSpinner.parentNode.removeChild(localSpinner);
+      document.querySelector("#on_call").appendChild(displayErrorMessage(error));
     });
-  }
+  };
 
   countInitOnCall = () => {
     let newCount = Array.from(document.querySelectorAll("#on_call .tickets")).length;
@@ -540,18 +506,21 @@
       document.querySelector(".alert").classList.add("onCallAlert");
       document.querySelector(".alert").innerHTML = "!";
     }
-  }
+  };
 
   rjdci.refreshTicketEntry = async () => {
     let elem = document.querySelector("#deliveryRequest"),
       workspace = elem.parentNode;
       target = workspace.querySelector(".subContainer"),
-      localSpinner = spinner.cloneNode(true);
+      localSpinner = rjdci.getSpinner();
     workspace.removeChild(target);
     workspace.removeChild(elem);
     workspace.appendChild(localSpinner);
     scrollTo(0,0);
-    await rjdci.fetch_template({ url: "./refreshTicketForm.php", postData: { edit: 1, formKey: document.querySelector("#formKey").value } })
+    await rjdci.fetch_template({
+      url: "./refreshTicketForm.php",
+      postData: { edit: 1, formKey: document.querySelector("#formKey").value }
+    })
     .then(result => {
       if (typeof result === "undefined") throw new Error("Result Undefined");
       if (result.ok) {
@@ -581,25 +550,15 @@
       }, 2000);
     })
     .catch(error => {
-      workspace.innerHTML = "";
-      workspace.appendChild(make(
-        [
-          "p",
-          {class: "center"},
-          [
-            "span",
-            {class: "error"},
-            "Error"
-          ],
-          `: ${error.message}`
-        ]
-      ));
+      workspace.removeChild(localSpinner);
+      workspace.appendChild(displayErrorMessage(error));
       target.classList.remove("hide");
     });
-  }
+  };
 
   rjdci.countDispatch = oldCount => {
-    let newCount = (document.querySelector("#dispatch .tickets")) ? Array.from(document.querySelectorAll("#dispatch .tickets")).length : 0,
+    let newCount = (document.querySelector("#dispatch .tickets")) ?
+      Array.from(document.querySelectorAll("#dispatch .tickets")).length : 0,
     target = document.querySelector(".alert");
     if (newCount > oldCount) {
       target.classList.add("dispatchAlert");
@@ -608,15 +567,18 @@
     if (newCount === 0) target.classList.remove("dispatchAlert");
     if (target.classList.length === 1) target.innerHTML = "";
     Array.from(document.querySelectorAll(".dispatchCount")).forEach(element => { element.innerHTML = newCount; } );
-  }
+  };
 
   rjdci.refreshDispatch = async () => {
     let oldCount = Number(document.querySelector(".dispatchCount").innerHTML) - 1,
-      localSpinner = spinner.cloneNode(true);
-    document.querySelector("#dispatch").innerHTML = "";
+      localSpinner = rjdci.getSpinner();
+    clearElement(document.querySelector("#dispatch"));
     document.querySelector("#dispatch").appendChild(localSpinner);
     scrollTo(0,0);
-    await rjdci.fetch_template({ url: "./refreshDispatch.php", postData: { formKey: document.querySelector("#formKey").value } })
+    await rjdci.fetch_template({
+      url: "./refreshDispatch.php",
+      postData: { formKey: document.querySelector("#formKey").value }
+    })
     .then(result => {
       if (typeof result === "undefined") throw new Error("Result Undefined");
       if (result.ok) {
@@ -650,9 +612,11 @@
       }, 2000);
     })
     .catch(error => {
-      document.querySelector("#dispatch").innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + "</p>";
+      console.error(error.message);
+      localSpinner.parentNode.removeChild(localSpinner);
+      document.querySelector("#dispatch").appendChild(displayErrorMessage(error));
     });
-  }
+  };
 
   countInitDispatch = () => {
     let newCount = Array.from(document.querySelectorAll("#dispatch .tickets")).length;
@@ -661,11 +625,11 @@
       document.querySelector(".alert").classList.add("dispatchAlert");
       document.querySelector(".alert").innerHTML = "!";
     }
-  }
+  };
 
   countTransferTickets = oldCount => {
     let newCount = Array.from(document.querySelectorAll("#transfers .sortable")).length,
-    target = document.querySelector(".alert");
+      target = document.querySelector(".alert");
     if (newCount > oldCount) {
       target.classList.add("transfersAlert");
       target.innerHTML = "!";
@@ -674,15 +638,18 @@
     if (newCount === 0) target.classList.remove("transfersAlert");
     if (target.classList.length === 1) target.innerHTML = "";
     Array.from(document.querySelectorAll(".transfersCount")).forEach(element => { element.innerHTML = newCount; } );
-  }
+  };
 
   rjdci.refreshTransfers = async () => {
     let transferCount = document.querySelector(".transfersCount").innerHTML,
-      localSpinner = spinner.cloneNode(true);
-    document.querySelector("#transfers").innerHTML = "";
+      localSpinner = rjdci.getSpinner();
+    clearElement(document.querySelector("#transfers"));
     document.querySelector("#transfers").appendChild(localSpinner);
     scrollTo(0,0);
-    await rjdci.fetch_template({ url: "./refreshTransfers.php", postData: { formKey: document.querySelector("#formKey").value } })
+    await rjdci.fetch_template({
+      url: "./refreshTransfers.php",
+      postData: { formKey: document.querySelector("#formKey").value }
+    })
     .then(result => {
       if (typeof result === "undefined") throw new Error("Result Undefined");
       if (result.ok) {
@@ -712,9 +679,11 @@
       }, 2000);
     })
     .catch(error => {
-      document.querySelector("#transfers").innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + "</p>";
+      console.error(error.message);
+      localSpinner.parentNode.removeChild(localSpinner);
+      document.querySelector("#transfers").appendChild(displayErrorMessage(error));
     });
-  }
+  };
 
   countInitTransfers = () => {
     let newCount = Array.from(document.querySelectorAll("#transfers .sortable")).length;
@@ -723,7 +692,7 @@
       document.querySelector(".alert").classList.add("transfersAlert");
       document.querySelector(".alert").innerHTML = "!";
     }
-  }
+  };
 
   rjdci.assignLinkValues = () => {
     let eles = document.getElementsByClassName("nav"),
@@ -733,12 +702,10 @@
       if (i === 0) {
         let eleTest = eles[i].innerHTML.split("<");
         if (buttonTitles.indexOf(eleTest[0]) !== -1) {
-          let button = document.createElement("button"),
+          let button = make([ "button", { type: "button" }, eleTest[0] ]),
             func = "refresh" + eleTest[0].replace(/\s/g, "");
-          button.setAttribute("type", "button");
           button.addEventListener("click", window["rjdci"][func]);
-          button.innerHTML = eleTest[0];
-          document.querySelector(".pageTitle").innerHTML = "";
+          clearElement(document.querySelector(".pageTitle"));
           document.querySelector(".pageTitle").appendChild(button);
           if (eleTest.length > 1) {
             let htmlString = "<" + eleTest[1] + "<" + eleTest[2],
@@ -751,7 +718,7 @@
         }
       }
     }
-  }
+  };
 
   rjdci.populatePage = async () => {
     let funcs = [];
@@ -760,7 +727,10 @@
         funcs.push(element.getAttribute("data-function"));
       }
     });
-    await rjdci.fetch_template({ url: "./initApp.php", postData: { functions: funcs, formKey: document.querySelector("#formKey").value } })
+    await rjdci.fetch_template({
+      url: "./initApp.php",
+      postData: { functions: funcs, formKey: document.querySelector("#formKey").value }
+    })
     .then(result => {
       if (typeof result === "undefined") throw new Error("Result Undefined");
       if (result.ok) {
@@ -771,7 +741,7 @@
     })
     .then(data => {
       if (data.indexOf("Session Error") !== -1) {
-        document.getElementById("function").value = "populatePage";
+        document.getElementById("function").value = "rjdci.populatePage";
         return rjdci.showLogin();
       }
       document.getElementById("formKey").value = Number(document.getElementById("formKey").value) + 1;
@@ -800,13 +770,17 @@
     })
     .catch(error => {
       Array.from(document.querySelectorAll(".page")).forEach(element => {
-        element.innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + "</p>";
+        element.innerHTML = "";
+        element.appendChild(displayErrorMessage(error));
       });
     });
-  }
+  };
 
   rjdci.deliveryLocation = ({ ticket_index = [], step = [] }) => {
-    if (typeof navigator.permissions === "undefined" || typeof navigator.geolocation === "undefined") return rjdci.toast("Location Not Available");
+    if (
+      typeof navigator.permissions === "undefined" ||
+      typeof navigator.geolocation === "undefined"
+    ) return rjdci.toast("Location Not Available");
     let success_count = 0,
       error_count = 0,
       max_attempt = 5,
@@ -842,7 +816,10 @@
         },
         sendResult = async data => {
           if (!data) return rjdci.toast([ "Location Not Available", "Tap to dismiss" ], toast_options);
-          if (ticket_index.length !== step.length || ticket_index.length === 0) return rjdci.toast([ "Location Data Error", "Tap to dismiss" ], toast_options);
+          if (
+            ticket_index.length !== step.length ||
+            ticket_index.length === 0
+          ) return rjdci.toast([ "Location Data Error", "Tap to dismiss" ], toast_options);
           let postData = {},
             tempData = {};
           postData.formKey = document.querySelector("#formKey").value;
@@ -897,41 +874,34 @@
         }
       }
     });
-  }
+  };
 
   getCancelThis = () => {
-    let element = document.createElement("button");
-    element.type = "button";
-    element.innerHTML = "Go Back";
-    element.classList.add("cancelThis");
+    let element = make([ "button", { type: "button", class: "cancelThis" }, "Go Back" ]);
     element.addEventListener("click", rjdci.cancelThis);
     return element;
-  }
+  };
 
   rjdci.cancelThis = eve => {
     let parent = rjdci.getClosest(eve.target, ".sortable")
     Array.from(parent.querySelectorAll("button")).forEach(elem => { elem.disabled = false; });
     eve.target.parentNode.innerHTML = "";
-  }
+  };
 
   getStepTicket = form => {
-    let element = document.createElement("button");
-    element.type = "button";
-    element.innerHTML = "Confirm";
-    element.classList.add("stepTicket");
-    element.setAttribute("form", form);
+    let element = make([ "button", { type: "button", class: "stepTicket", form: form }, "Confirm" ]);
     element.addEventListener("click", rjdci.stepTicket);
     return element;
-  }
+  };
 
   rjdci.stepTicket = async eve => {
     eve.preventDefault();
     let postData = {},
       breakFunction = false,
-      step = "",
+      step,
       workspace = rjdci.getClosest(eve.target, ".message2"),
       functionFlag = rjdci.getClosest(eve.target, ".page").getAttribute("id"),
-      ele = document.createElement("span");
+      ellipsis = make([ "span", { class: "ellipsis" }, "." ]);
     if (workspace === null) workspace = rjdci.getClosest(eve.target, "form").querySelector(".message2");
     Array.from(document.querySelectorAll("input[form="+eve.target.getAttribute("form")+"], textarea[form="+eve.target.getAttribute("form")+"]")).forEach(element => {
       if (element.getAttribute("name") !== "latitude" && element.getAttribute("name") !== "longitude") {
@@ -947,19 +917,17 @@
     if (breakFunction) {
       return;
     }
-    ele.classList.add("ellipsis");
-    ele.innerHTML = ".";
     workspace.innerHTML = "";
-    workspace.appendChild(ele);
+    workspace.appendChild(ellipsis);
     let forward = true,
       dots = setInterval(() => {
         if (forward === true) {
-          ele.innerHTML += "..";
-          forward = ele.innerHTML.length < 21 && ele.innerHTML.length != 1;
+          ellipsis.innerHTML += "..";
+          forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
         }
         if (forward === false) {
-          ele.innerHTML = ele.innerHTML.substr(0,ele.innerHTML.length - 2);
-          forward = ele.innerHTML.length === 1;
+          ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+          forward = ellipsis.innerHTML.length === 1;
         }
       }, 500);
     if (postData.hasOwnProperty("pSigPrint")) {
@@ -991,10 +959,16 @@
     })
     .then(data => {
       clearInterval(dots);
+      workspace.removeChild(ellipsis);
       if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
       document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
       if(data.indexOf("error") === - 1) {
-        workspace.innerHTML = data;
+        let newDom = parser.parseFromString(data, "text/html"),
+          docFrag = document.createDocumentFragment();
+        Array.from(newDom.querySelectorAll(".result")).forEach(element => {
+          docFrag.appendChild(element);
+        });
+        workspace.appendChild(docFrag);
         setTimeout( () => {
           switch(functionFlag) {
             case "route": rjdci.refreshRoute(); break;
@@ -1009,7 +983,8 @@
     .catch(error => {
       console.error(error.message);
       clearInterval(dots);
-      workspace.innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + "</p>";
+      workspace.removeChild(ellipsis);
+      workspace.appendChild(displayErrorMessage(error));
       setTimeout(() => {
         workspace.innerHTML = "";
         Array.from(rjdci.getClosest(workspace, ".sortable").querySelectorAll("button")).forEach(element => {
@@ -1017,16 +992,13 @@
         });
       }, 5000);
     });
-  }
+  };
 
   getStepAll = () => {
-    let element = document.createElement("button");
-    element.type = "button";
-    element.innerHTML = "Confirm";
-    element.classList.add("stepAll");
+    let element = make([ "button", { type: "button", class: "stepAll" }, "Confirm" ]);
     element.addEventListener("click", rjdci.stepAll);
     return element;
-  }
+  };
 
   rjdci.stepAll = async eve => {
     eve.preventDefault();
@@ -1036,26 +1008,24 @@
       locationData = { step: [], ticket_index: [] },
       workspace = rjdci.getClosest(eve.target, ".message2"),
       ticketGroup = rjdci.getClosest(eve.target, ".sortable"),
-      ele = document.createElement("span"),
+      ellipsis = make([ "span", { class: "ellipsis" }, "." ]),
       sigTest = ticketGroup.querySelector(".printName");
     if (sigTest.required === true && sigTest.value === "") {
       sigTest.classList.add("elementError");
       setTimeout(() => { sigTest.classList.remove("elementError"); }, 3000);
       return false;
     }
-    ele.classList.add("ellipsis");
-    ele.innerHTML = ".";
     workspace.innerHTML = "";
-    workspace.appendChild(ele);
+    workspace.appendChild(ellipsis);
     let forward = true,
       dots = setInterval(() => {
         if (forward === true) {
-          ele.innerHTML += "..";
-          forward = ele.innerHTML.length < 21 && ele.innerHTML.length != 1;
+          ellipsis.innerHTML += "..";
+          forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
         }
         if (forward === false) {
-          ele.innerHTML = ele.innerHTML.substr(0,ele.innerHTML.length - 2);
-          forward = ele.innerHTML.length === 1;
+          ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+          forward = ellipsis.innerHTML.length === 1;
         }
       }, 500);
     Array.from(ticketGroup.querySelectorAll(".routeStop")).forEach((element, index) => {
@@ -1089,10 +1059,16 @@
     })
     .then(data => {
       clearInterval(dots);
+      workspace.removeChild(ellipsis);
       if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
       document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
       if(data.indexOf("error") === - 1) {
-        workspace.innerHTML = data;
+        let newDom = parser.parseFromString(data, "text/html"),
+          docFrag = document.createDocumentFragment();
+        Array.from(newDom.querySelectorAll(".result")).forEach(element => {
+          docFrag.appendChild(element);
+        });
+        workspace.appendChild(docFrag);
         setTimeout(rjdci.refreshRoute, 3000);
       } else {
         throw new Error(data);
@@ -1101,7 +1077,8 @@
     .catch(error => {
       console.error(error.message);
       clearInterval(dots);
-      workspace.innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + "</p>";
+      workspace.removeChild(ellipsis);
+      workspace.appendChild(displayErrorMessage(error));
       setTimeout(() => {
         workspace.innerHTML = "";
         Array.from(rjdci.getClosest(workspace, ".sortable").querySelectorAll("button")).forEach(element => {
@@ -1109,38 +1086,32 @@
         });
       }, 5000);
     });
-  }
+  };
 
   getCancelTicket = (form, type) => {
-    let element = document.createElement("button");
-    element.type = "button";
-    element.innerHTML = "Confirm";
-    element.classList.add("confirm" + type);
-    element.setAttribute("form", form);
+    let element = make([ "button", { type: "button", class: `confirm${type}`, form: form }, "Confirm" ]);
     element.addEventListener("click", rjdci.confirmCancel);
     return element;
-  }
+  };
 
   rjdci.confirmCancel = async eve => {
     eve.preventDefault();
     let postData = {},
       cancelValues = [ 'ticket_index', 'notes', 'ticketBase' ],
       workspace = rjdci.getClosest(eve.target, ".message2"),
-      step = "",
-      ele = document.createElement("span");
-    ele.classList.add("ellipsis");
-    ele.innerHTML = ".";
+      step,
+      ellipsis = make([ "span", { class: "ellipsis" }, "." ]);
     workspace.innerHTML = "";
-    workspace.appendChild(ele);
+    workspace.appendChild(ellipsis);
     let forward = true,
       dots = setInterval(() => {
         if (forward === true) {
-          ele.innerHTML += "..";
-          forward = ele.innerHTML.length < 21 && ele.innerHTML.length != 1;
+          ellipsis.innerHTML += "..";
+          forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
         }
         if (forward === false) {
-          ele.innerHTML = ele.innerHTML.substr(0,ele.innerHTML.length - 2);
-          forward = ele.innerHTML.length === 1;
+          ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+          forward = ellipsis.innerHTML.length === 1;
         }
       }, 500);
     Array.from(document.querySelectorAll("input[form="+eve.target.getAttribute("form")+"], textarea[form="+eve.target.getAttribute("form")+"]")).forEach(element => {
@@ -1168,7 +1139,13 @@
       if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
       document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
       if(data.indexOf("error") === - 1) {
-        workspace.innerHTML = data;
+        workspace.removeChild(ellipsis);
+        let newDom = parser.parseFromString(data, "text/html"),
+          docFrag = document.createDocumentFragment();
+        Array.from(newDom.querySelectorAll(".result")).forEach(element => {
+          docFrag.appendChild(element);
+        });
+        workspace.appendChild(docFrag);
         setTimeout(async() => {
           switch (rjdci.getClosest(workspace, ".page").getAttribute("id")) {
             case "route": return await rjdci.refreshRoute();
@@ -1182,7 +1159,8 @@
     .catch(error => {
       console.error(error.message);
       clearInterval(dots);
-      workspace.innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + "</p>";
+      workspace.removeChild(ellipsis);
+      workspace.appendChild(displayErrorMessage(error));
       setTimeout(() => {
         workspace.innerHTML = "";
         Array.from(rjdci.getClosest(workspace, ".sortable").querySelectorAll("button")).forEach(element => {
@@ -1190,17 +1168,13 @@
         });
       }, 5000);
     });
-  }
+  };
 
   getTransferTicket = form => {
-    let element = document.createElement("button");
-    element.type = "button";
-    element.innerHTML = "Confirm";
-    element.classList.add("confirmTransfer");
-    element.setAttribute("form", form);
+    let element = make([ "button", { type: "button", class: "confirmTransfer", form: form }, "Confirm" ]);
     element.addEventListener("click", rjdci.transferTicket);
     return element;
-  }
+  };
 
   rjdci.transferTicket = async eve => {
     eve.preventDefault();
@@ -1208,9 +1182,7 @@
       workspace = rjdci.getClosest(eve.target, ".message2"),
       ticket = rjdci.getClosest(eve.target, ".tickets"),
       functionFlag = rjdci.getClosest(eve.target, ".page").getAttribute("id"),
-      ele = document.createElement("span");
-    ele.classList.add("ellipsis");
-    ele.innerHTML = ".";
+      ellipsis = make([ "span", { class: "ellipsis" }, "." ]);
     postData.pendingReceiver = workspace.querySelector(".pendingReceiver").value;
     if (!postData.pendingReceiver) {
       workspace.querySelector(".pendingReceiver").classList.add("elementError");
@@ -1221,16 +1193,16 @@
       return false;
     }
     workspace.innerHTML = "";
-    workspace.appendChild(ele);
+    workspace.appendChild(ellipsis);
     let forward = true,
       dots = setInterval(() => {
         if (forward === true) {
-          ele.innerHTML += "..";
-          forward = ele.innerHTML.length < 21 && ele.innerHTML.length != 1;
+          ellipsis.innerHTML += "..";
+          forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
         }
         if (forward === false) {
-          ele.innerHTML = ele.innerHTML.substr(0,ele.innerHTML.length - 2);
-          forward = ele.innerHTML.length === 1;
+          ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+          forward = ellipsis.innerHTML.length === 1;
         }
       }, 500);
     postData.ticket_index = ticket.querySelector(".ticket_index").value;
@@ -1253,7 +1225,13 @@
       if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
       document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
       if(data.indexOf("error") === - 1) {
-        return workspace.innerHTML = data;
+        workspace.removeChild(ellipsis);
+        let newDom = parser.parseFromString(data, "text/html"),
+          docFrag = document.createDocumentFragment();
+        Array.from(newDom.querySelectorAll(".result")).forEach(element => {
+          docFrag.appendChild(element);
+        });
+        workspace.appendChild(docFrag);
       } else {
         throw new Error(data);
       }
@@ -1270,7 +1248,8 @@
     .catch(error => {
       console.error(error.message);
       clearInterval(dots);
-      workspace.innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + "</p>";
+      workspace.removeChild(ellipsis);
+      workspace.appendChild(displayErrorMessage(error));
       setTimeout(() => {
         workspace.innerHTML = "";
         Array.from(rjdci.getClosest(workspace, ".sortable").querySelectorAll("button")).forEach(element => {
@@ -1278,17 +1257,13 @@
         });
       }, 5000);
     });
-  }
+  };
 
   getTransferGroup = form => {
-    let element = document.createElement("button");
-    element.type = "button";
-    element.innerHTML = "Confirm";
-    element.classList.add("confirmTransferGroup");
-    element.setAttribute("form", form);
+    let element = make([ "button", { type: "button", class: "confirmAcceptTransferGroup", form: form }, "Confirm" ]);
     element.addEventListener("click", rjdci.transferGroup);
     return element;
-  }
+  };
 
   rjdci.transferGroup = async eve => {
     let multiTicket = [],
@@ -1296,9 +1271,7 @@
       postData = {},
       workspace = rjdci.getClosest(eve.target, ".message2"),
       ticketGroup = rjdci.getClosest(eve.target, ".sortable"),
-      ele = document.createElement("span");
-    ele.classList.add("ellipsis");
-    ele.innerHTML = ".";
+      ellipsis = make([ "span", { class: "ellipsis" }, "." ]);
     pendingReceiver = workspace.querySelector(".pendingReceiver").value;
     if (!pendingReceiver) {
       workspace.querySelector(".pendingReceiver").classList.add("elementError");
@@ -1309,16 +1282,16 @@
       return false;
     }
     workspace.innerHTML = "";
-    workspace.appendChild(ele);
+    workspace.appendChild(ellipsis);
     let forward = true,
       dots = setInterval(() => {
         if (forward === true) {
-          ele.innerHTML += "..";
-          forward = ele.innerHTML.length < 21 && ele.innerHTML.length != 1;
+          ellipsis.innerHTML += "..";
+          forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
         }
         if (forward === false) {
-          ele.innerHTML = ele.innerHTML.substr(0,ele.innerHTML.length - 2);
-          forward = ele.innerHTML.length === 1;
+          ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+          forward = ellipsis.innerHTML.length === 1;
         }
       }, 500);
     Array.from(ticketGroup.querySelectorAll(".routeStop")).forEach((element, index) => {
@@ -1348,7 +1321,13 @@
       if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
       document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
       if(data.indexOf("error") === - 1) {
-        return workspace.innerHTML = data;
+        workform.removeChild(ellipsis);
+        let newDom = parser.parseFromString(data, "text/html"),
+          docFrag = document.createDocumentFragment();
+        Array.from(newDom.querySelectorAll(".result")).forEach(element => {
+          docFrag.appendChild(element);
+        });
+        workspace.appendChild(docFrag);
       } else {
         throw new Error(data);
       }
@@ -1362,7 +1341,8 @@
     .catch(error => {
       console.error(error.message);
       clearInterval(dots);
-      workspace.innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + "</p>";
+      workspace.removeChild(ellipsis);
+      workspace.appendChild(displayErrorMessage(error));
       setTimeout(() => {
         workspace.innerHTML = "";
         Array.from(rjdci.getClosest(workspace, ".sortable").querySelectorAll("button")).forEach(element => {
@@ -1370,16 +1350,13 @@
         });
       }, 5000);
     });
-  }
+  };
 
   getTransferButton = type => {
-    let element = document.createElement("button");
-    element.type = "button";
-    element.innerHTML = "Confirm";
-    element.classList.add("confirm"+ucfirst(type));
-    element.addEventListener("click", processTransfer);
+    let element = make([ "button", { type: "button", class: `confirm${ucfirst(type)}` }, "Confirm" ]);
+    element.addEventListener("click", rjdci.processTransfer);
     return element;
-  }
+  };
 
   rjdci.processTransfer = async eve => {
     let testArr = [ "confirmCancelTransfer", "confirmDeclineTransfer", "confirmAcceptTransfer" ],
@@ -1387,23 +1364,21 @@
       postData = {},
       workspace = rjdci.getClosest(eve.target, ".message2"),
       ticket = rjdci.getClosest(eve.target, ".tickets"),
-      ele = document.createElement("span");
-    ele.classList.add("ellipsis");
-    ele.innerHTML = ".";
+      ellipsis = make([ "span", { class: "ellipsis" }, "." ]);
     Array.from(ticket.querySelectorAll("button")).forEach(element => {
       element.disabled = true;
     });
     workspace.innerHTML = "";
-    workspace.appendChild(ele);
+    workspace.appendChild(ellipsis);
     let forward = true,
       dots = setInterval(() => {
         if (forward === true) {
-          ele.innerHTML += "..";
-          forward = ele.innerHTML.length < 21 && ele.innerHTML.length != 1;
+          ellipsis.innerHTML += "..";
+          forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
         }
         if (forward === false) {
-          ele.innerHTML = ele.innerHTML.substr(0,ele.innerHTML.length - 2);
-          forward = ele.innerHTML.length === 1;
+          ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+          forward = ellipsis.innerHTML.length === 1;
         }
       }, 500);
     postData.formKey = document.querySelector("#formKey").value;
@@ -1442,8 +1417,14 @@
       clearInterval(dots);
       if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
       document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
-      if(data.indexOf("error") === - 1) {
-        return workspace.innerHTML = data;
+      if (data.indexOf("error") === - 1) {
+        workspace.removeChild(ellipsis);
+        let newDom = parser.parseFromString(data, "text/html"),
+          docFrag = document.createDocumentFragment();
+        Array.from(newDom.querySelectorAll(".result")).forEach(element => {
+          docFrag.appendChild(element);
+        });
+        workspace.appendChild(docFrag);
       } else {
         throw new Error(data);
       }
@@ -1461,7 +1442,8 @@
     .catch(error => {
       console.error(error.message);
       clearInterval(dots);
-      workspace.innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + "</p>";
+      workspace.removeChild(ellipsis);
+      workspace.appendChild(displayErrorMessage(error));
       setTimeout(() => {
         workspace.innerHTML = "";
         Array.from(ticket.querySelectorAll("button")).forEach(element => {
@@ -1469,16 +1451,13 @@
         });
       }, 5000);
     });
-  }
+  };
 
   getTransferAllButton = type => {
-    let element = document.createElement("button");
-    element.type = "button";
-    element.innerHTML = "Confirm";
-    element.classList.add("confirm"+ucfirst(type));
+    let element = make([ "button", { type: "button", class: `confirm${ucfirst(type)}` }, "Confirm" ]);
     element.addEventListener("click", rjdci.processTransferAll);
     return element;
-  }
+  };
 
   rjdci.processTransferAll = async eve => {
     let transferState,
@@ -1489,22 +1468,20 @@
       postData = {},
       workspace = rjdci.getClosest(eve.target, ".message2"),
       ticketGroup = rjdci.getClosest(eve.target, ".sortable"),
-      ele = document.createElement("span");
+      ellipsis = make([ "span", { class: "ellipsis" }, "." ]);
     postData.multiTicket = [];
     postData.formKey = document.querySelector("#formKey").value;
-    ele.classList.add("ellipsis");
-    ele.innerHTML = ".";
     workspace.innerHTML = "";
-    workspace.appendChild(ele);
+    workspace.appendChild(ellipsis);
     let forward = true,
       dots = setInterval(() => {
         if (forward === true) {
-          ele.innerHTML += "..";
-          forward = ele.innerHTML.length < 21 && ele.innerHTML.length != 1;
+          ellipsis.innerHTML += "..";
+          forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
         }
         if (forward === false) {
-          ele.innerHTML = ele.innerHTML.substr(0,ele.innerHTML.length - 2);
-          forward = ele.innerHTML.length === 1;
+          ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+          forward = ellipsis.innerHTML.length === 1;
         }
       }, 500);
       for (let i = 0; i < eve.target.classList.length; i++) {
@@ -1542,7 +1519,13 @@
       if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
       document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
       if(data.indexOf("error") === - 1) {
-        return workspace.innerHTML = data;
+        workspace.removeChild(ellipsis);
+        let newDom = parser.parseFromString(data, "text/html"),
+          docFrag = document.createDocumentFragment();
+        Array.from(newDom.querySelectorAll(".result")).forEach(element => {
+          docFrag.appendChild(element);
+        });
+        workspace.appendChild(docFrag);
       } else {
         throw new Error(data);
       }
@@ -1556,7 +1539,8 @@
     .catch(error => {
       console.error(error.message);
       clearInterval(dots);
-      workspace.innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + "</p>";
+      workspace.removeChild(ellipsis);
+      workspace.appendChild(displayErrorMessage(error));
       setTimeout(() => {
         workspace.innerHTML = "";
         Array.from(ticketGroup.querySelectorAll("button")).forEach(element => {
@@ -1564,7 +1548,7 @@
         });
       }, 5000);
     });
-  }
+  };
 
   rjdci.assignListeners = () => {
     if (document.querySelector("#deliveryRequest")) {
@@ -1582,7 +1566,7 @@
       });
     }
 
-    let colorChange = eve => {
+    colorChange = eve => {
       eve.target.classList.add("red");
       setTimeout(() => { eve.target.classList.remove("red"); }, 3000);
     };
@@ -1591,10 +1575,11 @@
       element.addEventListener("click", colorChange);
     });
     // start driver and dispatcher app
-    let updateNotes = async eve => {
+    updateNotes = async eve => {
       let workspace = rjdci.getClosest(eve.target, ".tickets").querySelector(".message2");
         postData = {};
-      postData.ticket_index = document.querySelector(".ticket_index[form='" + eve.target.getAttribute("form") + "']").value;
+      postData.ticket_index =
+        document.querySelector(".ticket_index[form='" + eve.target.getAttribute("form") + "']").value;
       postData.notes = document.querySelector(".notes[form='" + eve.target.getAttribute("form") + "']").value;
       postData.formKey = document.querySelector("#formKey").value;
       await rjdci.fetch_template({ url: "./updateTicket.php", postData: postData })
@@ -1619,204 +1604,176 @@
       })
       .catch(error => {
         console.error(error.message);
-        workspace.innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + "</p>";
+        workspace.appendChild(displayErrorMessage(error));
         setTimeout(() => {
           workspace.innerHTML = "";
         }, 5000);
       });
     };
+
     Array.from(document.querySelectorAll(".updateNotes")).forEach(element => {
       element.removeEventListener("click", updateNotes);
       element.addEventListener("click", updateNotes);
     });
+
     Array.from(document.querySelectorAll(".dTicket")).forEach(element => {
       element.addEventListener("click", eve => {
         eve.preventDefault();
-        //Clear all 'message2' containers
-        let page = rjdci.getClosest(eve.target, ".page");
+        let page = rjdci.getClosest(eve.target, ".page"),
+          ticket = rjdci.getClosest(eve.target, ".tickets"),
+          container = ticket.querySelector(".message2");
         Array.from(page.querySelectorAll(".cancelThis")).forEach(elem => {
           rjdci.triggerEvent(elem, "click");
         });
-        //Disable other buttons in the ticket form
-        let ticket = rjdci.getClosest(eve.target, ".tickets");
         Array.from(ticket.querySelectorAll("button")).forEach(elem => {
           elem.disabled = true;
         });
-        let container = ticket.querySelector(".message2"),
-          cancelButton = getCancelThis(),
-          confirmButton = getStepTicket(eve.target.getAttribute("form"));
-        container.innerHTML = "Confirm " + eve.target.innerText + ":<br>";
-        container.appendChild(confirmButton);
-        container.appendChild(cancelButton);
+        container.appendChild(make([ "p", `Confirm ${eve.target.innerText}` ]));
+        container.appendChild(getStepTicket(eve.target.getAttribute("form")));
+        container.appendChild(getCancelThis());
       });
     });
 
     Array.from(document.querySelectorAll(".confirmAll")).forEach(element => {
       element.addEventListener("click", eve => {
         eve.preventDefault();
-        //Clear all 'message2' containers
-        let page = rjdci.getClosest(eve.target, ".page");
+        let page = rjdci.getClosest(eve.target, ".page"),
+          ticket = rjdci.getClosest(eve.target, ".sortable"),
+          container = ticket.querySelector(".message2");
         Array.from(page.querySelectorAll(".cancelThis")).forEach(elem => {
           rjdci.triggerEvent(elem, "click");
         });
-        //Disable other buttons in the ticket form
-        let ticket = rjdci.getClosest(eve.target, ".sortable");
         Array.from(ticket.querySelectorAll("button")).forEach(elem => {
           elem.disabled = true;
         });
-        let container = ticket.querySelector("p.message2"),
-          cancelButton = getCancelThis(),
-          confirmButton = getStepAll();
-        container.innerHTML = "Confirm Group Update:<br>";
-        container.appendChild(confirmButton);
-        container.appendChild(cancelButton);
+        container.appendChild(make([ "p", "Confirm Group Update" ]));
+        container.appendChild(getStepAll());
+        container.appendChild(getCancelThis());
       });
     });
 
     Array.from(document.querySelectorAll(".cancelRun, .deadRun, .declined")).forEach(element => {
       element.addEventListener("click", eve => {
         let testArr = [ "cancelRun", "deadRun", "declined" ],
-          page = rjdci.getClosest(eve.target, ".page");
+          page = rjdci.getClosest(eve.target, ".page"),
+          ticket = rjdci.getClosest(eve.target, ".tickets"),
+          container = ticket.querySelector(".message2"),
+          form = ticket.querySelector(".dTicket").getAttribute("form"),
+          confirmType;
         Array.from(page.querySelectorAll(".cancelThis")).forEach(elem => {
           rjdci.triggerEvent(elem, "click");
         });
-        let ticket = rjdci.getClosest(eve.target, ".tickets");
         Array.from(ticket.querySelectorAll("button")).forEach(elem => {
           elem.disabled = true;
         });
-        let container = ticket.querySelector(".message2"),
-            cancelButton = getCancelThis(),
-            form = ticket.querySelector(".dTicket").getAttribute("form"),
-            confirmButton;
-        if (eve.target.classList.length === 1) {
-          confirmButton = getCancelTicket(form, ucfirst(eve.target.getAttribute("class")));
-        } else {
-          for (let i = 0; i < eve.target.classList.length; i++) {
-            if (testArr.indexOf(eve.target.classList[i] !== - 1)) {
-              confirmButton = getCancelTicket(form, ucfirst(eve.target.classList[i]));
-              break;
-            }
+        for (let i = 0; i < testArr.length; i++) {
+          if (eve.target.classList.contains(testArr[i])) {
+            confirmType = ucfirst(testArr[i]);
+            break;
           }
         }
-        container.innerHTML = "Confirm " + eve.target.innerText + ":<br>";
-        container.appendChild(confirmButton);
-        container.appendChild(cancelButton);
+        container.appendChild(make([ "p", `Confirm ${eve.target.innerText}` ]));
+        container.appendChild(getCancelTicket(form, confirmType));
+        container.appendChild(getCancelThis());
       });
     });
 
     Array.from(document.querySelectorAll(".transferTicket")).forEach(element => {
       element.addEventListener("click", eve => {
-        let page = rjdci.getClosest(eve.target, ".page");
+        let page = rjdci.getClosest(eve.target, ".page"),
+          ticket = rjdci.getClosest(eve.target, ".tickets"),
+          container = ticket.querySelector(".message2");
         Array.from(page.querySelectorAll(".cancelThis")).forEach(elem => {
           rjdci.triggerEvent(elem, "click");
         });
-        let ticket = rjdci.getClosest(eve.target, ".tickets");
         Array.from(ticket.querySelectorAll("button")).forEach(elem => {
           elem.disabled = true;
         });
-        let container = ticket.querySelector(".message2"),
-            cancelButton = getCancelThis(),
-            confirmButton = getTransferTicket(eve.target.getAttribute("form"));
-        container.innerHTML = "Confirm " + eve.target.innerText + ":<br>";
-        container.appendChild(confirmButton);
-        let input = document.createElement("input");
-        input.setAttribute("name", "pendingReceiver");
-        input.setAttribute("list", "receivers");
-        input.classList.add("pendingReceiver");
-        container.appendChild(input);
-        container.appendChild(cancelButton);
+        container.appendChild(make([ "p", `Confirm ${eve.target.innerText}` ]));
+        container.appendChild(getTransferTicket(eve.target.getAttribute("form")));
+        container.appendChild(make(
+          [
+            "input",
+            { name: "pendingReceiver", class: "pendingReceiver", list: "receivers" }
+          ]
+        ));
+        container.appendChild(getCancelThis());
       });
     });
 
     Array.from(document.querySelectorAll(".transferGroup")).forEach(element => {
       element.addEventListener("click", eve => {
         eve.preventDefault();
-        //Clear all 'message2' containers
-        let page = rjdci.getClosest(eve.target, ".page");
+        let page = rjdci.getClosest(eve.target, ".page"),
+          ticket = rjdci.getClosest(eve.target, ".sortable"),
+          container = ticket.querySelector(".message2");
         Array.from(page.querySelectorAll(".cancelThis")).forEach(elem => {
           rjdci.triggerEvent(elem, "click");
         });
-        //Disable other buttons in the ticket form
-        let ticket = rjdci.getClosest(eve.target, ".sortable");
         Array.from(ticket.querySelectorAll("button")).forEach(elem => {
           elem.disabled = true;
         });
-        let container = ticket.querySelector("p.message2"),
-          cancelButton = getCancelThis(),
-          confirmButton = getTransferGroup();
-        container.innerHTML = "Confirm Transfer:<br>";
-        let input = document.createElement("input");
-        input.setAttribute("name", "pendingReceiver");
-        input.setAttribute("list", "receivers");
-        input.classList.add("pendingReceiver");
-        container.appendChild(confirmButton);
-        container.appendChild(input);
-        container.appendChild(cancelButton);
+        container.appendChild(make([ "p", "Confirm Transfer" ]));
+        container.appendChild(getTransferGroup());
+        container.appendChild(make(
+          [
+            "input",
+            { name: "pendingReceiver", class: "pendingReceiver", list: "receivers" }
+          ]
+        ));
+        container.appendChild(getCancelThis());
       });
     });
 
     Array.from(document.querySelectorAll(".cancelTransfer, .declineTransfer, .acceptTransfer")).forEach(element => {
       element.addEventListener("click", eve => {
         eve.preventDefault();
-        //Clear all 'message2' containers
         let testArr = [ "cancelTransfer", "declineTransfer", "acceptTransfer" ],
-          page = rjdci.getClosest(eve.target, ".page");
+          page = rjdci.getClosest(eve.target, ".page"),
+          ticket = rjdci.getClosest(eve.target, ".tickets"),
+          container = ticket.querySelector(".message2"),
+          confirmType;
         Array.from(page.querySelectorAll(".cancelThis")).forEach(elem => {
           rjdci.triggerEvent(elem, "click");
         });
-        let ticket = rjdci.getClosest(eve.target, ".tickets");
         Array.from(ticket.querySelectorAll("button")).forEach(elem => {
           elem.disabled = true;
         });
-        let container = ticket.querySelector(".message2"),
-            cancelButton = getCancelThis(),
-            confirmButton;
-        if (eve.target.classList.length === 1) {
-          confirmButton = getTransferButton(eve.target.getAttribute("class"));
-        } else {
-          for (let i = 0; i < eve.target.classList.length; i++) {
-            if (testArr.indexOf(eve.target.classList[i] !== - 1)) {
-              confirmButton = getTransferButton(eve.target.classList[i]);
-              break;
-            }
+        for (let i = 0; i < testArr.length; i++) {
+          if (eve.target.classList.contains(testArr[i])) {
+            confirmType = ucfirst(eve.target.classList[i]);
+            break;
           }
         }
-        container.innerHTML = "Confirm " + eve.target.innerText + ":<br>";
-        container.appendChild(confirmButton);
-        container.appendChild(cancelButton);
+        container.appendChild(make([ "p", `Confirm ${eve.target.innerText}` ]));
+        container.appendChild(getTransferButton(confirmType));
+        container.appendChild(getCancelThis());
       });
     });
 
     Array.from(document.querySelectorAll(".acceptTransferGroup, .declineTransferGroup, .cancelTransferGroup")).forEach(element => {
       element.addEventListener("click", eve => {
         eve.preventDefault();
-        //Clear all 'message2' containers
         let testArr = [ "acceptTransferGroup", "declineTransferGroup", "cancelTransferGroup" ],
-          page = rjdci.getClosest(eve.target, ".page");
+          page = rjdci.getClosest(eve.target, ".page"),
+          ticket = rjdci.getClosest(eve.target, ".sortable"),
+          container = ticket.querySelector("p.message2"),
+          confirmType;
         Array.from(page.querySelectorAll(".cancelThis")).forEach(elem => {
           rjdci.triggerEvent(elem, "click");
         });
-        let ticket = rjdci.getClosest(eve.target, ".sortable");
         Array.from(ticket.querySelectorAll("button")).forEach(elem => {
           elem.disabled = true;
         });
-        let container = ticket.querySelector("p.message2"),
-            cancelButton = getCancelThis(),
-            confirmButton;
-        if (eve.target.classList.length === 1) {
-          confirmButton = getTransferAllButton(ucfirst(eve.target.getAttribute("class")));
-        } else {
-          let temp;
-          for (let i = 0; i < eve.target.classList.length; i++) {
-            if (testArr.indexOf(eve.target.classList[i] !== - 1)) {
-              confirmButton = getTransferAllButton(ucfirst(eve.target.classList[i]));
-              break;
-            }
+        for (let i = 0; i < testArr.length; i++) {
+          if (eve.target.classList.contains(testArr[i])) {
+            confirmType = ucfirst(testArr[i]);
+            break;
           }
         }
-        container.innerHTML = "Confirm " + eve.target.innerText + ":<br>";
-        container.appendChild(confirmButton);
-        container.appendChild(cancelButton);
+        container.appendChild(make([ "p", `Confirm ${eve.target.innerText}` ]));
+        container.appendChild(getTransferAllButton(confirmType));
+        container.appendChild(getCancelThis());
       });
     });
 
@@ -1825,26 +1782,24 @@
         eve.preventDefault();
         let workspace = document.querySelector("#ticketEditorResultContainer"),
           postData = {},
-          form = document.querySelector("#ticketEditor");
+          form = document.querySelector("#ticketEditor"),
+          ellipsis = make([ "span", { class: "ellipsis" }, "." ]);
         Array.from(form.querySelectorAll("input[name], select")).forEach((item, i) => {
           postData[item.getAttribute("name")] = item.value;
         });
         postData.formKey = document.querySelector("#formKey").value;
         if (!postData.dispatchedTo || !postData.ticketEditorSearchDate) return false;
-        let ele = document.createElement("span");
-        ele.classList.add("ellipsis");
-        ele.innerHTML = ".";
         workspace.innerHTML = "";
-        workspace.appendChild(ele);
+        workspace.appendChild(ellipsis);
         let forward = true,
           dots = setInterval(() => {
             if (forward === true) {
-              ele.innerHTML += "..";
-              forward = ele.innerHTML.length < 21 && ele.innerHTML.length != 1;
+              ellipsis.innerHTML += "..";
+              forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
             }
             if (forward === false) {
-              ele.innerHTML = ele.innerHTML.substr(0,ele.innerHTML.length - 2);
-              forward = ele.innerHTML.length === 1;
+              ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+              forward = ellipsis.innerHTML.length === 1;
             }
           }, 500);
         await rjdci.fetch_template({ url: "./activeTickets.php", postData: postData })
@@ -1858,8 +1813,11 @@
         })
         .then(data => {
           clearInterval(dots);
-          workspace.innerHTML = (data.indexOf("Session Error") === -1) ? '' : '<p class="center">Select Driver &amp; Ticket Type</p>';
-          if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
+          workspace.removeChild(ellipsis);
+          if (data.indexOf("Session Error") !== -1) {
+            workspace.appendChild(make([ "p", { class: "center" }, "Select Driver &amp; Ticket Type" ]));
+            return rjdci.showLogin();
+          }
           document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
           let newDom = parser.parseFromString(data, "text/html"),
             docFrag = document.createDocumentFragment();
@@ -1872,25 +1830,25 @@
         .catch(error => {
           console.error(error.message);
           clearInterval(dots);
-          let element = document.createElement("p");
-          element.classList.add("center");
-          workspace.innerHTML = '';
-          workspace.appendChild(element);
-          element.innerHTML = '<span class="error">Error</span>: ' + error.message;
+          workspace.removeChild(ellipsis);
+          workspace.appendChild(displayErrorMessage(error));
           setTimeout(() => { element.innerHTML = "Select Driver &amp; Ticket Type"; }, 3500);
         });
       });
+
       document.querySelector("#clearTicketEditorResults").addEventListener("click", eve => {
         eve.preventDefault();
         let form = document.querySelector("#ticketEditor"),
           d = new Date,
           day = (d.getDate() < 10) ? `0${d.getDate()}` : d.getDate(),
           test_month = d.getMonth() + 1,
-          month = (test_month < 10) ? `0${test_month}` : test_month;
+          month = (test_month < 10) ? `0${test_month}` : test_month
+          container = document.querySelector("#ticketEditorResultContainer");
         form.querySelector(".dispatchedTo").value = "";
         form.querySelector(".contract").value = 0;
         form.querySelector("input.ticketEditorSearchDate").value = `${d.getFullYear()}-${month}-${day}`;
-        document.querySelector("#ticketEditorResultContainer").innerHTML = '<p class="center">Select Driver &amp; Ticket Type</p>';
+        while (container.firstChild) container.removeChild(container.firstChild);
+        container.appendChild(make([ "p", { class: "center" }, "Select Driver &amp; Ticket Type"]))
       });
     }
 
@@ -1941,22 +1899,7 @@
         });
         let breakFunction = false,
           postData = {},
-          ele = document.createElement("span");
-        ele.classList.add("ellipsis");
-        ele.innerHTML = ".";
-        workform.querySelector(".ticketError").innerHTML = "";
-        workform.querySelector(".ticketError").appendChild(ele);
-        let forward = true,
-          dots = setInterval(() => {
-            if (forward === true) {
-              ele.innerHTML += "..";
-              forward = ele.innerHTML.length < 21 && ele.innerHTML.length != 1;
-            }
-            if (forward === false) {
-              ele.innerHTML = ele.innerHTML.substr(0,ele.innerHTML.length - 2);
-              forward = ele.innerHTML.length === 1;
-            }
-          }, 500);
+          ellipsis = make([ "span", { class: "ellipsis" }, "." ]);
         postData.formKey = document.querySelector("#formKey").value;
         Array.from(workform.querySelectorAll("input[name]")).forEach(input => {
           if (input.getAttribute("list") && input.disabled === false && input.value === "") {
@@ -1978,7 +1921,6 @@
           }
         }
         if (breakFunction) {
-          clearInterval(dots);
           setTimeout(() => {
             Array.from(workform.querySelectorAll("button, .elementError")).forEach(element => {
               element.disabled = false;
@@ -1988,6 +1930,19 @@
           }, 3500);
           return false;
         }
+        workform.querySellipsisctor(".ticketError").innerHTML = "";
+        workform.querySellipsisctor(".ticketError").appendChild(ellipsis);
+        let forward = true,
+          dots = setInterval(() => {
+            if (forward === true) {
+              ellipsis.innerHTML += "..";
+              forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
+            }
+            if (forward === false) {
+              ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+              forward = ellipsis.innerHTML.length === 1;
+            }
+          }, 500);
         await rjdci.fetch_template({ url: "../priceCalc.php", postData: postData })
         .then(result => {
           if (typeof result === "undefined") throw new Error("Result Undefined");
@@ -1999,7 +1954,7 @@
         })
         .then(data => {
           clearInterval(dots);
-          workform.querySelector(".ticketError").innerHTML = "";
+          workform.querySelector(".ticketError").removeChild(ellipsis);
           if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
           document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
           Array.from(document.querySelectorAll("#pNotice, #dNotice, #CalcError")).forEach(element => {
@@ -2009,7 +1964,7 @@
           try {
             obj = JSON.parse(data);
           } catch( err ) {
-            document.querySelector("#CalcError").innerHTML =  err.message;
+            document.querySelector("#CalcError").appendChild(displayErrorMessage(err));
             setTimeout(() => { document.querySelector("#CalcError").innerText = ""; }, 3500);
             return false;
           }
@@ -2051,7 +2006,8 @@
         .catch(error => {
           console.error(error.message);
           clearInterval(dots);
-          workform.querySelector(".ticketError").innerHTML = '<span class="error">Error</span>: ' + error.message;
+          ellipsis.parentNode.removeChild(ellipsis);
+          workform.querySelector(".ticketError").appendChild(displayErrorMessage(error));
           setTimeout(() => {
             workform.querySelector(".ticketError").innerHTML = "";
             Array.from(workform.querySelectorAll("button")).forEach(element => {
@@ -2079,15 +2035,39 @@
             test0 = workspace.querySelector(".currentPw").value,
             test1 = workspace.querySelector(".newPw1").value,
             test2 = workspace.querySelector(".newPw2").value,
-            error1 = document.createElement("p"),
-            error2 = document.createElement("p"),
-            error3 = document.createElement("p");
-          error1.classList.add("error1");
-          error1.innerHTML = '<span class="error">Error</span>: Password does not meet criteria.';
-          error2.classList.add("error2");
-          error2.innerHTML = '<span class="error">Error</span>: Password missmatch.';
-          error3.classList.add("error3");
-          error3.innerHTML = '<span class="error">Error:</span> Password should be changed.';
+            error1 = make(
+              [
+                "p",
+                { class: "error1" },
+                [
+                  "span",
+                  { class: "error" },
+                  "Error"
+                ],
+                ": Password does not meet criteria."
+              ]),
+            error2 = make(
+              [
+                "p",
+                { class: "error1" },
+                [
+                  "span",
+                  { class: "error" },
+                  "Error"
+                ],
+                ": Password missmatch."
+              ]),
+            error3 = make(
+              [
+                "p",
+                { class: "error1" },
+                [
+                  "span",
+                  { class: "error" },
+                  "Error"
+                ],
+                ": Password should be changed."
+              ]);
           if (test1 !== "") {
             if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^\&*\)\(\{\}\[\]\-_.=+\?\:;,])(?=.{8,}).*$/.test(test1)) {
               if (workspace.querySelector(".message .error1") !== null) {
@@ -2132,20 +2112,18 @@
           eve.target.disabled = true;
           let workspace = rjdci.getClosest(eve.target, ".PWform"),
             postData = {},
-            ele = document.createElement("span");
-          ele.classList.add("ellipsis");
-          ele.innerHTML = ".";
-          workspace.querySelector(".message").innerHTML = "";
-          workspace.querySelector(".message").appendChild(ele);
+            ellipsis = make([ "span", { class: "ellipsis" }, "." ]);
+          workspace.querySellipsisctor(".message").innerHTML = "";
+          workspace.querySellipsisctor(".message").appendChild(ellipsis);
           let forward = true,
             dots = setInterval(() => {
               if (forward === true) {
-                ele.innerHTML += "..";
-                forward = ele.innerHTML.length < 21 && ele.innerHTML.length != 1;
+                ellipsis.innerHTML += "..";
+                forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
               }
               if (forward === false) {
-                ele.innerHTML = ele.innerHTML.substr(0,ele.innerHTML.length - 2);
-                forward = ele.innerHTML.length === 1;
+                ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+                forward = ellipsis.innerHTML.length === 1;
               }
             }, 500);
           postData.formKey = document.querySelector("#formKey").value;
@@ -2163,9 +2141,15 @@
           })
           .then(data => {
             clearInterval(dots);
+            ellipsis.parentNode.removeChild(ellipsis);
             if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
             document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
-            workspace.querySelector(".message").innerHTML = data;
+            let newDom = parser.parseFromString(data, "text/html"),
+              docFrag = document.createDocumentFragment();
+            Array.from(docFrag.querySelectorAll(".result")).forEach(element => {
+              docFrag.appendChild(element);
+            });
+            workspace.querySelector(".message").appendChild(docFrag);
             setTimeout(() => {
               Array.from(workspace.querySelectorAll(".currentPw, .newPw1, .newPw2")).forEach(element => {
                 element.value = "";
@@ -2206,7 +2190,8 @@
           .catch(error => {
             console.error(error.message);
             clearInterval(dots);
-            workspace.querySelector(".message").innerHTML = '<span class="error">Error</span>: ' + error.message;
+            ellipsis.parentNode.removeChild(ellipsis);
+            workspace.querySelector(".message").appendChild(displayErrorMessage(error));
             setTimeout(() => {
               workspace.querySelector(".message").innerHTML = "";
               eve.target.disabled = false;
@@ -2229,14 +2214,14 @@
           if (!eve.target.checked) eve.preventDefault();
         });
         box.addEventListener("change", eve => {
-          let recheck = [];
+          let recheck = [],
+            target = (eve.target.getAttribute("id") === "single") ? "multi" : "single",
+            targetForm = document.querySelector("#" + target).getAttribute("form");
           Array.from(document.querySelectorAll("#invoiceQueryOptions .orgMember")).forEach(element => {
             if (element.checked) recheck.push(element);
             element.checked = false;
             element.setAttribute("form", eve.target.getAttribute("form"));
           });
-          let target = (eve.target.getAttribute("id") === "single") ? "multi" : "single",
-            targetForm = document.querySelector("#" + target).getAttribute("form");
           if (target === "single") document.querySelector("#compareMembers").disabled = true;
           if (eve.target.checked) {
             document.querySelector("#" + target).checked = false;
@@ -2269,24 +2254,7 @@
           eve.target.disabled = true;
           let breakFunction = false,
             postData = {},
-            ellipsis = document.createElement("span"),
-            container = document.createElement("p");
-          container.classList.add("center");
-          ellipsis.innerHTML = ".";
-          container.appendChild(ellipsis);
-          document.querySelector("#invoiceQueryResults").innerHTML = "";
-          document.querySelector("#invoiceQueryResults").appendChild(container);
-          let forward = true,
-            dots = setInterval(() => {
-              if (forward === true) {
-                ellipsis.innerHTML += "..";
-                forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
-              }
-              if (forward === false) {
-                ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
-                forward = ellipsis.innerHTML.length === 1;
-              }
-            }, 500);
+            ellipsis = make([ "p", { class: "center ellipsis" }, "." ]);
           Array.from(document.querySelectorAll("input[form='" + eve.target.getAttribute("form") + "'], select[form='" + eve.target.getAttribute("form") + "']")).forEach(input => {
             if (input.required && input.value === "") {
               breakFunction = true;
@@ -2316,11 +2284,22 @@
             }
           });
           if (breakFunction) {
-            clearInterval(dots);
-            document.querySelector("#invoiceQueryResults").removeChild(container);
             eve.target.disabled = false;
             return false;
           }
+          clearElement(document.querySelector("#invoiceQueryResults"));
+          document.querySelector("#invoiceQueryResults").appendChild(ellipsis);
+          let forward = true,
+            dots = setInterval(() => {
+              if (forward === true) {
+                ellipsis.innerHTML += "..";
+                forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
+              }
+              if (forward === false) {
+                ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+                forward = ellipsis.innerHTML.length === 1;
+              }
+            }, 500)
           postData.formKey = document.querySelector("#formKey").value;
           await rjdci.fetch_template({ url: "./buildQuery.php", postData: postData })
           .then(result => {
@@ -2333,7 +2312,7 @@
           })
           .then(data => {
             clearInterval(dots);
-            document.querySelector("#invoiceQueryResults").removeChild(container);
+            document.querySelector("#invoiceQueryResults").removeChild(ellipsis);
             if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
             document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
             let newDom = parser.parseFromString(data, "text/html"),
@@ -2348,8 +2327,9 @@
           .catch(error => {
             console.error(error.message);
             clearInterval(dots);
-            document.querySelector("#invoiceQueryResults").innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + '</p>';
-            setTimeout(() => { document.querySelector("#invoiceQueryResults").innerHTML = ""; eve.target.disabled = false; }, 3500);
+            ellipsis.parentNode.removeChild(ellipsis);
+            document.querySelector("#invoiceQueryResults").appendChild(displayErrorMessage(error));
+            setTimeout(() => { clearElement(document.querySelector("#invoiceQueryResults")); eve.target.disabled = false; }, 3500);
           });
         });
       });
@@ -2379,7 +2359,9 @@
               }
             });
           }
-          document.querySelector("#ticketNumber").disabled = (eve.target.value === "chart" || (eve.target.value === "tickets" && document.querySelector("#allTime").checked === true));
+          document.querySelector("#ticketNumber").disabled =
+            (eve.target.value === "chart" ||
+            (eve.target.value === "tickets" && document.querySelector("#allTime").checked === true));
           Array.from(document.querySelectorAll("#chargeHistory, #type")).forEach(element => {
             element.disabled = eve.target.value === "chart";
           });
@@ -2444,7 +2426,7 @@
 
       if (!document.querySelector(".submitOrgTickets")) {
         document.querySelector(".clearTicketResults").addEventListener("click", eve => {
-          document.querySelector("#ticketQueryResults").innerHTML = "";
+          clearElement(document.querySelector("#ticketQueryResults"));
         });
 
         document.querySelector(".resetTicketQuery").addEventListener("click", eve => {
@@ -2460,11 +2442,7 @@
           eve.target.disabled = true;
           let breakFunction = false,
             postData = {},
-            ellipsis = document.createElement("span"),
-            container = document.createElement("p");
-          container.classList.add("center");
-          ellipsis.innerHTML = ".";
-          container.appendChild(ellipsis);
+            ellipsis = make([ "p", { class: "center ellipsis" }, "." ]);
           Array.from(document.querySelectorAll("#deliveryQuery input, #deliveryQuery select")).forEach(input => {
             if (!input.disabled) {
               if (input.type !== "checkbox") {
@@ -2494,7 +2472,7 @@
             eve.target.disabled = false;
             return false;
           }
-          document.querySelector("#ticketQueryResults").appendChild(container);
+          document.querySelector("#ticketQueryResults").appendChild(ellipsis);
           let forward = true,
             dots = setInterval(() => {
               if (forward === true) {
@@ -2518,6 +2496,7 @@
           .then(data => {
             eve.target.disabled = false;
             clearInterval(dots);
+            ellipsis.parentNode.removeChild(ellipsis);
             if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
             document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
             let newDom = parser.parseFromString(data, "text/html"),
@@ -2525,7 +2504,7 @@
             Array.from(newDom.querySelectorAll("#ticketPDFform, .bargraph, .graphKey, .tickets, .ticketTable, .ticketGraphContainer, .result")).forEach(element => {
               docFrag.appendChild(element);
             });
-            document.querySelector("#ticketQueryResults").innerHTML = "";
+            clearElement(document.querySelector("#ticketQueryResults"));
             document.querySelector("#ticketQueryResults").appendChild(docFrag);
             rjdci.assignQueriedTicketListeners();
           })
@@ -2533,8 +2512,9 @@
             console.error(error.message);
             eve.target.disabled = false;
             clearInterval(dots);
-            document.querySelector("#ticketQueryResults").innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + '</p>';
-            setTimeout(() => { document.querySelector("#ticketQueryResults").innerHTML = ""; }, 3500);
+            ellipsis.parentNode.removeChild(ellipsis);
+            document.querySelector("#ticketQueryResults").appendChild(displayErrorMessage(error));
+            setTimeout(() => { clearElement(document.querySelector("#ticketQueryResults")); }, 3500);
           });
         });
       } else {
@@ -2542,13 +2522,9 @@
           eve.preventDefault();
           let breakFunction = false,
             postData = {},
-            ellipsis = document.createElement("span"),
-            container = document.createElement("p");
+            ellipsis = make([ "p", { class: "center ellipsis" }, "." ]);
           postData.formKey = document.querySelector("#formKey").value;
-          container.classList.add("center");
-          ellipsis.innerHTML = ".";
-          container.appendChild(ellipsis);
-          document.querySelector("#ticketQueryResults").appendChild(container);
+          document.querySelector("#ticketQueryResults").appendChild(ellipsis);
           let forward = true,
             dots = setInterval(() => {
               if (forward === true) {
@@ -2591,6 +2567,7 @@
           .then(data => {
             eve.target.disabled = false;
             clearInterval(dots);
+            ellipsis.parentNode.removeChild(ellipsis);
             if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
             document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
             let newDom = parser.parseFromString(data, "text/html"),
@@ -2598,7 +2575,7 @@
             Array.from(newDom.querySelectorAll("#ticketPDFform, .tickets, .ticketTable, .bargraph, .graphKey, .result")).forEach(element => {
               docFrag.appendChild(element);
             });
-            document.querySelector("#ticketQueryResults").innerHTML = "";
+            clearElement(document.querySelector("#ticketQueryResults"));
             document.querySelector("#ticketQueryResults").appendChild(docFrag);
             rjdci.assignQueriedTicketListeners();
           })
@@ -2606,8 +2583,9 @@
             console.error(error.message);
             eve.target.disabled = false;
             clearInterval(dots);
-            document.querySelector("#ticketQueryResults").innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + '</p>';
-            setTimeout(() => { document.querySelector("#ticketQueryResults").innerHTML = ""; }, 3500);
+            ellipsis.parentNode.removeChild(ellipsis);
+            document.querySelector("#ticketQueryResults").appendChild(displayErrorMessage(error));
+            setTimeout(() => { clearElement(document.querySelector("#ticketQueryResults")); }, 3500);
           });
         });
       }
@@ -2634,21 +2612,7 @@
         eve.target.disabled = true;
         let postData = {},
           breakFunction = false,
-          ellipsis = document.createElement("span");
-        ellipsis.classList.add("ellipsis");
-        ellipsis.innerHTML = ".";
-        document.querySelector("#clientUpdateResult").appendChild(ellipsis);
-        let forward = true,
-          dots = setInterval(() => {
-            if (forward === true) {
-              ellipsis.innerHTML += ".";
-              forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
-            }
-            if (forward === false) {
-              ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
-              forward = ellipsis.innerHTML.length === 1;
-            }
-          }, 500);
+          ellipsis = make([ "span", { class: "ellipsis" }, "." ]);
         Array.from(document.querySelectorAll("input[form='" + eve.target.getAttribute("form") + "']")).forEach(input => {
           if (input.required === true && input.value === "") {
             console.log(input);
@@ -2662,11 +2626,21 @@
           }
         });
         if (breakFunction === true) {
-          clearInterval(dots);
           eve.target.disabled = false;
-          document.querySelector("#clientUpdateResult").removeChild(ellipsis);
           return false;
         }
+        document.querySelector("#clientUpdateResult").appendChild(ellipsis);
+        let forward = true,
+          dots = setInterval(() => {
+            if (forward === true) {
+              ellipsis.innerHTML += ".";
+              forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
+            }
+            if (forward === false) {
+              ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+              forward = ellipsis.innerHTML.length === 1;
+            }
+          }, 500);
         postData.formKey = document.querySelector("#formKey").value;
         await rjdci.fetch_template({ url: "./updateClientInfo.php", postData: postData })
         .then(result => {
@@ -2680,6 +2654,7 @@
         .then(data => {
           eve.target.disabled = false;
           clearInterval(dots);
+          document.querySelector("#clientUpdateResult").removeChild(ellipsis);
           if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
           document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
           let newDom = parser.parseFromString(data, "text/html"),
@@ -2687,10 +2662,9 @@
           Array.from(newDom.querySelectorAll(".result")).forEach(element => {
             docFrag.appendChild(element);
           });
-          document.querySelector("#clientUpdateResult").innerHTML = "";
           document.querySelector("#clientUpdateResult").appendChild(docFrag);
           setTimeout(() => {
-            document.querySelector("#clientUpdateResult").innerHTML = "";
+            clearElement(document.querySelector("#clientUpdateResult"));
             document.querySelector("#enableInfoUpdate").checked = false;
             rjdci.triggerEvent(document.querySelector("#enableInfoUpdate"), "change");
           }, 3500);
@@ -2699,8 +2673,9 @@
           console.error(error.message);
           eve.target.disabled = false;
           clearInterval(dots);
-          document.querySelector("#clientUpdateResult").innerHTML = '<span class="error">Error</span>: ' + error.message;
-          setTimeout(() => { document.querySelector("#clientUpdateResult").innerHTML = ""; }, 3500);
+          document.querySelector("#clientUpdateResult").removeChild(ellipsis);
+          document.querySelector("#clientUpdateResult").appendChild(displayErrorMessage(error));
+          setTimeout(() => { clearElement(document.querySelector("#clientUpdateResult")); }, 3500);
         });
       });
     }
@@ -2761,9 +2736,7 @@
         eve.target.disabled = true;
         setTimeout(() => { eve.target.classList.remove("red"); }, 3500);
         let postData = {},
-          ellipsis = document.createElement("p");
-        ellipsis.classList.add("center");
-        ellipsis.innerHTML = ".";
+          ellipsis = make([ "p", { class: "center ellipsis" }, "." ]);
         rjdci.getClosest(eve.target, ".invoiceTable").appendChild(ellipsis);
         let forward = true,
           dots = setInterval(() => {
@@ -2790,6 +2763,8 @@
           }
         })
         .then(data => {
+          clearInterval(dots);
+          ellipsis.parentNode.removeChild(ellipsis);
           if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
           document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
           let newDom = parser.parseFromString(data, "text/html"),
@@ -2797,18 +2772,17 @@
           Array.from(newDom.querySelectorAll("#invoice, .invoiceTable, .invoiceGraphContainer, p.displayHeader, .result")).forEach(element => {
             docFrag.appendChild(element);
           });
-          document.querySelector("#invoiceQueryResults").innerHTML = "";
           document.querySelector("#invoiceQueryResults").appendChild(docFrag);
         })
         .catch(error => {
           console.log(error.message);
           clearInterval(dots);
           rjdci.getClosest(eve.target, ".invoiceTable").removeChild(ellipsis);
-          errorMessage = document.createElement("p");
-          errorMessage.classList.add("center");
-          errorMessage.innerHTML = "<span class=\"error\">Error</span>: " + error.message;
-          rjdci.getClosest(eve.target, ".invoiceTable").appendChild(errorMessage);
-          setTimeout(() => { rjdci.getClosest(eve.target, ".invoiceTable").removeChild(errorMessage); eve.target.disabled = false; }, 3500)
+          rjdci.getClosest(eve.target, ".invoiceTable").appendChild(displayErrorMessage(error));
+          setTimeout(() => {
+            rjdci.getClosest(eve.target, ".invoiceTable").innerHTML = "";
+            eve.target.disabled = false;
+          }, 3500)
         });
       });
     });
@@ -2816,12 +2790,12 @@
     if (document.querySelector("#invoiceQueryResults .invoiceTable")) {
       Array.from(document.querySelectorAll("#invoiceQueryResults .invoiceTable, #invoiceQueryResults .invoiceGraphContainer")).forEach(element => {
         element.addEventListener("touchstart", eve => {
-          rjdciSwipe.disable();
+          rjdci.Swipe.disable();
         });
       });
       Array.from(document.querySelectorAll("#invoiceQueryResults .invoiceTable, #invoiceQueryResults .invoiceGraphContainer")).forEach(element => {
         element.addEventListener("touchend", eve => {
-          rjdciSwipe.enable();
+          rjdci.Swipe.enable();
         });
       });
     }
@@ -2831,15 +2805,16 @@
     Array.from(document.querySelectorAll("#ticketQueryResults .invoiceQuery")).forEach(element => {
       element.addEventListener("click", async eve => {
         eve.preventDefault();
-        let postData = {};
+        let postData = {},
+          ellipsis = make([ "p", { class: "center ellipsis" }, "." ]);
         Array.from(rjdci.getClosest(eve.target, "form").querySelectorAll("input")).forEach(input => {
           postData[input.getAttribute("name")] = input.value;
         });
         postData.formKey = document.querySelector("#formKey").value;
-        document.querySelector("#invoiceQueryResults").innerHTML = '<p class="center"><span class="ellipsis">.</span></p>';
-        rjdciSwipe.slide(document.querySelector("a.nav[data-id='invoice_query']").getAttribute("data-value"), 300);
+        clearElement(document.querySelector("#invoiceQueryResults"));
+        document.querySelector("#invoiceQueryResults").appendChild(ellipsis);
+        rjdci.Swipe.slide(document.querySelector("a.nav[data-id='invoice_query']").getAttribute("data-value"), 300);
         let forward = true,
-          ellipsis = document.querySelector("#invoiceQueryResults .ellipsis"),
           dots = setInterval(() => {
             if (forward === true) {
               ellipsis.innerHTML += "..";
@@ -2861,6 +2836,7 @@
         })
         .then(data => {
           clearInterval(dots);
+          ellipsis.parentNode.removeChild(ellipsis);
           if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
           document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
           let newDom = parser.parseFromString(data, "text/html"),
@@ -2868,15 +2844,15 @@
           Array.from(newDom.querySelectorAll("#invoice, .result")).forEach(element => {
             docFrag.appendChild(element);
           });
-          document.querySelector("#invoiceQueryResults").innerHTML = "";
           document.querySelector("#invoiceQueryResults").appendChild(docFrag);
           assignQueriedInvoiceListeners();
         })
         .catch(error => {
           console.error(error.message);
           clearInterval(dots);
-          document.querySelector("#invoiceQueryResults").innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + '</p>';
-          setTimeout(() => { document.querySelector("#invoiceQueryResults").innerHTML = ""; }, 3500);
+          ellipsis.parentNode.removeChild(ellipsis);
+          document.querySelector("#invoiceQueryResults").appendChild(displayErrorMessage(error));
+          setTimeout(() => { clearElement(document.querySelector("#invoiceQueryResults")); }, 3500);
         });
       });
     });
@@ -2892,11 +2868,7 @@
         eve.target.disabled = true;
         let breakFunction = false,
           postData = {},
-          ellipsis = document.createElement("span"),
-          container = document.createElement("p");
-        container.classList.add("center");
-        ellipsis.innerHTML = ".";
-        container.appendChild(ellipsis);
+          ellipsis = make([ "p", { class: "center ellipsis" }, "." ]);
         Array.from(rjdci.getClosest(eve.target, "form").querySelectorAll("input")).forEach(input => {
           if (input.value)  postData[input.getAttribute("name")] = input.value;
         });
@@ -2905,7 +2877,7 @@
           eve.target.disabled = false;
           return false;
         }
-        document.querySelector("#ticketQueryResults").appendChild(container);
+        document.querySelector("#ticketQueryResults").appendChild(ellipsis);
         let forward = true,
           dots = setInterval(() => {
             if (forward === true) {
@@ -2929,6 +2901,7 @@
         .then(data => {
           eve.target.disabled = false;
           clearInterval(dots);
+          ellipsis.parentNode.removeChild(ellipsis);
           if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
           document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
           let newDom = parser.parseFromString(data, "text/html"),
@@ -2936,7 +2909,6 @@
           Array.from(newDom.querySelectorAll(".tickets, .result")).forEach(element => {
             docFrag.appendChild(element);
           });
-          document.querySelector("#ticketQueryResults").innerHTML = "";
           document.querySelector("#ticketQueryResults").appendChild(docFrag);
           rjdci.assignQueriedTicketListeners();
         })
@@ -2944,8 +2916,9 @@
           console.error(error.message);
           eve.target.disabled = false;
           clearInterval(dots);
-          document.querySelector("#ticketQueryResults").innerHTML = '<p class="center"><span class="error">Error</span>: ' + error.message + '</p>';
-          setTimeout(() => { document.querySelector("#ticketQueryResults").innerHTML = ""; }, 3500);
+          ellipsis.parentNode.removeChild(ellipsis);
+          document.querySelector("#ticketQueryResults").appendChild(displayErrorMessage(error));
+          setTimeout(() => { clearElement(document.querySelector("#ticketQueryResults")); }, 3500);
         });
       });
     });
@@ -2965,10 +2938,10 @@
     }
     if (document.querySelector("#ticketQueryResults .bargraph")) {
       document.querySelector("#ticketQueryResults .bargraph").addEventListener("touchstart", eve => {
-        rjdciSwipe.disable();
+        rjdci.Swipe.disable();
       });
       document.querySelector("#ticketQueryResults .bargraph").addEventListener("touchend", eve => {
-        rjdciSwipe.enable();
+        rjdci.Swipe.enable();
       });
     }
   };
@@ -3018,10 +2991,7 @@
         })
         .catch(error => {
           console.error(error.message);
-          let message = document.createElement("p");
-          message.classList.add("center");
-          message.innerHTML = '<span class="error">Error</span>: ' + error.message;
-          workspace.appendChild(message);
+          workspace.appendChild(displayErrorMessage(error));
           setTimeout(() => { workspace.removeChild(message); }, 3500);
         });
       });
@@ -3129,7 +3099,7 @@
         if (rjdci.isTarget(eve.target)) {
           let goodVals = [];
           Array.from(document.querySelectorAll("datalist#" + eve.target.getAttribute("list") + " option")).forEach(val => {
-            let quarantine = new DOMParser().parseFromString(val.innerHTML, "text/html");
+            let quarantine = parser.parseFromString(val.innerHTML, "text/html");
             quarantine.innerHTML = val.innerHTML;
             goodVals.push(quarantine.documentElement.textContent);
           });
@@ -3160,17 +3130,18 @@
     });
 
     Array.from(workspace.querySelectorAll("#toMe, #fromMe")).forEach(element => {
+      let neighbor = (rjdci.getClosest(element, "fieldset").getAttribute("id") === "deliveryField") ?
+        document.querySelector("#pickupField") : document.querySelector("#deliveryField"),
+        field = rjdci.getClosest(element, "fieldset");
       element.addEventListener("click", eve => {
-        let neighbor = (rjdci.getClosest(eve.target, "fieldset").getAttribute("id") === "deliveryField") ? document.querySelector("#pickupField") : document.querySelector("#deliveryField"),
-          testVal = "";
+        let testVal = "",
+          homeAddress = document.querySelector("input[name='ClientName'][form='javascriptVars']").value + document.querySelector("input[name='Department'][form='javascriptVars']").value + document.querySelector("input[name='ShippingAddress1'][form='javascriptVars']").value + document.querySelector("input[name='ShippingAddress2'][form='javascriptVars']").value;
         Array.from(neighbor.querySelectorAll(".clientList")).forEach(input => {
           testVal += input.value;
         });
-        let homeAddress = document.querySelector("input[name='ClientName'][form='javascriptVars']").value + document.querySelector("input[name='Department'][form='javascriptVars']").value + document.querySelector("input[name='ShippingAddress1'][form='javascriptVars']").value + document.querySelector("input[name='ShippingAddress2'][form='javascriptVars']").value;
         if(testVal === homeAddress) eve.preventDefault();
       });
       element.addEventListener("change", eve => {
-        let neighbor = (rjdci.getClosest(eve.target, "fieldset").getAttribute("id") === "deliveryField") ? document.querySelector("#pickupField") : document.querySelector("#deliveryField");
         if (eve.target.checked) {
           rjdci.getClosest(eve.target, "thead").querySelector(".onFile").checked = false;
           rjdci.triggerEvent(rjdci.getClosest(eve.target, "thead").querySelector(".onFile"), "change");
@@ -3186,14 +3157,21 @@
             input.style.display = "none";
           });
           neighbor.querySelector(".me").disabled = true;
-          rjdci.getClosest(eve.target, "fieldset").querySelector("[id$='Client']").value = document.querySelector("input[name='ClientName'][form='javascriptVars']").value;
-          rjdci.getClosest(eve.target, "fieldset").querySelector("[id$='Department']").value = document.querySelector("input[name='Department'][form='javascriptVars']").value;
-          rjdci.getClosest(eve.target, "fieldset").querySelector("[id$='Address1']").value = document.querySelector("input[name='ShippingAddress1'][form='javascriptVars']").value;
-          rjdci.getClosest(eve.target, "fieldset").querySelector("[id$='Address2']").value = document.querySelector("input[name='ShippingAddress2'][form='javascriptVars']").value;
+          field.querySelector("[id$='Client']").value =
+            document.querySelector("input[name='ClientName'][form='javascriptVars']").value;
+          field.querySelector("[id$='Department']").value =
+            document.querySelector("input[name='Department'][form='javascriptVars']").value;
+          field.querySelector("[id$='Address1']").value =
+            document.querySelector("input[name='ShippingAddress1'][form='javascriptVars']").value;
+          field.querySelector("[id$='Address2']").value =
+            document.querySelector("input[name='ShippingAddress2'][form='javascriptVars']").value;
         } else {
-          Array.from(rjdci.getClosest(eve.target, "fieldset").querySelectorAll(".clientList")).forEach(input => {
+          Array.from(field.querySelectorAll(".clientList")).forEach(input => {
             input.readOnly = false;
-          })
+          });
+          Array.from(field.querySelectorAll("[id$='Client'], [id$='Department'], [id$='Address1'], [id$='Address2']")).forEach(element => {
+            element.value = "";
+          });
           neighbor.querySelector(".me").disabled = false;
         }
       });
@@ -3203,6 +3181,7 @@
       element.addEventListener("change", eve => {
         if (eve.target.checked) {
           rjdci.getClosest(eve.target, "thead").querySelector(".me").checked = false;
+          rjdci.triggerEvent(rjdci.getClosest(eve.target, "thead").querySelector(".me"), "change");
           Array.from(rjdci.getClosest(eve.target, "fieldset").querySelectorAll(".clientList")).forEach(input => {
             input.disabled = true;
             input.required = false;
@@ -3261,9 +3240,13 @@
       let d1 = new Date(),
         d2 = new Date(eve.target.value);
       if (d1 >= d2) {
-        let readyError = document.createElement("p");
-        readyError.classList.add("readyError");
-        readyError.innerHTML = 'Ready Time should be either "Now" or a time in the future.';
+        let readyError = make(
+          [
+            "p",
+            { class: "center readyError" },
+            'Ready Time should be either "Now" or a time in the future.'
+          ]
+        );
         if (!workspace.querySelector(".readyError")) {
           workspace.querySelector(".ticketError").appendChild(readyError);
         }
@@ -3298,23 +3281,21 @@
       if (workspace.querySelector(".cancelTicketEditor"))
         workspace.querySelector(".cancelTicketEditor").disabled = true;
       let diStep = 1,
-        ele = document.createElement("span");
+        ellipsis = make([ "span", { class: "ellipsis" }, "." ]);
       if (workspace.querySelector(".diWeight")) {
         diStep = workspace.querySelector(".diWeight").getAttribute("step");
       }
-      ele.classList.add("ellipsis");
-      ele.innerHTML = ".";
       workspace.querySelector(".ticketError").innerHTML = "";
-      workspace.querySelector(".ticketError").appendChild(ele);
+      workspace.querySelector(".ticketError").appendChild(ellipsis);
       let forward = true,
         dots = setInterval(() => {
           if (forward === true) {
-            ele.innerHTML += "..";
-            forward = ele.innerHTML.length < 21 && ele.innerHTML.length != 1;
+            ellipsis.innerHTML += "..";
+            forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
           }
           if (forward === false) {
-            ele.innerHTML = ele.innerHTML.substr(0,ele.innerHTML.length - 2);
-            forward = ele.innerHTML.length === 1;
+            ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+            forward = ellipsis.innerHTML.length === 1;
           }
         }, 500);
       let breakFunction = false,
@@ -3336,10 +3317,13 @@
             }
             if (rjdci.getClosest(element, "div").id === "deliveryRequest") {
               if (element.getAttribute("name") === "readyDate" && element.style.display !== "none") {
-                let readyError = document.createElement("p");
-                  readyError.classList.add("readyError");
-                  readyError.classList.add("center");
-                  readyError.innerHTML = 'Ready Time should be either "Now" or a time in the future.',
+                let readyError = make(
+                  [
+                    "p",
+                    { class: "center readyError" },
+                    'Ready Time should be either "Now" or a time in the future.'
+                  ]
+                ),
                   d1 = new Date(),
                   d2 = new Date(element.value);
                 if (d1 >= d2 || element.value === "") {
@@ -3356,10 +3340,13 @@
               }
             }
             if (/(deliveryRequest\d+)/.test(rjdci.getClosest(element, "div").id)) {
-              let timingError = document.createElement("p");
-              timingError.classList.add("timingError");
-              timingError.classList.add("center");
-              timingError.innerHTML = "Timing Error";
+              let timingError = make(
+                [
+                  "p",
+                  { class: "center timingError" },
+                  "Timing Error"
+                ]
+              );
               switch (element.getAttribute("name")) {
                 case "readyDate":
                   if (element.style.display !== "none") {
@@ -3534,10 +3521,6 @@
         if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
         document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
         if (data.indexOf("data-value=\"error\"") !== -1) {
-          workspace.querySelector(".ticketError").innerHTML = data;
-          Array.from(workspace.querySelectorAll(".submitForm, .cancelTicketEditor")).forEach(element => {
-            element.disabled = false;
-          });
           throw new Error(data);
         } else {
           let newDom = parser.parseFromString(data, "text/html"),
@@ -3559,7 +3542,8 @@
       .catch(error => {
         console.error(error.message);
         clearInterval(dots);
-        workspace.querySelector(".ticketError").innerHTML = '<span class="error">Error</span>: ' + error.message;
+        workspace.removeChild(ellipsis);
+        workspace.querySelector(".ticketError").appendChild(displayErrorMessage(error));
         setTimeout(() => { workspace.querySelector(".ticketError").innerHTML = ""; }, 3500);
         Array.from(workspace.querySelectorAll(".submitForm, .cancelTicketEditor")).forEach(element => {
           element.disabled = false;
@@ -3620,9 +3604,7 @@
             assignTicketFormListeners(workspace);
           } else if (eve.target.classList.contains("confirmed")) {
             if (data === "remove") {
-              let newEle = document.createElement("p");
-              newEle.classList.add("center");
-              newEle.innerHTML = "Update Successful";
+              let newEle = make([ "p", { class: "center" }, "Update Successful" ]);
               workspace.appendChild(newEle);
               scrollTo(0, document.querySelector("header").offsetHeight + 5);
               setTimeout(() => { document.remove(workspace); }, 3000);
@@ -3633,9 +3615,7 @@
                 targetTicket = rjdci.getClosest(eve.target, ".sortable"),
                 newDom = parser.parseFromString(data, "text/html"),
                 docFrag = document.createDocumentFragment(),
-                note = document.createElement("p");
-              note.classList.add("center");
-              note.innerHTML = "Update Successful";
+                note = make([ "p", { class: "center" }, "Update Successful" ]);
               targetTicket.appendChild(note);
               docFrag.appendChild(newDom.querySelector(".sortable"));
               setTimeout(() => {
@@ -3645,7 +3625,7 @@
               }, 3500);
             } else {
               let newDom = parser.parseFromString(data, "text/html");
-              document.querySelector("#deliveryConfirmation").innerHTML = "";
+              clearElement(document.querySelector("#deliveryConfirmation"));
               document.querySelector("#deliveryConfirmation").appendChild(newDom.querySelector("#deliveryRequestComplete"));
               setTimeout(rjdci.refreshTicketEntry, 3500);
             }
@@ -3653,16 +3633,13 @@
         })
         .catch(error => {
           console.error(error.message);
-          workspace.querySelector(".ticketError").innerHTML = '<p class="ceneter"><span class="error">Error</span>: ' + error.message + '</p>';
+          ellipsis.parentNode.removeChild(ellipsis);
+          workspace.querySelector(".ticketError").appendChild(displayErrorMessage(error));
           setTimeout(() => { workspace.querySelector(".ticketError").innerHTML = ""; }, 3500);
         });
       });
     });
   }
-
-}( window.rjdci = window.rjdci || {} ));
-
-(() => {
   document.addEventListener("rjdci_resolutionchange", function() {
     setTimeout(() => { rjdci.fixDeadRunButton(); rjdci.centerForm(document.querySelector("#confirmLogin")); }, 500);
   });
@@ -3674,69 +3651,66 @@
   document.addEventListener("rjdci_loggedin", function() {
     setTimeout(rjdci.enableApp, 500);
   });
-// Start offline
-  const header = document.querySelector("header");
-  const menuHeader = document.querySelector(".menu__header");
+  document.addEventListener("DOMContentLoaded", () => {
+    let width = screen.width,
+      height = screen.height;
+    setInterval(() => {
+      if (screen.width !== width || screen.height !== height) {
+        width = screen.width;
+        height = screen.height;
+        if (rjdci.resolutionchange) document.dispatchEvent(rjdci.resolutionchange);
+      }
+    }, 250);
+    rjdci.assignLinkValues();
+    const header = document.querySelector("header");
+    const menuHeader = document.querySelector(".menu__header");
 
-  //After DOM Loaded
-  document.addEventListener("DOMContentLoaded", function(event) {
-    //On initial load to check connectivity
+    updateNetworkStatus = () => {
+      if (navigator.onLine) {
+        header.classList.remove("app__offline");
+        menuHeader.style.background = "#1E88E5";
+      } else {
+        rjdci.toast("You are now offline..");
+        header.classList.add("app__offline");
+        menuHeader.style.background = "#9E9E9E";
+      }
+    };
     if (!navigator.onLine) {
       updateNetworkStatus();
     }
 
     window.addEventListener("online", updateNetworkStatus, false);
     window.addEventListener("offline", updateNetworkStatus, false);
-  });
-
-  //To update network status
-  function updateNetworkStatus() {
-    if (navigator.onLine) {
-      header.classList.remove("app__offline");
-      menuHeader.style.background = "#1E88E5";
-    }
-    else {
-      rjdci.toast("You are now offline..");
-      header.classList.add("app__offline");
-      menuHeader.style.background = "#9E9E9E";
-    }
-  }
-// End offline
-// Start navigatation
-  let menuIconElement = document.querySelector(".header__icon"),
+    // Start navigatation
+    let menuIconElement = document.querySelector(".header__icon"),
       menuElement = document.querySelector(".menu"),
       menuOverlayElement = document.querySelector(".menu__overlay"),
       subscriptionButton = document.querySelector(".fab__push");
-  //Menu click event
-  menuIconElement.addEventListener("click", showMenu, false);
-  menuOverlayElement.addEventListener("click", hideMenu, false);
-  Array.from(document.querySelectorAll(".menu__list li")).forEach(element => { element.addEventListener("click", hideMenu, false); } );
-  if (subscriptionButton !== null) subscriptionButton.addEventListener("click", hideMenu, false);
-  //To show menu
-  function showMenu() {
-    let canvasTest = document.querySelector("#signature-pad");
-    if (canvasTest !== null) return false;
-    if (document.querySelector("header").classList.contains("loggedout")) return false;
-    let newUpdate = document.querySelector("#newUpdate");
-    if (newUpdate !== null) {
-      if (!newUpdate.classList.contains("hide")) newUpdate.classList.add("hide");
-    }
-    menuElement.style.transform = "translateX(0)";
-    menuElement.classList.add("menu--show");
-    menuOverlayElement.classList.add("menu__overlay--show");
-  }
-  //To hide menu
-  function hideMenu() {
-    menuElement.style.transform = "translateX(-110%)";
-    menuElement.classList.remove("menu--show");
-    menuOverlayElement.classList.remove("menu__overlay--show");
-  }
-// End navigation
-  domready(() => {
-    let noData = false;
-    // assign data-values to navigation links
-    rjdci.assignLinkValues();
-
+    //To show menu
+    showMenu = () => {
+      let canvasTest = document.querySelector("#signature-pad");
+      if (canvasTest !== null) return false;
+      if (document.querySelector("header").classList.contains("loggedout")) return false;
+      let newUpdate = document.querySelector("#newUpdate");
+      if (newUpdate !== null) {
+        if (!newUpdate.classList.contains("hide")) newUpdate.classList.add("hide");
+      }
+      menuElement.style.transform = "translateX(0)";
+      menuElement.classList.add("menu--show");
+      menuOverlayElement.classList.add("menu__overlay--show");
+    };
+    //To hide menu
+    hideMenu = () => {
+      menuElement.style.transform = "translateX(-110%)";
+      menuElement.classList.remove("menu--show");
+      menuOverlayElement.classList.remove("menu__overlay--show");
+    };
+    //Menu click event
+    menuIconElement.addEventListener("click", showMenu, false);
+    menuOverlayElement.addEventListener("click", hideMenu, false);
+    Array.from(document.querySelectorAll(".menu__list li")).forEach(element => { element.addEventListener("click", hideMenu, false); } );
+    if (subscriptionButton !== null) subscriptionButton.addEventListener("click", hideMenu, false);
+    // End navigation
     document.querySelector("#logoutLink button").addEventListener("click", eve => {
       eve.preventDefault();
       rjdci.logout();
@@ -3751,11 +3725,15 @@
       });
     }
 
-    Array.from(document.querySelectorAll(".menu__list li")).forEach( element => { element.addEventListener("click", () => { if (element.querySelector("a")) rjdciSwipe.slide(element.querySelector("a").getAttribute("data-value"), 300); }) });
+    Array.from(document.querySelectorAll(".menu__list li")).forEach( element => {
+      element.addEventListener("click", () => {
+        if (element.querySelector("a")) rjdci.Swipe.slide(element.querySelector("a").getAttribute("data-value"), 300);
+      });
+    });
 
     document.querySelector(".header__icon").addEventListener("click", () => {
       let target1 = document.querySelector("#sig"),
-          target2 = document.querySelector("#confirmLogin");
+        target2 = document.querySelector("#confirmLogin");
       if (target1 !== null || (target2.offsetWidth > 0 && target2.offsetHeight > 0)) return false;
     });
 
@@ -3774,22 +3752,20 @@
         }
       });
       if (breakFunction === true) return false;
-      let ele = document.createElement("span");
-      ele.classList.add("ellipsis");
-      ele.innerHTML = ".";
+      let ellipsis = make([ "span", { class: "ellipsis" }, "." ]),
+        forward = true,
+        dots = setInterval(() => {
+          if (forward === true) {
+            ellipsis.innerHTML += "..";
+            forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
+          }
+          if (forward === false) {
+            ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+            forward = ellipsis.innerHTML.length === 1;
+          }
+        }, 500),
+        data = {};
       document.querySelector("#confirmMessage").appendChild(ele);
-      let forward = true,
-          dots = setInterval(() => {
-        if (forward === true) {
-          ele.innerHTML += "..";
-          forward = ele.innerHTML.length < 21 && ele.innerHTML.length != 1;
-        }
-        if (forward === false) {
-          ele.innerHTML = ele.innerHTML.substr(0,ele.innerHTML.length - 2);
-          forward = ele.innerHTML.length === 1;
-        }
-      }, 500);
-      let data = {};
       data.clientID = document.querySelector("#uid").value;
       data.upw = document.querySelector("#upw").value;
       data.mobile = document.querySelector("#mobile").value;
@@ -3821,7 +3797,7 @@
         if (loginResult.indexOf("error") === - 1 && loginResult.indexOf("Invalid Credentials") === - 1) {
           document.querySelector("#confirmMessage").innerHTML = "User Confirmed";
           setTimeout(() => {
-            document.querySelector("#confirmMessage").innerHTML = "";
+            clearElement(document.querySelector("#confirmMessage"));
             document.querySelector("#confirmLogin").classList.add("hide");
             if (document.querySelector("#function").value !== "") {
               let func = document.querySelector("#function").value;
@@ -3837,7 +3813,7 @@
       .catch(error => {
         clearInterval(dots);
         document.querySelector("#confirmMessage").innerHTML = '<span class="error">Error</span>: ' + error.message;
-        setTimeout(() => { document.querySelector("#confirmMessage").innerHTML = ""; }, 4000);
+        setTimeout(() => { clearElement(document.querySelector("#confirmMessage")); }, 4000);
       });
     });
 
@@ -3845,4 +3821,4 @@
       window.location.assign("./logout");
     });
   });
-})();
+}( window.rjdci = window.rjdci || {} ));

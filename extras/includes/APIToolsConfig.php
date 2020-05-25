@@ -118,6 +118,7 @@
         ]
       ],
       'all' => [
+        [null, null, '//cdn.jsdelivr.net/gh/lyfeyaj/swipe/swipe.js'],
         [null, null, '../app_js/app.min.js']
       ],
       'client' => [
