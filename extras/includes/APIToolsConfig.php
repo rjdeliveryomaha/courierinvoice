@@ -99,18 +99,22 @@
     'extend' => [
       'css' => [
         'client' => [
-          '../style/client.css'
+          '../style/client.css',
+          '../style/style_addons.css'
         ],
         'org' => [
-          '../style/client.css'
+          '../style/client.css',
+          '../style/style_addons.css'
         ],
         'driver' => [
           '../style/client.css',
-          '../style/driver.css'
+          '../style/driver.css',
+          '../style/style_addons.css'
         ],
         'dispatch' => [
           '../style/client.css',
-          '../style/driver.css'
+          '../style/driver.css',
+          '../style/style_addons.css'
         ]
       ],
       'all' => [

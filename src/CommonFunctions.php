@@ -1002,14 +1002,14 @@
     private function customize()
     {
       $spinner = '
-            <div class="showbox">
-              <!-- New spinner from http://codepen.io/collection/HtAne/ -->
-              <div class="loader">
-                <svg class="circular" viewBox="25 25 50 50">
-                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/>
-                </svg>
-              </div>
-            </div>';
+      <div class="loader">
+        <div class="face">
+          <div class="circle"></div>
+        </div>
+        <div class="face">
+          <div class="circle"></div>
+        </div>
+      </div>';
       if (is_numeric($_SESSION['ulevel'])) {
         $type = ($_SESSION['ulevel'] > 0) ? 'client' : 'org';
         $type .= ($this->ClientID === 0) ? '0' : '';
