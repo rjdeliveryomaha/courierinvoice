@@ -402,7 +402,7 @@
     })
     .then(data => {
       if (data.indexOf("Session Error") !== -1) {
-        document.querySelector("#function").value = "refreshRoute";
+        document.querySelector("#function").value = "rjdci.refreshRoute";
         return rjdci.showLogin();
       }
       document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
@@ -472,7 +472,7 @@
     })
     .then(data => {
       if (data.indexOf("Session Error") !== -1) {
-        document.querySelector("#function").value = "refreshOnCall";
+        document.querySelector("#function").value = "rjdci.refreshOnCall";
         return rjdci.showLogin();
       }
       document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
@@ -531,7 +531,7 @@
     })
     .then(data => {
       if (data.indexOf("Session Error") !== -1) {
-        document.querySelector("#function").value = "refreshTicketForm";
+        document.querySelector("#function").value = "rjdci.refreshTicketForm";
         return rjdci.showLogin();
       }
       document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
@@ -590,7 +590,7 @@
     })
     .then(data => {
       if (data.indexOf("Session Error") !== -1) {
-        document.querySelector("#function").value = "refreshDispatch";
+        document.querySelector("#function").value = "rjdci.refreshDispatch";
         return rjdci.showLogin();
       }
       document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
@@ -661,7 +661,7 @@
     })
     .then(data => {
       if (data.indexOf("Session Error") !== -1) {
-        document.querySelector("#function").value = "refreshTransfers";
+        document.querySelector("#function").value = "rjdci.refreshTransfers";
         return rjdci.showLogin();
       }
       document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
