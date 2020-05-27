@@ -545,6 +545,7 @@
         workspace.removeChild(localSpinner);
         workspace.appendChild(docFrag);
         workspace.appendChild(target);
+        rjdci.updateMap({ mapDivID: "map" });
         rjdci.assignListeners();
         document.dispatchEvent(rjdci.refreshedTicketEntry);
       }, 2000);
@@ -794,7 +795,6 @@
     navigator.permissions.query({name: "geolocation"}).then(PermissionStatus => {
       let options = { enableHighAccuracy: true, timeout: 25000, maximumAge: 0},
         success = pos => {
-          console.log(pos);
           success_count++;
           if (success_count > 1) {
             result = (result && result.coords.accuracy < pos.coords.accuracy) ? result : pos;
