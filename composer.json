@@ -15,7 +15,7 @@
   "require": {
     "php": ">=7.0",
     "ext-curl": "*",
-    "phpmailer/phpmailer": "~6.0.0",
+    "phpmailer/phpmailer": "^6.1.6",
     "willdurand/geocoder": "^4.0",
     "geocoder-php/chain-provider": "^4.0",
     "php-http/guzzle6-adapter": "^1.1"
