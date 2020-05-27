@@ -149,7 +149,7 @@
       if (result.ok) {
         return result.text();
       } else {
-        throw new Error(result.status + " " + result.statusText);
+        throw new Error(`${result.status} ${result.statusText}`);
       }
     })
     .then(data => {
@@ -397,7 +397,7 @@
       if (result.ok) {
         return result.text();
       } else {
-        throw new Error(result.status + " " + result.statusText);
+        throw new Error(`${result.status} ${result.statusText}`);
       }
     })
     .then(data => {
@@ -467,7 +467,7 @@
       if (result.ok) {
         return result.text();
       } else {
-        throw new Error(result.status + " " + result.statusText);
+        throw new Error(`${result.status} ${result.statusText}`);
       }
     })
     .then(data => {
@@ -526,7 +526,7 @@
       if (result.ok) {
         return result.text();
       } else {
-        throw new Error(result.status + " " + result.statusText);
+        throw new Error(`${result.status} ${result.statusText}`);
       }
     })
     .then(data => {
@@ -585,7 +585,7 @@
       if (result.ok) {
         return result.text();
       } else {
-        throw new Error(result.status + " " + result.statusText);
+        throw new Error(`${result.status} ${result.statusText}`);
       }
     })
     .then(data => {
@@ -656,7 +656,7 @@
       if (result.ok) {
         return result.text();
       } else {
-        throw new Error(result.status + " " + result.statusText);
+        throw new Error(`${result.status} ${result.statusText}`);
       }
     })
     .then(data => {
@@ -737,7 +737,7 @@
       if (result.ok) {
         return result.text();
       } else {
-        throw new Error(result.status + " " + result.statusText);
+        throw new Error(`${result.status} ${result.statusText}`);
       }
     })
     .then(data => {
@@ -843,7 +843,7 @@
             if (result.ok) {
               return result.text();
             } else {
-              throw new Error(result.status + " " + result.statusText);
+              throw new Error(`${result.status} ${result.statusText}`);
             }
           })
           .then(data => {
@@ -954,7 +954,7 @@
       if (result.ok) {
         return result.text();
       } else {
-        throw new Error(result.status + " " + result.statusText);
+        throw new Error(`${result.status} ${result.statusText}`);
       }
     })
     .then(data => {
@@ -1054,7 +1054,7 @@
       if (result.ok) {
         return result.text();
       } else {
-        throw new Error(result.status + " " + result.statusText);
+        throw new Error(`${result.status} ${result.statusText}`);
       }
     })
     .then(data => {
@@ -1131,7 +1131,7 @@
       if (result.ok) {
         return result.text();
       } else {
-        throw new Error(result.status + " " + result.statusText);
+        throw new Error(`${result.status} ${result.statusText}`);
       }
     })
     .then(data => {
@@ -1217,7 +1217,7 @@
       if (result.ok) {
         return result.text();
       } else {
-        throw new Error(result.status + " " + result.statusText);
+        throw new Error(`${result.status} ${result.statusText}`);
       }
     })
     .then(data => {
@@ -1313,7 +1313,7 @@
       if (result.ok) {
         return result.text();
       } else {
-        throw new Error(result.status + " " + result.statusText);
+        throw new Error(`${result.status} ${result.statusText}`);
       }
     })
     .then(data => {
@@ -1410,7 +1410,7 @@
       if (result.ok) {
         return result.text();
       } else {
-        throw new Error(result.status + " " + result.statusText);
+        throw new Error(`${result.status} ${result.statusText}`);
       }
     })
     .then(data => {
@@ -1511,7 +1511,7 @@
       if (result.ok) {
         return result.text();
       } else {
-        throw new Error(result.status + " " + result.statusText);
+        throw new Error(`${result.status} ${result.statusText}`);
       }
     })
     .then(data => {
@@ -1588,7 +1588,7 @@
         if (result.ok) {
           return result.text();
         } else {
-          throw new Error(result.status + " " + result.statusText);
+          throw new Error(`${result.status} ${result.statusText}`);
         }
       })
       .then(data => {
@@ -1808,7 +1808,7 @@
             if (result.ok) {
               return result.text();
             } else {
-              throw new Error(result.status + " " + result.statusText);
+              throw new Error(`${result.status} ${result.statusText}`);
             }
         })
         .then(data => {
@@ -1949,7 +1949,7 @@
           if (result.ok) {
             return result.text();
           } else {
-            throw new Error(result.status + " " + result.statusText);
+            throw new Error(`${result.status} ${result.statusText}`);
           }
         })
         .then(data => {
@@ -2136,7 +2136,7 @@
             if (result.ok) {
               return result.text();
             } else {
-              throw new Error(result.status + " " + result.statusText);
+              throw new Error(`${result.status} ${result.statusText}`);
             }
           })
           .then(data => {
@@ -2307,7 +2307,7 @@
             if (result.ok) {
               return result.text();
             } else {
-              throw new Error(result.status + " " + result.statusText);
+              throw new Error(`${result.status} ${result.statusText}`);
             }
           })
           .then(data => {
@@ -2490,7 +2490,7 @@
             if (result.ok) {
               return result.text();
             } else {
-              throw new Error(result.status + " " + result.statusText);
+              throw new Error(`${result.status} ${result.statusText}`);
             }
           })
           .then(data => {
@@ -2561,7 +2561,7 @@
             if (result.ok) {
               return result.text();
             } else {
-              throw new Error(result.status + " " + result.statusText);
+              throw new Error(`${result.status} ${result.statusText}`);
             }
           })
           .then(data => {
@@ -2648,7 +2648,7 @@
           if (result.ok) {
             return result.text();
           } else {
-            throw new Error(result.status + " " + result.statusText);
+            throw new Error(`${result.status} ${result.statusText}`);
           }
         })
         .then(data => {
@@ -2759,7 +2759,7 @@
           if (result.ok) {
             return result.text();
           } else {
-            throw new Error(result.status + " " + result.statusText);
+            throw new Error(`${result.status} ${result.statusText}`);
           }
         })
         .then(data => {
@@ -2831,7 +2831,7 @@
           if (result.ok) {
             return result.text();
           } else {
-            throw new Error(result.status + " " + result.statusText);
+            throw new Error(`${result.status} ${result.statusText}`);
           }
         })
         .then(data => {
@@ -2895,7 +2895,7 @@
           if (result.ok) {
             return result.text();
           } else {
-            throw new Error(result.status + " " + result.statusText);
+            throw new Error(`${result.status} ${result.statusText}`);
           }
         })
         .then(data => {
@@ -2964,7 +2964,7 @@
           if (result.ok) {
             return result.text();
           } else {
-            throw new Error(result.status + " " + result.statusText);
+            throw new Error(`${result.status} ${result.statusText}`);
           }
         })
         .then(data => {
@@ -3513,7 +3513,7 @@
         if (result.ok) {
           return result.text();
         } else {
-          throw new Error(result.status + " " + result.statusText);
+          throw new Error(`${result.status} ${result.statusText}`);
         }
       })
       .then(data => {
@@ -3577,7 +3577,7 @@
           if (result.ok) {
             return result.text();
           } else {
-            throw new Error(result.status + " " + result.statusText);
+            throw new Error(`${result.status} ${result.statusText}`);
           }
         })
         .then(data => {
@@ -3776,7 +3776,7 @@
         if (result.ok) {
           return result.text();
         } else {
-          throw new Error(result.status + " " + result.statusText);
+          throw new Error(`${result.status} ${result.statusText}`);
         }
       })
       .then(async newKey => {
