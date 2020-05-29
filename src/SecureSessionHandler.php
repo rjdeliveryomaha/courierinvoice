@@ -81,26 +81,47 @@ class SecureSessionHandler extends \SessionHandler
   protected static function create_session($config)
   {
     if (session_status() === PHP_SESSION_ACTIVE) return false;
-    if (ini_set('session.use_only_cookies', 1) === false) throw new \Exception('Session Error: use only cookies failed');
-    if (ini_set('session.use_strict_mode', 1) === false) throw new \Exception('Session Error: use strict mode failed');
+    if (ini_set('session.use_only_cookies', 1) === false)
+      throw new \Exception('Session Error: use only cookies failed');
+    if (ini_set('session.use_strict_mode', 1) === false)
+      throw new \Exception('Session Error: use strict mode failed');
     $secure = $config['secure'] ?? 0;
-    if (ini_set('session.cookie_secure', $secure) === false) throw new \Exception('Session Error: cookie secure failed');
-    if (ini_set('session.use_trans_sid', 0) === false) throw new \Exception('Session Error: use trans id failed');
+    if (ini_set('session.cookie_secure', $secure) === false)
+      throw new \Exception('Session Error: cookie secure failed');
+    if (ini_set('session.use_trans_sid', 0) === false)
+      throw new \Exception('Session Error: use trans id failed');
     $domain = $config['domain'] ?? false;
     if (!$domain || $domain === '') $domain = $_SERVER['SERVER_NAME'];
     $session_name = $config['session_name'] ?? false;
-    if (!$session_name || $session_name === '' || is_numeric($session_name)) throw new \Exception('Session Error: Invalid session name');
+    if (!$session_name || $session_name === '' || is_numeric($session_name))
+      throw new \Exception('Session Error: Invalid session name');
     $lifetime = $config['lifetime'] ?? 8 * 60 * 60;
     $path = $config['path'] ?? '/';
+    $samesiteVals = [ 'None', 'Lax', 'Strict' ];
+    $samesite = $config['samesite'] ?? 'Lax';
+    if (!in_array($samesite, $samesiteVals)) $samesite = 'Lax';
     session_name($session_name);
     //Set session parameters
-    session_set_cookie_params(
-      $lifetime,
-      $path,
-      $domain,
-      $secure,
-      true
-    );
+    if (PHP_VERSION_ID < 70300) {
+      session_set_cookie_params(
+        $lifetime,
+        "$path; samesite=$samesite",
+        $domain,
+        $secure,
+        true
+      );
+    } else {
+      session_set_cookie_params(
+        [
+          'lifetime' => $lifetime,
+          'path' => $path,
+          'samesite' => $samesite,
+          'domain' => $domain,
+          'secure'=> $secure,
+          'httponly' => true
+        ]
+      );
+    }
     session_start();
   }
 
@@ -110,7 +131,7 @@ class SecureSessionHandler extends \SessionHandler
 
     if ($_SESSION['IPaddress'] != $_SERVER['REMOTE_ADDR']) return false;
 
-    if( $_SESSION['userAgent'] != $_SERVER['HTTP_USER_AGENT']) return false;
+    if($_SESSION['userAgent'] != $_SERVER['HTTP_USER_AGENT']) return false;
 
     return true;
   }

@@ -14,6 +14,8 @@
 
     'path' => '/',
 
+    'samesite' => 'Lax',
+
     'https' => 0,
 
     'alternateHijackingTest' => false,

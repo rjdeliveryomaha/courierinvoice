@@ -46,6 +46,14 @@ Path on the domain where the cookie will work. Use a single slash ('/') for all 
 
 Default '/'.
 
+### samesite
+
+String
+
+Can be set to 'None', 'Lax', or 'Strict'.
+
+Default 'Lax'.
+
 ### secure
 
 Boolean
