@@ -656,6 +656,9 @@
       // Set new keys 1) using client name, department, address1, and schedule time for grouping tickets,
       // 2) indicating what step the ticket is on to ease processing.
       foreach ($this->activeTicketSet as $ticket) {
+        if (!isset($ticket['ReadyDate'])) {
+          $ticket['ReadyDate'] = "{$this->dateObject->format('Y-m-d')} {$ticket['pTime']}";
+        }
         $readyObj = new \dateTime($ticket['ReadyDate']);
         if ($ticket['pTimeStamp'] === $this->tTest) {
           $ticket['locationTest'] =
