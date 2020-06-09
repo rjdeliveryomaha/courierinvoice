@@ -870,7 +870,7 @@
       }
       foreach ($this->activeTicketSet as $test) {
         $test['processTransfer'] = $this->processTransfer;
-        if ($test['Contract'] === 1) {
+        if (self::test_bool($test['Contract']) === true) {
           $this->contractTicketSet[] = $test;
         } else {
           $this->singleLocation[] = $test;
