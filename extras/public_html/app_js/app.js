@@ -472,7 +472,7 @@
     })
     .then(data => {
       if (data.indexOf("Session Error") !== -1) {
-        document.querySelector("#function").value = "refreshOnCall";
+        document.querySelector("#function").value = "rjdci.refreshOnCall";
         return rjdci.showLogin();
       }
       document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
@@ -1006,8 +1006,9 @@
       multiTicket = [],
       data = {},
       locationData = { step: [], ticket_index: [] },
-      workspace = rjdci.getClosest(eve.target, ".message2"),
       ticketGroup = rjdci.getClosest(eve.target, ".sortable"),
+      nodes = ticketGroup.querySelectorAll(".message2"),
+      workspace = nodes[nodes.length - 1],
       ellipsis = make([ "span", { class: "ellipsis" }, "." ]),
       sigTest = ticketGroup.querySelector(".printName");
     if (sigTest.required === true && sigTest.value === "") {
@@ -1171,7 +1172,7 @@
   };
 
   getTransferTicket = form => {
-    let element = make([ "button", { type: "button", class: "confirmTransfer", form: form }, "Confirm" ]);
+    let element = make([ "button", { type: "button", class: "confirmTransfer" }, "Confirm" ]);
     element.addEventListener("click", rjdci.transferTicket);
     return element;
   };
@@ -1259,8 +1260,8 @@
     });
   };
 
-  getTransferGroup = form => {
-    let element = make([ "button", { type: "button", class: "confirmAcceptTransferGroup", form: form }, "Confirm" ]);
+  getTransferGroup = () => {
+    let element = make([ "button", { type: "button", class: "confirmAcceptTransferGroup" }, "Confirm" ]);
     element.addEventListener("click", rjdci.transferGroup);
     return element;
   };
@@ -1269,8 +1270,9 @@
     let multiTicket = [],
       data = {},
       postData = {},
-      workspace = rjdci.getClosest(eve.target, ".message2"),
       ticketGroup = rjdci.getClosest(eve.target, ".sortable"),
+      nodes = ticketGroup.querySelectorAll(".message2"),
+      workspace = nodes[nodes.length - 1],
       ellipsis = make([ "span", { class: "ellipsis" }, "." ]);
     pendingReceiver = workspace.querySelector(".pendingReceiver").value;
     if (!pendingReceiver) {
@@ -1321,7 +1323,7 @@
       if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
       document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
       if(data.indexOf("error") === - 1) {
-        workform.removeChild(ellipsis);
+        workspace.removeChild(ellipsis);
         let newDom = parser.parseFromString(data, "text/html"),
           docFrag = document.createDocumentFragment();
         Array.from(newDom.querySelectorAll(".result")).forEach(element => {
@@ -1466,8 +1468,9 @@
       contractFlag = true,
       ticketData = {},
       postData = {},
-      workspace = rjdci.getClosest(eve.target, ".message2"),
       ticketGroup = rjdci.getClosest(eve.target, ".sortable"),
+      nodes = ticketGroup.querySelectorAll(".message2"),
+      workspace = nodes[nodes.length - 1],
       ellipsis = make([ "span", { class: "ellipsis" }, "." ]);
     postData.multiTicket = [];
     postData.formKey = document.querySelector("#formKey").value;
@@ -1639,7 +1642,8 @@
         eve.preventDefault();
         let page = rjdci.getClosest(eve.target, ".page"),
           ticket = rjdci.getClosest(eve.target, ".sortable"),
-          container = ticket.querySelector(".message2");
+          nodes = ticket.querySelectorAll(".message2"),
+          container = nodes[nodes.length - 1];
         Array.from(page.querySelectorAll(".cancelThis")).forEach(elem => {
           rjdci.triggerEvent(elem, "click");
         });
@@ -1690,7 +1694,7 @@
           elem.disabled = true;
         });
         container.appendChild(make([ "p", `Confirm ${eve.target.innerText}` ]));
-        container.appendChild(getTransferTicket(eve.target.getAttribute("form")));
+        container.appendChild(getTransferTicket());
         container.appendChild(make(
           [
             "input",
@@ -1706,7 +1710,8 @@
         eve.preventDefault();
         let page = rjdci.getClosest(eve.target, ".page"),
           ticket = rjdci.getClosest(eve.target, ".sortable"),
-          container = ticket.querySelector(".message2");
+          nodes = ticket.querySelectorAll(".message2"),
+          container = nodes[nodes.length - 1];
         Array.from(page.querySelectorAll(".cancelThis")).forEach(elem => {
           rjdci.triggerEvent(elem, "click");
         });
@@ -1757,7 +1762,8 @@
         let testArr = [ "acceptTransferGroup", "declineTransferGroup", "cancelTransferGroup" ],
           page = rjdci.getClosest(eve.target, ".page"),
           ticket = rjdci.getClosest(eve.target, ".sortable"),
-          container = ticket.querySelector("p.message2"),
+          nodes = ticket.querySelectorAll(".message2"),
+          container = nodes[nodes.length - 1],
           confirmType;
         Array.from(page.querySelectorAll(".cancelThis")).forEach(elem => {
           rjdci.triggerEvent(elem, "click");
@@ -3765,7 +3771,7 @@
           }
         }, 500),
         data = {};
-      document.querySelector("#confirmMessage").appendChild(ele);
+      document.querySelector("#confirmMessage").appendChild(ellipsis);
       data.clientID = document.querySelector("#uid").value;
       data.upw = document.querySelector("#upw").value;
       data.mobile = document.querySelector("#mobile").value;
