@@ -38,7 +38,10 @@
                 if (element) document.querySelector(".pageTitle").appendChild(element);
               }
             } else {
-              let newElement = make([ "span", document.querySelector("a.nav[data-id='" + page.id + "']").innerHTML ]);
+              let newElement = make([ "span" ]);
+              Array.from(document.querySelector("a.nav[data-id='" + page.id + "']").childNodes).forEach(ele => {
+                newElement.appendChild(ele.cloneNode(true));
+              });
               clearElement(document.querySelector(".pageTitle"));
               document.querySelector(".pageTitle").appendChild(newElement);
             }
