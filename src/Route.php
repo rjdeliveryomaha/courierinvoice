@@ -501,6 +501,7 @@
     {
       $this->startDateObject = clone $this->dateObject;
       for ($i = 0; $i < count($this->runList); $i++) {
+        $this->runList[$i]['ReadyDate'] = "{$this->dateObject->format('Y-m-d')} {$this->runList[$i]['pTime']}";
         if (isset($this->runList[$i]['Rescheduled'])) {
           $this->newTickets[] = $this->runList[$i];
           continue;
@@ -533,8 +534,6 @@
               }
             }
             if ($this->add === true) {
-              $this->runList[$i]['ReadyDate'] =
-                "{$this->dateObject->format('Y-m-d')} {$this->runList[$i]['pTime']}";
               $this->newTickets[] = $this->runList[$i];
             }
           }
