@@ -381,7 +381,7 @@ Entries are indexed arrays with the following content:
 
 Index 0 will be added, as is, to the menu. It will then have any HTML tags striped, be converted to lowercase, spaces replaced with underscore and used as the id attribute of a ` div.page `.
 
-Index 1, if set and not null or an empty string, will be looked for first as a method in the Ticket, Route, Invoice, and Client classes then as a function in ../../includes/user_functions.php to populate the page. This function should ` return ` __not__ ` echo ` HTML content.
+Index 1, if set and not null or an empty string, will be looked for first as a method in the Ticket, Route, Invoice, and Client classes then as a function in ../../includes/user_functions.php to populate the page. This function should ` return ` __not__ ` echo ` HTML content. The parent container of custom content __must__ have the class "result" in order to be selected by the function that initially populates the app.
 
 Index 2, if set and not null or an empty string, will be added as the src of a script element.
 

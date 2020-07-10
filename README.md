@@ -1482,7 +1482,7 @@ This is an extendable drop-in implementation of this set of classes using vanill
 
 Functionality is enclosed in a global variable: ` rjdci `.
 
-The [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API#Browser_compatibility) is used extensively and a template is provided. This will retry a call failing due to network issues 20 times waiting ` n * 250 ` milliseconds between calls where n is the retry count. The Content-Type header is left generic for versatility. As a result the PHP ` $_POST ` super global is not populated; data must be read from the stream.
+The [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API#Browser_compatibility) is used extensively and a template is provided. This will retry a call failing due to network issues 20 times waiting ` n * 250 ` milliseconds between calls where n is the retry count. If the Content-Type header is not defined and the postData property has a length greater than 0 the Content-Type will be set to "application/json". As a result the PHP ` $_POST ` super global is not populated; data must be read from the stream.
 
 Ex:
 
@@ -1491,13 +1491,17 @@ Ex:
 ```
 
 ```javascript
-  rjdci.fetch_template = async ({ url, postData = {}, method = "POST", retry = 0 }) => {
+  rjdci.fetch_template = async ({ url, method = "POST", headers = {}, postData = {}, retry = 0 }) => {
     if (!url) throw new Error("URL not defined");
     let fetchOptions = {
-        method: method.toUpperCase()
+        method: method.toUpperCase(),
+        headers: headers
       };
     if (Object.keys(postData).length > 0) {
-      fetchOptions.headers = { "Content-Type": "application/json" }
+      if (!headers.hasOwnProperty("Content-Type")) {
+        fetchOptions.headers["Content-Type"] = "application/json";
+      }
+      fetchOptions.method = "POST";
       fetchOptions.body = JSON.stringify(postData);
     }
     try {

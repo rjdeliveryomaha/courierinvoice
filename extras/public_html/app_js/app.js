@@ -262,13 +262,16 @@
 
   pause = duration => { return new Promise(resolve => setTimeout(resolve, duration)) };
 
-  rjdci.fetch_template = async({ url, postData = {}, method = "POST", retry = 0 }) => {
+  rjdci.fetch_template = async({ url, method = "POST", headers = {}, postData = {}, retry = 0 }) => {
     if (!url) throw new Error("URL not defined");
     let fetchOptions = {
-        method: method.toUpperCase()
+        method: method.toUpperCase(),
+        headers: headers
       };
     if (Object.keys(postData).length > 0) {
-      fetchOptions.headers = { "Content-Type": "application/json" }
+      if (!headers.hasOwnProperty("Content-Type")) {
+        fetchOptions.headers["Content-Type"] = "application/json";
+      }
       fetchOptions.body = JSON.stringify(postData);
     }
     try {
@@ -725,7 +728,14 @@
   };
 
   rjdci.populatePage = async () => {
-    let funcs = [];
+    let funcs = [],
+      knownElements = [
+        ".sortable", "#ticketEditor", "#ticketEditorResultContainer", "datalist", "#javascriptVars",
+        "#deliveryRequest", ".subContainer", ".PWcontainer", "#ticketQueryOptions", "#ticketQueryResults",
+        "#invoiceQueryOptions", "#invoiceQueryResults", "#priceContainer", "#clientUpdateForm", ".result"
+      ],
+      docFrag = document.createDocumentFragment(),
+      newDom;
     Array.from(document.querySelectorAll(".page")).forEach((element, index) => {
       if (element.getAttribute("data-function") !== undefined && element.getAttribute("data-function") !== "") {
         funcs.push(element.getAttribute("data-function"));
@@ -759,7 +769,16 @@
       }
       for (let i = 0; i < obj.length; i++) {
         document.querySelectorAll(".page").forEach((elem, index) => {
-          if (Number(elem.getAttribute("data-index")) === i) elem.innerHTML = obj[i];
+          if (Number(elem.getAttribute("data-index")) === i) {
+            clearElement(elem);
+            newDom = parser.parseFromString(obj[i], "text/html");
+            nodeList = newDom.querySelectorAll(knownElements.toString());
+            for (node of nodeList) {
+              docFrag.appendChild(node);
+            }
+            elem.appendChild(docFrag);
+            clearElement(docFrag);
+          }
         });
       }
       scrollTo(0,0);
@@ -1814,11 +1833,11 @@
         await rjdci.fetch_template({ url: "./activeTickets.php", postData: postData })
         .then(result => {
           if (typeof result === "undefined") throw new Error("Result Undefined");
-            if (result.ok) {
-              return result.text();
-            } else {
-              throw new Error(`${result.status} ${result.statusText}`);
-            }
+          if (result.ok) {
+            return result.text();
+          } else {
+            throw new Error(`${result.status} ${result.statusText}`);
+          }
         })
         .then(data => {
           clearInterval(dots);
