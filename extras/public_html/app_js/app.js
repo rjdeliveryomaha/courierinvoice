@@ -272,6 +272,7 @@
       if (!headers.hasOwnProperty("Content-Type")) {
         fetchOptions.headers["Content-Type"] = "application/json";
       }
+      fetchOptions.method = "POST";
       fetchOptions.body = JSON.stringify(postData);
     }
     try {
@@ -583,7 +584,7 @@
     document.querySelector("#dispatch").appendChild(localSpinner);
     scrollTo(0,0);
     await rjdci.fetch_template({
-      url: "./refreshDispatch.php",
+      url: "../drivers/refreshDispatch.php",
       postData: { formKey: document.querySelector("#formKey").value }
     })
     .then(result => {
@@ -970,7 +971,7 @@
       case "returned": step = "d2"; break;
     }
     if (step) rjdci.deliveryLocation({ ticket_index: [ postData.ticket_index ], step: [ step ] });
-    await rjdci.fetch_template({ url: "./updateStep.php", postData: postData })
+    await rjdci.fetch_template({ url: "../drivers/updateStep.php", postData: postData })
     .then(result => {
       if (typeof result === "undefined") throw new Error("Result Undefined");
       if (result.ok) {
