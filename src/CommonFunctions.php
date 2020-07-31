@@ -337,7 +337,7 @@
 
     protected function writeLoop()
     {
-      $this->error .= PHP_EOL;
+      $this->error .= PHP_EOL . get_class($this) . PHP_EOL;
       $i = 0;
       do {
         $test = self::writeFile();

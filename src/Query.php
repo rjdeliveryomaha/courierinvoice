@@ -96,7 +96,6 @@
           $this->error = curl_error($this->ch);
           break;
       }
-      if ($this->enableLogging !== false) self::writeLoop();
     }
 
     private function orderParams()
@@ -171,7 +170,6 @@
                     implode(',', array_values($value[$i][$j])) : $value[$i][$j];
                 }
               }
-              self::writeLoop();
             }
           }
         }
@@ -260,6 +258,7 @@
       self::responseError();
       curl_close($this->ch);
       if ($this->error !== null) {
+        if ($this->enableLogging !== false) self::writeLoop();
         throw new \Exception($this->error);
       }
       return $this->result;

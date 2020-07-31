@@ -663,7 +663,6 @@
           $ticket['locationTest'] =
             "{$ticket['pClient']}{$ticket['pDepartment']}{$ticket['pAddress1']}{$readyObj->format('Y-m-dH:ia')}";
           $ticket['step'] = 'pickedUp';
-          self::sortTickets($ticket);
         } elseif ($ticket['pTimeStamp'] !== $this->tTest && $ticket['dTimeStamp'] === $this->tTest) {
           $dTimeArray = explode(':', $ticket['dTime']);
           $readyObj->setTime($dTimeArray[0], $dTimeArray[1], $dTimeArray[2]);
@@ -673,9 +672,9 @@
           $ticket['locationTest'] =
             "{$ticket['dClient']}{$ticket['dDepartment']}{$ticket['dAddress1']}{$readyObj->format('Y-m-dH:ia')}";
           $ticket['step'] = 'delivered';
-          self::sortTickets($ticket);
         } elseif ($ticket['pTimeStamp'] !== $this->tTest && $ticket['dTimeStamp'] !== $this->tTest) {
-          // Non round trip tickets with dTimeStamp !== $tTest will not have been returned from the database. No need to test the charge code.
+          // Non round trip tickets with dTimeStamp !== $tTest will not have been returned from the database.
+          // No need to test the charge code.
           $d2TimeArray = explode(':', $ticket['d2Time']);
           $readyObj->setTime($d2TimeArray[0], $d2TimeArray[1], $d2TimeArray[2]);
           if ($ticket['dTime'] > $ticket['d2Time']) {
@@ -684,8 +683,8 @@
           $ticket['locationTest'] =
             "{$ticket['pClient']}{$ticket['pDepartment']}{$ticket['pAddress1']}{$readyObj->format('Y-m-dH:ia')}";
           $ticket['step'] = 'returned';
-          self::sortTickets($ticket);
         }
+        self::sortTickets($ticket);
       }
       foreach ($this->ticketSet as $ticket) {
         if (!array_key_exists($ticket['locationTest'], $this->multiLocation)) {
