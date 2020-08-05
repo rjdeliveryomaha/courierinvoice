@@ -870,7 +870,7 @@
             }
           })
           .then(data => {
-            if (data.indexOf("Session Error") !== -1) throw new Error("Session Error");
+            if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
             document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
             if (data.indexOf("error") !== - 1) throw new Error(data);
             return rjdci.toast([ "Location Updated", "Tap to dismiss" ], toast_options);
@@ -1121,7 +1121,7 @@
   rjdci.confirmCancel = async eve => {
     eve.preventDefault();
     let postData = {},
-      cancelValues = [ 'ticket_index', 'notes', 'ticketBase' ],
+      cancelValues = [ "ticket_index", "notes", "ticketBase", "ticketNumber" ],
       workspace = rjdci.getClosest(eve.target, ".message2"),
       step,
       ellipsis = make([ "span", { class: "ellipsis" }, "." ]);
@@ -1685,7 +1685,7 @@
           page = rjdci.getClosest(eve.target, ".page"),
           ticket = rjdci.getClosest(eve.target, ".tickets"),
           container = ticket.querySelector(".message2"),
-          form = ticket.querySelector(".dTicket").getAttribute("form"),
+          form = eve.target.getAttribute("form"),
           confirmType;
         Array.from(page.querySelectorAll(".cancelThis")).forEach(elem => {
           rjdci.triggerEvent(elem, "click");

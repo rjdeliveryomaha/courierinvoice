@@ -2249,9 +2249,9 @@
         {$confirm}";
       if ($this->processTransfer === false) {
         $singleTicket .= "
-              <td><button type=\"button\" class=\"cancelRun {$buttonClass}\">Cancel</button></td>
-              <td><button type=\"button\" class=\"{$button2Class}\">{$button2Name}</button></td>
-              <td><button type=\"button\" class=\"transferTicket\">Transfer</button></td>";
+              <td><button type=\"button\" class=\"cancelRun {$buttonClass}\" form=\"ticketForm{$this->ticket_index}\">Cancel</button></td>
+              <td><button type=\"button\" class=\"{$button2Class}\" form=\"ticketForm{$this->ticket_index}\">{$button2Name}</button></td>
+              <td><button type=\"button\" class=\"transferTicket\" form=\"ticketForm{$this->ticket_index}\">Transfer</button></td>";
       } else {
         $singleTicket .= '
               <td></td>
@@ -2475,8 +2475,8 @@
         $multiTicket .= "<table class=\"tickets center\">
           <tfoot>
             <tr>
-              <td><button type=\"button\" class=\"{$buttonClass}\">{$buttonName}</button></td>
-              <td><button type=\"button\" class=\"{$button2Class}\">{$button2Name}</button></td>
+              <td><button type=\"button\" class=\"{$buttonClass}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\">{$buttonName}</button></td>
+              <td><button type=\"button\" class=\"{$button2Class}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\">{$button2Name}</button></td>
             </tr>
             <tr>
               <td colspan=\"2\" class=\"message2 center\" style=\"padding-top:0.5em\"></td>
@@ -4827,7 +4827,7 @@
         return false;
       }
       $marker = ($this->multiTicket === null) ? $this->TicketNumber : 'group';
-      echo "Ticket {$marker} {$answer}.";
+      echo "<p class=\"result\">Ticket {$marker} {$answer}.</p>";
       return false;
     }
   }
