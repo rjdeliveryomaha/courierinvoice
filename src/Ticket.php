@@ -4413,11 +4413,7 @@
             $micro_date = microtime();
             $date_array = explode(" ",$micro_date);
             $this->DispatchMicroTime = substr($date_array[0], 1, 7);
-            if (!$this->ReadyDate) {
-              $this->ReadyDate = $this->DispatchTimeStamp;
-            }
             $ticketUpdateData['payload'] = [
-              'ReadyDate'=>$this->ReadyDate,
               'DispatchTimeStamp'=>$this->DispatchTimeStamp,
               'DispatchMicroTime'=>$this->DispatchMicroTime,
               'DispatchedTo'=>$this->DispatchedTo,
