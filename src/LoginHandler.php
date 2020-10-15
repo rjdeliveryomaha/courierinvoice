@@ -373,7 +373,7 @@
         if ($this->result === false) {
           throw new \Exception($this->error);
         }
-        if (empty($this->configResult[0])) {
+        if (empty($this->result[0])) {
           throw new \Exception('Unable To Fetch Routes');
         }
         $_SESSION['config']['routes'] = $this->result;
