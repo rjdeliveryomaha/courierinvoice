@@ -142,11 +142,19 @@
     while (element.firstChild) element.removeChild(element.firstChild);
   };
 
-  rjdci.logout = count => {
+  rjdci.logout = async count => {
     let newCount = count || 0,
       typeTest = document.querySelector("#uid").value;
     if (!typeTest.match(/(driver|dispatch)\d+/)) return document.querySelector("#logoutLink").submit();
-    rjdci.fetch_template({ url: './logout', postData: { logout: 1, formKey: document.querySelector("#formKey").value } })
+    let postData = { logout: 1, formKey: document.querySelector("#formKey").value };
+    await rjdci.fetch_template({
+      url: './logout',
+      postData: postData,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Length": JSON.stringify(postData).length
+      }
+    })
     .then(result => {
       if (typeof result === "undefined") throw new Error("Result Undefined");
       if (result.ok) {
@@ -260,7 +268,7 @@
     return null;
   };
 
-  pause = duration => { return new Promise(resolve => setTimeout(resolve, duration)) };
+  rjdci.pause = duration => { return new Promise(resolve => setTimeout(resolve, duration)) };
 
   rjdci.fetch_template = async({ url, method = "POST", headers = {}, postData = {}, retry = 0 }) => {
     if (!url) throw new Error("URL not defined");
@@ -268,20 +276,39 @@
         method: method.toUpperCase(),
         headers: headers
       };
-    if (Object.keys(postData).length > 0) {
-      if (!headers.hasOwnProperty("Content-Type")) {
-        fetchOptions.headers["Content-Type"] = "application/json";
+    if (postData instanceof FormData || Object.keys(postData).length > 0) {
+      let body;
+      if (postData instanceof FormData) {
+        body = postData;
+        fetchOptions.headers["Content-Type"] &&
+        delete fetchOptions.headers["Content-Type"];
+        fetchOptions.headers["Content-Length"] &&
+        delete fetchOptions.headers["Content-Length"];
+      } else if (fetchOptions.headers["Content-Type"].indexOf("x-www-form-urlencoded") != -1) {
+        body = Object.entries(postData).map(([key, value]) =>
+          `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join("&");
+      } else {
+        body = JSON.stringify(postData);
+        if (!headers.hasOwnProperty("Content-Type")) {
+          fetchOptions.headers["Content-Type"] = "application/json";
+        }
       }
       fetchOptions.method = "POST";
-      fetchOptions.body = JSON.stringify(postData);
+      fetchOptions.body = body;
     }
     try {
       return await fetch(url, fetchOptions);
     } catch(err) {
       retry++;
       if (retry === 20) throw err;
-      await pause(250 * retry)
-      return await rjdci.fetch_template({ url: url, postData: postData, method: method, retry: retry });
+      await rjdci.pause(250 * retry)
+      return await rjdci.fetch_template({
+        url: url,
+        method: method,
+        headers: headers,
+        postData: postData,
+        retry: retry
+      });
     }
   };
 
@@ -314,7 +341,10 @@
   };
   // isTarget is called by datalist validation
   rjdci.isTarget = ele => {
-    let targets = [ "billTo", "dispatchedTo", "dispatchedByUser", "shippingCountry", "billingCountry", "pCountry", "dCountry" ];
+    let targets = [
+      "billTo", "dispatchedTo", "dispatchedByUser", "shippingCountry", "billingCountry",
+      "pCountry", "dCountry", "members"
+    ];
     for (let i = 0; i < targets.length; i++) {
       if (ele.classList.contains(targets[i])) return true;
     }
@@ -391,13 +421,18 @@
   };
 
   rjdci.refreshRoute = async () => {
-    let localSpinner = rjdci.getSpinner();
+    let localSpinner = rjdci.getSpinner(),
+      postData = { formKey: document.querySelector("#formKey").value };
     clearElement(document.querySelector("#route"));
     document.querySelector("#route").appendChild(localSpinner);
     scrollTo(0,0);
     await rjdci.fetch_template({
       url: "./refreshRoute.php",
-      postData: { formKey: document.querySelector("#formKey").value }
+      postData: postData,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Length": JSON.stringify(postData).length
+      }
     })
     .then(result => {
       if (typeof result === "undefined") throw new Error("Result Undefined");
@@ -461,13 +496,18 @@
 
   rjdci.refreshOnCall = async () => {
     let ticketCount = document.querySelector(".ticketCount").innerHTML,
-      localSpinner = rjdci.getSpinner();
+      localSpinner = rjdci.getSpinner(),
+      postData = { formKey: document.querySelector("#formKey").value };
     clearElement(document.querySelector("#on_call"));
     document.querySelector("#on_call").appendChild(localSpinner);
     scrollTo(0,0);
     await rjdci.fetch_template({
       url: "./refreshOnCall.php",
-      postData: { formKey: document.querySelector("#formKey").value }
+      postData: postData,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Length": JSON.stringify(postData).length
+      }
     })
     .then(result => {
       if (typeof result === "undefined") throw new Error("Result Undefined");
@@ -519,14 +559,19 @@
     let elem = document.querySelector("#deliveryRequest"),
       workspace = elem.parentNode;
       target = workspace.querySelector(".subContainer"),
-      localSpinner = rjdci.getSpinner();
+      localSpinner = rjdci.getSpinner(),
+      postData = { edit: 1, formKey: document.querySelector("#formKey").value };
     workspace.removeChild(target);
     workspace.removeChild(elem);
     workspace.appendChild(localSpinner);
     scrollTo(0,0);
     await rjdci.fetch_template({
       url: "./refreshTicketForm.php",
-      postData: { edit: 1, formKey: document.querySelector("#formKey").value }
+      postData: postData,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Length": JSON.stringify(postData).length
+      }
     })
     .then(result => {
       if (typeof result === "undefined") throw new Error("Result Undefined");
@@ -579,13 +624,18 @@
 
   rjdci.refreshDispatch = async () => {
     let oldCount = Number(document.querySelector(".dispatchCount").innerHTML) - 1,
-      localSpinner = rjdci.getSpinner();
+      localSpinner = rjdci.getSpinner(),
+      postData = { formKey: document.querySelector("#formKey").value };
     clearElement(document.querySelector("#dispatch"));
     document.querySelector("#dispatch").appendChild(localSpinner);
     scrollTo(0,0);
     await rjdci.fetch_template({
       url: "../drivers/refreshDispatch.php",
-      postData: { formKey: document.querySelector("#formKey").value }
+      postData: postData,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Length": JSON.stringify(postData).length
+      }
     })
     .then(result => {
       if (typeof result === "undefined") throw new Error("Result Undefined");
@@ -650,13 +700,18 @@
 
   rjdci.refreshTransfers = async () => {
     let transferCount = document.querySelector(".transfersCount").innerHTML,
-      localSpinner = rjdci.getSpinner();
+      localSpinner = rjdci.getSpinner(),
+      postData = { formKey: document.querySelector("#formKey").value };
     clearElement(document.querySelector("#transfers"));
     document.querySelector("#transfers").appendChild(localSpinner);
     scrollTo(0,0);
     await rjdci.fetch_template({
       url: "./refreshTransfers.php",
-      postData: { formKey: document.querySelector("#formKey").value }
+      postData: postData,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Length": JSON.stringify(postData).length
+      }
     })
     .then(result => {
       if (typeof result === "undefined") throw new Error("Result Undefined");
@@ -736,15 +791,17 @@
         "#invoiceQueryOptions", "#invoiceQueryResults", "#priceContainer", "#clientUpdateForm", ".result"
       ],
       docFrag = document.createDocumentFragment(),
-      newDom;
+      newDom,
+      formData = new FormData();
+    formData.append('formKey', document.querySelector("#formKey").value);
     Array.from(document.querySelectorAll(".page")).forEach((element, index) => {
       if (element.getAttribute("data-function") !== undefined && element.getAttribute("data-function") !== "") {
-        funcs.push(element.getAttribute("data-function"));
+        formData.append('functions[]', element.getAttribute("data-function"));
       }
     });
     await rjdci.fetch_template({
       url: "./initApp.php",
-      postData: { functions: funcs, formKey: document.querySelector("#formKey").value }
+      postData: formData
     })
     .then(result => {
       if (typeof result === "undefined") throw new Error("Result Undefined");
@@ -765,6 +822,7 @@
       try {
         obj = JSON.parse(data);
       } catch(error) {
+        console.log(data);
         error.message = error.message + "\n" + data;
         throw error;
       }
@@ -847,20 +905,28 @@
             tempData = {};
           postData.formKey = document.querySelector("#formKey").value;
           if (ticket_index.length > 1) {
-            postData.multiTicket = [];
+            let multiTicket = [];
             ticket_index.forEach((val, index) => {
               tempData.ticket_index = val;
               tempData[step[ index ]+"Lat"] = data.coords.latitude;
               tempData[step[ index ]+"Lng"] = data.coords.longitude;
-              postData.multiTicket[ index ] = tempData;
+              multiTicket[ index ] = tempData;
               tempData = {};
             });
+            postData.multiTicket = JSON.stringify(multiTicket);
           } else {
             postData.ticket_index = ticket_index[0];
             postData[step[0]+"Lat"] = data.coords.latitude;
             postData[step[0]+"Lng"] = data.coords.longitude;
           }
-          await rjdci.fetch_template({ url: "./updateTicket.php", postData: postData })
+          await rjdci.fetch_template({
+            url: "./updateTicket.php",
+            postData: postData,
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              "Content-Length": JSON.stringify(postData).length
+            }
+          })
           .then(result => {
             if (typeof result === "undefined") throw new Error("Result Undefined");
             if (result.ok) {
@@ -971,7 +1037,14 @@
       case "returned": step = "d2"; break;
     }
     if (step) rjdci.deliveryLocation({ ticket_index: [ postData.ticket_index ], step: [ step ] });
-    await rjdci.fetch_template({ url: "../drivers/updateStep.php", postData: postData })
+    await rjdci.fetch_template({
+      url: "../drivers/updateStep.php",
+      postData: postData,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Length": JSON.stringify(postData).length
+      }
+    })
     .then(result => {
       if (typeof result === "undefined") throw new Error("Result Undefined");
       if (result.ok) {
@@ -1067,12 +1140,19 @@
       multiTicket[index] = data;
       data = {};
     });
-    postData.multiTicket = multiTicket;
+    postData.multiTicket = JSON.stringify(multiTicket);
     postData.formKey = document.querySelector("#formKey").value;
     postData.printName = sigTest.value;
     postData.sigImage = ticketGroup.querySelector(".sigImage").value;
     rjdci.deliveryLocation(locationData);
-    await rjdci.fetch_template({ url: "./updateStep.php", postData: postData })
+    await rjdci.fetch_template({
+      url: "./updateStep.php",
+      postData: postData,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Length": JSON.stringify(postData).length
+      }
+    })
     .then(result => {
       if (typeof result === "undefined") throw new Error("Result Undefined");
       if (result.ok) {
@@ -1122,6 +1202,7 @@
     eve.preventDefault();
     let postData = {},
       cancelValues = [ "ticket_index", "notes", "ticketBase", "ticketNumber" ],
+      chargeDisplay,
       workspace = rjdci.getClosest(eve.target, ".message2"),
       step,
       ellipsis = make([ "span", { class: "ellipsis" }, "." ]);
@@ -1149,7 +1230,14 @@
     }
     postData.formKey = document.querySelector("#formKey").value;
     if (step) rjdci.deliveryLocation({ ticket_index: [ postData.ticket_index ], step: [ step ] });
-    await rjdci.fetch_template({ url: "./deleteContractTicket.php", postData: postData })
+    await rjdci.fetch_template({
+      url: "./deleteContractTicket.php",
+      postData: postData,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Length": JSON.stringify(postData).length
+      }
+    })
     .then(result => {
       if (typeof result === "undefined") throw new Error("Result Undefined");
       if (result.ok) {
@@ -1173,7 +1261,23 @@
         setTimeout(async() => {
           switch (rjdci.getClosest(workspace, ".page").getAttribute("id")) {
             case "route": return await rjdci.refreshRoute();
-            case "on_call" : return await rjdci.refreshOnCall();
+            case "on_call": return await rjdci.refreshOnCall();
+            case "active_tickets":
+              clearElement(workspace);
+              Array.from(rjdci.getClosest(workspace, ".sortable").querySelectorAll("button")).forEach(element => {
+                element.disabled = false;
+              });
+              Array.from(rjdci.getClosest(workspace, ".sortable").querySelectorAll(".bold")).forEach(element => {
+                if (element.innerText == "Charge:") chargeDisplay = element;
+              });
+              if (!chargeDisplay) return;
+              chargeDisplay.nextSibling.remove();
+              switch(postData.action) {
+                case "delete": return rjdci.getClosest(workspace, ".sortable").remove();
+                case "cancel": return chargeDisplay.after(" Canceled");
+                case "deadRun": return chargeDisplay.after(" Dead Run");
+                case "declined": return chargeDisplay.after(" Declined");
+              }
           }
         }, 3000);
       } else {
@@ -1235,7 +1339,14 @@
     postData.action = "transfer";
     postData.formKey = document.querySelector("#formKey").value;
     postData.TransferState = 1;
-    await rjdci.fetch_template({ url: "./deleteContractTicket.php", postData: postData })
+    await rjdci.fetch_template({
+      url: "./deleteContractTicket.php",
+      postData: postData,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Length": JSON.stringify(postData).length
+      }
+    })
     .then(result => {
       if (typeof result === "undefined") throw new Error("Result Undefined");
       if (result.ok) {
@@ -1328,11 +1439,18 @@
       multiTicket[index] = data;
       data = {};
     });
-    postData.multiTicket = multiTicket;
+    postData.multiTicket = JSON.stringify(multiTicket);
     postData.TransferState = 1;
     postData.action = "transfer";
     postData.formKey = document.querySelector("#formKey").value;
-    await rjdci.fetch_template({ url: "./deleteContractTicket.php", postData: postData })
+    await rjdci.fetch_template({
+      url: "./deleteContractTicket.php",
+      postData: postData,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Length": JSON.stringify(postData).length
+      }
+    })
     .then(result => {
       if (typeof result === "undefined") throw new Error("Result Undefined");
       if (result.ok) {
@@ -1429,7 +1547,14 @@
         postData.TransferState = 4;
       break;
     }
-    await rjdci.fetch_template({ url: "./deleteContractTicket.php", postData: postData })
+    await rjdci.fetch_template({
+      url: "./deleteContractTicket.php",
+      postData: postData,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Length": JSON.stringify(postData).length
+      }
+    })
     .then(result => {
       if (typeof result === "undefined") throw new Error("Result Undefined");
       if (result.ok) {
@@ -1491,11 +1616,11 @@
       contractFlag = true,
       ticketData = {},
       postData = {},
+      multiTicket = [],
       ticketGroup = rjdci.getClosest(eve.target, ".sortable"),
       nodes = ticketGroup.querySelectorAll(".message2"),
       workspace = nodes[nodes.length - 1],
       ellipsis = make([ "span", { class: "ellipsis" }, "." ]);
-    postData.multiTicket = [];
     postData.formKey = document.querySelector("#formKey").value;
     workspace.innerHTML = "";
     workspace.appendChild(ellipsis);
@@ -1528,10 +1653,18 @@
       });
       ticketData.transferState = transferState;
       ticketData.action = "transfer";
-      postData.multiTicket[ index ] = ticketData;
+      multiTicket[index] = ticketData;
       ticketData = {};
     });
-    await rjdci.fetch_template({ url: "./deleteContractTicket.php", postData: postData })
+    postData.multiTicket = JSON.stringify(multiTicket);
+    await rjdci.fetch_template({
+      url: "./deleteContractTicket.php",
+      postData: postData,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Length": JSON.stringify(postData).length
+      }
+    })
     .then(result => {
       if (typeof result === "undefined") throw new Error("Result Undefined");
       if (result.ok) {
@@ -1579,6 +1712,7 @@
   rjdci.assignListeners = () => {
     if (document.querySelector("#deliveryRequest")) {
       assignTicketFormListeners(rjdci.getClosest(document.querySelector("#deliveryRequest"), ".page"));
+      document.querySelector("#switchTerms") &&
       document.querySelector("#switchTerms").addEventListener("click", e => {
         document.querySelector("#deliveryTerms").style.display =
           (document.querySelector("#deliveryTerms").style.display == "none") ? "block" : "none";
@@ -1608,7 +1742,14 @@
         document.querySelector(".ticket_index[form='" + eve.target.getAttribute("form") + "']").value;
       postData.notes = document.querySelector(".notes[form='" + eve.target.getAttribute("form") + "']").value;
       postData.formKey = document.querySelector("#formKey").value;
-      await rjdci.fetch_template({ url: "./updateTicket.php", postData: postData })
+      await rjdci.fetch_template({
+        url: "./updateTicket.php",
+        postData: postData,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Content-Length": JSON.stringify(postData).length
+        }
+      })
       .then(result => {
         if (typeof result === "undefined") throw new Error("Result Undefined");
         if (result.ok) {
@@ -1831,7 +1972,14 @@
               forward = ellipsis.innerHTML.length === 1;
             }
           }, 500);
-        await rjdci.fetch_template({ url: "./activeTickets.php", postData: postData })
+        await rjdci.fetch_template({
+          url: "./activeTickets.php",
+          postData: postData,
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Length": JSON.stringify(postData).length
+          }
+        })
         .then(result => {
           if (typeof result === "undefined") throw new Error("Result Undefined");
           if (result.ok) {
@@ -1959,8 +2107,8 @@
           }, 3500);
           return false;
         }
-        workform.querySellipsisctor(".ticketError").innerHTML = "";
-        workform.querySellipsisctor(".ticketError").appendChild(ellipsis);
+        workform.querySelector(".ticketError").innerHTML = "";
+        workform.querySelector(".ticketError").appendChild(ellipsis);
         let forward = true,
           dots = setInterval(() => {
             if (forward === true) {
@@ -1972,7 +2120,14 @@
               forward = ellipsis.innerHTML.length === 1;
             }
           }, 500);
-        await rjdci.fetch_template({ url: "../priceCalc.php", postData: postData })
+        await rjdci.fetch_template({
+          url: "../priceCalc.php",
+          postData: postData,
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Length": JSON.stringify(postData).length
+          }
+        })
         .then(result => {
           if (typeof result === "undefined") throw new Error("Result Undefined");
           if (result.ok) {
@@ -2142,8 +2297,8 @@
           let workspace = rjdci.getClosest(eve.target, ".PWform"),
             postData = {},
             ellipsis = make([ "span", { class: "ellipsis" }, "." ]);
-          workspace.querySellipsisctor(".message").innerHTML = "";
-          workspace.querySellipsisctor(".message").appendChild(ellipsis);
+          workspace.querySelector(".message").innerHTML = "";
+          workspace.querySelector(".message").appendChild(ellipsis);
           let forward = true,
             dots = setInterval(() => {
               if (forward === true) {
@@ -2159,7 +2314,14 @@
           Array.from(workspace.querySelectorAll("input[name]")).forEach(input => {
             postData[input.getAttribute("name")] = input.value;
           });
-          await rjdci.fetch_template({ url: "./changePW.php", postData: postData })
+          await rjdci.fetch_template({
+            url: "./changePW.php",
+            postData: postData,
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              "Content-Length": JSON.stringify(postData).length
+            }
+          })
           .then(result => {
             if (typeof result === "undefined") throw new Error("Result Undefined");
             if (result.ok) {
@@ -2175,7 +2337,7 @@
             document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
             let newDom = parser.parseFromString(data, "text/html"),
               docFrag = document.createDocumentFragment();
-            Array.from(docFrag.querySelectorAll(".result")).forEach(element => {
+            Array.from(newDom.querySelectorAll(".result")).forEach(element => {
               docFrag.appendChild(element);
             });
             workspace.querySelector(".message").appendChild(docFrag);
@@ -2330,7 +2492,14 @@
               }
             }, 500)
           postData.formKey = document.querySelector("#formKey").value;
-          await rjdci.fetch_template({ url: "./buildQuery.php", postData: postData })
+          await rjdci.fetch_template({
+            url: "./buildQuery.php",
+            postData: postData,
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              "Content-Length": JSON.stringify(postData).length
+            }
+          })
           .then(result => {
             if (typeof result === "undefined") throw new Error("Result Undefined");
             if (result.ok) {
@@ -2513,7 +2682,14 @@
                 forward = ellipsis.innerHTML.length === 1;
               }
             }, 500);
-          await rjdci.fetch_template({ url: "./buildQuery.php", postData: postData })
+          await rjdci.fetch_template({
+            url: "./buildQuery.php",
+            postData: postData,
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              "Content-Length": JSON.stringify(postData).length
+            }
+          })
           .then(result => {
             if (typeof result === "undefined") throw new Error("Result Undefined");
             if (result.ok) {
@@ -2584,7 +2760,14 @@
               }
             }
           });
-          await rjdci.fetch_template({ url: "./buildQuery.php", postData: postData })
+          await rjdci.fetch_template({
+            url: "./buildQuery.php",
+            postData: postData,
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              "Content-Length": JSON.stringify(postData).length
+            }
+          })
           .then(result => {
             if (typeof result === "undefined") throw new Error("Result Undefined");
             if (result.ok) {
@@ -2671,7 +2854,14 @@
             }
           }, 500);
         postData.formKey = document.querySelector("#formKey").value;
-        await rjdci.fetch_template({ url: "./updateClientInfo.php", postData: postData })
+        await rjdci.fetch_template({
+          url: "./updateClientInfo.php",
+          postData: postData,
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Length": JSON.stringify(postData).length
+          }
+        })
         .then(result => {
           if (typeof result === "undefined") throw new Error("Result Undefined");
           if (result.ok) {
@@ -2782,7 +2972,14 @@
           postData[input.getAttribute("name")] = input.value;
         });
         postData.formKey = document.querySelector("#formKey").value;
-        await rjdci.fetch_template({ url: "./buildQuery.php", postData: postData })
+        await rjdci.fetch_template({
+          url: "./buildQuery.php",
+          postData: postData,
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Length": JSON.stringify(postData).length
+          }
+        })
         .then(result => {
           if (typeof result === "undefined") throw new Error("Result Undefined");
           if (result.ok) {
@@ -2854,7 +3051,14 @@
               forward = ellipsis.innerHTML.length === 1;
             }
           }, 500);
-        await rjdci.fetch_template({ url: "./buildQuery.php", postData: postData })
+        await rjdci.fetch_template({
+          url: "./buildQuery.php",
+          postData: postData,
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Length": JSON.stringify(postData).length
+          }
+        })
         .then(result => {
           if (typeof result === "undefined") throw new Error("Result Undefined");
           if (result.ok) {
@@ -2918,7 +3122,14 @@
               forward = ellipsis.innerHTML.length === 1;
             }
           }, 500);
-        await rjdci.fetch_template({ url: "./buildQuery.php", postData: postData })
+        await rjdci.fetch_template({
+          url: "./buildQuery.php",
+          postData: postData,
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Length": JSON.stringify(postData).length
+          }
+        })
         .then(result => {
           if (typeof result === "undefined") throw new Error("Result Undefined");
           if (result.ok) {
@@ -2987,7 +3198,14 @@
         postData.ticket_index = eve.target.getAttribute("data-index");
         postData.ticketEditor = 1;
         postData.formKey = document.querySelector("#formKey").value;
-        await rjdci.fetch_template({ url: "./enterTicket.php", postData: postData })
+        await rjdci.fetch_template({
+          url: "./enterTicket.php",
+          postData: postData,
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Length": JSON.stringify(postData).length
+          }
+        })
         .then(result => {
           if (typeof result === "undefined") throw new Error("Result Undefined");
           if (result.ok) {
@@ -3025,9 +3243,35 @@
         });
       });
     });
+    Array.from(document.querySelectorAll("#ticketEditorResultContainer button.cancelRun")).forEach(element => {
+      element.addEventListener("click", eve => {
+        let testArr = [ "cancelRun", "deadRun", "declined" ],
+          page = rjdci.getClosest(eve.target, ".page"),
+          ticket = rjdci.getClosest(eve.target, ".tickets"),
+          container = ticket.querySelector(".message2"),
+          form = eve.target.getAttribute("form"),
+          confirmType;
+        Array.from(page.querySelectorAll(".cancelThis")).forEach(elem => {
+          rjdci.triggerEvent(elem, "click");
+        });
+        Array.from(ticket.querySelectorAll("button")).forEach(elem => {
+          elem.disabled = true;
+        });
+        for (let i = 0; i < testArr.length; i++) {
+          if (eve.target.classList.contains(testArr[i])) {
+            confirmType = ucfirst(testArr[i]);
+            break;
+          }
+        }
+        container.appendChild(make([ "p", `Confirm ${eve.target.innerText}` ]));
+        container.appendChild(getCancelTicket(form, confirmType));
+        container.appendChild(getCancelThis());
+      });
+    });
   };
 
   assignTicketFormListeners = workspace => {
+    if (!workspace.querySelector(".billTo")) return;
     let repeatHandler = eve => {
       workspace.querySelector(".billTo").setAttribute("list", (eve.target.checked) ? "t_clients" : "clients");
       workspace.querySelector(".billTo").value = "";
@@ -3040,7 +3284,23 @@
       workspace.querySelector(".repeat").removeEventListener("change", repeatHandler);
       workspace.querySelector(".repeat").addEventListener("change", repeatHandler);
     };
-
+    if (
+      workspace.querySelector("[name=repeatClient]") &&
+      workspace.querySelector("[name=repeatClient]").getAttribute("type").toLowerCase() == "hidden"
+    ) {
+      let orgRepeatHandler = eve => {
+        let val = eve.target.value;
+        if (val == "") return;
+        let arr = val.split(";"),
+          flag = (arr[arr.length - 1].indexOf("t") == -1) ? 1 : 0;
+        if (workspace.querySelector("[name=repeatClient]"))
+          workspace.querySelector("[name=repeatClient]").value = flag;
+      };
+      if (workspace.querySelector(".billTo")) {
+        workspace.querySelector(".billTo").removeEventListener("change", orgRepeatHandler);
+        workspace.querySelector(".billTo").addEventListener("change", orgRepeatHandler);
+      }
+    }
     let emailConfirmHandler = eve => {
       let form = rjdci.getClosest(eve.target, "form");
       if (eve.target.value !== "0") {
@@ -3140,6 +3400,10 @@
             rjdci.triggerEvent(eve.target, "change");
             setTimeout(() => { eve.target.classList.remove("elementError"); eve.target.placeholder = oldHolder; }, 3000);
             return;
+          }
+          if (eve.target.classList.contains("members")) {
+            ci.getClosest(eve.target, "#information").querySelector("[name=repeatClient]").value =
+            (eve.target.value.slice(eve.target.value.indexOf(";")).indexOf("t") == -1) ? 1 : 0;
           }
         }
         eve.target.title = eve.target.value;
@@ -3536,7 +3800,14 @@
         });
         return false;
       }
-      await rjdci.fetch_template({ url: "./enterTicket.php", postData: postData })
+      await rjdci.fetch_template({
+        url: "./enterTicket.php",
+        postData: postData,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Content-Length": JSON.stringify(postData).length
+        }
+      })
       .then(result => {
         if (typeof result === "undefined") throw new Error("Result Undefined");
         if (result.ok) {
@@ -3600,7 +3871,14 @@
         if (eve.target.classList.contains("editForm") && !/\d/.test(eve.target.getAttribute("form"))) {
           postData.ticketEditor = 0;
         }
-        await rjdci.fetch_template({ url: "./enterTicket.php", postData: postData })
+        await rjdci.fetch_template({
+          url: "./enterTicket.php",
+          postData: postData,
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Length": JSON.stringify(postData).length
+          }
+        })
         .then(result => {
           if (typeof result === "undefined") throw new Error("Result Undefined");
           if (result.ok) {
@@ -3793,13 +4071,18 @@
             forward = ellipsis.innerHTML.length === 1;
           }
         }, 500),
-        data = {};
+        postData = {};
       document.querySelector("#confirmMessage").appendChild(ellipsis);
-      data.clientID = document.querySelector("#uid").value;
-      data.upw = document.querySelector("#upw").value;
-      data.mobile = document.querySelector("#mobile").value;
-      data.noSession = 1;
-      await rjdci.fetch_template({ url: "./refreshFormKey.php" })
+      postData.clientID = document.querySelector("#uid").value;
+      postData.upw = document.querySelector("#upw").value;
+      postData.mobile = document.querySelector("#mobile").value;
+      postData.noSession = 1;
+      await rjdci.fetch_template({
+        url: "./refreshFormKey.php",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        }
+      })
       .then(result => {
         if (typeof result === "undefined") throw new Error("Result Undefined");
         if (result.ok) {
@@ -3810,7 +4093,14 @@
       })
       .then(async newKey => {
         document.querySelector("#formKey").value = newKey;
-        return await rjdci.fetch_template({ url: "../login.php", postData: data });
+        return await rjdci.fetch_template({
+          url: "../login.php",
+          postData: postData,
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Length": JSON.stringify(postData).length
+          }
+        });
       })
       .then(login => {
         if (typeof login === "undefined") throw new Error(login.status + " " + login.statusText);

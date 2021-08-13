@@ -1482,7 +1482,7 @@ This is an extendable drop-in implementation of this set of classes using vanill
 
 Functionality is enclosed in a global variable: ` rjdci `.
 
-The [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API#Browser_compatibility) is used extensively and a template is provided. This will retry a call failing due to network issues 20 times waiting ` n * 250 ` milliseconds between calls where n is the retry count. If the Content-Type header is not defined and the postData property has a length greater than 0 the Content-Type will be set to "application/json". As a result the PHP ` $_POST ` super global is not populated; data must be read from the stream.
+The [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API#Browser_compatibility) is used extensively and a template is provided. This will retry a call failing due to network issues 20 times waiting ` n * 250 ` milliseconds between calls where n is the retry count. If a ` FormData ` instance is sent the headers ` Content-Type ` and ` Content-Length ` will be tested for and removed to prevent conflicts. If the postData property is not empty and the ` Content-Type ` header is set as ` www-form-urlencoded ` the post body will be encoded. If the Content-Type header is not defined and the postData property has a length greater than 0 the Content-Type will be set to "application/json". As a result the PHP ` $_POST ` super global is not populated; data must be read from the stream.
 
 Ex:
 
@@ -1497,28 +1497,47 @@ Ex:
         method: method.toUpperCase(),
         headers: headers
       };
-    if (Object.keys(postData).length > 0) {
-      if (!headers.hasOwnProperty("Content-Type")) {
-        fetchOptions.headers["Content-Type"] = "application/json";
+    if (postData instanceof FormData || Object.keys(postData).length > 0) {
+      let body;
+      if (postData instanceof FormData) {
+        body = postData;
+        fetchOptions.headers["Content-Type"] &&
+        delete fetchOptions.headers["Content-Type"];
+        fetchOptions.headers["Content-Length"] &&
+        delete fetchOptions.headers["Content-Length"];
+      } else if (fetchOptions.headers["Content-Type"].indexOf("x-www-form-urlencoded") != -1) {
+        body = Object.entries(postData).map(([key, value]) =>
+          `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join("&");
+      } else {
+        body = JSON.stringify(postData);
+        if (!headers.hasOwnProperty("Content-Type")) {
+          fetchOptions.headers["Content-Type"] = "application/json";
+        }
       }
       fetchOptions.method = "POST";
-      fetchOptions.body = JSON.stringify(postData);
+      fetchOptions.body = body;
     }
     try {
       return await fetch(url, fetchOptions);
     } catch(err) {
       retry++;
       if (retry === 20) throw err;
-      await pause(250 * retry)
-      return await rjdci.fetch_template({ url, postData, method, retry });
+      await rjdci.pause(250 * retry)
+      return await rjdci.fetch_template({
+        url: url,
+        method: method,
+        headers: headers,
+        postData: postData,
+        retry: retry
+      });
     }
   }
 ```
 
-The ``` pause ``` function is setTimeout turned into a promise.
+The ``` rjdci.pause ``` function is setTimeout turned into a promise.
 
 ```javascript
-  pause = (duration) => { return new Promise(resolve => setTimeout(resolve, duration)) };
+  rjdci.pause = duration => { return new Promise(resolve => setTimeout(resolve, duration)) };
 ```
 
 Usage:
