@@ -62,6 +62,7 @@
           ['Resource'=>'RepeatClient','Filter'=>'eq','Value'=>$this->repeatFlag],
           ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0]
         ];
+        $this->queryData['queryParams']['join'] = [ 'o_clients' ];
         $this->query = self::createQuery($this->queryData);
         if ($this->query === false) {
           throw new \Exception($this->error);
@@ -139,7 +140,6 @@
             ['Resource'=>'Login', 'Filter'=>'eq', 'Value'=>$this->clientID],
             ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0]
           ];
-          if ($this->clientID !== $this->username) $this->queryData['queryParams']['join'] = [ 'clients' ];
         }
         $this->query = self::createQuery($this->queryData);
         if ($this->query === false) {
@@ -277,6 +277,13 @@
       } catch (\Exception $e) {
         throw $e;
       }
+      if ($_SESSION['org_id']['RequestTickets'] == 1 || $_SESSION['org_id']['RequestTickets'] >= 3) {
+        try {
+          self::fetchOrgClients();
+        } catch (\Exception $e) {
+          throw $e;
+        }
+      }
       echo '/clients';
       return false;
     }
@@ -294,10 +301,11 @@
         $_SESSION['pwWarning'] += 4;
       }
       unset($_SESSION['error']);
-      $_SESSION['Login'] = $this->result[0]['Login'];
-      $_SESSION['ClientName'] = $this->result[0]['Name'];
+      $_SESSION['Organization'] = $this->result[0]['id'];
       $_SESSION['ClientID'] = $this->result[0]['id'];
-      $_SESSION['ListBy'] = $this->result[0]['ListBy'];
+      $_SESSION['ClientName'] = $this->result[0]['Name'];
+      $_SESSION['org_id'] = $this->result[0];
+      $_SESSION['Login'] = $this->result[0]['Login'];
       $_SESSION['ulevel'] = 0;
       try {
         self::fetchConfig();
@@ -356,6 +364,7 @@
 
         $_SESSION['config']['ReducedVAT'][$clientMarker] = $this->configResult[$i]['ReducedVAT'];
       }
+      $_SESSION['config']['config_id'] = "{$this->loginType}{$this->clientID}";
       $this->config = $_SESSION['config'];
       if ($this->loginType === 'driver') {
         $this->queryData['noSession'] = true;
@@ -373,11 +382,7 @@
         if ($this->result === false) {
           throw new \Exception($this->error);
         }
-        if (empty($this->result[0])) {
-          throw new \Exception('Unable To Fetch Routes');
-        }
         $_SESSION['config']['routes'] = $this->result;
-        $_SESSION['config']['overnight'] = 0;
       }
     }
 
@@ -388,7 +393,13 @@
         $this->queryData['noSession'] = true;
         $this->queryData['method'] = 'GET';
         $this->queryData['endPoint'] = 'clients';
-        $this->queryData['queryParams']['filter'] = [ ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0] ];
+        $this->queryData['queryParams']['filter'] = [
+          ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0]
+        ];
+        if ($this->clientID !== $this->userLogin) {
+          $this->queryData['queryParams']['filter'][] =
+            ['Resource'=>'Organization', 'Filter'=>'eq', 'Value'=>$_SESSION['Organization']];
+        }
         $this->query = self::createQuery($this->queryData);
         if ($this->query === false) {
           throw new \Exception($this->error);

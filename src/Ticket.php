@@ -824,15 +824,49 @@
 
     private function buildLocationList()
     {
-      if ($this->organizationFlag === true) $this->ClientID = implode(',', array_keys($this->members));
+      $filter = [];
+      if (
+        ($this->userType == 'client' && isset($_SESSION['org_id']) &&
+        ($_SESSION['org_id']['RequestTickets'] == 1 ||
+          $_SESSION['org_id']['RequestTickets'] >= 3)) ||
+        $this->userType == 'org'
+      ) {
+        $repeat = $nonRepeat = $repeatFilter = $nonRepeatFilter = [];
+        foreach ($this->members as $member) {
+          $array = ($member->getProperty('RepeatClient') == false) ? 'nonRepeat' : 'repeat';
+          $$array[] = $member->getProperty('ClientID');
+        }
+        if (!empty($repeat)) $repeatFilter = [
+          [ 'Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>implode(',', $repeat) ],
+          [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>1 ]
+        ];
+        if (!empty($nonRepeat)) $nonRepeatFilter = [
+          [ 'Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>implode(',', $nonRepeat) ],
+          [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>0 ]
+        ];
+        if (!empty($repeatFilter) && !empty($nonRepeatFilter)) {
+          $filter = [ $repeatFilter, $nonRepeatFilter ];
+        } elseif (empty($repeatFilter) && !empty($nonRepeatFilter)) {
+          $filter = $nonRepeatFilter;
+        } elseif (!empty($repeatFilter) && empty($nonRepeatFilter)) {
+          $filter = $repeatFilter;
+        }
+      } elseif (
+        $this->userType == 'client' && (!isset($_SESSION['members']) ||
+        ($_SESSION['org_id']['RequestTickets'] < 3 && $_SESSION['org_id']['RequestTickets'] != 1))
+      ) {
+        $filter = [
+          [ 'Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=>self::test_int($this->ClientID) ],
+          [ 'Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>$this->RepeatClient ]
+        ];
+      }
       $tempClients = $uniqueTest = [];
       $locationQueryData['method'] = 'GET';
       $locationQueryData['endPoint'] = 'tickets';
       $locationQueryData['queryParams']['include'] = [ 'pClient', 'dClient', 'pAddress1', 'pAddress2', 'pCountry',
         'dAddress1', 'dAddress2', 'dCountry', 'pDepartment', 'dDepartment', 'pContact', 'dContact'
       ];
-      $locationQueryData['queryParams']['filter'] = ($this->ulevel === 'dispatch' || $this->ulevel === 'driver') ?
-        [] : [ ['Resource'=>'BillTo', 'Filter'=>'in', 'Value'=>$this->ClientID] ];
+      $locationQueryData['queryParams']['filter'] = $filter;
 
       if (!$locationQuery = self::createQuery($locationQueryData)) {
         $temp = $this->error;
@@ -965,7 +999,7 @@
     private function buildDatalists()
     {
       $returnData = '';
-      if ($this->userType !== 'client') {
+      if ($this->userType !== 'client' && $this->userType !== 'org') {
         if ($this->userType === 'dispatch' || $this->CanDispatch === 2) {
           if ($this->driverList == null) {
             self::fetchDrivers();
@@ -1052,6 +1086,23 @@
             $tclient['ClientName'] . ', ' . $tclient['Department'] . '; t' . $tclient['ClientID'];
 
             $returnData .= "<option value=\"{$tclientVal}\">" . html_entity_decode($tclientVal) . '</option>';
+          }
+          $returnData .= '</datalist>';
+        }
+      } else {
+        if (
+          ($this->userType == 'client' && isset($_SESSION['org_id']) &&
+          ($_SESSION['org_id']['RequestTickets'] == 1 ||
+            $_SESSION['org_id']['RequestTickets'] >= 3)) ||
+          ($this->userType == 'org' &&
+            isset($_SESSION['org_id']['RequestTickets']) && $_SESSION['org_id']['RequestTickets'] >= 2)
+        ) {
+          $returnData .= '<datalist id="members">';
+          foreach ($_SESSION['members'] as $key => $value) {
+            $name = $value['ClientName'];
+            if ($value['Department'] != null) $name .= " {$value['Department']}";
+            $name .= "; $key";
+            $returnData .= "<option value=\"$name\">" . html_entity_decode($name) . '</option>';
           }
           $returnData .= '</datalist>';
         }
@@ -3000,6 +3051,11 @@
 
     public function ticketForm()
     {
+      if ($this->userType == 'org' && $_SESSION['org_id']['RequestTickets'] < 2) {
+        return "<div id=\"deliveryRequest{$this->ticket_index}\" class=\"removableByEditor\">
+        <p class=\"center\">Feature Not Available.</p>
+        </div>";
+      }
       $this->Contract = (int)$this->Contract ?? 0;
       $this->RunNumber = $this->RunNumber ?? 0;
       $returnData = '';
@@ -3130,17 +3186,32 @@
 
       $VATchecked = ($this->config['ApplyVAT'] === true) ? 'checked' : '';
 
-      if ($this->userType === 'client') {
-        $this->RepeatClient = $_SESSION['RepeatClient'];
+      if ($this->userType === 'client' || $this->userType === 'org') {
+        $repeatOption = $readonlyDispatch = $hideFromDriver = $hideDispatch = $requiredDispatch =
+        $billToRequired = $dispatchedBy = $transferredBy = $cancelTicketEditor =
+        $nonRepeatChecked = '';
+
+        $this->RepeatClient = $_SESSION['RepeatClient'] ?? 1;
         $billingRowClass = 'hide';
         $dispatchInputType = 'type="hidden"';
         $billToType = 'type="hidden"';
-        $billToValue = $_SESSION['ClientName'];
-        $billToValue .= ($_SESSION['Department'] !== null) ? ", {$_SESSION['Department']}" : '';
-        $billToValue .= '; ' . $_SESSION['ClientID'];
-
-        $repeatOption = $readonlyDispatch = $hideFromDriver = $hideDispatch = $requiredDispatch = $billToRequired =
-        $dispatchedBy = $transferredBy = $cancelTicketEditor = $nonRepeatChecked = '';
+        $hideBillToLabel = 'class="hide"';
+        if (
+          ($this->userType == 'client' && isset($_SESSION['org_id']) &&
+          ($_SESSION['org_id']['RequestTickets'] == 1 ||
+            $_SESSION['org_id']['RequestTickets'] >= 3)) ||
+          ($this->userType == 'org' &&
+            isset($_SESSION['org_id']['RequestTickets']) && $_SESSION['org_id']['RequestTickets'] >= 2)
+        ) {
+          $billToType = 'list="members"';
+          $billToRequired = 'required';
+          $hideBillToLabel = '';
+        }
+        $billToValue = ($this->userType == 'client') ? $_SESSION['ClientName'] : false;
+        if ($billToValue) {
+          $billToValue .= ($_SESSION['Department'] !== null) ? ", {$_SESSION['Department']}" : '';
+          $billToValue .= '; ' . $_SESSION['ClientID'];
+        }
 
         $dispatchInputValue = '0';
       } else {
@@ -3291,9 +3362,15 @@
                       </span>
                       </td>
                     </tr>
-                    <tr class=\"{$billingRowClass}\">
-                      <td><label for=\"billTo{$this->ticket_index}\">Bill To: </label><input {$billToType} name=\"billTo\" id=\"billTo{$this->ticket_index}\" class=\"billTo\" value=\"{$billToValue}\" title=\"{$billToValue}\" form=\"request{$this->ticket_index}\" {$billToRequired} /></td>
-                      <td><label for=\"dispatchedTo{$this->ticket_index}\" {$hideDispatch}>Dispatch To: </label><input {$dispatchInputType} name=\"dispatchedTo\" id=\"dispatchedTo{$this->ticket_index}\" class=\"dispatchedTo\" form=\"request{$this->ticket_index}\" value=\"{$dispatchInputValue}\" {$readonlyDispatch} {$requiredDispatch} /></td>
+                    <tr>
+                      <td>
+                        <label $hideBillToLabel for=\"billTo{$this->ticket_index}\">Bill To:</label>
+                        <input $billToType name=\"billTo\" id=\"billTo{$this->ticket_index}\" class=\"billTo\" value=\"$billToValue\" title=\"$billToValue\" form=\"request{$this->ticket_index}\" $billToRequired />
+                      </td>
+                      <td class=\"$billingRowClass\">
+                        <label for=\"dispatchedTo{$this->ticket_index}\" $hideDispatch>Dispatch To: </label>
+                        <input $dispatchInputType name=\"dispatchedTo\" id=\"dispatchedTo{$this->ticket_index}\" class=\"dispatchedTo\" form=\"request{$this->ticket_index}\" value=\"$dispatchInputValue\" $readonlyDispatch $requiredDispatch />
+                      </td>
                     </tr>
                     <tr>
                       <td>

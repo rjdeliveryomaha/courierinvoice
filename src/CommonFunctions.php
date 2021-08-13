@@ -177,9 +177,22 @@
             'EmailAddress'=>self::decode($_SESSION['EmailAddress']),
             'Organization'=>$_SESSION['Organization']
           ];
-          $this->members[$this->ClientID] = self::createClient($clientData);
-          if ($this->members[$this->ClientID] === false) {
-            throw new \Exception($this->error);
+          if (
+            $_SESSION['org_id']['RequestTickets'] == 1 ||
+            $_SESSION['org_id']['RequestTickets'] >= 3
+          ) {
+            foreach ($_SESSION['members'] as $key => $value) {
+              $temp = self::createClient($value);
+              if ($temp === false) {
+                throw new \Exception($this->error);
+              }
+              $this->members[$key] = $temp;
+            }
+          } else {
+            $this->members[$this->ClientID] = self::createClient($clientData);
+            if ($this->members[$this->ClientID] === false) {
+              throw new \Exception($this->error);
+            }
           }
           $this->shippingCountry = $_SESSION['ShippingCountry'];
         }
