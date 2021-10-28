@@ -39,17 +39,20 @@
 
     private function responseError()
     {
-      switch (curl_getinfo($this->ch, CURLINFO_RESPONSE_CODE)) {
+      $code = curl_getinfo($this->ch, CURLINFO_RESPONSE_CODE);
+      switch ($code) {
         case 200:
           $this->error = null;
           break;
         case 301:
         case 302:
+        case 307:
+        case 308:
           if (
             !array_key_exists('location', $this->responseHeaders) ||
             count($this->responseHeaders['location']) == 0
           ) {
-            $this->error = 'Code 301. Please contact support.';
+            $this->error = "Code $code. Please contact support.";
           } else {
             $locations = [];
             $this->error = 'Resourse moved to ';
@@ -79,6 +82,12 @@
         case 405:
           $this->error = "Method {$this->method} no allowed. Allow: {$this->responseHeaders['Allow'][0]}";
           break;
+        case 411:
+          $this->error = 'Content-Length Required';
+          break;
+        case 418:
+          $this->error = 'Cannot brew coffee.';
+          break;
         case 422:
           $temp = json_decode($this->result, true);
           $this->error = "{$temp['message']}:";
@@ -89,8 +98,17 @@
         case 500:
           $this->error = 'Internal Server Error.';
           break;
+        case 502:
+          $this->error = 'Bad Gateway';
+          break;
         case 503:
           $this->error = 'Service temporarily unavailable.';
+          break;
+        case 504:
+          $this->error = 'Gateway Timeout';
+          break;
+        case 511:
+          $this->error = 'Network Authentication Required';
           break;
         default:
           $this->error = curl_error($this->ch);
@@ -228,7 +246,7 @@
       $this->timeVal = time();
       $this->token =
         hash_hmac('sha256', $this->after($this->baseURI, $this->queryURI) . $this->timeVal, $this->privateKey);
-      $this->ch = curl_init();
+      $this->ch = \curl_init();
       curl_setopt($this->ch, CURLOPT_URL, $this->queryURI);
       curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, strtoupper($this->method));
       curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, true);
@@ -245,8 +263,8 @@
       curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, $ssl_verifypeer);
       curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, $ssl_verifyhost);
       $this->headers[] = 'Authorization: Basic ' . base64_encode("{$this->username}:{$this->publicKey}");
-      $this->headers[] = "auth: {$this->token}";
-      $this->headers[] = "time: {$this->timeVal}";
+      $this->headers[] = "X-CI-AUTH: {$this->token}";
+      $this->headers[] = "X-CI-TIME: {$this->timeVal}";
       if ($this->payload !== null) {
         $this->jsonData = json_encode($this->payload);
         curl_setopt($this->ch, CURLOPT_POSTFIELDS, $this->jsonData);
