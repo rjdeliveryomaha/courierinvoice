@@ -7,10 +7,12 @@ class SecureSessionHandler extends \SessionHandler
 
   public static function start_session($config)
   {
-    try {
-      static::create_session($config);
-    } catch(\Exception $e) {
-      throw $e;
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+      try {
+        static::create_session($config);
+      } catch(\Exception $e) {
+        throw $e;
+      }
     }
     // Make sure the session hasn't expired, and destroy it if it has
     if (static::validateSession()) {
@@ -27,7 +29,7 @@ class SecureSessionHandler extends \SessionHandler
       $_SESSION['error'] = '1';
       throw new \Exception('Session Error');
     }
-    if (!isset($_SESSION['formKey'])) $_SESSION['formKey'] = mt_rand();
+    if (!isset($_SESSION['formKey'])) $_SESSION['formKey'] = bin2hex(random_bytes(32));
   }
 
   public static function outputKey()
@@ -55,7 +57,7 @@ class SecureSessionHandler extends \SessionHandler
     } catch(\Exception $e) {
       throw $e;
     }
-    $_SESSION['formKey'] = mt_rand();
+    $_SESSION['formKey'] = bin2hex(random_bytes(32));
     return $_SESSION['formKey'];
   }
 
@@ -63,6 +65,7 @@ class SecureSessionHandler extends \SessionHandler
   {
     // If this session is obsolete it means there already is a new id
     if (isset($_SESSION['OBSOLETE']) && $_SESSION['OBSOLETE'] === true) return;
+    $lifetime = $_SESSION['lifetime'] ?? 8 * 60 * 60;
     // Set current session to expire in 10 seconds
     $_SESSION['OBSOLETE'] = true;
     $_SESSION['EXPIRES'] = time() + 10;
@@ -74,13 +77,13 @@ class SecureSessionHandler extends \SessionHandler
     // Set session ID to the new one, and start it back up again
     session_id($new_session);
     session_start();
+    // setcookie(session_name(),session_id(),time()+$lifetime);
     // Now unset the obsolete and expiration values for the session we want to keep
     unset($_SESSION['OBSOLETE'], $_SESSION['EXPIRES']);
   }
 
   protected static function create_session($config)
   {
-    if (session_status() === PHP_SESSION_ACTIVE) return false;
     if (ini_set('session.use_only_cookies', 1) === false)
       throw new \Exception('Session Error: use only cookies failed');
     if (ini_set('session.use_strict_mode', 1) === false)
@@ -123,6 +126,8 @@ class SecureSessionHandler extends \SessionHandler
       );
     }
     session_start();
+    // setcookie(session_name(),session_id(),time()+$lifetime);
+    $_SESSION['lifetime'] = $lifetime;
   }
 
   protected static function preventHijacking()

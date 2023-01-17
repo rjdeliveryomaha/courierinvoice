@@ -268,7 +268,7 @@
         try {
           self::setTimezone();
         } catch (\Exception $e) {
-          $this->error .= "\n" . __function__ . ' Line ' . __line__ . ': ' . $e->getMessage();
+          $this->error .= "\nLine " . __line__ . ': ' . $e->getMessage();
           if ($this->enableLogging !== false) self::writeLoop();
           throw $e;
         }
@@ -351,59 +351,59 @@
 
     private function setVATrates()
     {
-      if ($this->config['ApplyVAT'] === false) {
+      if (self::test_bool($this->config['ApplyVAT']) === false) {
         return $this->VATable =
         $this->VATtype =
-        $this->VATrate =
-        $this->VATableIce =
         $this->VATtypeIce =
+        $this->VATableIce =
+        $this->VATrate =
         $this->VATrateIce = 0;
       }
+      $this->VATable = 1;
+      $this->VATableIce = 1;
       $clientMarker = (self::test_bool($this->RepeatClient) === true) ? $this->BillTo : "t{$this->BillTo}";
-
-      $this->VATtype = $this->config['deliveryVAT'][$clientMarker] ?? $this->config['deliveryVAT']['default'] ?? 1;
+      $this->VATtype = $this->members[$clientMarker]->getProperty('VATtype');
+      $this->VATtypeIce = $this->members[$clientMarker]->getProperty('VATtypeIce');
 
       switch ($this->VATtype) {
-        case 0:
+        case 1:
+          $this->VATrate = $this->members[0]->getProperty('StandardVAT');
+          break;
+        case 2:
+          $this->VATrate = $this->members[0]->getProperty('ReducedVAT');
+          break;
+        case 3:
+          $this->VATrate = $this->members[$clientMarker]->getProperty('StandardVAT');
+          break;
+        case 4:
+          $this->VATrate = $this->members[$clientMarker]->getProperty('ReducedVAT');
+          break;
+        case 5:
+          // Zero-Rated
+          // no break
+        case 6:
+          // Exempt
+          $this->VATrate = 0;
+          break;
+        default:
+          $this->VATtype =
           $this->VATable =
           $this->VATrate = 0;
           break;
-        case 2:
-          $this->VATrate = $this->config['ReducedVAT'][0];
-          break;
-        case 3:
-          $this->VATrate = $this->config['StandardVAT'][$clientMarker];
-          break;
-        case 4:
-          $this->VATrate = $this->config['ReducedVAT'][$clientMarker];
-          break;
-        case 5:
-          // Zero-Rated
-          // no break
-        case 6:
-          // Exempt
-          $this->VATrate = 0;
-          break;
-        default:
-          $this->VATtype = 1;
-          $this->VATrate = $this->config['StandardVAT'][0];
-          break;
       }
-      $this->VATtypeIce = $this->config['iceVAT'][$clientMarker] ?? $this->config['iceVAT']['default'] ?? 1;
 
       switch ($this->VATtypeIce) {
-        case 0:
-          $this->VATableIce =
-          $this->VATrateIce = 0;
+        case 1:
+          $this->VATrateIce = $this->members[0]->getProperty('StandardVAT');
           break;
         case 2:
-          $this->VATrateIce = $this->config['ReducedVAT'][0];
+          $this->VATrateIce = $this->members[0]->getProperty('ReducedVAT');
           break;
         case 3:
-          $this->VATrateIce = $this->config['StandardVAT'][$clientMarker];
+          $this->VATrateIce = $this->members[$clientMarker]->getProperty('StandardVAT');
           break;
         case 4:
-          $this->VATrateIce = $this->config['ReducedVAT'][$clientMarker];
+          $this->VATrateIce = $this->members[$clientMarker]->getProperty('ReducedVAT');
           break;
         case 5:
           // Zero-Rated
@@ -413,28 +413,15 @@
           $this->VATrateIce = 0;
           break;
         default:
-          $this->VATtypeIce = 1;
-          $this->VATrateIce = $this->config['StandardVAT'][0];
+          $this->VATtypeIce =
+          $this->VATableIce =
+          $this->VATrateIce = 0;
           break;
       }
     }
 
     private function solveTicketPrice()
     {
-      if ($this->fromMe === 1) {
-        $this->pClient = $_SESSION['ClientName'];
-        $this->pDepartment = $_SESSION['Department'];
-        $this->pAddress1 = $_SESSION['ShippingAddress1'];
-        $this->pAddress2 = $_SESSION['ShippingAddress2'];
-        $this->pCountry = $_SESSION['ShippingCountry'];
-      }
-      if ($this->toMe === 1) {
-        $this->dClient = $_SESSION['ClientName'];
-        $this->dDepartment = $_SESSION['Department'];
-        $this->dAddress1 = $_SESSION['ShippingAddress1'];
-        $this->dAddress2 = $_SESSION['ShippingAddress2'];
-        $this->dCountry = $_SESSION['ShippingCountry'];
-      }
       if ($this->config['MaximumFee'] <= 0) {
         $this->maxFee = PHP_INT_MAX;
       } else {
@@ -454,14 +441,14 @@
         $data['queryParams']['filter'] = [ ['Resource'=>'ticket_index', 'Filter'=>'eq', 'Value'=>$this->ticket_index] ];
         if (!$ticketQuery = self::createQuery($data)) {
           $temp = $this->error;
-          $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+          $this->error = ' Line ' . __line__ . ': ' . $temp;
           if ($this->enableLogging !== false) self::writeLoop();
           return false;
         }
         $ticketQueryResult = self::callQuery($ticketQuery);
         if ($ticketQueryResult === false) {
           $temp = $this->error;
-          $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+          $this->error = ' Line ' . __line__ . ': ' . $temp;
           if ($this->enableLogging !== false) self::writeLoop();
           return false;
         }
@@ -475,14 +462,14 @@
           ];
           if (!$contractRunQuery = self::createQuery($contractRunQueryData)) {
             $temp = $this->error;
-            $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+            $this->error = ' Line ' . __line__ . ': ' . $temp;
             if ($this->enableLogging !== false) self::writeLoop();
             return false;
           }
           $contractRunQueryResult = self::callQuery($contractRunQuery);
           if ($contractRunQueryResult === false) {
             $temp = $this->error;
-            $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+            $this->error = ' Line ' . __line__ . ': ' . $temp;
             if ($this->enableLogging !== false) self::writeLoop();
             return false;
           }
@@ -505,9 +492,8 @@
         $this->Contract = $testTicket['Contract'];
       }
 
-      if (self::test_bool($this->PriceOverride) === false && $this->Charge !== 7) {
-        self::getTicketBase();
-      }
+      if (self::test_bool($this->PriceOverride) === false && $this->Charge !== 7) self::getTicketBase();
+
       switch ($this->Charge) {
         case 1:
           $this->RunPrice = $this->TicketBase * $this->config['OneHour'];
@@ -544,10 +530,10 @@
       $this->diPrice = (self::test_bool($this->dryIce) === true) ? $this->diWeight * $this->config['diPrice'] : 0;
       if ($this->Charge === 7) return true;
 
-      if (self::test_bool($this->Contract) === false) self::setVATrates();
+      self::setVATrates();
 
-      $deliveryVAT = ($this->config['ApplyVAT'] === true && $this->VATable === true) ? 1 + ($this->VATrate / 100) : 1;
-      $iceVAT = ($this->config['ApplyVAT'] === true && $this->VATableIce === true) ? 1 + ($this->VATrateIce / 100) : 1;
+      $deliveryVAT = ($this->config['ApplyVAT'] == true && $this->VATable == true) ? 1 + ($this->VATrate / 100) : 1;
+      $iceVAT = ($this->config['ApplyVAT'] == true && $this->VATableIce == true) ? 1 + ($this->VATrateIce / 100) : 1;
 
       $this->TicketPrice =
         self::number_format_drop_zero_decimals(($this->RunPrice * $deliveryVAT) + ($this->diPrice * $iceVAT), 2);
@@ -563,14 +549,14 @@
           try {
             $start = new \dateTime($this->pTimeStamp, $this->timezone);
           } catch (\Exception $e) {
-            $this->error = __function__ . ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
+            $this->error = ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
             if ($this->enableLogging !== false) self::writeLoop();
             return false;
           }
           try {
             $end = new \dateTime($this->d2TimeStamp, $this->timezone);
           } catch (\Exception $e) {
-            $this->error = __function__ . ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
+            $this->error = ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
             if ($this->enableLogging !== false) self::writeLoop();
             return false;
           }
@@ -582,14 +568,14 @@
           try {
             $start = new \dateTime($this->pTimeStamp, $this->timezone);
           } catch (\Exception $e) {
-            $this->error = __function__ . ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
+            $this->error = ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
             if ($this->enableLogging !== false) self::writeLoop();
             return false;
           }
           try {
             $end = new \dateTime($this->dTimeStamp, $this->timezone);
           } catch (\Exception $e) {
-            $this->error = __function__ . ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
+            $this->error = ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
             if ($this->enableLogging !== false) self::writeLoop();
             return false;
           }
@@ -613,14 +599,14 @@
       $updateTicketPriceData['queryParams'] = [];
       if (!$updateTicketPrice = self::createQuery($updateTicketPriceData)) {
         $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
         return;
       }
       $updateTicketPriceResult = self::callQuery($updateTicketPrice);
       if ($updateTicketPriceResult === false) {
         $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
         return;
       }
@@ -798,15 +784,12 @@
       $this->TicketBase = round($this->config['BaseTicketFee'] *
         pow($this->config['PriceIncrement'], $this->billingCode), 2, PHP_ROUND_HALF_DOWN);
       // Solve for ticketPrice
-      if ($this->Contract == 0 && $this->BillTo !== null) {
-        $clientMarker = ($this->RepeatClient === 0) ? "t{$this->BillTo}" : $this->BillTo;
-        $this->TicketBase = round(($this->TicketBase * $this->config['GeneralDiscount'][$clientMarker]), 2, PHP_ROUND_HALF_DOWN);
-      } elseif ($this->Contract == 1 && $this->BillTo !== null) {
-        $this->TicketBase = round(($this->TicketBase * $this->config['ContractDiscount'][$this->BillTo]), 2, PHP_ROUND_HALF_DOWN);
-      }
-      if ($this->TicketBase > $this->maxFee) {
-        $this->TicketBase = $this->maxFee;
-      }
+      $discountType = ($this->Contract == 0) ? 'GeneralDiscount' : 'ContractDiscount';
+      $clientMarker = ($this->RepeatClient == 0) ? "t{$this->BillTo}" : $this->BillTo;
+      $discountRaw = ($this->members) ? $this->members[$clientMarker]->getProperty($discountType) : 0;
+      $discount = ($discountRaw == 0) ? 1 : (100 - $discountRaw) / 100;
+      $this->TicketBase = round(($this->TicketBase * $discount), 2, PHP_ROUND_HALF_DOWN);
+      if ($this->TicketBase > $this->maxFee) $this->TicketBase = $this->maxFee;
       return true;
     }
 
@@ -825,11 +808,14 @@
     private function buildLocationList()
     {
       $filter = [];
-      if (
-        ($this->userType == 'client' && isset($_SESSION['org_id']) &&
-        ($_SESSION['org_id']['RequestTickets'] == 1 ||
-          $_SESSION['org_id']['RequestTickets'] >= 3)) ||
-        $this->userType == 'org'
+      if ($this->userType == 'client') {
+        $org_id_json = $this->members[$this->ClientID]->getProperty('org_id');
+        $org_id = json_decode($org_id_json,true);
+        $requestTickets = (is_array($org_id) && array_key_exists('RequestTickets',$org_id)) ?
+          $org_id['RequestTickets'] : false;
+      }
+      if ($this->userType == 'org' ||
+        ($this->userType == 'client' && $requestTickets !== false && ($requestTickets == 1 || $requestTickets >= 3))
       ) {
         $repeat = $nonRepeat = $repeatFilter = $nonRepeatFilter = [];
         foreach ($this->members as $member) {
@@ -852,8 +838,8 @@
           $filter = $repeatFilter;
         }
       } elseif (
-        $this->userType == 'client' && (!isset($_SESSION['members']) ||
-        ($_SESSION['org_id']['RequestTickets'] < 3 && $_SESSION['org_id']['RequestTickets'] != 1))
+        $this->userType == 'client' &&
+        ($requestTickets === false || ($requestTickets < 3 && $requestTickets != 1))
       ) {
         $filter = [
           [ 'Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=>self::test_int($this->ClientID) ],
@@ -863,14 +849,15 @@
       $tempClients = $uniqueTest = [];
       $locationQueryData['method'] = 'GET';
       $locationQueryData['endPoint'] = 'tickets';
-      $locationQueryData['queryParams']['include'] = [ 'pClient', 'dClient', 'pAddress1', 'pAddress2', 'pCountry',
-        'dAddress1', 'dAddress2', 'dCountry', 'pDepartment', 'dDepartment', 'pContact', 'dContact'
+      $locationQueryData['queryParams']['include'] = [
+        'pClient', 'dClient', 'pAddress1', 'pAddress2', 'pCountry', 'dAddress1', 'dAddress2',
+        'dCountry', 'pDepartment', 'dDepartment', 'pContact', 'dContact'
       ];
       $locationQueryData['queryParams']['filter'] = $filter;
 
       if (!$locationQuery = self::createQuery($locationQueryData)) {
         $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
         return false;
       }
@@ -878,7 +865,7 @@
       $locationData = self::callQuery($locationQuery);
       if ($locationData === false) {
         $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
         return false;
       }
@@ -940,14 +927,14 @@
       $driverQueryData['queryParams']['filter'] = [ ['Resource'=>'Deleted', 'Filter'=>'neq', 'Value'=>1] ];
       if (!$driverQuery = self::createQuery($driverQueryData)) {
         $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
         return false;
       }
       $tempDriver = self::callQuery($driverQuery);
       if ($tempDriver === false) {
         $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
         $this->driverList = 'empty';
         return false;
@@ -969,14 +956,14 @@
       $clientQueryData['queryParams']['filter'] = [ ['Resource'=>'Deleted', 'Filter'=>'neq', 'Value'=>1] ];
       if (!$clientQuery = self::createQuery($clientQueryData)) {
         $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
         return false;
       }
       $tempClients = self::callQuery($clientQuery);
       if ($tempClients === false) {
         $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
         return false;
       }
@@ -1019,7 +1006,7 @@
               htmlentities($driver['FirstName']) . '; ' . $driver['DriverID'] :
               htmlentities("{$driver['FirstName']} {$driver['LastName']}") . '; ' . $driver['DriverID'];
 
-              $returnData .= "<option value=\"{$driverName}\">{$driverName}</option>";
+              $returnData .= "<option value=\"$driverName\">$driverName</option>";
             }
             $returnData .= '</datalist>';
             if ($this->userType === 'driver') {
@@ -1030,7 +1017,7 @@
                 htmlentities("{$driver['FirstName']} {$driver['LastName']}") . '; ' . $driver['DriverID'];
 
                 $returnData .= ($driver['DriverID'] !== $_SESSION['DriverID']) ?
-                "<option value=\"{$driverName}\">{$driverName}</option>" : '';
+                "<option value=\"$driverName\">$driverName</option>" : '';
               }
               $returnData .= '</datalist>';
             }
@@ -1048,7 +1035,7 @@
               htmlentities("{$driver['FirstName']} {$driver['LastName']}") . '; ' . $driver['DriverID'];
 
               $returnData .= ($driver['DriverID'] !== $_SESSION['DriverID']) ?
-              "<option value=\"{$driverName}\">{$driverName}</option>" : '';
+              "<option value=\"$driverName\">$driverName</option>" : '';
             }
             $returnData .= '</datalist>';
           }
@@ -1085,20 +1072,23 @@
             $tclient['ClientName'] . '; t' . $tclient['ClientID'] :
             $tclient['ClientName'] . ', ' . $tclient['Department'] . '; t' . $tclient['ClientID'];
 
-            $returnData .= "<option value=\"{$tclientVal}\">" . html_entity_decode($tclientVal) . '</option>';
+            $returnData .= "<option value=\"$tclientVal\">" . html_entity_decode($tclientVal) . '</option>';
           }
           $returnData .= '</datalist>';
         }
       } else {
-        if (
-          ($this->userType == 'client' && isset($_SESSION['org_id']) &&
-          ($_SESSION['org_id']['RequestTickets'] == 1 ||
-            $_SESSION['org_id']['RequestTickets'] >= 3)) ||
-          ($this->userType == 'org' &&
-            isset($_SESSION['org_id']['RequestTickets']) && $_SESSION['org_id']['RequestTickets'] >= 2)
+        if ($this->userType == 'client') {
+          $org_id_json = $this->members[$this->ClientID]->getProperty('org_id');
+          $org_id = json_decode($org_id_json,true);
+          $requestTickets = (is_array($org_id) && array_key_exists('RequestTickets',$org_id)) ?
+            $org_id['RequestTickets'] : false;
+        }
+        if ($this->userType == 'org' ||
+          ($this->userType == 'client' && $requestTickets !== false && ($requestTickets == 1 || $requestTickets >= 3))
         ) {
           $returnData .= '<datalist id="members">';
           foreach ($_SESSION['members'] as $key => $value) {
+            if ($value['Organization'] != $org_id['id']) continue;
             $name = $value['ClientName'];
             if ($value['Department'] != null) $name .= " {$value['Department']}";
             $name .= "; $key";
@@ -1152,7 +1142,7 @@
       $html_entity_decode = 'html_entity_decode';
       foreach ($clients as $client) {
         $returnData .= "
-          <option vlaue=\"{$client}\">{$html_entity_decode($client)}</option>";
+          <option vlaue=\"$client\">{$html_entity_decode($client)}</option>";
       }
 
       $returnData .= '
@@ -1161,7 +1151,7 @@
 
       foreach ($departments as $department) {
         $returnData .= "
-          <option vlaue=\"{$department}\">{$html_entity_decode($department)}</option>";
+          <option vlaue=\"$department\">{$html_entity_decode($department)}</option>";
       }
 
       $returnData .= '
@@ -1170,7 +1160,7 @@
 
       for($i = 0; $i < count($addy1s); $i++) {
         $returnData .= "
-          <option vlaue=\"{$addy1s[$i]}\" data-value=\"{$i}\">{$html_entity_decode($addy1s[$i])}</option>";
+          <option vlaue=\"{$addy1s[$i]}\" data-value=\"$i\">{$html_entity_decode($addy1s[$i])}</option>";
       }
 
       $returnData .= '
@@ -1179,7 +1169,7 @@
 
       for ($i = 0; $i < count($addy2s); $i++) {
         $returnData .= "
-          <option value=\"{$addy2s[$i]}\" data-value=\"{$i}\">{$html_entity_decode($addy2s[$i])}</option>";
+          <option value=\"{$addy2s[$i]}\" data-value=\"$i\">{$html_entity_decode($addy2s[$i])}</option>";
       }
 
       $returnData .= '</datalist>
@@ -1187,7 +1177,7 @@
 
       foreach ($contacts as $contact) {
         $returnData .= "
-          <option value=\"{$contact}\">{$html_entity_decode($contact)}</option>";
+          <option value=\"$contact\">{$html_entity_decode($contact)}</option>";
       }
 
       $returnData .= '
@@ -1209,7 +1199,7 @@
         $val = $locations[$i][strtolower(substr($this->selectID, 1))];
         $display = html_entity_decode($locations[$i][strtolower(substr($this->selectID, 1))]);
         $returnData .= "
-          <option data-value=\"{$i}\" value=\"{$val}\">{$display}</option>";
+          <option data-value=\"$i\" value=\"$val\">$display</option>";
       }
       $returnData .= '
         </select>';
@@ -1223,14 +1213,14 @@
       $ticketNumberQueryData['queryParams']['include'] = ['TicketNumber'];
       if (!$ticketNumberQuery = self::createQuery($ticketNumberQueryData)) {
         $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
         return false;
       }
       $this->ticketNumberList = self::callQuery($ticketNumberQuery);
       if ($this->ticketNumberList === false) {
         $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
         return false;
       }
@@ -1275,14 +1265,14 @@
       ];
       if (!$ticketQuery = self::createQuery($ticketQueryData)) {
         $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
         return false;
       }
       $ticketQueryResult = self::callQuery($ticketQuery);
       if ($ticketQueryResult === false) {
         $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
         return false;
       }
@@ -1318,6 +1308,31 @@
       ) {
         return false;
       }
+      $mailBody = "Ticket number {$this->TicketNumber} picking up from {$this->pClient} at {$this->pAddress1} delivering to {$this->dClient} at {$this->dAddress1} ";
+      if ($this->Charge == 6 || ($this->Charge == 7 && $this->d2SigReq)) $mailBody .= 'and returning ';
+      switch ($this->action) {
+        case 'step':
+          $mailBody .= "has been {$this->stepMarker}.";
+          break;
+        case 'delete':
+          // no break
+        case 'cancel':
+          $mailBody .= 'has been canceled.';
+          break;
+        case 'deadRun':
+          $mailBody .= 'could not be picked up.';
+          break;
+        case 'declined':
+          $mailBody .= 'has been declined and will be made a round trip.';
+          break;
+      }
+      $mailBody .= "<br><br>
+        This message is automatically generated.
+        Please do not respond.<br><br>
+        If you believe that you've received this message in error or have questions or comments please contact
+        {$this->myInfo['Name']} by phone at <a href=\"tel:{$this->myInfo['Telephone']}\">{$this->myInfo['Telephone']}</a>
+        or by email at <a href=\"mailto:{$this->myInfo['EmailAddress']}\">{$this->myInfo['EmailAddress']}</a>";
+      $recipients = array_map('trim', explode(',', $this->EmailAddress));
       $mail = new PHPMailer(true);
       try {
         //Server settings
@@ -1329,18 +1344,15 @@
         $mail->Password = $this->options['emailConfig']['password']; // SMTP password
         $mail->SMTPSecure = 'tls'; // Enable TLS encryption, `ssl` also accepted
         $mail->Port = $this->options['emailConfig']['port']; // TCP port to connect to
-        //Recipients
+        // Recipients
         $mail->setFrom($this->options['emailConfig']['emailAddress'], $this->options['emailConfig']['fromName']);
-        $mail->addAddress($this->EmailAddress);     // Add a recipient
+        foreach ($recipients as $r) {
+          $mail->addAddress($r);     // Add a recipient
+        }
         $mail->addBCC($this->options['emailConfig']['BCCAddress']);
         $mail->isHTML(true);                                  // Set email format to HTML
         $mail->Subject = 'Update';
-        $mail->Body  = "Delivery {$this->TicketNumber} has been {$this->stepMarker}.<br><br>
-        This message is automatically generated.
-        Please do not respond.<br><br>
-        If you believe that you've received this message in error or have questions or comments please contact
-        {$this->myInfo['Name']} by phone at <a href=\"tel:{$this->myInfo['Telephone']}\">{$this->myInfo['Telephone']}</a>
-        or by email at <a href=\"mailto:{$this->myInfo['EmailAddress']}\">{$this->myInfo['EmailAddress']}</a>";
+        $mail->Body  = $mailBody;
         // $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
         $mail->send();
         //echo 'Message has been sent';
@@ -1399,7 +1411,7 @@
       if (self::test_bool($this->dryIce) === true && $this->options['displayDryIce'] === true) {
         $weight = self::number_format_drop_zero_decimals($this->diWeight, 3) . $this->weightMarker;
         $val = self::number_format_drop_zero_decimals($this->diPrice, 2);
-        $answerIce = "Weight: {$weight} | Price: <span class=\"currencySymbol\">{$cSym}</span>{$val}";
+        $answerIce = "Weight: $weight | Price: <span class=\"currencySymbol\">$cSym</span>$val";
         $labelIce = 'Dry Ice:';
       } else {
         $answerIce = '&nbsp;';
@@ -1442,7 +1454,7 @@
         }
         if (self::test_bool($this->dryIce) === true) {
           $temp = $vat;
-          $vat = "D: {$temp} I: ";
+          $vat = "D: $temp I: ";
           switch ($this->VATtypeIce) {
             case 0:
               $vat .= 'NA';
@@ -1467,20 +1479,20 @@
               break;
           }
         }
-        $VATnotice = "<p {$forcedVATstyle} class=\"vatNotice\">{$vat}</p>";
+        $VATnotice = "<p $forcedVATstyle class=\"vatNotice\">$vat</p>";
       } else {
         $VATnotice = '';
       }
       return "
               <tr>
-                <td>{$date}</td>
+                <td>$date</td>
                 <td>{$this->TicketNumber}</td>
                 <td>{$this->ticketCharge($this->Charge)}</td>
-                <td>P.U.:<br><hr>D.O.:<br><hr>{$labelIce}</td>
-                <td>{$pClientDisplay}<br>{$this->pAddress1}<br><hr>{$dClientDisplay}<br>{$this->dAddress1}<br><hr>{$answerIce}</td>
-                <td><span class=\"currencySymbol\">{$cSym}</span>{$runPrice}</td>
+                <td>P.U.:<br><hr>D.O.:<br><hr>$labelIce</td>
+                <td>$pClientDisplay<br>{$this->pAddress1}<br><hr>$dClientDisplay<br>{$this->dAddress1}<br><hr>$answerIce</td>
+                <td><span class=\"currencySymbol\">$cSym</span>$runPrice</td>
                 <td>{$this->Multiplier}</td>
-                <td><span class=\"currencySymbol\">{$cSym}</span>{$ticketPrice}{$VATnotice}</td>
+                <td><span class=\"currencySymbol\">$cSym</span>$ticketPrice $VATnotice</td>
               </tr>";
     }
 
@@ -1502,7 +1514,7 @@
             <input type=\"hidden\" name=\"readyDate\" class=\"readyDate\" value=\"{$this->ReadyDate}\" form=\"dispatchForm{$this->ticket_index}\" />
             <button type=\"submit\" class=\"stepTicket\" form=\"dispatchForm{$this->ticket_index}\">Dispatch</button>
             <label for=\"dispatch{$this->ticket_index}\" class=\"hide\">Dispatch To: </label>
-            <input list=\"drivers\" id=\"dispatch{$this->ticket_index}\" name=\"dispatchedTo\" class=\"dispatchedTo\" value=\"{$dispatchValue}\" form=\"dispatchForm{$this->ticket_index}\" />
+            <input list=\"drivers\" id=\"dispatch{$this->ticket_index}\" name=\"dispatchedTo\" class=\"dispatchedTo\" value=\"$dispatchValue\" form=\"dispatchForm{$this->ticket_index}\" />
             <p class=\"message2\"></p>
           </form>
         ";
@@ -1512,7 +1524,7 @@
           $driver['FirstName'] . '; ' . $driver['DriverID'] :
           $driver['FirstName'] . ' ' . $driver['LastName'] . '; ' . $driver['DriverID'];
 
-          $this->driverDatalist .= "<option value=\"{$driverName}\">{$driverName}</option>";
+          $this->driverDatalist .= "<option value=\"$driverName\">$driverName</option>";
         }
         $this->driverDatalist .= '</datalist>';
         $hideTableHead = 'hide';
@@ -1579,7 +1591,8 @@
         $d2TimeStampDisplay = 'Not Available<span class="hide">Error: None</span>';
       }
 
-      $requestedByDisplay = ($this->RequestedBy === null || $this->RequestedBy === '') ? 'Not On File' : $this->RequestedBy;
+      $requestedByDisplay = ($this->RequestedBy === null || $this->RequestedBy === '') ?
+        'Not On File' : $this->RequestedBy;
 
       if ($this->InvoiceNumber !== '-') {
         if ($this->ulevel < 2) {
@@ -1593,12 +1606,12 @@
           $repeatMarker = (self::test_bool($this->RepeatClient) === true) ? '' : 't';
           $repeatVal = (self::test_bool($this->RepeatClient) === true) ? '1' : '0';
           if ($this->organizationFlag === true) {
-            $this->memberInput = "<input type=\"hidden\" name=\"clientID[]\" value=\"{$repeatMarker}{$this->BillTo}\" />";
+            $this->memberInput = "<input type=\"hidden\" name=\"clientID[]\" value=\"$repeatMarker{$this->BillTo}\" />";
           } else {
             $this->memberInput = "<input type=\"hidden\" name=\"clientID\" value=\"{$this->ClientID}\" />";
           }
           $billed = "
-          <form class=\"noPrint\" action=\"{$url}\" method=\"post\">
+          <form class=\"noPrint\" action=\"$url\" method=\"post\">
             <input type=\"hidden\" name=\"endPoint\" value=\"invoices\" />
             <input type=\"hidden\" name=\"display\" value=\"invoice\" />
             <input type=\"hidden\" name=\"invoiceNumber\" value=\"{$this->InvoiceNumber}\" />
@@ -1633,7 +1646,7 @@
                 </tr>
                 <tr>
                   <td class=\"center\">
-                    {$diWeight}{$this->weightMarker} {$diPrice}
+                    $diWeight{$this->weightMarker} $diPrice
                   </td>
                 </tr>
                 <tr>
@@ -1649,7 +1662,7 @@
               </thead>
               <tbody>
                 <tr>
-                  <td><textarea class=\"notes\" {$readonlyNotes} rows=\"3\">{$this->Notes}</textarea></td>
+                  <td><textarea class=\"notes\" $readonlyNotes rows=\"3\">{$this->Notes}</textarea></td>
                 </tr>
               </tbody>
             </table>";
@@ -1662,7 +1675,7 @@
               </thead>
               <tbody>
                 <tr>
-                  <td><textarea class=\"notes\" {$readonlyNotes} rows=\"3\">{$this->Notes}</textarea></td>
+                  <td><textarea class=\"notes\" $readonlyNotes rows=\"3\">{$this->Notes}</textarea></td>
                 </tr>
               </tbody>
             </table>";
@@ -1673,7 +1686,7 @@
       $priceDisplay = '';
       if (self::test_bool($this->Contract) === true) {
         $priceDisplay .= "
-              <tr class=\"{$hideTableHead}\">
+              <tr class=\"$hideTableHead\">
                 <td><span class=\"bold\">Repeats:</span> {$this->Multiplier}</td>
                 <td>
                   <span class=\"bold\">Ticket Base:</span>
@@ -1695,11 +1708,11 @@
       $currencySymbol = ($ticketPrice === 'Pending') ? '' :
         "<span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>";
       $priceDisplay = "
-            <tr class=\"{$hideTableHead}\">
-              <td><span class=\"bold\">Run Price:</span> {$runPrice}</td>
+            <tr class=\"$hideTableHead\">
+              <td><span class=\"bold\">Run Price:</span> $runPrice</td>
               <td>
                 <span class=\"bold\">Ticket Price:</span>
-                {$currencySymbol}{$ticketPrice}
+                $currencySymbol $ticketPrice
               </td>
             </tr>";
       $emailConfirm = '';
@@ -1758,11 +1771,11 @@
         $tempProperty = $token.'Print';
         $tokenSet[$token . 'Display'] = "
           <tr class=\"sigPrint\">
-            <td colspan=\"2\" class=\"pullLeft\">{$label} Signed For By: {$this->$tempProperty}</td>
+            <td colspan=\"2\" class=\"pullLeft\">$label Signed For By: {$this->$tempProperty}</td>
           </tr>
           <tr class=\"sigImage\">
             <td colspan=\"2\" class=\"center\">
-              {$showSig}
+              $showSig
             </td>
           </tr>";
       }
@@ -1792,7 +1805,7 @@
         $this->VATtype = 0;
         $this->VATrate = 0;
       }
-      $vatDisplay = '<span class="bold">VAT:</span>';
+      $vatDisplay = '<span class="bold">VAT:</span>D:';
       $VATamount = 0;
       if (0 < $this->VATtype && $this->VATtype < 5) {
         $vatDisplay .= ($this->VATtype === 1 || $this->VATtype === 3) ? ' Standard' : ' Reduced';
@@ -1806,14 +1819,14 @@
         $vatDisplay .= ' Exempt';
         $this->VATrate = 0;
       }
-      if ($this->config['ApplyVAT'] === false || $this->VATable === false) {
+      if ($this->config['ApplyVAT'] === false || self::test_bool($this->VATable) === false) {
         $vatDisplay = ' Not VAT-able';
         $this->VATrate = 0;
       }
       if (self::test_bool($this->dryIce) === true) {
         $begin = self::before(' ', $vatDisplay);
         $end = self::after(' ', $vatDisplay);
-        $vatDisplay = "{$begin} D: {$end} ";
+        $vatDisplay = "$begin D: $end ";
         if (0 < $this->VATtypeIce && $this->VATtypeIce < 5) {
           $vatDisplay .= ($this->VATtypeIce === 1 || $this->VATtypeIce === 3) ? 'I: Standard' : 'I: Reduced';
           $VATamount += ($this->diPrice * (1 + ($this->VATrateIce / 100))) - $this->diPrice;
@@ -1831,11 +1844,11 @@
           $this->VATrateIce = 0;
         }
       }
-
+      $sortable = ($this->userType === 'client') ? '' : 'sortable';
       $returnData =
         $this->driverDatalist .
-        "<div class=\"tickets sortable\">
-          <p class=\"center {$hideTableHead}\">
+        "<div class=\"tickets $sortable\">
+          <p class=\"center $hideTableHead\">
             <span class=\"imageSpan floatLeft\">{$this->headerLogo2}</span>
             <span class=\"ticketHeadAddress medium\">{$this->config['ShippingAddress1']}<br>
             {$this->config['ShippingAddress2']}<br>
@@ -1847,39 +1860,39 @@
               <td>
                 <span class=\"bold\">Ticket Number:</span> <span class=\"tNumDisplay\">{$this->TicketNumber}</span>
               </td>
-              <td>{$ticketType}</td>
+              <td>$ticketType</td>
             </tr>
             <tr>
-              <td><span class=\"bold\">Requested By:</span> {$requestedByDisplay}</td>
+              <td><span class=\"bold\">Requested By:</span> $requestedByDisplay</td>
               <td><span class=\"bold\">Charge:</span> {$this->ticketCharge($this->Charge)}</td>
             </tr>
-            {$priceDisplay}
-            <tr class=\"{$hideVAT}\">
-              <td>{$vatDisplay}</td>
+            $priceDisplay
+            <tr class=\"$hideVAT\">
+              <td>$vatDisplay</td>
               <td>
                 <span class=\"bold\">Ticket VAT:</span>
                 <span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>{$this->number_format_drop_zero_decimals($VATamount, 2)}
               </td>
             </tr>
-            <tr class=\"{$hideTableHead}\">
-              <td><span class=\"bold\">Confirmation:</span> {$emailConfirm}</td>
+            <tr class=\"$hideTableHead\">
+              <td><span class=\"bold\">Confirmation:</span> $emailConfirm</td>
               <td><span class=\"bold\">Email Address:</span> {$this->EmailAddress}</td>
             </tr>
             <tr>
-              <td><span class=\"bold\">Received:</span> {$rDateDisplay}</td>
-              <td><span class=\"bold\">Ready:</span> {$readyDisplay}</td>
+              <td><span class=\"bold\">Received:</span> $rDateDisplay</td>
+              <td><span class=\"bold\">Ready:</span> $readyDisplay</td>
             </tr>
-            <tr class=\"{$hideTableHead}\">
-              <td><span class=\"bold\">Dispatch:</span> {$dispatchTimeDisplay}</td>
-              <td><span class=\"bold\">Pick Up:</span> {$pTimeStampDispay}</td>
+            <tr class=\"$hideTableHead\">
+              <td><span class=\"bold\">Dispatch:</span> $dispatchTimeDisplay</td>
+              <td><span class=\"bold\">Pick Up:</span> $pTimeStampDispay</td>
             </tr>
-            <tr class=\"{$hideTableHead}\">
-              <td><span class=\"bold\">Drop Off:</span> {$dTimeStampDisplay}</td>
-              <td><span class=\"bold\">Return:</span> {$d2TimeStampDisplay}</td>
+            <tr class=\"$hideTableHead\">
+              <td><span class=\"bold\">Drop Off:</span> $dTimeStampDisplay</td>
+              <td><span class=\"bold\">Return:</span> $d2TimeStampDisplay</td>
             </tr>
             <tr>
               <td>{$this->dispatchForm}</td>
-              <td class=\"{$hideTableHead}\"><span class=\"bold\">Invoice:</span> {$billed}</td>
+              <td class=\"$hideTableHead\"><span class=\"bold\">Invoice:</span> $billed</td>
             </tr>
           </table>
           <hr>
@@ -1942,13 +1955,13 @@
             </tr>
           </table>
           <hr>
-          {$iceAndNotes}
+          $iceAndNotes
           <hr>
-          <table class=\"wide {$hideTableHead}\">
+          <table class=\"wide $hideTableHead\">
             <tr>
               <td colspan=\"2\">
                 <table class=\"wide sigTable\">
-                  {$pSigDisplay} {$dSigDisplay} {$d2SigDisplay}
+                  $pSigDisplay $dSigDisplay $d2SigDisplay
                 </table>
               </td>
             </tr>
@@ -1958,9 +1971,9 @@
                   <legend>Coordinates</legend>
                   <table class=\"wide\">
                     <tr>
-                      <td class=\"center\"><span class=\"bold line\">Pick Up</span> {$pLoc}</td>
-                      <td class=\"center\"><span class=\"bold line\">Delivery</span> {$dLoc}</td>
-                      <td class=\"center\"><span class=\"bold line\">Return</span> {$d2Loc}</td>
+                      <td class=\"center\"><span class=\"bold line\">Pick Up</span> $pLoc</td>
+                      <td class=\"center\"><span class=\"bold line\">Delivery</span> $dLoc</td>
+                      <td class=\"center\"><span class=\"bold line\">Return</span> $d2Loc</td>
                     </tr>
                   </table>
                 </fieldset>
@@ -2003,6 +2016,12 @@
       * Set the confirmation form and the display time for the stop based on
       * charge and timestamps.
       ***/
+      $addressInputs = "
+      <input type=\"hidden\" name=\"pClient\" class=\"pClient\" form=\"ticketForm{$this->ticket_index}\" value=\"{$this->pClient}\" />
+      <input type=\"hidden\" name=\"pAddress1\" class=\"pAddress1\" form=\"ticketForm{$this->ticket_index}\" value=\"{$this->pAddress1}\" />
+      <input type=\"hidden\" name=\"dClient\" class=\"dClient\" form=\"ticketForm{$this->ticket_index}\" value=\"{$this->dClient}\" />
+      <input type=\"hidden\" name=\"dAddress1\" class=\"dAddress1\" form=\"ticketForm{$this->ticket_index}\" value=\"{$this->dAddress1}\" />
+      ";
       $sigClass = $sigActive = $sigPlaceholder = $sigName = $buttonName = '';
       $timingMultiplier = ($this->Charge < 6) ? $this->Charge : 5;
       $timingSource = 'now';
@@ -2131,6 +2150,7 @@
                       <input type=\"hidden\" name=\"sigImage\" class=\"sigImage\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"latitude\" class=\"latitude\" form=\"ticketForm{$this->ticket_index}\" value=\"\" />
                       <input type=\"hidden\" name=\"longitude\" class=\"longitude\" form=\"ticketForm{$this->ticket_index}\" value=\"\" />
+                      <input type=\"hidden\" name=\"action\" class=\"action\" value=\"step\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"step\" class=\"step\" value=\"{$this->step}\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"ticket_index\" class=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"ticketNumber\" class=\"ticketNumber\" value=\"{$this->TicketNumber}\" form=\"ticketForm{$this->ticket_index}\" />
@@ -2138,18 +2158,19 @@
                       <input type=\"hidden\" name=\"charge\" class=\"charge\" value=\"{$this->Charge}\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"emailConfirm\" class=\"emailConfirm\" value=\"{$this->EmailConfirm}\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"emailAddress\" class=\"emailAddress\" value=\"{$this->EmailAddress}\" form=\"ticketForm{$this->ticket_index}\" />
-                      <input type=\"hidden\" name=\"transfers\" class=\"transfers\" value=\"{$transfersFormValue}\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"transfers\" class=\"transfers\" value=\"$transfersFormValue\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"ticketBase\" class=\"ticketBase\" value=\"{$this->TicketBase}\" form=\"ticketForm{$this->ticket_index}\" />
-                      <label for=\"{$sigName}Print{$this->ticket_index}\">Signer</label><br><input type=\"text\" name=\"{$sigName}Print\" id=\"{$sigName}Print{$this->ticket_index}\" class=\"{$sigName}Print printName\" placeholder=\"{$sigPlaceholder}\" {$sigActive} form=\"ticketForm{$this->ticket_index}\" />
+                      <label for=\"{$sigName}Print{$this->ticket_index}\">Signer</label><br><input type=\"text\" name=\"{$sigName}Print\" id=\"{$sigName}Print{$this->ticket_index}\" class=\"{$sigName}Print printName\" placeholder=\"$sigPlaceholder\" $sigActive form=\"ticketForm{$this->ticket_index}\" />
+                      $addressInputs
                     </form>
                   </td>
                   <td colspan=\"2\" class=\"center\" style=\"vertical-align:bottom;\">
-                    <button type=\"button\" class=\"getSig {$sigClass}\"><img src=\"../images/sign.png\" height=\"24\" width=\"24\" alt=\"Open Signature Box\" /></button>
+                    <button type=\"button\" class=\"getSig $sigClass\"><img src=\"../images/sign.png\" height=\"24\" width=\"24\" alt=\"Open Signature Box\" /></button>
                   </td>
                 </tr>
                 <tr>
                   <td>
-                    <button type=\"button\" class=\"dTicket\" form=\"ticketForm{$this->ticket_index}\">{$buttonName}</button>
+                    <button type=\"button\" class=\"dTicket\" form=\"ticketForm{$this->ticket_index}\">$buttonName</button>
                   </td>";
       if ($this->processTransfer === true) {
         $confirm = "
@@ -2161,7 +2182,7 @@
                       <input type=\"hidden\" name=\"ticket_index\" class=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"ticketNumber\" class=\"ticketNumber\" value=\"{$this->TicketNumber}\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"dispatchedTo\" class=\"dispatchedTo\" value=\"{$this->DispatchedTo}\" form=\"ticketForm{$this->ticket_index}\" />
-                      <input type=\"hidden\" name=\"transfers\" class=\"transfers\" value=\"{$transfersFormValue}\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"transfers\" class=\"transfers\" value=\"$transfersFormValue\" form=\"ticketForm{$this->ticket_index}\" />
                     </form>
                   </td>
                 </tr>
@@ -2201,7 +2222,7 @@
               <td>&nbsp;</td>
             </tr>
             <tr>
-              <td class=\"center\" style=\"white-space:nowrap;\">{$iceWeight}{$this->weightMarker}</td>
+              <td class=\"center\" style=\"white-space:nowrap;\">$iceWeight{$this->weightMarker}</td>
             </tr>
             <tr>
               <td>&nbsp;</td>
@@ -2245,7 +2266,7 @@
         <table class=\"wide\">
           <thead>
             <tr>
-              <td colspan=\"2\">{$label1}{$this->pTime}<span class=\"timing hide\">{$timing}</span></td>
+              <td colspan=\"2\">$label1{$this->pTime}<span class=\"timing hide\">$timing</span></td>
             </tr>
             <tr>
               <td colspan=\"2\"><hr></td>
@@ -2255,7 +2276,7 @@
             <tr>
               <td>{$this->pClient}</td>
               <td>
-                <a class=\"plain addressLink\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$pAddressEncoded}\">
+                <a class=\"plain addressLink\" target=\"_blank\" href=\"https://www.google.com/maps/dir//$pAddressEncoded\">
                   {$this->pAddress1}<br>{$this->pAddress2}
                 </a>
               </td>
@@ -2264,14 +2285,14 @@
               <td></td>
               <td>{$this->countryFromAbbr($this->pCountry)}</td>
             </tr>
-            {$pContactDisplay} {$pTelDisplay}
+            $pContactDisplay $pTelDisplay
           </tbody>
         </table>
         <hr>
         <table class=\"wide\">
           <thead>
             <tr>
-              <td colspan=\"2\">{$label2}{$this->dTime}</td>
+              <td colspan=\"2\">$label2{$this->dTime}</td>
             </tr>
             <tr>
               <td colspan=\"2\"><hr></td>
@@ -2281,7 +2302,7 @@
             <tr>
               <td>{$this->dClient}</td>
               <td>
-                <a class=\"plain addressLink\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$dAddressEndoded}\">
+                <a class=\"plain addressLink\" target=\"_blank\" href=\"https://www.google.com/maps/dir//$dAddressEndoded\">
                   {$this->dAddress1}<br>{$this->dAddress2}
                 </a>
               </td>
@@ -2290,18 +2311,18 @@
               <td></td>
               <td>{$this->countryFromAbbr($this->dCountry)}</td>
             </tr>
-            {$dContactDisplay} {$dTelDisplay}
+            $dContactDisplay $dTelDisplay
           </tbody>
         </table>
         <hr>
-        {$displayDryIce}
+        $displayDryIce
         <hr>
         <p class=\"message2 center\"></p>
-        {$confirm}";
+        $confirm";
       if ($this->processTransfer === false) {
         $singleTicket .= "
-              <td><button type=\"button\" class=\"cancelRun {$buttonClass}\" form=\"ticketForm{$this->ticket_index}\">Cancel</button></td>
-              <td><button type=\"button\" class=\"{$button2Class}\" form=\"ticketForm{$this->ticket_index}\">{$button2Name}</button></td>
+              <td><button type=\"button\" class=\"cancelRun $buttonClass\" form=\"ticketForm{$this->ticket_index}\">Cancel</button></td>
+              <td><button type=\"button\" class=\"$button2Class\" form=\"ticketForm{$this->ticket_index}\">$button2Name</button></td>
               <td><button type=\"button\" class=\"transferTicket\" form=\"ticketForm{$this->ticket_index}\">Transfer</button></td>";
       } else {
         $singleTicket .= '
@@ -2336,7 +2357,7 @@
             "{$this->multiTicket[0]->dAddress1}, {$this->multiTicket[0]->dAddress2}, {$this->multiTicket[0]->dCountry}"
           );
           $topAddress = "
-            <a class=\"plain addressLink\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$topAddressEncoded}\">
+            <a class=\"plain addressLink\" target=\"_blank\" href=\"https://www.google.com/maps/dir//$topAddressEncoded\">
               {$this->decode($this->multiTicket[0]->dAddress1)}<br>{$this->decode($this->multiTicket[0]->dAddress2)}
             </a>";
           $dTimeArray = explode(':', $this->multiTicket[0]->dTime);
@@ -2356,7 +2377,7 @@
             "{$this->multiTicket[0]->pAddress1}, {$this->multiTicket[0]->pAddress2}, {$this->multiTicket[0]->pCountry}"
           );
           $topAddress = "
-            <a class=\"plain addressLink\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$topAddressEncoded}\">
+            <a class=\"plain addressLink\" target=\"_blank\" href=\"https://www.google.com/maps/dir//$topAddressEncoded\">
               {$this->decode($this->multiTicket[0]->pAddress1)}<br>{$this->decode($this->multiTicket[0]->pAddress2)}
             </a>";
           switch ($this->multiTicket[0]->step) {
@@ -2380,7 +2401,7 @@
           <table class=\"wide\">
             <thead>
               <tr>
-                <td colspan=\"2\" class=\"center\"><h3>{$pTime}</h3><span class=\"timing hide\">{$timing}</span></td>
+                <td colspan=\"2\" class=\"center\"><h3>$pTime</h3><span class=\"timing hide\">$timing</span></td>
               </tr>
               <tr>
                 <td colspan=\"2\"><hr></td>
@@ -2388,8 +2409,8 @@
             </thead>
             <tbody>
               <tr>
-                <td>{$topClient}</td>
-                <td>{$topAddress}</td>
+                <td>$topClient</td>
+                <td>$topAddress</td>
               </tr>
             </tbody>
           </table>
@@ -2412,7 +2433,7 @@
               "{$this->multiTicket[$i]->pAddress1}, {$this->multiTicket[$i]->pAddress2}, {$this->multiTicket[$i]->pCountry}"
             );
             $address = "
-              <a class=\"plain addressLink\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$addressEndoded}\">
+              <a class=\"plain addressLink\" target=\"_blank\" href=\"https://www.google.com/maps/dir//$addressEndoded\">
                 {$this->decode($this->multiTicket[$i]->pAddress1)}<br>{$this->decode($this->multiTicket[$i]->pAddress2)}
               </a>";
             $contact = ($this->multiTicket[$i]->dContact == null) ?
@@ -2442,7 +2463,7 @@
               "{$this->multiTicket[$i]->dAddress1}, {$this->multiTicket[$i]->dAddress2}, {$this->multiTicket[$i]->dCountry}"
             );
             $address = "
-              <a class=\"plain addressLink\" target=\"_blank\" href=\"https://www.google.com/maps/dir//{$addressEndoded}\">
+              <a class=\"plain addressLink\" target=\"_blank\" href=\"https://www.google.com/maps/dir//$addressEndoded\">
                 {$this->decode($this->multiTicket[$i]->dAddress1)}<br>{$this->decode($this->multiTicket[$i]->dAddress2)}
               </a>";
 
@@ -2495,7 +2516,7 @@
                     <th class=\"pullLeft\">Dry Ice:</th>
                   </tr>
                   <tr>
-                    <td class=\"center\">{$iceWeight}{$this->weightMarker}</td>
+                    <td class=\"center\">$iceWeight{$this->weightMarker}</td>
                   </tr>
                 </table>
                 <table class=\"tFieldRight\" style=\"width:75%;\">
@@ -2526,8 +2547,8 @@
         $multiTicket .= "<table class=\"tickets center\">
           <tfoot>
             <tr>
-              <td><button type=\"button\" class=\"{$buttonClass}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\">{$buttonName}</button></td>
-              <td><button type=\"button\" class=\"{$button2Class}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\">{$button2Name}</button></td>
+              <td><button type=\"button\" class=\"$buttonClass\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\">$buttonName</button></td>
+              <td><button type=\"button\" class=\"$button2Class\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\">$button2Name</button></td>
             </tr>
             <tr>
               <td colspan=\"2\" class=\"message2 center\" style=\"padding-top:0.5em\"></td>
@@ -2547,13 +2568,17 @@
                   <input type=\"hidden\" name=\"charge\" class=\"charge\" value=\"{$this->multiTicket[$i]->Charge}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                   <input type=\"hidden\" name=\"emailConfirm\" class=\"emailConfirm\" value=\"{$this->multiTicket[$i]->EmailConfirm}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                   <input type=\"hidden\" name=\"emailAddress\" class=\"emailAddress\" value=\"{$this->multiTicket[$i]->EmailAddress}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
-                  <input type=\"hidden\" name=\"transfers\" class=\"transfers\" value=\"{$transfersFormValue}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
+                  <input type=\"hidden\" name=\"transfers\" class=\"transfers\" value=\"$transfersFormValue\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                   <input type=\"hidden\" name=\"pendingReceiver\" class=\"pendingReceiver\" value=\"{$this->multiTicket[$i]->PendingReceiver}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                   <input type=\"hidden\" name=\"step\" class=\"step\" value=\"{$this->multiTicket[$i]->step}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                   <input type=\"hidden\" name=\"ticketBase\" class=\"ticketBase\" value=\"{$this->multiTicket[$i]->TicketBase}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
+                  <input type=\"hidden\" name=\"pClient\" class=\"pClient\" value=\"{$this->multiTicket[$i]->pClient}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
+                  <input type=\"hidden\" name=\"pAddress1\" class=\"pAddress1\" value=\"{$this->multiTicket[$i]->pAddress1}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
+                  <input type=\"hidden\" name=\"dClient\" class=\"dClient\" value=\"{$this->multiTicket[$i]->dClient}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
+                  <input type=\"hidden\" name=\"dAddress1\" class=\"dAddress1\" value=\"{$this->multiTicket[$i]->dAddress1}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                 </form>
                 <h3 class=\"floatLeft\">{$this->multiTicket[$i]->TicketNumber}</h3>
-                {$label}
+                $label
                 <h3 class=\"ticketCharge floatRight\">{$this->ticketCharge($this->Charge)}</h3>
               </td>
             </tr>
@@ -2563,15 +2588,15 @@
           </thead>
           <tbody>
             <tr>
-              <td>{$client}</td>
-              <td>{$address}</td>
+              <td>$client</td>
+              <td>$address</td>
             </tr>
-              {$contact} {$tel}
+              $contact $tel
             <tr>
               <td colspan=\"2\"><hr></td>
             </tr>
             <tr>
-            {$displayDryIce}
+            $displayDryIce
             </tr>
           </tbody>
         </table>";
@@ -2602,15 +2627,13 @@
 
     private function javascriptVars()
     {
+      if ($this->userType != 'client') return;
       $returnData = '<form id="javascriptVars">';
-      foreach($_SESSION as $key => $value) {
-        if (in_array($key, $this->javascriptKeys)) {
-          if (array_key_exists($value, $this->clientNameExceptions)) {
-            $value = $this->clientNameExceptions[$value];
-          }
-          $returnData .= "
-            <input type=\"hidden\" name=\"{$key}\" value=\"{$this->decode($value)}\" form=\"javascriptVars\" />";
-        }
+      foreach ($this->javascriptKeys as $_ => $value) {
+        $temp = $this->members[$this->ClientID]->getProperty($value);
+        if (array_key_exists($temp, $this->clientNameExceptions)) $temp = $this->clientNameExceptions[$temp];
+        $returnData .= "
+            <input type=\"hidden\" name=\"$value\" value=\"{$this->decode($temp)}\" form=\"javascriptVars\" />";
       }
       $returnData .= '</form>';
       return $returnData;
@@ -2636,6 +2659,11 @@
 
     public function ticketsToDispatch()
     {
+      $response = (object) [
+        'state' => 'valid',
+        'message' => null,
+        'tickets' => null
+      ];
       $returnData = '';
       $ticketQueryResult = [];
       $this->forDisatch = true;
@@ -2675,21 +2703,29 @@
 
       if (!$ticketQuery = self::createQuery($ticketQueryData)) {
         $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
-        return $this->error;
+        $response->state = 'error';
+        $response->message = self::getError();
+        return json_encode($response);
       }
       $ticketQueryResult = self::callQuery($ticketQuery);
       if ($ticketQueryResult === false) {
         $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
-        return $this->error;
+        $response->state = 'error';
+        $response->message = self::getError();
+        return json_encode($response);
       }
 
       if (empty($ticketQueryResult)) {
-        return '<p class="center result">No Tickets Available.</p>';
+        $response->state = 'info';
+        $response->message = 'No Tickets Available.';
+        return json_encode($response);
       }
+      $response->tickets = $ticketQueryResult;
+      // return json_encode($response);
       if ($this->driverList === null) {
         self::fetchDrivers();
       }
@@ -3006,13 +3042,13 @@
         if (!in_array($i, $excludes, true)) {
           $selected = ($testCharge === $i) ? 'selected' : '';
           $returnData .= "
-          <option value=\"{$i}\" {$selected}>{$this->ticketCharge($i)}</option>";
+          <option value=\"$i\" $selected>{$this->ticketCharge($i)}</option>";
         }
       }
       if ($this->formType === 'Query' && (is_numeric($this->ulevel) && ($this->ulevel < 2 || $this->ClientID === 0))) {
         $temp = $returnData;
         $returnData = "
-          <option value=\"10\">All</option>{$temp}";
+          <option value=\"10\">All</option>$temp";
       }
       return $returnData;
     }
@@ -3056,7 +3092,7 @@
         <p class=\"center\">Feature Not Available.</p>
         </div>";
       }
-      $this->Contract = (int)$this->Contract ?? 0;
+      $this->Contract = $this->Contract ?? 0;
       $this->RunNumber = $this->RunNumber ?? 0;
       $returnData = '';
       $this->action = self::esc_url($_SERVER['REQUEST_URI']);
@@ -3092,7 +3128,7 @@
         $this->action = '/drivers/ticketEditor';
       }
       if ($this->BillTo !== null) {
-        if ($this->RepeatClient === 1) {
+        if ($this->RepeatClient === 1 && $this->clientList !== 'empty' && $this->clientList !== null) {
           foreach (json_decode(urldecode($this->clientList), true) as $client) {
             if ($client['ClientID'] == $this->BillTo) {
               $this->BillTo = ($client['Department'] == null) ?
@@ -3101,11 +3137,13 @@
             }
           }
         } else {
-          foreach (json_decode(urldecode($this->tClientList), true) as $client) {
-            if ($client['ClientID'] == $this->BillTo) {
-              $this->BillTo = ($client['Department'] == null) ?
-              "{$client['ClientName']}; {$client['ClientID']}" :
-              "{$client['ClientName']}, {$client['Department']}; {$client['ClientID']}";
+          if ($this->tClientList !== 'empty' && $this->tClientList !== null) {
+            foreach (json_decode(urldecode($this->tClientList), true) as $client) {
+              if ($client['ClientID'] == $this->BillTo) {
+                $this->BillTo = ($client['Department'] == null) ?
+                "{$client['ClientName']}; {$client['ClientID']}" :
+                "{$client['ClientName']}, {$client['Department']}; {$client['ClientID']}";
+              }
             }
           }
         }
@@ -3182,27 +3220,31 @@
       }
       $emailNoteDisplay = (self::test_bool($this->EmailConfirm) === false) ? 'hide' : '';
 
-      $hideVAT = ($this->config['ApplyVAT'] === true) ? '' : 'hide';
-
-      $VATchecked = ($this->config['ApplyVAT'] === true) ? 'checked' : '';
+      $hideBillToLabel = '';
 
       if ($this->userType === 'client' || $this->userType === 'org') {
         $repeatOption = $readonlyDispatch = $hideFromDriver = $hideDispatch = $requiredDispatch =
         $billToRequired = $dispatchedBy = $transferredBy = $cancelTicketEditor =
         $nonRepeatChecked = '';
-
-        $this->RepeatClient = $_SESSION['RepeatClient'] ?? 1;
         $billingRowClass = 'hide';
         $dispatchInputType = 'type="hidden"';
         $billToType = 'type="hidden"';
-        $hideBillToLabel = 'class="hide"';
-        if (
-          ($this->userType == 'client' && isset($_SESSION['org_id']) &&
-          ($_SESSION['org_id']['RequestTickets'] == 1 ||
-            $_SESSION['org_id']['RequestTickets'] >= 3)) ||
-          ($this->userType == 'org' &&
-            isset($_SESSION['org_id']['RequestTickets']) && $_SESSION['org_id']['RequestTickets'] >= 2)
-        ) {
+        $hideBillToLabel = 'hide';
+
+        if ($this->userType == 'client') {
+          $this->RepeatClient = $this->members[$this->ClientID]->getProperty('RepeatClient');
+          $org_id_json = $this->members[$this->ClientID]->getProperty('org_id');
+          $org_id = json_decode($org_id_json,true);
+          $requestTickets = (is_array($org_id) && array_key_exists('RequestTickets',$org_id)) ?
+            $org_id['RequestTickets'] : false;
+          if ($requestTickets !== false && ($requestTickets == 1 || $requestTickets >= 3)) {
+            $billToType = 'list="members"';
+            $billToRequired = 'required';
+            $hideBillToLabel = '';
+          }
+        } else {
+          $hideFromDriver = 'class="hide"';
+          $this->RepeatClient = 1;
           $billToType = 'list="members"';
           $billToRequired = 'required';
           $hideBillToLabel = '';
@@ -3242,7 +3284,7 @@
         $transfersValue = ($this->Transfers === null) ? '' : htmlentities(json_encode($this->Transfers));
         $transferredBy = ($this->ticketEditor === true) ? "<input type=\"hidden\" name=\"transferredBy\" class=\"transferredBy\" value=\"{$this->transferredBy}\" form=\"request{$this->ticket_index}\" />
         <input type=\"hidden\" name=\"holder\" class=\"holder\" value=\"{$this->DispatchedTo}\" form=\"request{$this->ticket_index}\" />
-        <input type=\"hidden\" name=\"transfers\" class=\"transfers\" value=\"{$transfersValue}\" form=\"request{$this->ticket_index}\" />" : '';
+        <input type=\"hidden\" name=\"transfers\" class=\"transfers\" value=\"$transfersValue\" form=\"request{$this->ticket_index}\" />" : '';
         $cancelTicketEditor = ($this->ticketEditor === true) ? '<button type="button" class="cancelTicketEditor floatRight">Cancel</button>' : '';
       }
       // Display the ticket form
@@ -3268,21 +3310,21 @@
                 <tr>
                   <td>
                     <label for=\"dispatchTimeStamp{$this->ticket_index}\">Dispatch:</label>
-                    <input type=\"datetime-local\" name=\"dispatchTimeStamp\" id=\"dispatchTimeStamp{$this->ticket_index}\" class=\"dispatchTimeStamp\" value=\"{$dispatchTimeStamp}\" step=\"1\" form=\"request{$this->ticket_index}\" />
+                    <input type=\"datetime-local\" name=\"dispatchTimeStamp\" id=\"dispatchTimeStamp{$this->ticket_index}\" class=\"dispatchTimeStamp\" value=\"$dispatchTimeStamp\" step=\"1\" form=\"request{$this->ticket_index}\" />
                   </td>
                   <td>
                     <label for=\"pTimeStamp{$this->ticket_index}\">Pickup:</label>
-                    <input type=\"datetime-local\" name=\"pTimeStamp\" id=\"pTimeStamp{$this->ticket_index}\" class=\"pTimeStamp\" value=\"{$pTimeStamp}\" step=\"1\" form=\"request{$this->ticket_index}\" />
+                    <input type=\"datetime-local\" name=\"pTimeStamp\" id=\"pTimeStamp{$this->ticket_index}\" class=\"pTimeStamp\" value=\"$pTimeStamp\" step=\"1\" form=\"request{$this->ticket_index}\" />
                   </td>
                 </tr>
                 <tr>
                   <td>
                     <label for=\"dTimeStamp{$this->ticket_index}\">Delivery:</label>
-                    <input type=\"datetime-local\" name=\"dTimeStamp\" id=\"dTimeStamp{$this->ticket_index}\" class=\"dTimeStamp\" value=\"{$dTimeStamp}\" step=\"1\" form=\"request{$this->ticket_index}\" /></td>
+                    <input type=\"datetime-local\" name=\"dTimeStamp\" id=\"dTimeStamp{$this->ticket_index}\" class=\"dTimeStamp\" value=\"$dTimeStamp\" step=\"1\" form=\"request{$this->ticket_index}\" /></td>
                   </td>
                   <td>
                     <label for=\"d2TimeStamp{$this->ticket_index}\">Return:</label>
-                    <input type=\"datetime-local\" name=\"d2TimeStamp\" id=\"d2TimeStamp{$this->ticket_index}\" class=\"d2TimeStamp\" value=\"{$d2TimeStamp}\" step=\"1\" form=\"request{$this->ticket_index}\" {$d2TimeStampDisabled} /></td>
+                    <input type=\"datetime-local\" name=\"d2TimeStamp\" id=\"d2TimeStamp{$this->ticket_index}\" class=\"d2TimeStamp\" value=\"$d2TimeStamp\" step=\"1\" form=\"request{$this->ticket_index}\" $d2TimeStampDisabled /></td>
                   </td>
                 </tr>
               </table>
@@ -3303,7 +3345,7 @@
                   <legend>
                     <label for=\"dryIce{$this->ticket_index}\">Dry Ice:</label>
                     <input type=\"hidden\" name=\"dryIce\" id=\"dryIceMarker{$this->ticket_index}\" value=\"0\" form=\"request{$this->ticket_index}\" />
-                    <input type=\"checkbox\" name=\"dryIce\" id=\"dryIce{$this->ticket_index}\" class=\"dryIce\" value=\"1\" {$dryIceChecked} form=\"request{$this->ticket_index}\" />
+                    <input type=\"checkbox\" name=\"dryIce\" id=\"dryIce{$this->ticket_index}\" class=\"dryIce\" value=\"1\" $dryIceChecked form=\"request{$this->ticket_index}\" />
                   </legend>
                   <table class=\"centerDiv wide\">
                     <tr>
@@ -3313,8 +3355,8 @@
                       <td class=\"ticketSpace\"></td>
                       <td title=\"Increments of 5 please\">
                         <label for=\"diWeight{$this->ticket_index}\">Weight:</label>
-                        <input type=\"hidden\" name=\"diWeight\" id=\"diWeightMarker{$this->ticket_index}\" class=\"diWeightMarker\" value=\"0\" {$diWeightMarkerDisabled} form=\"request{$this->ticket_index}\" />
-                        <input type=\"number\" name=\"diWeight\" id=\"diWeight{$this->ticket_index}\" class=\"diWeight\" form=\"request{$this->ticket_index}\" min=\"0\" step=\"{$this->dryIceStep}\" value=\"{$this->number_format_drop_zero_decimals($this->diWeight, 3)}\" {$diWeightDisabled} />{$this->weightMarker}
+                        <input type=\"hidden\" name=\"diWeight\" id=\"diWeightMarker{$this->ticket_index}\" class=\"diWeightMarker\" value=\"0\" $diWeightMarkerDisabled form=\"request{$this->ticket_index}\" />
+                        <input type=\"number\" name=\"diWeight\" id=\"diWeight{$this->ticket_index}\" class=\"diWeight\" form=\"request{$this->ticket_index}\" min=\"0\" step=\"{$this->dryIceStep}\" value=\"{$this->number_format_drop_zero_decimals($this->diWeight, 3)}\" $diWeightDisabled />{$this->weightMarker}
                       </td>
                     </tr>
                     <tr>
@@ -3338,33 +3380,27 @@
       $returnData .= "
       <div id=\"deliveryRequest{$this->ticket_index}\" class=\"removableByEditor\">
         <form id=\"request{$this->ticket_index}\" action=\"{$this->action}\" method=\"post\">
-          {$indexInput} {$dispatchedBy} {$transferredBy} {$ticketNumberInput} {$ticketEditor}
+          $indexInput $dispatchedBy $transferredBy $ticketNumberInput $ticketEditor
           <input type=\"hidden\" name=\"runNumber\" value=\"{$this->RunNumber}\" form=\"request{$this->ticket_index}\" />
           <input type=\"hidden\" name=\"contract\" value=\"{$this->Contract}\" form=\"request{$this->ticket_index}\" />
-          {$ticketEditorValues}
+          $ticketEditorValues
           <table class=\"ticketContainer\">
             <tr>
               <td colspan=\"2\">
                 <fieldset form=\"request{$this->ticket_index}\" id=\"information{$this->ticket_index}\">
                   <legend>General Information</legend>
                   <table class=\"centerDiv\">
-                    <tr class=\"{$billingRowClass}\">
+                    <tr class=\"$billingRowClass\">
                       <td>
                         <label for=\"repeatClient{$this->ticket_index}\">Non-Repeat:</label>
-                        <input type=\"hidden\" name=\"repeatClient\" value=\"{$this->RepeatClient}\" form=\"request{$this->ticket_index}\" {$nonRepeatChecked} />
-                        {$repeatOption}
+                        <input type=\"hidden\" name=\"repeatClient\" value=\"{$this->RepeatClient}\" form=\"request{$this->ticket_index}\" $nonRepeatChecked />
+                        $repeatOption
                       </td>
-                      <td>
-                        <span  class=\"{$hideVAT}\">
-                          <label for=\"VATable{$this->ticket_index}\">VAT-able</label>
-                          <input type=\"hidden\" name=\"VATable\" value=\"0\" form=\"request{$this->ticket_index}\" />
-                          <input type=\"checkbox\" name=\"VATable\" id=\"VATable{$this->ticket_index}\" value=\"1\" form=\"request{$this->ticket_index}\" {$VATchecked} />
-                      </span>
-                      </td>
+                      <td><td>
                     </tr>
                     <tr>
                       <td>
-                        <label $hideBillToLabel for=\"billTo{$this->ticket_index}\">Bill To:</label>
+                        <label class=\"$hideBillToLabel\" for=\"billTo{$this->ticket_index}\">Bill To:</label>
                         <input $billToType name=\"billTo\" id=\"billTo{$this->ticket_index}\" class=\"billTo\" value=\"$billToValue\" title=\"$billToValue\" form=\"request{$this->ticket_index}\" $billToRequired />
                       </td>
                       <td class=\"$billingRowClass\">
@@ -3380,27 +3416,27 @@
                         </select>
                       </td>
                       <td>
-                        <label class=\"rtMarker\" for=\"d2SigReq{$this->ticket_index}\" style=\"display:{$rtDisplay};\">Return Signature:</label>
+                        <label class=\"rtMarker\" for=\"d2SigReq{$this->ticket_index}\" style=\"display:$rtDisplay;\">Return Signature:</label>
                         <input type=\"hidden\" name=\"d2SigReq\" id=\"d2SigReqMarker{$this->ticket_index}\" class=\"d2SigReqMarker\" value=\"0\" form=\"request{$this->ticket_index}\" />
-                        <input type=\"checkbox\" class=\"rtMarker\" name=\"d2SigReq\" id=\"d2SigReq{$this->ticket_index}\" class=\"d2SigReq\" style=\"display:{$rtDisplay};\" value=\"1\" {$d2SigChecked} form=\"request{$this->ticket_index}\" />
+                        <input type=\"checkbox\" class=\"rtMarker\" name=\"d2SigReq\" id=\"d2SigReq{$this->ticket_index}\" class=\"d2SigReq\" style=\"display:$rtDisplay;\" value=\"1\" $d2SigChecked form=\"request{$this->ticket_index}\" />
                       </td>
                     </tr>
                     <tr>
                       <td>
                         <label for=\"emailAddress{$this->ticket_index}\">Email Address:</label>
-                        <input type=\"email\" name=\"emailAddress\" id=\"emailAddress{$this->ticket_index}\" class=\"emailAddress\" form=\"request{$this->ticket_index}\" value=\"{$this->EmailAddress}\" />
+                        <input type=\"email\" name=\"emailAddress\" id=\"emailAddress{$this->ticket_index}\" class=\"emailAddress\" form=\"request{$this->ticket_index}\" value=\"{$this->EmailAddress}\" multiple />
                       </td>
                       <td>
                         <label for=\"emailConfirm{$this->ticket_index}\">Email <span class=\"mobileHide\">Confirmation</span>:</label>
                         <select form=\"request{$this->ticket_index}\" name=\"emailConfirm\" id=\"emailConfirm{$this->ticket_index}\" class=\"emailConfirm\">
-                          <option value=\"0\" {$emailConfirm0}>None</option>
-                          <option value=\"1\" {$emailConfirm1}>Picked Up</option>
-                          <option value=\"2\" {$emailConfirm2}>Delivered</option>
-                          <option value=\"3\" {$emailConfirm3}>Picked Up & Delivered</option>
-                          <option class=\"rtMarker\" value=\"4\" {$emailConfirm4} style=\"display:{$rtDisplay};\">Returned</option>
-                          <option class=\"rtMarker\" value=\"5\" {$emailConfirm5} style=\"display:{$rtDisplay};\">Picked Up &amp; Returned</option>
-                          <option class=\"rtMarker\" value=\"6\" {$emailConfirm6} style=\"display:{$rtDisplay};\">Delivered &amp; Returned</option>
-                          <option class=\"rtMarker\" value=\"7\" {$emailConfirm7} style=\"display:{$rtDisplay};\">All</option>
+                          <option value=\"0\" $emailConfirm0>None</option>
+                          <option value=\"1\" $emailConfirm1>Picked Up</option>
+                          <option value=\"2\" $emailConfirm2>Delivered</option>
+                          <option value=\"3\" $emailConfirm3>Picked Up & Delivered</option>
+                          <option class=\"rtMarker\" value=\"4\" $emailConfirm4 style=\"display:$rtDisplay;\">Returned</option>
+                          <option class=\"rtMarker\" value=\"5\" $emailConfirm5 style=\"display:$rtDisplay;\">Picked Up &amp; Returned</option>
+                          <option class=\"rtMarker\" value=\"6\" $emailConfirm6 style=\"display:$rtDisplay;\">Delivered &amp; Returned</option>
+                          <option class=\"rtMarker\" value=\"7\" $emailConfirm7 style=\"display:$rtDisplay;\">All</option>
                         </select>
                       </td>
                     </tr>
@@ -3416,9 +3452,9 @@
                     </tr>
                     <tr>
                       <td>
-                        <label for=\"receivedReady{$this->ticket_index}\">Ready: <input type=\"checkbox\" name=\"receivedReady\" id=\"receivedReady{$this->ticket_index}\" class=\"receivedReady\" value=\"1\" form=\"request{$this->ticket_index}\" {$readyChecked} /></label>
-                        <p class=\"readyNote\" style=\"display:{$readyNote}\">Now</p>
-                        <input type=\"datetime-local\" name=\"readyDate\" class=\"readyDate\" style=\"display:{$readyDateDisplay}\" value=\"{$readyDate}\" form=\"request{$this->ticket_index}\" />
+                        <label for=\"receivedReady{$this->ticket_index}\">Ready: <input type=\"checkbox\" name=\"receivedReady\" id=\"receivedReady{$this->ticket_index}\" class=\"receivedReady\" value=\"1\" form=\"request{$this->ticket_index}\" $readyChecked /></label>
+                        <p class=\"readyNote\" style=\"display:$readyNote\">Now</p>
+                        <input type=\"datetime-local\" name=\"readyDate\" class=\"readyDate\" style=\"display:$readyDateDisplay\" value=\"$readyDate\" form=\"request{$this->ticket_index}\" />
                       </td>
                       <td></td>
                     </tr>
@@ -3426,17 +3462,17 @@
                 </fieldset>
               </td>
             </tr>
-            {$timing}
+            $timing
             <tr class=\"deliveryInfo\">
               <td>
                 <fieldset form=\"request{$this->ticket_index}\" id=\"pickupField{$this->ticket_index}\">
                   <legend>Pick Up</legend>
                   <table class=\"centerDiv\">
-                    <thead {$hideFromDriver}>
+                    <thead $hideFromDriver>
                       <tr>
                         <td><label for=\"fromMe{$this->ticket_index}\">From Me:</label>
                           <input type=\"hidden\" name=\"fromMe\" value=\"0\" form=\"request{$this->ticket_index}\" />
-                          <input type=\"checkbox\" id=\"fromMe{$this->ticket_index}\" class=\"me\" name=\"fromMe\" value=\"1\" {$fromMeCheked} form=\"request{$this->ticket_index}\" />
+                          <input type=\"checkbox\" id=\"fromMe{$this->ticket_index}\" class=\"me\" name=\"fromMe\" value=\"1\" $fromMeCheked form=\"request{$this->ticket_index}\" />
                         </td>
                         <td>
                           <label for=\"onFileP{$this->ticket_index}\">On File:  </label>
@@ -3503,7 +3539,7 @@
                         <td colspan=\"2\">
                           <label for=\"pSigReq{$this->ticket_index}\">Request Signature:  </label>
                           <input type=\"hidden\" name=\"pSigReq\" id=\"pSigReqMarker{$this->ticket_index}\" value=\"0\" form=\"request{$this->ticket_index}\" />
-                          <input type=\"checkbox\" name=\"pSigReq\" id=\"pSigReq{$this->ticket_index}\" value=\"1\" {$pSigChecked} form=\"request{$this->ticket_index}\" />
+                          <input type=\"checkbox\" name=\"pSigReq\" id=\"pSigReq{$this->ticket_index}\" value=\"1\" $pSigChecked form=\"request{$this->ticket_index}\" />
                         </td>
                       </tr>
                     </tbody>
@@ -3514,11 +3550,11 @@
                 <fieldset form=\"request{$this->ticket_index}\" id=\"deliveryField{$this->ticket_index}\">
                   <legend>Deliver</legend>
                   <table class=\"centerDiv\">
-                    <thead {$hideFromDriver}>
+                    <thead $hideFromDriver>
                       <tr>
                         <td><label for=\"toMe{$this->ticket_index}\">To Me:</label>
                           <input type=\"hidden\" name=\"toMe\" value=\"0\" form=\"request{$this->ticket_index}\" />
-                          <input type=\"checkbox\" id=\"toMe{$this->ticket_index}\" class=\"me\" name=\"toMe\" value=\"1\" {$toMeChecked} form=\"request{$this->ticket_index}\" />
+                          <input type=\"checkbox\" id=\"toMe{$this->ticket_index}\" class=\"me\" name=\"toMe\" value=\"1\" $toMeChecked form=\"request{$this->ticket_index}\" />
                         </td>
                         <td>
                           <label for=\"onFileD{$this->ticket_index}\">On File:</label>
@@ -3585,7 +3621,7 @@
                         <td colspan=\"2\">
                           <label for=\"dSigReq{$this->ticket_index}\">Request Signature:  </label>
                           <input type=\"hidden\" name=\"dSigReq\" id=\"dSigReqMarker{$this->ticket_index}\" value=\"0\" form=\"request{$this->ticket_index}\" />
-                          <input type=\"checkbox\" name=\"dSigReq\" id=\"dSigReq{$this->ticket_index}\" value=\"1\" {$dSigChecked} form=\"request{$this->ticket_index}\" />
+                          <input type=\"checkbox\" name=\"dSigReq\" id=\"dSigReq{$this->ticket_index}\" value=\"1\" $dSigChecked form=\"request{$this->ticket_index}\" />
                         </td>
                       </tr>
                     </tbody>
@@ -3594,7 +3630,7 @@
               </td>
             </tr>
             <tr class=\"iceAndNotes\">
-            {$displayDryIce}
+            $displayDryIce
             </tr>
             <tr>
               <td colspan=\"2\">
@@ -3603,14 +3639,14 @@
                 <input type=\"hidden\" name=\"clientList\" value=\"{$this->clientList}\" form=\"request{$this->ticket_index}\" />
                 <input type=\"hidden\" name=\"tClientList\" value=\"{$this->tClientList}\" form=\"request{$this->ticket_index}\" />
                 <input type=\"hidden\" name=\"edit\" value=\"0\" form=\"request{$this->ticket_index}\" />
-	              <button class=\"submitForm floatLeft\" type=\"submit\" form=\"request{$this->ticket_index}\">Submit</button> {$cancelTicketEditor}</td>
+	              <button class=\"submitForm floatLeft\" type=\"submit\" form=\"request{$this->ticket_index}\">Submit</button> $cancelTicketEditor</td>
             </tr>
           </table>
           <p class=\"ticketError\"></p>";
     if ($this->ticketEditor === false) {
       $returnData .= "
-          <p class=\"sigNote {$sigNoteClass}\">Unless a specific request to the contrary is made all deliveries will be completed to the best of our ability even if a signature request is declined.</p>
-          <p class=\"emailNote {$emailNoteClass}\">Please add noreply@rjdeliveryomaha.com to your contacts. This will prevent notifications from being marked as spam.</p>";
+          <p class=\"sigNote $sigNoteClass\">Unless a specific request to the contrary is made all deliveries will be completed to the best of our ability even if a signature request is declined.</p>
+          <p class=\"emailNote $emailNoteClass\">Please add noreply@rjdeliveryomaha.com to your contacts. This will prevent notifications from being marked as spam.</p>";
     }
     $returnData .= '
           <p class="dedicatedNote">To indicate a round trip request return signature.</p>
@@ -3709,7 +3745,7 @@
                     {$this->createChargeSelectOptions()}
                   </select>
                 </span>
-                <span {$displayDryIce} class=\"floatRight\">
+                <span $displayDryIce class=\"floatRight\">
                   <label for=\"CalcDryIce\">Dry Ice:</label>
                   <input name=\"dryIce\" id=\"CalcDryIce\" type=\"checkbox\" class=\"dryIce\" value=\"1\" form=\"priceCalc\" />
                   <input type=\"number\" class=\"diWeight diRow\" name=\"diWeight\" id=\"CalcWeight\" value=\"0\" min=\"0\" step=\"{$this->dryIceStep}\" title=\"Increments of 5\" form=\"priceCalc\" disabled />{$this->weightMarker}
@@ -3729,9 +3765,9 @@
         </table>
       <div id=\"priceResult\">
         <p class=\"hide\">Range: <span id=\"rangeResult\"></span></p>
-        <p {$displayDryIce}>Dry Ice: <span id=\"diWeightResult\"></span><span style=\"display:none;\" class=\"weightMarker\">{$this->weightMarker}</span></p>
+        <p $displayDryIce>Dry Ice: <span id=\"diWeightResult\"></span><span style=\"display:none;\" class=\"weightMarker\">{$this->weightMarker}</span></p>
         <p>Run Price:<span style=\"display:none;\" class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span><span id=\"runPriceResult\"></span></p>
-        <p {$displayDryIce}>Dry Ice Price: <span style=\"display:none;\" class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span><span style=\"min-width:3em;\" id=\"diPriceResult\">&nbsp;</span></p>
+        <p $displayDryIce>Dry Ice Price: <span style=\"display:none;\" class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span><span style=\"min-width:3em;\" id=\"diPriceResult\">&nbsp;</span></p>
         <p>Total: <span style=\"display:none;\" class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span><span id=\"ticketPriceResult\"></span></p>
       </div>
       </form>
@@ -3798,14 +3834,14 @@
       ];
       if (!$this->query = self::createQuery($this->queryData)) {
         $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
         return $this->error;
       }
       $this->result = self::callQuery($this->query);
       if ($this->result === false) {
         $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
         return $this->error;
       }
@@ -3920,7 +3956,7 @@
           $temp = new \dateTime($this->ReadyDate);
           $ready = $temp->format('d M Y \a\t g:i a');
         } catch(\Exception $e) {
-          $ready ="Now<span class=\"hide\">{$e->getMessage()}</span>";
+          $ready ="Now*<span class=\"hide\">{$e->getMessage()}</span>";
           $this->ReceivedReady = 1;
         }
       }
@@ -3931,7 +3967,7 @@
       "<input type=\"hidden\" name=\"ticket_index\" value=\"{$this->ticket_index}\" form=\"submitTicket{$this->ticket_index}\" />";
       $submitForm = "
             <form id=\"submitTicket{$this->ticket_index}\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
-              {$newTicketInput}
+              $newTicketInput
               <input type=\"hidden\" name=\"edit\" value=\"0\" form=\"submitTicket{$this->ticket_index}\" />
               <input type=\"hidden\" name=\"ticketNumber\" value=\"{$this->TicketNumber}\" form=\"submitTicket{$this->ticket_index}\" />
               <input type=\"hidden\" name=\"billTo\" value=\"{$this->BillTo}\" form=\"submitTicket{$this->ticket_index}\" />
@@ -3961,7 +3997,7 @@
       // Generate the output
       $div_marker = ($this->ticketEditor === true) ? 'class="editorConfirmation"' : 'id="deliveryConfirmation"';
       $output = "
-          <div {$div_marker}>";
+          <div $div_marker>";
       $output .= ($this->edit === 0) ? '<h1>Delivery Confirmation<span class="error">*</span></h1>' : '';
       $output .= $editForm . $submitForm;
       // Display the delivery and dry ice price for clients only
@@ -3986,12 +4022,61 @@
       <input type="hidden" name="coords2" class="coords2" value="' . htmlentities(json_encode($this->loc2)) . '" form="coordinates" />
       <input type="hidden" name="address2" class="address2" value="' . htmlentities($this->dAddress1 . ' ' . $this->dAddress2, ENT_QUOTES) . '" form="coordinates" />
       <input type="hidden" name="center" class="center" value="' . htmlentities(json_encode($this->center)) . '" form="coordinates" />';
-      $displayDryIce = ($this->options['displayDryIce'] === true) ? '' : 'class="hide"';
+      $displayDryIce = ($this->options['displayDryIce'] === true) ? '' : 'hide';
+      $client = false;
+      foreach ($this->members as $member) {
+        if (
+          $member->getProperty('ClientID') == $this->BillTo &&
+          (int)$member->getProperty('RepeatClient') == $this->RepeatClient
+        ) $client = $member;
+      }
+      if (!$client) throw new \Exception('Invalid Client');
+      $billToDisplay = $client->getProperty('ClientName');
+      $dep = $client->getProperty('Department');
+      if ($dep) $billToDisplay .= ", $dep";
+      $hideVAT = ($this->config['ApplyVAT'] === true) ? '' : 'hide';
+      $vatDisplay = '<span class="bold">VAT:</span>D:';
+      $VATamount = 0;
+      if (0 < $this->VATtype && $this->VATtype < 5) {
+        $vatDisplay .= ($this->VATtype === 1 || $this->VATtype === 3) ? ' Standard' : ' Reduced';
+        $VATamount += ($this->RunPrice * (1 + ($this->VATrate / 100))) - $this->RunPrice;
+      }
+      if ($this->VATtype === 5) {
+        $vatDisplay .= ' Zero-Rated';
+      }
+      if ($this->VATtype === 6) {
+        $vatDisplay .= ' Exempt';
+      }
+      if ($this->config['ApplyVAT'] === false || self::test_bool($this->VATable) === false) {
+        $vatDisplay = ' Not VAT-able';
+      }
+      if (self::test_bool($this->dryIce) === true) {
+        $begin = self::before(' ', $vatDisplay);
+        $end = self::after(' ', $vatDisplay);
+        $vatDisplay = "$begin D: $end ";
+        if (0 < $this->VATtypeIce && $this->VATtypeIce < 5) {
+          $vatDisplay .= ($this->VATtypeIce === 1 || $this->VATtypeIce === 3) ? 'I: Standard' : 'I: Reduced';
+          $VATamount += ($this->diPrice * (1 + ($this->VATrateIce / 100))) - $this->diPrice;
+        }
+        if ($this->VATtypeIce === 5) {
+          $vatDisplay .= 'I: Zero-Rated';
+        }
+        if ($this->VATtypeIce === 6) {
+          $vatDisplay .= 'I: Exempt';
+        }
+        if ($this->VATableIce === 0) {
+          $vatDisplay .= 'I: Not VAT-able';
+        }
+      }
       $output .= "
         <table class=\"ticketContainer\">
           <thead>
-            <tr {$displayDryIce}>
-              <td colspan=\"2\"><span class=\"bold\">Dry Ice: </span>{$this->number_format_drop_zero_decimals($this->diWeight, 3)}{$this->weightMarker} {$iceChargeDisplay}</td>
+            <tr>
+              <td colspan=\"2\"><span class=\"bold\">Bill To: </span> $billToDisplay</td>
+            </tr>
+            </tr>
+            <tr class=\"$displayDryIce\">
+              <td colspan=\"2\"><span class=\"bold\">Dry Ice: </span>{$this->number_format_drop_zero_decimals($this->diWeight, 3)}{$this->weightMarker} $iceChargeDisplay</td>
             </tr>
             <tr>
               <td colspan=\"2\"><span class=\"bold\">Requested By: </span>{$this->RequestedBy}</td>
@@ -4000,15 +4085,22 @@
               <td colspan=\"2\"><span class=\"bold\">Email Address: </span>{$this->EmailAddress}</td>
             </tr>
             <tr>
-              <td colspan=\"2\"><span class=\"bold\">Email Confirmation: </span>{$emailAnswer}</td>
+              <td colspan=\"2\"><span class=\"bold\">Email Confirmation: </span>$emailAnswer</td>
             <tr>
-              <td colspan=\"2\"><span class=\"bold\">Signature Request: </span>{$sigReq}</td>
+              <td colspan=\"2\"><span class=\"bold\">Signature Request: </span>$sigReq</td>
             </tr>
             <tr>
-              <td colspan=\"2\">{$ticketPriceDisplay} {$totalPriceDisplay}</td>
+              <td colspan=\"2\">$ticketPriceDisplay $totalPriceDisplay</td>
+            </tr>
+            <tr class=\"$hideVAT\">
+              <td>$vatDisplay</td>
+              <td>
+                <span class=\"bold\">Ticket VAT:</span>
+                <span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>{$this->number_format_drop_zero_decimals($VATamount, 2)}
+              </td>
             </tr>
             <tr>
-              <td colspan=\"2\"><span class=\"bold\">Ready: </span> {$ready}</td>
+              <td colspan=\"2\"><span class=\"bold\">Ready: </span> $ready</td>
             </tr>
             <tr>
               <td colspan=\"2\"><span class=\"bold\">Notes: </span>{$this->Notes}</td>
@@ -4016,101 +4108,53 @@
           </thead>
           <tfoot>
             <tr>
-              <td>{$submitTicketButton}</td>
-              <td>{$editButton}</td>
+              <td>$submitTicketButton</td>
+              <td>$editButton</td>
             </tr>
             <tr>
               <td colspan=\"2\" class=\"ticketError\"></td>
             </tr>
           </tfoot>
           <tbody>
-            <tr class=\"confirmAddress\">
-              <td colspan=\"2\">{$chargeAnswer}</td>
+            <tr>
+              <td colspan=\"2\">$chargeAnswer</td>
             </tr>
-            <tr class=\"confirmAddress\">
+            <tr>
               <td colspan=\"2\"><hr></td>
             </tr>
             <tr class=\"confirmAddress\">
-              <td>
-                <table class=\"wide\">
-                  <thead>
-                    <tr>
-                      <th colspan=\"2\">Pick Up</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td class=\"ticketSpace\"></td>
-                      <td>{$this->pClient}</td>
-                    </tr>
-                    <tr>
-                      <td class=\"ticketSpace\"></td>
-                      <td>{$this->pDepartment}</td>
-                    </tr>
-                    <tr>
-                      <td class=\"ticketSpace\"></td>
-                      <td>{$this->pAddress1}</td>
-                    </tr>
-                    <tr>
-                      <td class=\"ticketSpace\"></td>
-                      <td>{$this->pAddress2}</td>
-                    </tr>
-                    <tr class=\"{$this->countryClass}\">
-                      <td class=\"ticketSpace\"></td>
-                      <td>{$this->pCountry}</td>
-                    </tr>
-                    <tr>
-                      <td class=\"ticketSpace\"></td>
-                      <td><span class=\"bold\">Contact</span>: {$this->pContact}</td>
-                    </tr>
-                    <tr>
-                      <td class=\"ticketSpace\"></td>
-                      <td><span class=\"bold\">Telephone</span>: {$this->pTelephone}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </td>
-              <td>
-                <table class=\"wide\">
-                  <thead>
-                    <tr>
-                      <th colspan=\"2\">Deliver</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td class=\"ticketSpace\"></td>
-                      <td>{$this->dClient}</td>
-                    </tr>
-                    <tr>
-                      <td class=\"ticketSpace\"></td>
-                      <td>{$this->dDepartment}</td>
-                    </tr>
-                    <tr>
-                      <td class=\"ticketSpace\"></td>
-                      <td>{$this->dAddress1}</td>
-                    </tr>
-                    <tr>
-                      <td class=\"ticketSpace\"></td>
-                      <td>{$this->dAddress2}</td>
-                    </tr>
-                    <tr class=\"{$this->countryClass}\">
-                      <td class=\"ticketSpace\"></td>
-                      <td>{$this->dCountry}</td>
-                    </tr>
-                    <tr>
-                      <td class=\"ticketSpace\"></td>
-                      <td><span class=\"bold\">Contact</span>: {$this->dContact}</td>
-                    </tr>
-                    <tr>
-                      <td class=\"ticketSpace\"></td>
-                      <td><span class=\"bold\">Telephone</span>: {$this->dTelephone}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </td>
+              <th>Pick Up</th>
+              <th>Deliver</tr>
             </tr>
             <tr class=\"confirmAddress\">
+              <td>{$this->pClient}</td>
+              <td>{$this->dClient}</td>
+            </tr>
+            <tr class=\"confirmAddress\">
+              <td>{$this->pDepartment}</td>
+              <td>{$this->dDepartment}</td>
+            </tr>
+            <tr class=\"confirmAddress\">
+              <td>{$this->pAddress1}</td>
+              <td>{$this->dAddress1}</td>
+            </tr class=\"confirmAddress\">
+            <tr class=\"confirmAddress\">
+              <td>{$this->pAddress2}</td>
+              <td>{$this->dAddress2}</td>
+            </tr class=\"confirmAddress\">
+            <tr class=\"{$this->countryClass}\">
+              <td>{$this->pCountry}</td>
+              <td>{$this->dCountry}</td>
+            </tr>
+            <tr class=\"confirmAddress\">
+              <td><span class=\"bold\">Contact</span>: {$this->pContact}</td>
+              <td><span class=\"bold\">Contact</span>: {$this->dContact}</td>
+            </tr>
+            <tr class=\"confirmAddress\">
+              <td><span class=\"bold\">Telephone</span>: {$this->pTelephone}</td>
+              <td><span class=\"bold\">Telephone</span>: {$this->dTelephone}</td>
+            </tr>
+            <tr>
               <td colspan=\"2\"><hr></td>
             </tr>
             <tr>
@@ -4118,7 +4162,7 @@
             </tr>
           </tbody>
         </table>
-        {$jsVar}
+        $jsVar
       </div>";
       return $output;
     }
@@ -4172,14 +4216,14 @@
         $ticketUpdateData['primaryKey'] = $this->ticket_index;
         if (!$ticketUpdate = self::createQuery($ticketUpdateData)) {
           $temp = $this->error;
-          $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+          $this->error = ' Line ' . __line__ . ': ' . $temp;
           if ($this->enableLogging !== false) self::writeLoop();
           throw new \Exception($this->error);
         }
         $ticketUpdateResult = self::callQuery($ticketUpdate);
         if ($ticketUpdateResult === false) {
           $temp = $this->error;
-          $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+          $this->error = ' Line ' . __line__ . ': ' . $temp;
           if ($this->enableLogging !== false) self::writeLoop();
           throw new \Exception($this->error);
         }
@@ -4198,7 +4242,7 @@
       try {
         $this->now = new \dateTime('NOW', $this->timezone);
       } catch(\Exception $e) {
-        $this->error = __function__ . ' Received Date Error Line ' . __line__ . ': ' . $e->getMessage();
+        $this->error = ' Received Date Error Line ' . __line__ . ': ' . $e->getMessage();
         if ($this->enableLogging !== false) self::writeLoop();
         throw new \Exception($this->error);
       }
@@ -4232,14 +4276,14 @@
       $postTicketData['queryParams'] = [];
       if (!$postTicket = self::createQuery($postTicketData)) {
         $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
         throw new \Exception($this->error);
       }
       $postTicketResult = self::callQuery($postTicket);
       if ($postTicketResult === false) {
         $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
         throw new \Exception($this->error);
       }
@@ -4292,7 +4336,7 @@
       $postTicketData['payload'] = $this->multiTicket;
       if (!$postTicket = self::createQuery($postTicketData)) {
         $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
         echo $this->error;
         return false;
@@ -4300,7 +4344,7 @@
       $postTest = self::callQuery($postTicket);
       if ($postTest === false) {
         $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
         echo $this->error;
         return false;
@@ -4309,7 +4353,7 @@
       try {
         $this->now = new \dateTime('now', $this->timezone);
       } catch(\Exception $e) {
-        $this->error = __function__ . ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
+        $this->error = ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
         if ($this->enableLogging !== false) self::writeLoop();
         echo $this->error;
         return false;
@@ -4326,7 +4370,7 @@
       }
       if (!$updateLastCompletedDate = self::createQuery($updateLastCompletedDateData)) {
         $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
         echo $this->error;
         return false;
@@ -4334,7 +4378,7 @@
       $updateResult = self::callQuery($updateLastCompletedDate);
       if ($updateResult === false) {
         $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
         echo $this->error;
         return false;
@@ -4387,7 +4431,7 @@
       }
       if (!$ticketUpdate = self::createQuery($ticketUpdateData)) {
         $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
         return $this->error;
         return false;
@@ -4395,18 +4439,19 @@
       $updateResult = self::callQuery($ticketUpdate);
       if ($updateResult === false) {
         $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
         return $this->error;
         return false;
       }
       $marker = ($this->multiTicket === null) ? $this->TicketNumber : 'group';
-      return "<p class=\"center result\">Ticket {$marker} updated.</p>";
+      return "<p class=\"center result\">Ticket $marker updated.</p>";
     }
 
     public function stepTicket()
     {
       if ($this->multiTicket !== null) {
+        if (!is_array($this->multiTicket)) $this->multiTicket = json_decode($this->multiTicket);
         $tempIndex = [];
         for ($i = 0; $i < count($this->multiTicket); $i++) {
           foreach ($this->multiTicket[$i] as $key => $value) {
@@ -4418,7 +4463,7 @@
       try {
         $this->now = new \dateTime('now', $this->timezone);
       } catch(\Exception $e) {
-        $this->error = __function__ . ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
+        $this->error = ' Date Error Line ' . __line__ . ': ' . $e->getMessage();
         if ($this->enableLogging !== false) self::writeLoop();
         return $this->error;
         return false;
@@ -4499,7 +4544,7 @@
             $this->stepMarker = 'Dispatched';
             break;
           default:
-            $this->error = __function__ . ' Error: Unknown Action Line ' . __line__;
+            $this->error = ' Error: Unknown Action Line ' . __line__;
             if ($this->enableLogging !== false) self::writeLoop();
             return $this->error;
         }
@@ -4579,7 +4624,7 @@
               $ticketUpdateData['payload'][] = $tempObj;
               break;
             default:
-              $this->error = __function__ . ' Error: Unknown Action Line ' . __line__;
+              $this->error = ' Error: Unknown Action Line ' . __line__;
               if ($this->enableLogging !== false) self::writeLoop();
               return $this->error;
           }
@@ -4587,7 +4632,7 @@
       }
       if (!$ticketUpdate = self::createQuery($ticketUpdateData)) {
         $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
         return $this->error;
         return false;
@@ -4595,7 +4640,7 @@
       $updateResult = self::callQuery($ticketUpdate);
       if ($updateResult === false) {
         $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
         return $this->error;
         return false;
@@ -4623,7 +4668,7 @@
           }
         }
       }
-      return "<p class=\"center result\">Ticket {$marker}.</p>";
+      return "<p class=\"center result\">Ticket $marker.</p>";
     }
 
     public function cancelTicket()
@@ -4707,6 +4752,8 @@
               case 3:
               case 4:
               case 5:
+              case 6:
+              case 7:
                 $newPrice = self::number_format_drop_zero_decimals(($this->TicketBase * 2), 2);
                 $ticketUpdateData['payload'] = [
                   'dryIce' => 0,
@@ -4874,19 +4921,19 @@
               $answer = 'transfer accepted';
               break;
             default:
-              $this->error = __function__ . ' Invalid Transfer State Line ' . __line__ . ': ' . $this->TransferState;
+              $this->error = ' Invalid Transfer State Line ' . __line__ . ': ' . $this->TransferState;
               if ($this->enableLogging !== false) self::writeLoop();
               return $this->error;
           }
           break;
         default:
-          $this->error = __function__ . ' Line ' . __line__ . ": Action {$this->action} not recognized.";
+          $this->error = ' Line ' . __line__ . ": Action {$this->action} not recognized.";
           if ($this->enableLogging !== false) self::writeLoop();
           return $this->error;
       }
       if (!$ticketUpdate = self::createQuery($ticketUpdateData)) {
         $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
         echo $this->error;
         return false;
@@ -4894,13 +4941,27 @@
       $updateResult = self::callQuery($ticketUpdate);
       if ($updateResult === false) {
         $temp = $this->error;
-        $this->error = __function__ . ' Line ' . __line__ . ': ' . $temp;
+        $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
         echo $this->error;
         return false;
       }
+      if ($this->multiTicket === null) {
+        if (self::sendEmail() === true) self::processEmail();
+      } else {
+        for ($i = 0; $i < count($this->multiTicket); $i++) {
+          foreach ($this->multiTicket[$i] as $key => $value) {
+            foreach($this as $k => $v) {
+              if (strtolower($k) === strtolower($key)) {
+                $this->$k = $value;
+              }
+            }
+            if ($this->sendEmail() === true) $this->processEmail();
+          }
+        }
+      }
       $marker = ($this->multiTicket === null) ? $this->TicketNumber : 'group';
-      echo "<p class=\"result\">Ticket {$marker} {$answer}.</p>";
+      echo "<p class=\"result\">Ticket $marker $answer.</p>";
       return false;
     }
   }

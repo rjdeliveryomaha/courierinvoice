@@ -202,8 +202,9 @@
           }
         }
       }
-      // include a flag for javascript indicating if this is an overnight route
-      $output .= "<span id=\"overnightFlag\" class=\"hide\">{$_SESSION['config']['overnight']}</span>";
+      // give javascript the list of routes
+      $jse = 'json_encode';
+      $output .= "<span id=\"overnightFlag\" class=\"hide\">{$jse($_SESSION['config']['routes'])}</span>";
       return $output;
     }
 
@@ -863,8 +864,7 @@
         return '<p class="center result">' . self::getError() . '</p>';
       }
       if (empty($this->activeTicketSet)) {
-        $returnData .= '<p class="center result">No Pending Transfers On File.</p>';
-        return $returnData;
+        return '<p class="center result">No Pending Transfers On File.</p>';
       }
       foreach ($this->activeTicketSet as $test) {
         $test['processTransfer'] = $this->processTransfer;
@@ -873,10 +873,6 @@
         } else {
           $this->singleLocation[] = $test;
         }
-      }
-      if (empty($this->contractTicketSet) && empty($this->singleLocation)) {
-        $returnData .= '<p class="center result">No Pending Transfers On File.</p>';
-        return $returnData;
       }
       if (!empty($this->contractTicketSet)) {
         $this->activeTicketSet = $this->contractTicketSet;

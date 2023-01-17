@@ -1,8 +1,7 @@
 (function(rjdci, undefined) {
   parser = new DOMParser();
-
+  watch_id = {};
   rjdci.updateMap = ({ coords1, address1, coords2, address2, center, mapDivID }) => { return false; };
-
   if (typeof Swipe !== "undefined") {
     rjdci.Swipe = new Swipe(document.querySelector("#slider"), {
       startSlide: 0,
@@ -19,7 +18,7 @@
       },
       transitionEnd: function(index, elem) {
         // runs at the end of a slide transition
-        let buttonTitles = [ "Route", "On Call", "Dispatch", "Transfers", "Ticket Entry" ];
+        let buttonTitles = [ "Route", "On Call", "Dispatch", "Transfers", "Ticket Entry", "Delivery Request" ];
         document.querySelector(".menu__list__active").classList.remove("menu__list__active");
         Array.from(document.querySelectorAll(".page")).forEach(page => {
           (page.id === elem.id) ? page.classList.add("active") : page.classList.remove("active");
@@ -78,20 +77,27 @@
   };
   // End custom events
   // utilities
+  psudorand = len => {
+    let i = "",
+    l = len || 5;
+    while (i.length < l) {i += Math.random().toString(36).slice(2);};
+    return i.slice(0,l+1);
+  }
   ucfirst = string => string.charAt(0).toUpperCase() + string.slice(1);
 
   lcfirst = string => string.charAt(0).toLowerCase() + string.slice(1);
-
-  isArray = a => {
-    return Object.prototype.toString.call(a) === "[object Array]";
-  };
+  if (!Array.isArray) {
+    Array.isArray = a => {
+      return Object.prototype.toString.call(a) === "[object Array]";
+    };
+  }
   // https://stackoverflow.com/a/2947012/3899333
   make = desc => {
     let name = desc[0],
       attributes = desc[1],
       el = document.createElement(name),
       start = 1;
-    if (typeof attributes === "object" && attributes !== null && !isArray(attributes)) {
+    if (attributes && typeof attributes === "object" && !Array.isArray(attributes)) {
       for (let attr in attributes) {
         el.setAttribute(attr, attributes[attr]);
       }
@@ -99,7 +105,7 @@
     }
 
     for (let i = start; i < desc.length; i++) {
-      if (isArray(desc[i])) {
+      if (Array.isArray(desc[i])) {
         el.appendChild(make(desc[i]));
       } else {
         el.appendChild(document.createTextNode(desc[i]));
@@ -108,7 +114,6 @@
 
     return el;
   };
-
   rjdci.getSpinner = () => {
     return make(
       [
@@ -142,6 +147,19 @@
     while (element.firstChild) element.removeChild(element.firstChild);
   };
 
+  rjdci.refreshFormKey = async () => {
+    return await rjdci.fetch_template({
+      url: "./refreshFormKey.php",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }
+    })
+    .then(result => {
+      return (!result || !result.ok) ? "error" : result.text();
+    })
+    .then(newKey => document.querySelector("#formKey").value = newKey);
+  };
+
   rjdci.logout = async count => {
     let newCount = count || 0,
       typeTest = document.querySelector("#uid").value;
@@ -164,7 +182,6 @@
       }
     })
     .then(data => {
-      document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
       if (data.indexOf('error') !== -1) {
         newCount++;
         return rjdci.logout(newCount);
@@ -172,8 +189,8 @@
         document.querySelector("#logoutLink").submit();
       }
     })
+    .then(rjdci.refreshFormKey)
     .catch(error => {
-      document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
       newCount++;
       return newCount > 5 ? document.querySelector("#logoutLink").submit() : rjdci.logout(newCount);
     });
@@ -182,10 +199,11 @@
   rjdci.toast = (msg, options) => {
     // Use arrays to make date display pretty
     let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-      days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+      minutes;
     if (!msg) return;
 
-    if (!isArray(msg)) msg = [ msg ];
+    if (!Array.isArray(msg)) msg = [ msg ];
 
     options = options || {};
 
@@ -193,55 +211,42 @@
 
     options.time = options.time || 4000;
 
-    options.eleClass = options.eleClass || "toast__msg";
+    options.class = options.class || [ "toast__msg" ];
 
     options.datatime = options.datatime || new Date().getTime();
 
     let toastContainer = document.querySelector(".toast__container");
       toastMsg = document.createElement("div"),
       d = new Date(Number(options.datatime)),
-      mins = d.getMinutes();
-
-    toastMsg.className = options.eleClass;
+      mins = d.getMinutes(),
+      tmpClass = (typeof options.class === "string" || options.class instanceof String) ?
+        options.class.split(" ") : options.class;
+    toastMsg.classList.add(...tmpClass);
     toastMsg.title = options.title;
-
     minutes = (mins < 10) ?  `0${mins.toString()}` : mins.toString();
     msg.push(...[`${days[d.getDay()]} ${months[d.getMonth()]} ${d.getDate()}`, `${d.getHours()}:${minutes}`]);
     for (let i = 0; i < msg.length; i++) {
       toastMsg.appendChild(make(["p", msg[i]]));
     }
     toastMsg.setAttribute("data-time", options.datatime);
-    if (toastMsg.className === "deliveryLocation") {
+    if (!toastMsg.classList.contains("toast__msg")) {
       toastMsg.addEventListener("click", eve => {
-        return (eve.target.tagName.toUpperCase() === "DIV") ? eve.target.parentNode.removeChild(eve.target) : rjdci.triggerEvent(rjdci.getClosest(eve.target, "div"), "click");
+        return (eve.target.tagName.toUpperCase() === "DIV") ?
+          eve.target.remove() : rjdci.triggerEvent(rjdci.getClosest(eve.target, "div"), "click");
       });
-    }
-
-    if (options.eleClass !== "toast__msg") {
       for (let i = 0; i < toastContainer.children.length; i++) {
-        if (toastContainer.children[i].classList.contains(options.eleClass)) {
-          let elem = toastContainer.children[i];
-          elem.parentNode.removeChild(elem);
-        }
+        let done = false;
+        toastContainer.children[i].classList.forEach(c => {
+          if (!done && toastMsg.classList.contains(c)) {
+            toastContainer.children[i].remove();
+            done = true;
+          }
+        });
       }
-      toastContainer.appendChild(toastMsg);
-    } else {
-      toastContainer.appendChild(toastMsg);
     }
-
-    // Show toast for 4 secs or configured time and hide it
-    setTimeout(() => {
-      if (toastMsg.classList.contains("toast__msg")) toastMsg.classList.add("toast__msg--hide");
-    }, options.time);
-
-    // Remove the element after hiding
-    // Wait one second longer than the passed value and loop over all of the children.
-    setTimeout(() => {
-      for (let i = 0; i < toastContainer.children.length; i++) {
-        let elem = toastContainer.children[i];
-        if (elem.classList.contains("toast__msg")) elem.parentNode.removeChild(elem);
-      }
-    }, options.time + 1000);
+    toastContainer.appendChild(toastMsg);
+    // Show toast for 4 secs or configured time
+    setTimeout(() => { toastMsg.classList.contains("toast__msg") && toastMsg.remove(); }, options.time);
   };
   // End Toast
   // https://gomakethings.com/climbing-up-and-down-the-dom-tree-with-vanilla-javascript/
@@ -284,7 +289,10 @@
         delete fetchOptions.headers["Content-Type"];
         fetchOptions.headers["Content-Length"] &&
         delete fetchOptions.headers["Content-Length"];
-      } else if (fetchOptions.headers["Content-Type"].indexOf("x-www-form-urlencoded") != -1) {
+      } else if (
+        fetchOptions.headers.hasOwnProperty("Content-Type") &&
+        fetchOptions.headers["Content-Type"].indexOf("x-www-form-urlencoded") != -1
+      ) {
         body = Object.entries(postData).map(([key, value]) =>
           `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join("&");
       } else {
@@ -375,8 +383,8 @@
     if (!element) return;
     let h1 = element.offsetHeight;
     Array.from(document.querySelectorAll(".deadRun")).forEach(element => {
-      element.innerHTML = "Dead Run";
-      if (element.offsetHeight > h1) element.innerHTML = "D. Run";
+      element.innerText = "Dead Run";
+      if (element.offsetHeight > h1) element.innerText = "D. Run";
     });
   };
 
@@ -447,7 +455,6 @@
         document.querySelector("#function").value = "refreshRoute";
         return rjdci.showLogin();
       }
-      document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
       if (data.indexOf("error") !== -1) throw new Error(data);
       let newDom = parser.parseFromString(data, "text/html"),
         docFrag = document.createDocumentFragment();
@@ -457,12 +464,13 @@
       setTimeout(() => {
         document.querySelector("#route").removeChild(localSpinner);
         document.querySelector("#route").appendChild(docFrag);
-        rjdci.assignListeners();
+        rjdci.assignRouteListeners();
         rjdci.fixDeadRunButton();
         sortRoute();
         document.dispatchEvent(rjdci.refreshedRoute);
       }, 2000);
     })
+    .then(rjdci.refreshFormKey)
     .catch(error => {
       console.error(error.message);
       localSpinner.parentNode.removeChild(localSpinner);
@@ -519,10 +527,9 @@
     })
     .then(data => {
       if (data.indexOf("Session Error") !== -1) {
-        document.querySelector("#function").value = "rjdci.refreshOnCall";
+        document.querySelector("#function").value = "refreshOnCall";
         return rjdci.showLogin();
       }
-      document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
       if (data.indexOf("error") !== -1) throw new Error(data);
       let newDom = parser.parseFromString(data, "text/html"),
         docFrag = document.createDocumentFragment();
@@ -532,13 +539,14 @@
       setTimeout(() => {
         document.querySelector("#on_call").removeChild(localSpinner);
         document.querySelector("#on_call").appendChild(docFrag);
-        rjdci.assignListeners();
+        rjdci.assignOnCallListeners();
         rjdci.fixDeadRunButton();
         sortOnCall();
         countOnCallTickets(ticketCount);
         document.dispatchEvent(rjdci.refreshedOnCall);
       }, 2000);
     })
+    .then(rjdci.refreshFormKey)
     .catch(error => {
       console.error(error.message);
       localSpinner.parentNode.removeChild(localSpinner);
@@ -555,14 +563,15 @@
     }
   };
 
+  rjdci.refreshDeliveryRequest =
   rjdci.refreshTicketEntry = async () => {
     let elem = document.querySelector("#deliveryRequest"),
       workspace = elem.parentNode;
       target = workspace.querySelector(".subContainer"),
       localSpinner = rjdci.getSpinner(),
       postData = { edit: 1, formKey: document.querySelector("#formKey").value };
-    workspace.removeChild(target);
-    workspace.removeChild(elem);
+    target.remove();
+    elem.remove();
     workspace.appendChild(localSpinner);
     scrollTo(0,0);
     await rjdci.fetch_template({
@@ -583,29 +592,30 @@
     })
     .then(data => {
       if (data.indexOf("Session Error") !== -1) {
-        document.querySelector("#function").value = "refreshTicketForm";
+        document.querySelector("#function").value = "refreshDeliveryRequest";
         return rjdci.showLogin();
       }
-      document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
       if (data.indexOf("error") !== -1) throw new Error(data);
       let newDom = parser.parseFromString(data, "text/html"),
         docFrag = document.createDocumentFragment();
-      Array.from(newDom.querySelectorAll("#deliveryRequest")).forEach(element => {
-        docFrag.appendChild(element);
-      });
+      newDom.querySelector("#deliveryRequest") &&
+      docFrag.appendChild(newDom.querySelector("#deliveryRequest"));
       setTimeout(() => {
-        workspace.removeChild(localSpinner);
+        localSpinner.remove();
         workspace.appendChild(docFrag);
         workspace.appendChild(target);
         rjdci.updateMap({ mapDivID: "map" });
-        rjdci.assignListeners();
+        assignTicketFormListeners();
         document.dispatchEvent(rjdci.refreshedTicketEntry);
       }, 2000);
     })
+    .then(rjdci.refreshFormKey)
     .catch(error => {
-      workspace.removeChild(localSpinner);
-      workspace.appendChild(displayErrorMessage(error));
-      target.classList.remove("hide");
+      console.error(error);
+      localSpinner.remove();
+      let message = displayErrorMessage(error)
+      workspace.append(message,elem,target);
+      setTimeout(() => {message.remove();},3500);
     });
   };
 
@@ -650,7 +660,6 @@
         document.querySelector("#function").value = "refreshDispatch";
         return rjdci.showLogin();
       }
-      document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
       if (data.indexOf("error") !== -1) throw new Error(data);
       let newDom = parser.parseFromString(data, "text/html"),
         docFrag = document.createDocumentFragment();
@@ -660,7 +669,7 @@
       setTimeout(() => {
         document.querySelector("#dispatch").removeChild(localSpinner);
         document.querySelector("#dispatch").appendChild(docFrag);
-        rjdci.assignListeners();
+        rjdci.assignDispatchListeners();
         rjdci.countDispatch(oldCount);
         Array.from(document.querySelectorAll("#dispatch .dTicket")).forEach(element => {
           element.removeEventListener("click", rjdci.stepTicket);
@@ -669,6 +678,7 @@
         document.dispatchEvent(rjdci.refreshedDispatch);
       }, 2000);
     })
+    .then(rjdci.refreshFormKey)
     .catch(error => {
       console.error(error.message);
       localSpinner.parentNode.removeChild(localSpinner);
@@ -726,7 +736,6 @@
         document.querySelector("#function").value = "refreshTransfers";
         return rjdci.showLogin();
       }
-      document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
       if (data.indexOf("error") !== -1) throw new Error(data);
       let newDom = parser.parseFromString(data, "text/html"),
         docFrag = document.createDocumentFragment();
@@ -734,13 +743,14 @@
         docFrag.appendChild(element);
       });
       setTimeout(() => {
-        document.querySelector("#transfers").removeChild(localSpinner);
+        localSpinner.remove();
         document.querySelector("#transfers").appendChild(docFrag);
-        rjdci.assignListeners();
+        rjdci.assignTransferListeners();
         countTransferTickets(transferCount);
         document.dispatchEvent(rjdci.refreshedTransfers);
       }, 2000);
     })
+    .then(rjdci.refreshFormKey)
     .catch(error => {
       console.error(error.message);
       localSpinner.parentNode.removeChild(localSpinner);
@@ -759,7 +769,7 @@
 
   rjdci.assignLinkValues = () => {
     let eles = document.getElementsByClassName("nav"),
-      buttonTitles = [ "Route", "On Call", "Dispatch", "Transfers", "Ticket Entry" ];
+      buttonTitles = [ "Route", "On Call", "Dispatch", "Transfers", "Ticket Entry", "Delivery Request" ];
     for (let i = 0; i < eles.length; i++) {
       eles[i].setAttribute("data-value", i);
       if (i === 0) {
@@ -813,10 +823,9 @@
     })
     .then(data => {
       if (data.indexOf("Session Error") !== -1) {
-        document.getElementById("function").value = "rjdci.populatePage";
+        document.getElementById("function").value = "populatePage";
         return rjdci.showLogin();
       }
-      document.getElementById("formKey").value = Number(document.getElementById("formKey").value) + 1;
       let obj,
         breakFunction = false;
       try {
@@ -850,6 +859,7 @@
       if (document.getElementById("dispatch") !== null) countInitDispatch();
       if (document.getElementById("transfers") !== null) countInitTransfers();
     })
+    .then(rjdci.refreshFormKey)
     .catch(error => {
       Array.from(document.querySelectorAll(".page")).forEach(element => {
         element.innerHTML = "";
@@ -858,7 +868,7 @@
     });
   };
 
-  rjdci.deliveryLocation = ({ ticket_index = [], step = [] }) => {
+  rjdci.deliveryLocation = ({ ticket_index = [], step = [], id = "" }) => {
     if (
       typeof navigator.permissions === "undefined" ||
       typeof navigator.geolocation === "undefined"
@@ -867,23 +877,24 @@
       error_count = 0,
       max_attempt = 5,
       min_accuracy = 10,
-      watch_id = null,
       result = false,
       toast_options = {};
     toast_options.title = "Updating Location";
-    toast_options.eleClass = "deliveryLocation";
+    toast_options.class = `dl${id}`;
     rjdci.toast([ "Updating Location", "Do not", "disable screen" ], toast_options);
     navigator.permissions.query({name: "geolocation"}).then(PermissionStatus => {
       let options = { enableHighAccuracy: true, timeout: 25000, maximumAge: 0},
         success = pos => {
           success_count++;
+          console.log('success_count',success_count);
           if (success_count > 1) {
             result = (result && result.coords.accuracy < pos.coords.accuracy) ? result : pos;
           } else {
             result = pos;
           }
           if (success_count > max_attempt || (success_count > 2 && result.coords.accuracy < min_accuracy)) {
-            navigator.geolocation.clearWatch(watch_id);
+            navigator.geolocation.clearWatch(watch_id[id]);
+            delete watch_id[id];
             return sendResult(result);
           }
         },
@@ -891,7 +902,8 @@
           error_count++;
           rjdci.toast([ "Location Not Available", err.message, "Tap to dismiss" ], toast_options);
           if (success_count > max_attempt || error_count > max_attempt) {
-            navigator.geolocation.clearWatch(watch_id);
+            navigator.geolocation.clearWatch(watch_id[id]);
+            delete watch_id[id];
             return sendResult(result);
           }
         },
@@ -937,17 +949,17 @@
           })
           .then(data => {
             if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
-            document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
             if (data.indexOf("error") !== - 1) throw new Error(data);
             return rjdci.toast([ "Location Updated", "Tap to dismiss" ], toast_options);
           })
+          .then(rjdci.refreshFormKey)
           .catch(error => {
-            console.error(error.message);
+            console.error(error);
             return rjdci.toast([ error.message, "Tap to dismiss" ], toast_options);
           });
         };
       if (PermissionStatus.state == "granted") {
-        watch_id = navigator.geolocation.watchPosition(success, error, options);
+        watch_id[id] = navigator.geolocation.watchPosition(success, error, options);
       } else if (PermissionStatus.state == "prompt") {
         navigator.geolocation.getCurrentPosition(pos => {return});
       } else if (PermissionStatus.state == "denied") {
@@ -955,7 +967,7 @@
       }
       PermissionStatus.onchange = () => {
         if (PermissionStatus.state === "granted") {
-          watch_id = navigator.geolocation.watchPosition(success, error, options);
+          watch_id[id] = navigator.geolocation.watchPosition(success, error, options);
         } else if (PermissionStatus.state == "prompt") {
           return false;
         } else if (PermissionStatus.state == "denied") {
@@ -985,13 +997,15 @@
 
   rjdci.stepTicket = async eve => {
     eve.preventDefault();
+    eve.target.setAttribute("disabled", true);
     let postData = {},
       breakFunction = false,
+      forDispatch = !eve.target.parentElement.classList.contains("message2"),
       step,
-      workspace = rjdci.getClosest(eve.target, ".message2"),
+      workspace =
+       rjdci.getClosest(eve.target, ".message2") || rjdci.getClosest(eve.target, "form").querySelector(".message2"),
       functionFlag = rjdci.getClosest(eve.target, ".page").getAttribute("id"),
       ellipsis = make([ "span", { class: "ellipsis" }, "." ]);
-    if (workspace === null) workspace = rjdci.getClosest(eve.target, "form").querySelector(".message2");
     Array.from(document.querySelectorAll("input[form="+eve.target.getAttribute("form")+"], textarea[form="+eve.target.getAttribute("form")+"]")).forEach(element => {
       if (element.getAttribute("name") !== "latitude" && element.getAttribute("name") !== "longitude") {
         if (element.required === true && element.value === "") {
@@ -1004,6 +1018,7 @@
     });
     postData.formKey = document.querySelector("#formKey").value;
     if (breakFunction) {
+      if (forDispatch) eve.target.removeAttribute("disabled");
       return;
     }
     workspace.innerHTML = "";
@@ -1012,10 +1027,10 @@
       dots = setInterval(() => {
         if (forward === true) {
           ellipsis.innerHTML += "..";
-          forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
+          forward = ellipsis.innerHTML.length < 15 && ellipsis.innerHTML.length != 1;
         }
         if (forward === false) {
-          ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+          ellipsis.innerHTML = ellipsis.innerHTML.slice(2);
           forward = ellipsis.innerHTML.length === 1;
         }
       }, 500);
@@ -1036,7 +1051,10 @@
       case "delivered": step = "d"; break;
       case "returned": step = "d2"; break;
     }
-    if (step) rjdci.deliveryLocation({ ticket_index: [ postData.ticket_index ], step: [ step ] });
+    let id;
+    while (!id || watch_id.hasOwnProperty(id)) { id = psudorand(); }
+    if (step)
+      rjdci.deliveryLocation({ ticket_index: [ postData.ticket_index ], step: [ step ], id: id });
     await rjdci.fetch_template({
       url: "../drivers/updateStep.php",
       postData: postData,
@@ -1056,8 +1074,15 @@
     .then(data => {
       clearInterval(dots);
       workspace.removeChild(ellipsis);
-      if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
-      document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
+      if (data.indexOf("Session Error") !== -1) {
+        if (watch_id[id]) {
+          navigator.geolocation.clearWatch(watch_id[id]);
+          document.querySelector(`.dl${id}`) &&
+          document.querySelector(`.dl${id}`).remove();
+          delete watch_id[id];
+        }
+        return rjdci.showLogin();
+      }
       if(data.indexOf("error") === - 1) {
         let newDom = parser.parseFromString(data, "text/html"),
           docFrag = document.createDocumentFragment();
@@ -1076,6 +1101,7 @@
         throw new Error(data);
       }
     })
+    .then(rjdci.refreshFormKey)
     .catch(error => {
       console.error(error.message);
       clearInterval(dots);
@@ -1118,10 +1144,10 @@
       dots = setInterval(() => {
         if (forward === true) {
           ellipsis.innerHTML += "..";
-          forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
+          forward = ellipsis.innerHTML.length < 15 && ellipsis.innerHTML.length != 1;
         }
         if (forward === false) {
-          ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+          ellipsis.innerHTML = ellipsis.innerHTML.slice(2);
           forward = ellipsis.innerHTML.length === 1;
         }
       }, 500);
@@ -1144,6 +1170,9 @@
     postData.formKey = document.querySelector("#formKey").value;
     postData.printName = sigTest.value;
     postData.sigImage = ticketGroup.querySelector(".sigImage").value;
+    let id;
+    while (!id || watch_id.hasOwnProperty(id)) { id = psudorand(); }
+    locationData.id = id;
     rjdci.deliveryLocation(locationData);
     await rjdci.fetch_template({
       url: "./updateStep.php",
@@ -1164,8 +1193,15 @@
     .then(data => {
       clearInterval(dots);
       workspace.removeChild(ellipsis);
-      if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
-      document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
+      if (data.indexOf("Session Error") !== -1) {
+        if (watch_id[id]) {
+          navigator.geolocation.clearWatch(watch_id[id]);
+          document.querySelector(`.dl${id}`) &&
+          document.querySelector(`.dl${id}`).remove();
+          delete watch_id[id];
+        }
+        return rjdci.showLogin();
+      }
       if(data.indexOf("error") === - 1) {
         let newDom = parser.parseFromString(data, "text/html"),
           docFrag = document.createDocumentFragment();
@@ -1178,6 +1214,7 @@
         throw new Error(data);
       }
     })
+    .then(rjdci.refreshFormKey)
     .catch(error => {
       console.error(error.message);
       clearInterval(dots);
@@ -1212,15 +1249,16 @@
       dots = setInterval(() => {
         if (forward === true) {
           ellipsis.innerHTML += "..";
-          forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
+          forward = ellipsis.innerHTML.length < 15 && ellipsis.innerHTML.length != 1;
         }
         if (forward === false) {
-          ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+          ellipsis.innerHTML = ellipsis.innerHTML.slice(2);
           forward = ellipsis.innerHTML.length === 1;
         }
       }, 500);
     Array.from(document.querySelectorAll("input[form="+eve.target.getAttribute("form")+"], textarea[form="+eve.target.getAttribute("form")+"]")).forEach(element => {
-      if (cancelValues.indexOf(element.getAttribute("name")) !== -1) postData[element.getAttribute("name")] = element.value;
+      if (cancelValues.indexOf(element.getAttribute("name")) !== -1)
+        postData[element.getAttribute("name")] = element.value;
     });
     switch(eve.target.getAttribute("class")) {
       case "confirmDelete": postData.action = "delete"; break;
@@ -1229,7 +1267,9 @@
       case "confirmDeclined": postData.action = "declined"; step = "d"; break;
     }
     postData.formKey = document.querySelector("#formKey").value;
-    if (step) rjdci.deliveryLocation({ ticket_index: [ postData.ticket_index ], step: [ step ] });
+    let id;
+    while (!id || watch_id.hasOwnProperty(id)) { id = psudorand(); }
+    if (step) rjdci.deliveryLocation({ ticket_index: [ postData.ticket_index ], step: [ step ], id: id });
     await rjdci.fetch_template({
       url: "./deleteContractTicket.php",
       postData: postData,
@@ -1248,8 +1288,15 @@
     })
     .then(data => {
       clearInterval(dots);
-      if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
-      document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
+      if (data.indexOf("Session Error") !== -1) {
+        if (watch_id[id]) {
+          navigator.geolocation.clearWatch(watch_id[id]);
+          document.querySelector(`.dl${id}`) &&
+          document.querySelector(`.dl${id}`).remove();
+          delete watch_id[id];
+        }
+        return rjdci.showLogin();
+      }
       if(data.indexOf("error") === - 1) {
         workspace.removeChild(ellipsis);
         let newDom = parser.parseFromString(data, "text/html"),
@@ -1284,6 +1331,7 @@
         throw new Error(data);
       }
     })
+    .then(rjdci.refreshFormKey)
     .catch(error => {
       console.error(error.message);
       clearInterval(dots);
@@ -1326,10 +1374,10 @@
       dots = setInterval(() => {
         if (forward === true) {
           ellipsis.innerHTML += "..";
-          forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
+          forward = ellipsis.innerHTML.length < 15 && ellipsis.innerHTML.length != 1;
         }
         if (forward === false) {
-          ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+          ellipsis.innerHTML = ellipsis.innerHTML.slice(2);
           forward = ellipsis.innerHTML.length === 1;
         }
       }, 500);
@@ -1358,7 +1406,6 @@
     .then(data => {
       clearInterval(dots);
       if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
-      document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
       if(data.indexOf("error") === - 1) {
         workspace.removeChild(ellipsis);
         let newDom = parser.parseFromString(data, "text/html"),
@@ -1380,6 +1427,7 @@
         case "on_call": return await rjdci.refreshOnCall();
       }
     })
+    .then(rjdci.refreshFormKey)
     .catch(error => {
       console.error(error.message);
       clearInterval(dots);
@@ -1423,10 +1471,10 @@
       dots = setInterval(() => {
         if (forward === true) {
           ellipsis.innerHTML += "..";
-          forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
+          forward = ellipsis.innerHTML.length < 15 && ellipsis.innerHTML.length != 1;
         }
         if (forward === false) {
-          ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+          ellipsis.innerHTML = ellipsis.innerHTML.slice(2);
           forward = ellipsis.innerHTML.length === 1;
         }
       }, 500);
@@ -1462,7 +1510,6 @@
     .then(data => {
       clearInterval(dots);
       if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
-      document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
       if(data.indexOf("error") === - 1) {
         workspace.removeChild(ellipsis);
         let newDom = parser.parseFromString(data, "text/html"),
@@ -1475,12 +1522,9 @@
         throw new Error(data);
       }
     })
-    .then(async third => {
-      return await rjdci.refreshTransfers();
-    })
-    .then(async fourth =>{
-      return await rjdci.refreshRoute();
-    })
+    .then(rjdci.refreshFormKey)
+    .then(rjdci.refreshTransfers)
+    .then(rjdci.refreshRoute)
     .catch(error => {
       console.error(error.message);
       clearInterval(dots);
@@ -1517,10 +1561,10 @@
       dots = setInterval(() => {
         if (forward === true) {
           ellipsis.innerHTML += "..";
-          forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
+          forward = ellipsis.innerHTML.length < 15 && ellipsis.innerHTML.length != 1;
         }
         if (forward === false) {
-          ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+          ellipsis.innerHTML = ellipsis.innerHTML.slice(2);
           forward = ellipsis.innerHTML.length === 1;
         }
       }, 500);
@@ -1565,10 +1609,9 @@
     })
     .then(data => {
       clearInterval(dots);
+      ellipsis.remove();
       if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
-      document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
-      if (data.indexOf("error") === - 1) {
-        workspace.removeChild(ellipsis);
+      if (data.indexOf("error") === -1) {
         let newDom = parser.parseFromString(data, "text/html"),
           docFrag = document.createDocumentFragment();
         Array.from(newDom.querySelectorAll(".result")).forEach(element => {
@@ -1579,6 +1622,7 @@
         throw new Error(data);
       }
     })
+    .then(rjdci.refreshFormKey)
     .then(async third => {
       if (ticket.querySelector(".rNum").innerText === "0") {
         return await rjdci.refreshOnCall();
@@ -1587,12 +1631,14 @@
       }
     })
     .then(async fourth => {
-      return await rjdci.refreshTransfers();
+      setTimeout(async() => {
+        return await rjdci.refreshTransfers();
+      },3500);
     })
     .catch(error => {
       console.error(error.message);
       clearInterval(dots);
-      workspace.removeChild(ellipsis);
+      ellipsis.remove();
       workspace.appendChild(displayErrorMessage(error));
       setTimeout(() => {
         workspace.innerHTML = "";
@@ -1628,10 +1674,10 @@
       dots = setInterval(() => {
         if (forward === true) {
           ellipsis.innerHTML += "..";
-          forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
+          forward = ellipsis.innerHTML.length < 15 && ellipsis.innerHTML.length != 1;
         }
         if (forward === false) {
-          ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+          ellipsis.innerHTML = ellipsis.innerHTML.slice(2);
           forward = ellipsis.innerHTML.length === 1;
         }
       }, 500);
@@ -1676,7 +1722,6 @@
     .then(data => {
       clearInterval(dots);
       if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
-      document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
       if(data.indexOf("error") === - 1) {
         workspace.removeChild(ellipsis);
         let newDom = parser.parseFromString(data, "text/html"),
@@ -1689,12 +1734,9 @@
         throw new Error(data);
       }
     })
-    .then(async third => {
-      return await rjdci.refreshRoute();
-    })
-    .then(async fourth => {
-      return await rjdci.refreshTransfers();
-    })
+    .then(rjdci.refreshFormKey)
+    .then(rjdci.refreshRoute)
+    .then(rjdci.refreshTransfers)
     .catch(error => {
       console.error(error.message);
       clearInterval(dots);
@@ -1709,33 +1751,18 @@
     });
   };
 
-  rjdci.assignListeners = () => {
-    if (document.querySelector("#deliveryRequest")) {
-      assignTicketFormListeners(rjdci.getClosest(document.querySelector("#deliveryRequest"), ".page"));
-      document.querySelector("#switchTerms") &&
-      document.querySelector("#switchTerms").addEventListener("click", e => {
-        document.querySelector("#deliveryTerms").style.display =
-          (document.querySelector("#deliveryTerms").style.display == "none") ? "block" : "none";
-      });
-    }
+  rjdci.assignRouteListeners = () => {
+    return assignTicketListeners(document.querySelector("#route.page"));
+  };
 
-    if (document.querySelector("form[id^='dispatchForm']")) {
-      Array.from(document.querySelectorAll("form[id^='dispatchForm'] .stepTicket")).forEach(element => {
-        element.removeEventListener("click", rjdci.stepTicket);
-        element.addEventListener("click", rjdci.stepTicket);
-      });
-    }
+  rjdci.assignOnCallListeners = () => {
+    return assignTicketListeners(document.querySelector("#on_call.page"));
+  };
 
-    colorChange = eve => {
-      eve.target.classList.add("red");
-      setTimeout(() => { eve.target.classList.remove("red"); }, 3000);
-    };
-
-    Array.from(document.querySelectorAll("button")).forEach(element => {
-      element.addEventListener("click", colorChange);
-    });
-    // start driver and dispatcher app
-    updateNotes = async eve => {
+  assignTicketListeners = page => {
+    if (!page) return;
+    const updateNotes = async eve => {
+      eve.target.setAttribute("disable", true);
       let workspace = rjdci.getClosest(eve.target, ".tickets").querySelector(".message2");
         postData = {};
       postData.ticket_index =
@@ -1760,7 +1787,6 @@
       })
       .then(data => {
         if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
-        document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
         if (data.indexOf("error") === - 1) {
           let newDom = parser.parseFromString(data, "text/html");
           workspace.appendChild(newDom.querySelector(".result"));
@@ -1769,25 +1795,26 @@
           throw new Error(data);
         }
       })
+      .then(rjdci.refreshFormKey)
       .catch(error => {
         console.error(error.message);
         workspace.appendChild(displayErrorMessage(error));
         setTimeout(() => {
+          eve.target.removeAttribute("disabled");
           workspace.innerHTML = "";
         }, 5000);
       });
     };
 
-    Array.from(document.querySelectorAll(".updateNotes")).forEach(element => {
+    Array.from(page.querySelectorAll(".updateNotes")).forEach(element => {
       element.removeEventListener("click", updateNotes);
       element.addEventListener("click", updateNotes);
     });
 
-    Array.from(document.querySelectorAll(".dTicket")).forEach(element => {
+    Array.from(page.querySelectorAll(".dTicket")).forEach(element => {
       element.addEventListener("click", eve => {
         eve.preventDefault();
-        let page = rjdci.getClosest(eve.target, ".page"),
-          ticket = rjdci.getClosest(eve.target, ".tickets"),
+        let ticket = rjdci.getClosest(eve.target, ".tickets"),
           container = ticket.querySelector(".message2");
         Array.from(page.querySelectorAll(".cancelThis")).forEach(elem => {
           rjdci.triggerEvent(elem, "click");
@@ -1801,11 +1828,10 @@
       });
     });
 
-    Array.from(document.querySelectorAll(".confirmAll")).forEach(element => {
+    Array.from(page.querySelectorAll(".confirmAll")).forEach(element => {
       element.addEventListener("click", eve => {
         eve.preventDefault();
-        let page = rjdci.getClosest(eve.target, ".page"),
-          ticket = rjdci.getClosest(eve.target, ".sortable"),
+        let ticket = rjdci.getClosest(eve.target, ".sortable"),
           nodes = ticket.querySelectorAll(".message2"),
           container = nodes[nodes.length - 1];
         Array.from(page.querySelectorAll(".cancelThis")).forEach(elem => {
@@ -1820,10 +1846,9 @@
       });
     });
 
-    Array.from(document.querySelectorAll(".cancelRun, .deadRun, .declined")).forEach(element => {
+    Array.from(page.querySelectorAll(".cancelRun, .deadRun, .declined")).forEach(element => {
       element.addEventListener("click", eve => {
         let testArr = [ "cancelRun", "deadRun", "declined" ],
-          page = rjdci.getClosest(eve.target, ".page"),
           ticket = rjdci.getClosest(eve.target, ".tickets"),
           container = ticket.querySelector(".message2"),
           form = eve.target.getAttribute("form"),
@@ -1846,10 +1871,9 @@
       });
     });
 
-    Array.from(document.querySelectorAll(".transferTicket")).forEach(element => {
+    Array.from(page.querySelectorAll(".transferTicket")).forEach(element => {
       element.addEventListener("click", eve => {
-        let page = rjdci.getClosest(eve.target, ".page"),
-          ticket = rjdci.getClosest(eve.target, ".tickets"),
+        let ticket = rjdci.getClosest(eve.target, ".tickets"),
           container = ticket.querySelector(".message2");
         Array.from(page.querySelectorAll(".cancelThis")).forEach(elem => {
           rjdci.triggerEvent(elem, "click");
@@ -1869,11 +1893,10 @@
       });
     });
 
-    Array.from(document.querySelectorAll(".transferGroup")).forEach(element => {
+    Array.from(page.querySelectorAll(".transferGroup")).forEach(element => {
       element.addEventListener("click", eve => {
         eve.preventDefault();
-        let page = rjdci.getClosest(eve.target, ".page"),
-          ticket = rjdci.getClosest(eve.target, ".sortable"),
+        let ticket = rjdci.getClosest(eve.target, ".sortable"),
           nodes = ticket.querySelectorAll(".message2"),
           container = nodes[nodes.length - 1];
         Array.from(page.querySelectorAll(".cancelThis")).forEach(elem => {
@@ -1893,12 +1916,15 @@
         container.appendChild(getCancelThis());
       });
     });
+  };
 
-    Array.from(document.querySelectorAll(".cancelTransfer, .declineTransfer, .acceptTransfer")).forEach(element => {
+  rjdci.assignTransferListeners = () => {
+    let page = document.querySelector("#transfers.page");
+    if (!page) return;
+    Array.from(page.querySelectorAll(".cancelTransfer, .declineTransfer, .acceptTransfer")).forEach(element => {
       element.addEventListener("click", eve => {
         eve.preventDefault();
         let testArr = [ "cancelTransfer", "declineTransfer", "acceptTransfer" ],
-          page = rjdci.getClosest(eve.target, ".page"),
           ticket = rjdci.getClosest(eve.target, ".tickets"),
           container = ticket.querySelector(".message2"),
           confirmType;
@@ -1910,7 +1936,7 @@
         });
         for (let i = 0; i < testArr.length; i++) {
           if (eve.target.classList.contains(testArr[i])) {
-            confirmType = ucfirst(eve.target.classList[i]);
+            confirmType = ucfirst(testArr[i]);
             break;
           }
         }
@@ -1920,11 +1946,10 @@
       });
     });
 
-    Array.from(document.querySelectorAll(".acceptTransferGroup, .declineTransferGroup, .cancelTransferGroup")).forEach(element => {
+    Array.from(page.querySelectorAll(".acceptTransferGroup, .declineTransferGroup, .cancelTransferGroup")).forEach(element => {
       element.addEventListener("click", eve => {
         eve.preventDefault();
         let testArr = [ "acceptTransferGroup", "declineTransferGroup", "cancelTransferGroup" ],
-          page = rjdci.getClosest(eve.target, ".page"),
           ticket = rjdci.getClosest(eve.target, ".sortable"),
           nodes = ticket.querySelectorAll(".message2"),
           container = nodes[nodes.length - 1],
@@ -1946,455 +1971,488 @@
         container.appendChild(getCancelThis());
       });
     });
+  };
 
-    if (document.querySelector("#ticketEditorSubmit")) {
-      document.querySelector("#ticketEditorSubmit").addEventListener("click", async eve => {
-        eve.preventDefault();
-        let workspace = document.querySelector("#ticketEditorResultContainer"),
-          postData = {},
-          form = document.querySelector("#ticketEditor"),
-          ellipsis = make([ "span", { class: "ellipsis" }, "." ]);
-        Array.from(form.querySelectorAll("input[name], select")).forEach((item, i) => {
-          postData[item.getAttribute("name")] = item.value;
+  rjdci.assignDispatchListeners = () => {
+    let page = document.querySelector("#dispatch.page");
+    if (!page) return;
+    Array.from(page.querySelectorAll(".stepTicket")).forEach(b => {
+      b.removeEventListener("click", rjdci.stepTicket);
+      b.addEventListener("click", rjdci.stepTicket);
+    });
+  };
+
+  rjdci.assignActiveTicketsListeners = () => {
+    let page = document.querySelector("#active_tickets.page");
+    if (!page) return;
+    page.querySelector("#ticketEditorSubmit") &&
+    page.querySelector("#ticketEditorSubmit").addEventListener("click", async eve => {
+      eve.preventDefault();
+      let workspace = page.querySelector("#ticketEditorResultContainer"),
+        postData = {},
+        form = document.querySelector("#ticketEditor"),
+        ellipsis = make([ "span", { class: "ellipsis" }, "." ]);
+      Array.from(form.querySelectorAll("input[name], select")).forEach((item, i) => {
+        postData[item.getAttribute("name")] = item.value;
+      });
+      postData.formKey = document.querySelector("#formKey").value;
+      if (!postData.dispatchedTo || !postData.ticketEditorSearchDate) return false;
+      workspace.innerHTML = "";
+      workspace.appendChild(ellipsis);
+      let forward = true,
+        dots = setInterval(() => {
+          if (forward === true) {
+            ellipsis.innerHTML += "..";
+            forward = ellipsis.innerHTML.length < 15 && ellipsis.innerHTML.length != 1;
+          }
+          if (forward === false) {
+            ellipsis.innerHTML = ellipsis.innerHTML.slice(2);
+            forward = ellipsis.innerHTML.length === 1;
+          }
+        }, 500);
+      await rjdci.fetch_template({
+        url: "./activeTickets.php",
+        postData: postData,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Content-Length": JSON.stringify(postData).length
+        }
+      })
+      .then(result => {
+        if (typeof result === "undefined") throw new Error("Result Undefined");
+        if (result.ok) {
+          return result.text();
+        } else {
+          throw new Error(`${result.status} ${result.statusText}`);
+        }
+      })
+      .then(data => {
+        clearInterval(dots);
+        workspace.removeChild(ellipsis);
+        if (data.indexOf("Session Error") !== -1) {
+          workspace.appendChild(make([ "p", { class: "center" }, "Select Driver &amp; Ticket Type" ]));
+          return rjdci.showLogin();
+        }
+        let newDom = parser.parseFromString(data, "text/html"),
+          docFrag = document.createDocumentFragment();
+        Array.from(newDom.querySelectorAll(".tickets")).forEach(element => {
+          docFrag.appendChild(element);
         });
-        postData.formKey = document.querySelector("#formKey").value;
-        if (!postData.dispatchedTo || !postData.ticketEditorSearchDate) return false;
-        workspace.innerHTML = "";
-        workspace.appendChild(ellipsis);
-        let forward = true,
-          dots = setInterval(() => {
-            if (forward === true) {
-              ellipsis.innerHTML += "..";
-              forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
-            }
-            if (forward === false) {
-              ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
-              forward = ellipsis.innerHTML.length === 1;
-            }
-          }, 500);
-        await rjdci.fetch_template({
-          url: "./activeTickets.php",
-          postData: postData,
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Content-Length": JSON.stringify(postData).length
-          }
-        })
-        .then(result => {
-          if (typeof result === "undefined") throw new Error("Result Undefined");
-          if (result.ok) {
-            return result.text();
-          } else {
-            throw new Error(`${result.status} ${result.statusText}`);
-          }
-        })
-        .then(data => {
-          clearInterval(dots);
-          workspace.removeChild(ellipsis);
-          if (data.indexOf("Session Error") !== -1) {
-            workspace.appendChild(make([ "p", { class: "center" }, "Select Driver &amp; Ticket Type" ]));
-            return rjdci.showLogin();
-          }
-          document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
-          let newDom = parser.parseFromString(data, "text/html"),
-            docFrag = document.createDocumentFragment();
-          Array.from(newDom.querySelectorAll(".tickets")).forEach(element => {
-            docFrag.appendChild(element);
+        workspace.appendChild(docFrag);
+        assignTicketEditorListener();
+      })
+      .then(rjdci.refreshFormKey)
+      .catch(error => {
+        console.error(error.message);
+        clearInterval(dots);
+        workspace.removeChild(ellipsis);
+        workspace.appendChild(displayErrorMessage(error));
+        setTimeout(() => { element.innerHTML = "Select Driver &amp; Ticket Type"; }, 3500);
+      });
+    });
+
+    page.querySelector("#clearTicketEditorResults") &&
+    page.querySelector("#clearTicketEditorResults").addEventListener("click", eve => {
+      eve.preventDefault();
+      let form = document.querySelector("#ticketEditor"),
+        d = new Date,
+        day = (d.getDate() < 10) ? `0${d.getDate()}` : d.getDate(),
+        test_month = d.getMonth() + 1,
+        month = (test_month < 10) ? `0${test_month}` : test_month
+        container = document.querySelector("#ticketEditorResultContainer");
+      form.querySelector(".dispatchedTo").value = "";
+      form.querySelector(".contract").value = 0;
+      form.querySelector("input.ticketEditorSearchDate").value = `${d.getFullYear()}-${month}-${day}`;
+      while (container.firstChild) container.removeChild(container.firstChild);
+      container.appendChild(make([ "p", { class: "center" }, "Select Driver &amp; Ticket Type"]))
+    });
+  };
+
+  rjdci.assignPriceCalcListeners = () => {
+    let page = document.querySelector("#price_calculator.page");
+    if (!page) return;
+    page.querySelector(".dryIce").addEventListener("change", eve => {
+      let cell = rjdci.getClosest(eve.target, "td");
+      if (eve.target.checked){
+        cell.querySelector(".diWeight").value = "0";
+        cell.querySelector(".diWeight").disabled = false;
+        cell.querySelector(".diWeight").focus();
+      } else {
+        cell.querySelector(".diWeight").value = "0";
+        cell.querySelector(".diWeight").disabled = true;
+      }
+    });
+    Array.from(page.querySelectorAll("input[list]")).forEach(element => {
+      if (element.getAttribute("name").slice(1) === "Address1") {
+        element.addEventListener("blur", eve => {
+          let index;
+          Array.from(document.querySelectorAll("#addy1 option")).forEach(ele => {
+            if (ele.value === eve.target.value) index = ele.getAttribute("data-value");
           });
-          workspace.appendChild(docFrag);
-          assignTicketEditorListener();
-        })
-        .catch(error => {
-          console.error(error.message);
-          clearInterval(dots);
-          workspace.removeChild(ellipsis);
-          workspace.appendChild(displayErrorMessage(error));
-          setTimeout(() => { element.innerHTML = "Select Driver &amp; Ticket Type"; }, 3500);
-        });
-      });
-
-      document.querySelector("#clearTicketEditorResults").addEventListener("click", eve => {
-        eve.preventDefault();
-        let form = document.querySelector("#ticketEditor"),
-          d = new Date,
-          day = (d.getDate() < 10) ? `0${d.getDate()}` : d.getDate(),
-          test_month = d.getMonth() + 1,
-          month = (test_month < 10) ? `0${test_month}` : test_month
-          container = document.querySelector("#ticketEditorResultContainer");
-        form.querySelector(".dispatchedTo").value = "";
-        form.querySelector(".contract").value = 0;
-        form.querySelector("input.ticketEditorSearchDate").value = `${d.getFullYear()}-${month}-${day}`;
-        while (container.firstChild) container.removeChild(container.firstChild);
-        container.appendChild(make([ "p", { class: "center" }, "Select Driver &amp; Ticket Type"]))
-      });
-    }
-
-    if (document.querySelector("form#priceCalc")) {
-      let workform = document.querySelector("form#priceCalc");
-      workform.querySelector(".dryIce").addEventListener("change", eve => {
-        let cell = rjdci.getClosest(eve.target, "td");
-        if(eve.target.checked){
-          cell.querySelector(".diWeight").value = "0";
-          cell.querySelector(".diWeight").disabled = false;
-          cell.querySelector(".diWeight").focus();
-        } else{
-          cell.querySelector(".diWeight").value = "0";
-          cell.querySelector(".diWeight").disabled = true;
-        }
-      });
-      Array.from(workform.querySelectorAll("input[list]")).forEach(element => {
-        if (element.getAttribute("name").substr(1) === "Address1") {
-          element.addEventListener("blur", eve => {
-            let index;
-            Array.from(document.querySelectorAll("#addy1 option")).forEach(ele => {
-              if (ele.value === eve.target.value) index = ele.getAttribute("data-value");
-            });
-            if (typeof index === "undefined") return;
-            Array.from(document.querySelectorAll("#addy2 option")).forEach(ele => {
-              if (ele.getAttribute("data-value") === index) rjdci.getClosest(eve.target, "fieldset").querySelector("input[name='" + eve.target.getAttribute("name").slice(0, -1) + "2']").value = ele.value;
-            });
+          if (typeof index === "undefined") return;
+          Array.from(document.querySelectorAll("#addy2 option")).forEach(ele => {
+            if (ele.getAttribute("data-value") === index)
+              rjdci.getClosest(eve.target, "fieldset").querySelector("input[name='" + eve.target.getAttribute("name").slice(0, -1) + "2']").value = ele.value;
           });
+        });
+      }
+    });
+    page.querySelector(".clear").addEventListener("click", eve => {
+      page.querySelector(".dryIce").checked = false;
+      rjdci.triggerEvent(page.querySelector(".dryIce"), "change");
+      document.querySelector("#CalcCharge").value = "0";
+      Array.from(document.querySelectorAll("#pNotice, #dNotice, #rangeResult, #diWeightResult, #diPriceResult, #runPriceResult, #ticketPriceResult")).forEach(element => {
+        element.innerText = "";
+      });
+      Array.from(document.querySelectorAll("#priceResult .currencySymbol, #priceResult .weightMarker")).forEach(element => {
+        element.style.display = "none";
+      });
+      Array.from(document.querySelectorAll("#price_calculator .elementError")).forEach(element => element.classList.remove("elementError"));
+      rjdci.updateMap({mapDivID: "map2"});
+    });
+    page.querySelector(".submitPriceQuery").addEventListener("click", async eve => {
+      eve.preventDefault();
+      Array.from(page.querySelectorAll("button")).forEach(element => {
+        element.disabled = true;
+      });
+      let breakFunction = false,
+        postData = {},
+        ellipsis = make([ "span", { class: "ellipsis" }, "." ]);
+      postData.formKey = document.querySelector("#formKey").value;
+      Array.from(page.querySelectorAll("input[name]")).forEach(input => {
+        if (input.getAttribute("list") && input.disabled === false && input.value === "") {
+          breakFunction = true;
+          input.classList.add("elementError");
+          setTimeout(() => { input.classList.remove("elementError"); }, 3500);
+        } else {
+          if (input.disabled === false && input.type !== "checkbox") postData[input.getAttribute("name")] = input.value;
+        }
+        if (input.type === "checkbox") {
+          postData[input.getAttribute("name")] = (input.checked) ? 1 : 0;
         }
       });
-      workform.querySelector(".clear").addEventListener("click", eve => {
-        workform.querySelector(".dryIce").checked = false;
-        rjdci.triggerEvent(workform.querySelector(".dryIce"), "change");
-        document.querySelector("#CalcCharge").value = "0";
-        Array.from(document.querySelectorAll("#pNotice, #dNotice, #rangeResult, #diWeightResult, #diPriceResult, #runPriceResult, #ticketPriceResult")).forEach(element => {
-          element.innerText = "";
-        });
-        Array.from(document.querySelectorAll("#priceResult .currencySymbol, #priceResult .weightMarker")).forEach(element => {
-          element.style.display = "none";
-        });
-        Array.from(document.querySelectorAll("#price_calculator .elementError")).forEach(element => element.classList.remove("elementError"));
-        rjdci.updateMap({mapDivID: "map2"});
-      });
-      workform.querySelector(".submitPriceQuery").addEventListener("click", async eve => {
-        eve.preventDefault();
-        Array.from(workform.querySelectorAll("button")).forEach(element => {
-          element.disabled = true;
-        });
-        let breakFunction = false,
-          postData = {},
-          ellipsis = make([ "span", { class: "ellipsis" }, "." ]);
-        postData.formKey = document.querySelector("#formKey").value;
-        Array.from(workform.querySelectorAll("input[name]")).forEach(input => {
-          if (input.getAttribute("list") && input.disabled === false && input.value === "") {
-            breakFunction = true;
-            input.classList.add("elementError");
-            setTimeout(() => { input.classList.remove("elementError"); }, 3500);
-          } else {
-            if (input.disabled === false && input.type !== "checkbox") postData[input.getAttribute("name")] = input.value;
-          }
-          if (input.type === "checkbox") {
-            postData[input.getAttribute("name")] = (input.checked) ? 1 : 0;
-          }
-        });
-        if (postData.dryIce === 1) {
-          if (postData.diWeight === "0" || postData.diWeight % workform.querySelector(".diWeight").getAttribute("step") !== 0) {
-            breakFunction = true;
-            workform.querySelector(".diWeight").classList.add("elementError");
-            workform.querySelector(".ticketError").innerHTML = "Dry Ice must be in increments of " + workform.querySelector(".diWeight").getAttribute("step");
-          }
+      if (postData.dryIce === 1) {
+        if (postData.diWeight === "0" || postData.diWeight % page.querySelector(".diWeight").getAttribute("step") !== 0) {
+          breakFunction = true;
+          page.querySelector(".diWeight").classList.add("elementError");
+          page.querySelector(".ticketError").innerHTML = "Dry Ice must be in increments of " + page.querySelector(".diWeight").getAttribute("step");
         }
-        if (breakFunction) {
-          setTimeout(() => {
-            Array.from(workform.querySelectorAll("button, .elementError")).forEach(element => {
-              element.disabled = false;
-              element.classList.remove("elementError");
-            });
-            workform.querySelector(".ticketError").innerHTML = "";
-          }, 3500);
+      }
+      if (breakFunction) {
+        setTimeout(() => {
+          Array.from(page.querySelectorAll("button, .elementError")).forEach(element => {
+            element.disabled = false;
+            element.classList.remove("elementError");
+          });
+          page.querySelector(".ticketError").innerHTML = "";
+        }, 3500);
+        return false;
+      }
+      page.querySelector(".ticketError").innerHTML = "";
+      page.querySelector(".ticketError").appendChild(ellipsis);
+      let forward = true,
+        dots = setInterval(() => {
+          if (forward === true) {
+            ellipsis.innerHTML += "..";
+            forward = ellipsis.innerHTML.length < 15 && ellipsis.innerHTML.length != 1;
+          }
+          if (forward === false) {
+            ellipsis.innerHTML = ellipsis.innerHTML.slice(2);
+            forward = ellipsis.innerHTML.length === 1;
+          }
+        }, 500);
+      await rjdci.fetch_template({
+        url: "../priceCalc.php",
+        postData: postData,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Content-Length": JSON.stringify(postData).length
+        }
+      })
+      .then(result => {
+        if (typeof result === "undefined") throw new Error("Result Undefined");
+        if (result.ok) {
+          return result.text();
+        } else {
+          throw new Error(`${result.status} ${result.statusText}`);
+        }
+      })
+      .then(data => {
+        clearInterval(dots);
+        page.querySelector(".ticketError").removeChild(ellipsis);
+        if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
+        Array.from(document.querySelectorAll("#pNotice, #dNotice, #CalcError")).forEach(element => {
+          element.innerHTML = "";
+        });
+        let obj;
+        try {
+          obj = JSON.parse(data);
+        } catch( err ) {
+          document.querySelector("#CalcError").appendChild(displayErrorMessage(err));
+          setTimeout(() => { document.querySelector("#CalcError").innerText = ""; }, 3500);
           return false;
         }
-        workform.querySelector(".ticketError").innerHTML = "";
-        workform.querySelector(".ticketError").appendChild(ellipsis);
-        let forward = true,
-          dots = setInterval(() => {
-            if (forward === true) {
-              ellipsis.innerHTML += "..";
-              forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
-            }
-            if (forward === false) {
-              ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
-              forward = ellipsis.innerHTML.length === 1;
-            }
-          }, 500);
-        await rjdci.fetch_template({
-          url: "../priceCalc.php",
-          postData: postData,
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Content-Length": JSON.stringify(postData).length
-          }
-        })
-        .then(result => {
-          if (typeof result === "undefined") throw new Error("Result Undefined");
-          if (result.ok) {
-            return result.text();
-          } else {
-            throw new Error(`${result.status} ${result.statusText}`);
-          }
-        })
-        .then(data => {
-          clearInterval(dots);
-          workform.querySelector(".ticketError").removeChild(ellipsis);
-          if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
-          document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
-          Array.from(document.querySelectorAll("#pNotice, #dNotice, #CalcError")).forEach(element => {
-            element.innerHTML = "";
+        Array.from(document.querySelectorAll("#priceResult .currencySymbol, #priceResult .weightMarker")).forEach(element => {
+          element.classList.remove("hide");
+        });
+        document.querySelector("#rangeResult").innerText = obj.rangeDisplay;
+        document.querySelector("#diWeightResult").innerText = obj.diWeight;
+        document.querySelector("#runPriceResult").innerText = obj.runPrice;
+        document.querySelector("#diPriceResult").innerText = obj.diPrice;
+        document.querySelector("#ticketPriceResult").innerText = obj.ticketPrice;
+        if (obj.pRangeTest > 15 && obj.pRangeTest < 20) {
+          document.querySelector("#pNotice").innerText = "Pick Up address is outside of our standard range. Please call to confirm availability.";
+        } else if (obj.pRangeTest > 20) {
+          document.querySelector("#pNotice").innerText = "Pick Up address is outside of our extended range.";
+          Array.from(document.querySelectorAll("#runPriceResult, #ticketPriceResult, #diPriceResult, #diWeightResult")).forEach(element => {
+            element.innerText = "";
           });
-          let obj;
-          try {
-            obj = JSON.parse(data);
-          } catch( err ) {
-            document.querySelector("#CalcError").appendChild(displayErrorMessage(err));
-            setTimeout(() => { document.querySelector("#CalcError").innerText = ""; }, 3500);
-            return false;
-          }
           Array.from(document.querySelectorAll("#priceResult .currencySymbol, #priceResult .weightMarker")).forEach(element => {
-            element.classList.remove("hide");
+            element.classList.add("hide");
           });
-          document.querySelector("#rangeResult").innerText = obj.rangeDisplay;
-          document.querySelector("#diWeightResult").innerText = obj.diWeight;
-          document.querySelector("#runPriceResult").innerText = obj.runPrice;
-          document.querySelector("#diPriceResult").innerText = obj.diPrice;
-          document.querySelector("#ticketPriceResult").innerText = obj.ticketPrice;
-          if (obj.pRangeTest > 15 && obj.pRangeTest < 20) {
-            document.querySelector("#pNotice").innerText = "Pick Up address is outside of our standard range. Please call to confirm availability.";
-          } else if (obj.pRangeTest > 20) {
-            document.querySelector("#pNotice").innerText = "Pick Up address is outside of our extended range.";
-            Array.from(document.querySelectorAll("#runPriceResult, #ticketPriceResult, #diPriceResult, #diWeightResult")).forEach(element => {
-              element.innerText = "";
-            });
-            Array.from(document.querySelectorAll("#priceResult .currencySymbol, #priceResult .weightMarker")).forEach(element => {
-              element.classList.add("hide");
-            });
-          }
-          if (obj.dRangeTest > 15 && obj.dRangeTest < 20) {
-            document.querySelector("#dNotice").innerText = "Delivery address is outside of our standard range. Please call to confirm availability.";
-          } else if (obj.dRangeTest > 20) {
-            document.querySelector("#dNotice").innerText = "Delivery address is outside of our extended range.";
-            Array.from(document.querySelectorAll("#runPriceResult, #ticketPriceResult, #diPriceResult, #diWeightResult")).forEach(element => {
-              element.innerText = "";
-            });
-            Array.from(document.querySelectorAll("#priceResult .currencySymbol, #priceResult .weightMarker")).forEach(element => {
-              element.classList.add("hide");
-            });
-          }
-          Array.from(workform.querySelectorAll("button")).forEach(element => {
+        }
+        if (obj.dRangeTest > 15 && obj.dRangeTest < 20) {
+          document.querySelector("#dNotice").innerText = "Delivery address is outside of our standard range. Please call to confirm availability.";
+        } else if (obj.dRangeTest > 20) {
+          document.querySelector("#dNotice").innerText = "Delivery address is outside of our extended range.";
+          Array.from(document.querySelectorAll("#runPriceResult, #ticketPriceResult, #diPriceResult, #diWeightResult")).forEach(element => {
+            element.innerText = "";
+          });
+          Array.from(document.querySelectorAll("#priceResult .currencySymbol, #priceResult .weightMarker")).forEach(element => {
+            element.classList.add("hide");
+          });
+        }
+        Array.from(page.querySelectorAll("button")).forEach(element => {
+          element.disabled = false;
+        });
+        rjdci.updateMap({mapDivID:"map2", coords1: obj.result1, address1: obj.address1, coords2: obj.result2, address2: obj.address2, center: obj.center});
+      })
+      .then(rjdci.refreshFormKey)
+      .catch(error => {
+        console.error(error.message);
+        clearInterval(dots);
+        ellipsis.parentNode.removeChild(ellipsis);
+        page.querySelector(".ticketError").appendChild(displayErrorMessage(error));
+        setTimeout(() => {
+          page.querySelector(".ticketError").innerHTML = "";
+          Array.from(page.querySelectorAll("button")).forEach(element => {
             element.disabled = false;
           });
-          rjdci.updateMap({mapDivID:"map2", coords1: obj.result1, address1: obj.address1, coords2: obj.result2, address2: obj.address2, center: obj.center});
-        })
-        .catch(error => {
-          console.error(error.message);
-          clearInterval(dots);
-          ellipsis.parentNode.removeChild(ellipsis);
-          workform.querySelector(".ticketError").appendChild(displayErrorMessage(error));
-          setTimeout(() => {
-            workform.querySelector(".ticketError").innerHTML = "";
-            Array.from(workform.querySelectorAll("button")).forEach(element => {
-              element.disabled = false;
-            });
-          }, 3500);
-        });
+        }, 3500);
       });
-    }
+    });
+  };
 
-    if (document.querySelector(".PWcontainer")) {
-      document.querySelector(".PWcontainer .showText").addEventListener("change", eve => {
+  rjdci.assignPasswordListeners = () => {
+    Array.from(document.querySelectorAll(".PWcontainer .showText")).forEach(box => {
+      box.addEventListener("change", eve => {
         Array.from(rjdci.getClosest(eve.target, "form").querySelectorAll("input.currentPw, .newPw1, .newPw2")).forEach(element => {
           element.type = (eve.target.checked) ? "text" : "password";
         });
       });
-      document.querySelector(".clearPWform").addEventListener("click", eve => {
+    });
+    Array.from(document.querySelectorAll(".clearPWform")).forEach(button => {
+      button.addEventListener("click", eve => {
         rjdci.getClosest(eve.target, "form").querySelector(".showText").checked = false;
         rjdci.triggerEvent(rjdci.getClosest(eve.target, "form").querySelector(".showText"), "change");
       });
-      Array.from(document.querySelectorAll(".newPw1, .newPw2, .currentPw")).forEach(element => {
-        element.addEventListener("change", eve => {
-          let workspace = rjdci.getClosest(eve.target, ".PWform"),
-            submitButton = workspace.querySelector(".PWsubmit"),
-            test0 = workspace.querySelector(".currentPw").value,
-            test1 = workspace.querySelector(".newPw1").value,
-            test2 = workspace.querySelector(".newPw2").value,
-            error1 = make(
+    });
+    Array.from(document.querySelectorAll(".newPw1, .newPw2, .currentPw")).forEach(element => {
+      element.addEventListener("change", eve => {
+        let workspace = rjdci.getClosest(eve.target, ".PWform"),
+          submitButton = workspace.querySelector(".PWsubmit"),
+          test0 = workspace.querySelector(".currentPw").value,
+          test1 = workspace.querySelector(".newPw1").value,
+          test2 = workspace.querySelector(".newPw2").value,
+          error1 = make(
+            [
+              "p",
+              { class: "error1" },
               [
-                "p",
-                { class: "error1" },
-                [
-                  "span",
-                  { class: "error" },
-                  "Error"
-                ],
-                ": Password does not meet criteria."
-              ]),
-            error2 = make(
+                "span",
+                { class: "error" },
+                "Error"
+              ],
+              ": Password does not meet criteria."
+            ]),
+          error2 = make(
+            [
+              "p",
+              { class: "error1" },
               [
-                "p",
-                { class: "error1" },
-                [
-                  "span",
-                  { class: "error" },
-                  "Error"
-                ],
-                ": Password missmatch."
-              ]),
-            error3 = make(
+                "span",
+                { class: "error" },
+                "Error"
+              ],
+              ": Password missmatch."
+            ]),
+          error3 = make(
+            [
+              "p",
+              { class: "error1" },
               [
-                "p",
-                { class: "error1" },
-                [
-                  "span",
-                  { class: "error" },
-                  "Error"
-                ],
-                ": Password should be changed."
-              ]);
-          if (test1 !== "") {
-            if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^\&*\)\(\{\}\[\]\-_.=+\?\:;,])(?=.{8,}).*$/.test(test1)) {
-              if (workspace.querySelector(".message .error1") !== null) {
-                workspace.querySelector(".message").appendChild(error1);
-                submitButton.disabled = true;
-                return false;
-              }
-            } else {
-              if (workspace.querySelector(".message .error1") !== null) workspace.querySelector(".message").removeChild(workspace.querySelector(".message .error1"));
-              if (workspace.querySelector(".message p") === null) submitButton.disabled = false;
-            }
-            if (test0 !== "" && test1 === test0) {
-              if (workspace.querySelector(".message .error3") === null) {
-                workspace.querySelector(".message").appendChild(error3);
-                submitButton.disabled = true;
-              }
-            } else {
-              if (workspace.querySelector(".message .error3") !== null) workspace.querySelector(".message").removeChild(workspace.querySelector(".message .error3"));
-              if (workspace.querySelector(".message p") === null) submitButton.disabled = false;
+                "span",
+                { class: "error" },
+                "Error"
+              ],
+              ": Password should be changed."
+            ]);
+        if (test1 !== "") {
+          if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^\&*\)\(\{\}\[\]\-_.=+\?\:;,])(?=.{8,}).*$/.test(test1)) {
+            if (workspace.querySelector(".message .error1") !== null) {
+              workspace.querySelector(".message").appendChild(error1);
+              submitButton.disabled = true;
+              return false;
             }
           } else {
             if (workspace.querySelector(".message .error1") !== null) workspace.querySelector(".message").removeChild(workspace.querySelector(".message .error1"));
             if (workspace.querySelector(".message p") === null) submitButton.disabled = false;
           }
-          if (test2 !== "") {
-            if (test1 !== test2) {
-              if (workspace.querySelector(".message .error2") === null) workspace.querySelector(".message").appendChild(error2);
+          if (test0 !== "" && test1 === test0) {
+            if (workspace.querySelector(".message .error3") === null) {
+              workspace.querySelector(".message").appendChild(error3);
               submitButton.disabled = true;
-            } else {
-              if (workspace.querySelector(".message .error2") !== null) workspace.querySelector(".message").removeChild(workspace.querySelector(".message .error2"));
-              if (workspace.querySelector(".message p") === null) submitButton.disabled = false;
             }
+          } else {
+            if (workspace.querySelector(".message .error3") !== null) workspace.querySelector(".message").removeChild(workspace.querySelector(".message .error3"));
+            if (workspace.querySelector(".message p") === null) submitButton.disabled = false;
+          }
+        } else {
+          if (workspace.querySelector(".message .error1") !== null) workspace.querySelector(".message").removeChild(workspace.querySelector(".message .error1"));
+          if (workspace.querySelector(".message p") === null) submitButton.disabled = false;
+        }
+        if (test2 !== "") {
+          if (test1 !== test2) {
+            if (workspace.querySelector(".message .error2") === null) workspace.querySelector(".message").appendChild(error2);
+            submitButton.disabled = true;
           } else {
             if (workspace.querySelector(".message .error2") !== null) workspace.querySelector(".message").removeChild(workspace.querySelector(".message .error2"));
             if (workspace.querySelector(".message p") === null) submitButton.disabled = false;
           }
-        });
+        } else {
+          if (workspace.querySelector(".message .error2") !== null) workspace.querySelector(".message").removeChild(workspace.querySelector(".message .error2"));
+          if (workspace.querySelector(".message p") === null) submitButton.disabled = false;
+        }
       });
-      Array.from(document.querySelectorAll(".PWsubmit")).forEach(element => {
-        element.addEventListener("click", async eve => {
-          eve.preventDefault();
-          eve.target.disabled = true;
-          let workspace = rjdci.getClosest(eve.target, ".PWform"),
-            postData = {},
-            ellipsis = make([ "span", { class: "ellipsis" }, "." ]);
-          workspace.querySelector(".message").innerHTML = "";
-          workspace.querySelector(".message").appendChild(ellipsis);
-          let forward = true,
-            dots = setInterval(() => {
-              if (forward === true) {
-                ellipsis.innerHTML += "..";
-                forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
-              }
-              if (forward === false) {
-                ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
-                forward = ellipsis.innerHTML.length === 1;
-              }
-            }, 500);
-          postData.formKey = document.querySelector("#formKey").value;
-          Array.from(workspace.querySelectorAll("input[name]")).forEach(input => {
-            postData[input.getAttribute("name")] = input.value;
+    });
+    Array.from(document.querySelectorAll(".PWsubmit")).forEach(element => {
+      element.addEventListener("click", async eve => {
+        eve.preventDefault();
+        eve.target.disabled = true;
+        let workspace = rjdci.getClosest(eve.target, ".PWform"),
+          postData = {},
+          ellipsis = make([ "span", { class: "ellipsis" }, "." ]);
+        workspace.querySelector(".message").innerHTML = "";
+        workspace.querySelector(".message").appendChild(ellipsis);
+        let forward = true,
+          dots = setInterval(() => {
+            if (forward === true) {
+              ellipsis.innerHTML += "..";
+              forward = ellipsis.innerHTML.length < 15 && ellipsis.innerHTML.length != 1;
+            }
+            if (forward === false) {
+              ellipsis.innerHTML = ellipsis.innerHTML.slice(2);
+              forward = ellipsis.innerHTML.length === 1;
+            }
+          }, 500);
+        postData.formKey = document.querySelector("#formKey").value;
+        Array.from(workspace.querySelectorAll("input[name]")).forEach(input => {
+          postData[input.getAttribute("name")] = input.value;
+        });
+        await rjdci.fetch_template({
+          url: "./changePW.php",
+          postData: postData,
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Length": JSON.stringify(postData).length
+          }
+        })
+        .then(result => {
+          if (typeof result === "undefined") throw new Error("Result Undefined");
+          if (result.ok) {
+            return result.text();
+          } else {
+            throw new Error(`${result.status} ${result.statusText}`);
+          }
+        })
+        .then(data => {
+          clearInterval(dots);
+          ellipsis.parentNode.removeChild(ellipsis);
+          if (data.indexOf("Session Error") !== -1) {
+            eve.target.disabled = false;
+            return rjdci.showLogin();
+          }
+          let newDom = parser.parseFromString(data, "text/html"),
+            docFrag = document.createDocumentFragment();
+          Array.from(newDom.querySelectorAll(".result")).forEach(element => {
+            docFrag.appendChild(element);
           });
-          await rjdci.fetch_template({
-            url: "./changePW.php",
-            postData: postData,
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-              "Content-Length": JSON.stringify(postData).length
-            }
-          })
-          .then(result => {
-            if (typeof result === "undefined") throw new Error("Result Undefined");
-            if (result.ok) {
-              return result.text();
-            } else {
-              throw new Error(`${result.status} ${result.statusText}`);
-            }
-          })
-          .then(data => {
-            clearInterval(dots);
-            ellipsis.parentNode.removeChild(ellipsis);
-            if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
-            document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
-            let newDom = parser.parseFromString(data, "text/html"),
-              docFrag = document.createDocumentFragment();
-            Array.from(newDom.querySelectorAll(".result")).forEach(element => {
-              docFrag.appendChild(element);
+          workspace.querySelector(".message").appendChild(docFrag);
+          setTimeout(() => {
+           Array.from(workspace.querySelectorAll(".currentPw, .newPw1, .newPw2")).forEach(element => {
+              element.value = "";
             });
-            workspace.querySelector(".message").appendChild(docFrag);
-            setTimeout(() => {
-              Array.from(workspace.querySelectorAll(".currentPw, .newPw1, .newPw2")).forEach(element => {
-                element.value = "";
-              });
-              workspace.querySelector(".message").innerHTML = "";
-              workspace.querySelector(".currentPw").focus();
-              eve.target.disabled = false;
-              if (postData.flag !== "driver" && postData.flag !== "dispatch") {
-                let test_ele,
-                  page = rjdci.getClosest(eve.target, ".page"),
-                  pwError = false;
-                switch(postData.flag) {
-                  case "daily":
-                    test_ele = document.querySelector("a[data-id='change_password']");
-                    pwError = (postData.newPw1 === "!Delivery1");
-                  break;
-                  case "admin":
-                    test_ele = document.querySelector("a[data-id='change_admin_password']");
-                    pwError = (postData.newPw1 === "!Delivery2");
-                  break;
-                  case "org":
-                    test_ele = document.querySelector("a[data-id='change_password']");
-                    pwError = (postData.newPw1 === "3Delivery!");
-                  break;
-                }
-                if (data.search("Password Updated") !== -1) {
-                  if (pwError === true) {
-                    page.querySelector(".defaultWarning").classList.remove("hide");
-                    test_ele.querySelector(".PWalert").innerText = "!";
-                  } else {
-                    if (!page.querySelector(".defaultWarning").classList.contains("hide")) page.querySelector(".defaultWarning").classList.add("hide");
-                    test_ele.querySelector(".PWalert").innerText = "";
-                  }
+            workspace.querySelector(".message").innerHTML = "";
+            workspace.querySelector(".currentPw").focus();
+            eve.target.disabled = false;
+            if (postData.flag !== "driver" && postData.flag !== "dispatch") {
+              let test_ele,
+                page = rjdci.getClosest(eve.target, ".page"),
+                pwError = false;
+              switch(postData.flag) {
+                case "daily":
+                  test_ele = document.querySelector("a[data-id='change_password']");
+                  pwError = (postData.newPw1 === "!Delivery1");
+                break;
+                case "admin":
+                  test_ele = document.querySelector("a[data-id='change_admin_password']");
+                  pwError = (postData.newPw1 === "!Delivery2");
+                break;
+                case "org":
+                  test_ele = document.querySelector("a[data-id='change_password']");
+                  pwError = (postData.newPw1 === "3Delivery!");
+                break;
+              }
+              if (data.search("Password Updated") !== -1) {
+                if (pwError === true) {
+                  page.querySelector(".defaultWarning").classList.remove("hide");
+                  test_ele.querySelector(".PWalert").innerText = "!";
+                } else {
+                  if (!page.querySelector(".defaultWarning").classList.contains("hide")) page.querySelector(".defaultWarning").classList.add("hide");
+                  test_ele.querySelector(".PWalert").innerText = "";
                 }
               }
-            }, 4000)
-          })
-          .catch(error => {
-            console.error(error.message);
-            clearInterval(dots);
-            ellipsis.parentNode.removeChild(ellipsis);
-            workspace.querySelector(".message").appendChild(displayErrorMessage(error));
-            setTimeout(() => {
-              workspace.querySelector(".message").innerHTML = "";
-              eve.target.disabled = false;
-            }, 3500);
-          });
+            }
+          }, 4000)
+        })
+        .then(rjdci.refreshFormKey)
+        .catch(error => {
+          console.error(error.message);
+          clearInterval(dots);
+          ellipsis.parentNode.removeChild(ellipsis);
+          workspace.querySelector(".message").appendChild(displayErrorMessage(error));
+          setTimeout(() => {
+            workspace.querySelector(".message").innerHTML = "";
+            eve.target.disabled = false;
+          }, 3500);
         });
       });
-    }
-    // end driver and dispatcher app
+    });
+  };
+
+  rjdci.assignListeners = () => {
+    rjdci.assignRouteListeners();
+    rjdci.assignOnCallListeners();
+    rjdci.assignTransferListeners();
+    rjdci.assignDispatchListeners();
+    rjdci.assignActiveTicketsListeners();
+    rjdci.assignPriceCalcListeners();
+    rjdci.assignPasswordListeners();
+    assignTicketFormListeners();
     // start client app
     if (document.querySelector("#invoiceQueryOptions")) {
-      if (document.querySelector("#useInvoice")) document.querySelector("#useInvoice").addEventListener("change", eve => {
+      document.querySelector("#useInvoice") &&
+      document.querySelector("#useInvoice").addEventListener("change", eve => {
         document.querySelector("#invoiceNumber").disabled = eve.target.checked === false;
         rjdci.getClosest(eve.target, "#singleInvoiceQuery").querySelector(".dateIssuedMonth").disabled = eve.target.checked === true;
         rjdci.getClosest(eve.target, "#singleInvoiceQuery").querySelector(".dateIssuedMonth").required = eve.target.checked === false;
@@ -2484,10 +2542,10 @@
             dots = setInterval(() => {
               if (forward === true) {
                 ellipsis.innerHTML += "..";
-                forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
+                forward = ellipsis.innerHTML.length < 15 && ellipsis.innerHTML.length != 1;
               }
               if (forward === false) {
-                ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+                ellipsis.innerHTML = ellipsis.innerHTML.slice(2);
                 forward = ellipsis.innerHTML.length === 1;
               }
             }, 500)
@@ -2512,7 +2570,6 @@
             clearInterval(dots);
             document.querySelector("#invoiceQueryResults").removeChild(ellipsis);
             if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
-            document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
             let newDom = parser.parseFromString(data, "text/html"),
               docFrag = document.createDocumentFragment();
             Array.from(newDom.querySelectorAll("#invoiceChartPDFform, .bargraph, .graphKey, #invoice, .invoiceTable, p.displayHeader, .result")).forEach(element => {
@@ -2522,6 +2579,7 @@
             eve.target.disabled = false;
             assignQueriedInvoiceListeners();
           })
+          .then(rjdci.refreshFormKey)
           .catch(error => {
             console.error(error.message);
             clearInterval(dots);
@@ -2675,10 +2733,10 @@
             dots = setInterval(() => {
               if (forward === true) {
                 ellipsis.innerHTML += "..";
-                forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
+                forward = ellipsis.innerHTML.length < 15 && ellipsis.innerHTML.length != 1;
               }
               if (forward === false) {
-                ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+                ellipsis.innerHTML = ellipsis.innerHTML.slice(2);
                 forward = ellipsis.innerHTML.length === 1;
               }
             }, 500);
@@ -2703,7 +2761,6 @@
             clearInterval(dots);
             ellipsis.parentNode.removeChild(ellipsis);
             if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
-            document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
             let newDom = parser.parseFromString(data, "text/html"),
               docFrag = document.createDocumentFragment();
             Array.from(newDom.querySelectorAll("#ticketPDFform, .bargraph, .graphKey, .tickets, .ticketTable, .ticketGraphContainer, .result")).forEach(element => {
@@ -2713,6 +2770,7 @@
             document.querySelector("#ticketQueryResults").appendChild(docFrag);
             rjdci.assignQueriedTicketListeners();
           })
+          .then(rjdci.refreshFormKey)
           .catch(error => {
             console.error(error.message);
             eve.target.disabled = false;
@@ -2734,10 +2792,10 @@
             dots = setInterval(() => {
               if (forward === true) {
                 ellipsis.innerHTML += "..";
-                forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
+                forward = ellipsis.innerHTML.length < 15 && ellipsis.innerHTML.length != 1;
               }
               if (forward === false) {
-                ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+                ellipsis.innerHTML = ellipsis.innerHTML.slice(2);
                 forward = ellipsis.innerHTML.length === 1;
               }
             }, 500);
@@ -2781,7 +2839,6 @@
             clearInterval(dots);
             ellipsis.parentNode.removeChild(ellipsis);
             if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
-            document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
             let newDom = parser.parseFromString(data, "text/html"),
               docFrag = document.createDocumentFragment();
             Array.from(newDom.querySelectorAll("#ticketPDFform, .tickets, .ticketTable, .bargraph, .graphKey, .result")).forEach(element => {
@@ -2791,6 +2848,7 @@
             document.querySelector("#ticketQueryResults").appendChild(docFrag);
             rjdci.assignQueriedTicketListeners();
           })
+          .then(rjdci.refreshFormKey)
           .catch(error => {
             console.error(error.message);
             eve.target.disabled = false;
@@ -2804,7 +2862,7 @@
     }
 
     if (document.querySelector("#clientUpdateForm")) {
-      document.querySelector("#same").addEventListener("change", eve => {
+      document.querySelector("#Same").addEventListener("change", eve => {
         Array.from(document.querySelectorAll("input[name='BillingName'], input[name='BillingAddress1'], input[name='BillingAddress2'], input[name='BillingCountry']")).forEach(input => {
           input.disabled = eve.target.checked === true;
           input.required = eve.target.checked === false;
@@ -2846,10 +2904,10 @@
           dots = setInterval(() => {
             if (forward === true) {
               ellipsis.innerHTML += ".";
-              forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
+              forward = ellipsis.innerHTML.length < 15 && ellipsis.innerHTML.length != 1;
             }
             if (forward === false) {
-              ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+              ellipsis.innerHTML = ellipsis.innerHTML.slice(2);
               forward = ellipsis.innerHTML.length === 1;
             }
           }, 500);
@@ -2875,7 +2933,6 @@
           clearInterval(dots);
           document.querySelector("#clientUpdateResult").removeChild(ellipsis);
           if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
-          document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
           let newDom = parser.parseFromString(data, "text/html"),
             docFrag = document.createDocumentFragment();
           Array.from(newDom.querySelectorAll(".result")).forEach(element => {
@@ -2888,6 +2945,7 @@
             rjdci.triggerEvent(document.querySelector("#enableInfoUpdate"), "change");
           }, 3500);
         })
+        .then(rjdci.refreshFormKey)
         .catch(error => {
           console.error(error.message);
           eve.target.disabled = false;
@@ -2961,10 +3019,10 @@
           dots = setInterval(() => {
             if (forward === true) {
               ellipsis.innerHTML += "..";
-              forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
+              forward = ellipsis.innerHTML.length < 15 && ellipsis.innerHTML.length != 1;
             }
             if (forward === false) {
-              ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+              ellipsis.innerHTML = ellipsis.innerHTML.slice(2);
               forward = ellipsis.innerHTML.length === 1;
             }
           }, 500);
@@ -2992,7 +3050,6 @@
           clearInterval(dots);
           ellipsis.parentNode.removeChild(ellipsis);
           if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
-          document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
           let newDom = parser.parseFromString(data, "text/html"),
             docFrag = document.createDocumentFragment();
           Array.from(newDom.querySelectorAll("#invoice, .invoiceTable, .invoiceGraphContainer, p.displayHeader, .result")).forEach(element => {
@@ -3000,6 +3057,7 @@
           });
           document.querySelector("#invoiceQueryResults").appendChild(docFrag);
         })
+        .then(rjdci.refreshFormKey)
         .catch(error => {
           console.log(error.message);
           clearInterval(dots);
@@ -3044,10 +3102,10 @@
           dots = setInterval(() => {
             if (forward === true) {
               ellipsis.innerHTML += "..";
-              forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
+              forward = ellipsis.innerHTML.length < 15 && ellipsis.innerHTML.length != 1;
             }
             if (forward === false) {
-              ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+              ellipsis.innerHTML = ellipsis.innerHTML.slice(2);
               forward = ellipsis.innerHTML.length === 1;
             }
           }, 500);
@@ -3071,7 +3129,6 @@
           clearInterval(dots);
           ellipsis.parentNode.removeChild(ellipsis);
           if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
-          document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
           let newDom = parser.parseFromString(data, "text/html"),
             docFrag = document.createDocumentFragment();
           Array.from(newDom.querySelectorAll("#invoice, .result")).forEach(element => {
@@ -3080,6 +3137,7 @@
           document.querySelector("#invoiceQueryResults").appendChild(docFrag);
           assignQueriedInvoiceListeners();
         })
+        .then(rjdci.refreshFormKey)
         .catch(error => {
           console.error(error.message);
           clearInterval(dots);
@@ -3115,10 +3173,10 @@
           dots = setInterval(() => {
             if (forward === true) {
               ellipsis.innerHTML += "..";
-              forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
+              forward = ellipsis.innerHTML.length < 15 && ellipsis.innerHTML.length != 1;
             }
             if (forward === false) {
-              ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+              ellipsis.innerHTML = ellipsis.innerHTML.slice(2);
               forward = ellipsis.innerHTML.length === 1;
             }
           }, 500);
@@ -3143,7 +3201,6 @@
           clearInterval(dots);
           ellipsis.parentNode.removeChild(ellipsis);
           if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
-          document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
           let newDom = parser.parseFromString(data, "text/html"),
             docFrag = document.createDocumentFragment();
           Array.from(newDom.querySelectorAll(".tickets, .result")).forEach(element => {
@@ -3152,6 +3209,7 @@
           document.querySelector("#ticketQueryResults").appendChild(docFrag);
           rjdci.assignQueriedTicketListeners();
         })
+        .then(rjdci.refreshFormKey)
         .catch(error => {
           console.error(error.message);
           eve.target.disabled = false;
@@ -3216,7 +3274,6 @@
         })
         .then(data => {
           if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
-          document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
           let newDom = parser.parseFromString(data, "text/html"),
             docFrag = document.createDocumentFragment();
           Array.from(workspace.querySelectorAll("table, hr, button.ticketEditor")).forEach(element => {
@@ -3234,8 +3291,9 @@
           Array.from(newDom.querySelectorAll("datalist")).forEach(element => {
             workspace.parentNode.prepend(element);
           });
-          assignTicketFormListeners(workspace);
+          assignTicketFormListeners();
         })
+        .then(rjdci.refreshFormKey)
         .catch(error => {
           console.error(error.message);
           workspace.appendChild(displayErrorMessage(error));
@@ -3270,8 +3328,16 @@
     });
   };
 
-  assignTicketFormListeners = workspace => {
-    if (!workspace.querySelector(".billTo")) return;
+  assignTicketFormListeners = () => {
+    let workspace = document.querySelector("#delivery_request") || document.querySelector("#ticket_entry");
+    if (!workspace || !workspace.querySelector(".billTo")) return;
+
+    document.querySelector("#switchTerms") &&
+    document.querySelector("#switchTerms").addEventListener("click", e => {
+      document.querySelector("#deliveryTerms").style.display =
+        (document.querySelector("#deliveryTerms").style.display == "none") ? "block" : "none";
+    });
+
     let repeatHandler = eve => {
       workspace.querySelector(".billTo").setAttribute("list", (eve.target.checked) ? "t_clients" : "clients");
       workspace.querySelector(".billTo").value = "";
@@ -3408,7 +3474,7 @@
         }
         eve.target.title = eve.target.value;
       });
-      if (element.getAttribute("name").substr(1) === "Address1") {
+      if (element.getAttribute("name").slice(1) === "Address1") {
         element.addEventListener("blur", eve => {
           let index;
           Array.from(document.querySelectorAll("#addy1 option")).forEach(ele => {
@@ -3493,7 +3559,7 @@
         } else {
           Array.from(rjdci.getClosest(eve.target, "fieldset").querySelectorAll(".clientList")).forEach(input => {
             input.disabled = false;
-            input.required = input.getAttribute("name").substr(1) !== "Department";
+            input.required = input.getAttribute("name").slice(1) !== "Department";
             input.style.display = "inline";
           });
           Array.from(rjdci.getClosest(eve.target, "fieldset").querySelectorAll(".clientSelect")).forEach(input => {
@@ -3584,10 +3650,10 @@
         dots = setInterval(() => {
           if (forward === true) {
             ellipsis.innerHTML += "..";
-            forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
+            forward = ellipsis.innerHTML.length < 15 && ellipsis.innerHTML.length != 1;
           }
           if (forward === false) {
-            ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+            ellipsis.innerHTML = ellipsis.innerHTML.slice(2);
             forward = ellipsis.innerHTML.length === 1;
           }
         }, 500);
@@ -3794,7 +3860,7 @@
       }
       if (breakFunction === true) {
         clearInterval(dots);
-        workspace.querySelector(".ticketError").innerHTML = "";
+        ellipsis.remove();
         Array.from(workspace.querySelectorAll(".submitForm, .cancelTicketEditor")).forEach(element => {
           element.disabled = false;
         });
@@ -3818,8 +3884,8 @@
       })
       .then(data => {
         clearInterval(dots);
+        ellipsis.remove();
         if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
-        document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
         if (data.indexOf("data-value=\"error\"") !== -1) {
           throw new Error(data);
         } else {
@@ -3839,10 +3905,11 @@
           assignConfirmationListeners(workspace);
         }
       })
+      .then(rjdci.refreshFormKey)
       .catch(error => {
         console.error(error.message);
         clearInterval(dots);
-        workspace.removeChild(ellipsis);
+        ellipsis.remove();
         workspace.querySelector(".ticketError").appendChild(displayErrorMessage(error));
         setTimeout(() => { workspace.querySelector(".ticketError").innerHTML = ""; }, 3500);
         Array.from(workspace.querySelectorAll(".submitForm, .cancelTicketEditor")).forEach(element => {
@@ -3858,8 +3925,22 @@
     Array.from(workspace.querySelectorAll(".confirmed, .editForm")).forEach(element => {
       element.addEventListener("click", async eve => {
         eve.preventDefault();
+        Array.from(workspace.querySelectorAll("button")).forEach(b => b.setAttribute("disabled", true));
         let formID = eve.target.getAttribute("form"),
-          postData = {};
+          postData = {},
+          ellipsis = make([ "span", { class: "ellipsis" }, "." ]);
+        workspace.querySelector(".ticketError").appendChild(ellipsis);
+        let forward = true,
+        dots = setInterval(() => {
+          if (forward === true) {
+            ellipsis.innerHTML += "..";
+            forward = ellipsis.innerHTML.length < 15 && ellipsis.innerHTML.length != 1;
+          }
+          if (forward === false) {
+            ellipsis.innerHTML = ellipsis.innerHTML.slice(2);
+            forward = ellipsis.innerHTML.length === 1;
+          }
+        }, 500);
         postData.formKey = document.querySelector("#formKey").value;
         postData.ticketEditor = 1;
         Array.from(workspace.querySelectorAll("input[form='" + eve.target.getAttribute("form") + "']")).forEach(input => {
@@ -3888,8 +3969,12 @@
           }
         })
         .then(data => {
-          if (data.indexOf("Session Error") !== -1) return rjdci.showLogin();
-          document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
+          if (data.indexOf("Session Error") !== -1) {
+            ellipsis.remove();
+            clearTimeout(dots);
+            Array.from(workspace.querySelectorAll("button")).forEach(b => b.removeAttribute("disabled"));
+            return rjdci.showLogin();
+          }
           if (data.indexOf("data-value=\"error\"") !== -1) {
             throw new Error(data);
           }
@@ -3908,7 +3993,7 @@
               workspace.appendChild(mapElement);
               rjdci.updateMap({mapDivID: "map"});
             }
-            assignTicketFormListeners(workspace);
+            assignTicketFormListeners();
           } else if (eve.target.classList.contains("confirmed")) {
             if (data === "remove") {
               let newEle = make([ "p", { class: "center" }, "Update Successful" ]);
@@ -3938,11 +4023,14 @@
             }
           }
         })
+        .then(rjdci.refreshFormKey)
         .catch(error => {
           console.error(error.message);
-          ellipsis.parentNode.removeChild(ellipsis);
+          clearTimeout(dots);
+          ellipsis.remove();
           workspace.querySelector(".ticketError").appendChild(displayErrorMessage(error));
           setTimeout(() => { workspace.querySelector(".ticketError").innerHTML = ""; }, 3500);
+          Array.from(workspace.querySelectorAll("button")).forEach(b => b.removeAttribute("disabled"));
         });
       });
     });
@@ -4064,10 +4152,10 @@
         dots = setInterval(() => {
           if (forward === true) {
             ellipsis.innerHTML += "..";
-            forward = ellipsis.innerHTML.length < 21 && ellipsis.innerHTML.length != 1;
+            forward = ellipsis.innerHTML.length < 15 && ellipsis.innerHTML.length != 1;
           }
           if (forward === false) {
-            ellipsis.innerHTML = ellipsis.innerHTML.substr(0,ellipsis.innerHTML.length - 2);
+            ellipsis.innerHTML = ellipsis.innerHTML.slice(2);
             forward = ellipsis.innerHTML.length === 1;
           }
         }, 500),
@@ -4077,22 +4165,8 @@
       postData.upw = document.querySelector("#upw").value;
       postData.mobile = document.querySelector("#mobile").value;
       postData.noSession = 1;
-      await rjdci.fetch_template({
-        url: "./refreshFormKey.php",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        }
-      })
-      .then(result => {
-        if (typeof result === "undefined") throw new Error("Result Undefined");
-        if (result.ok) {
-          return result.text();
-        } else {
-          throw new Error(`${result.status} ${result.statusText}`);
-        }
-      })
+      await rjdci.refreshFormKey()
       .then(async newKey => {
-        document.querySelector("#formKey").value = newKey;
         return await rjdci.fetch_template({
           url: "../login.php",
           postData: postData,
@@ -4121,7 +4195,8 @@
             if (document.querySelector("#function").value !== "") {
               let func = document.querySelector("#function").value;
               document.querySelector("#function").value = "";
-              rjdci[func]();
+              console.log(func);
+              rjdci[`${func}`]();
             }
             document.dispatchEvent(rjdci.loggedin);
           }, 1000);

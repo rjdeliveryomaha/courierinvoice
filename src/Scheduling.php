@@ -556,7 +556,8 @@
                 $x = $arr[$test[2]];
                 $y = $arr[$startDate->format('l')];
                 $res = $x - $y;
-                $startDate->modify("+ $res day");
+                $mod = ($res < 0) ? '' : '+';
+                $startDate->modify("$mod $res day");
               }
               $diff = $startDate->diff($testDate);
               return $diff->days % 14 == 0;
@@ -576,8 +577,7 @@
           if ($test[2] == 'Day') {
             return $testDate->format('j') == '2';
           } elseif ($test[2] === 'Weekday') {
-            $mod = ($testDate->format('N') == 1) ? 3 : 1;
-            return self::isFirstWeekday($testDate->modify("- $mod day"));
+            return self::isFirstWeekday($testDate->modify('- 1 day'));
           } else {
             return $testDate->format('Y-m-d') ==
               date('Y-m-d', strtotime("second {$test[2]} of {$testDate->format('F Y')}"));
@@ -587,8 +587,7 @@
           if ($test[2] == 'Day') {
             return $testDate->format('j') == '3';
           } elseif ($test[2] == 'Weekday') {
-            $mod = ($testDate->format('N') <= 2) ? 4 : 2;
-            return self::isFirstWeekday($testDate->modify("- $mod day"));
+            return self::isFirstWeekday($testDate->modify('- 2 day'));
           } else {
             return $testDate->format('Y-m-d') ==
               date('Y-m-d', strtotime("third {$test[2]} of {$testDate->format('F Y')}"));
@@ -598,17 +597,14 @@
           if ($test[2] == 'Day') {
             return $testDate->format('j') == '4';
           } elseif ($test[2] === 'Weekday') {
-            $mod = ($testDate->format('N') <= 3) ? 5 : 3;
-            return self::isFirstWeekday($testDate->modify("- $mod day"));
+            return self::isFirstWeekday($testDate->modify('- 3 day'));
           } else {
             return $testDate->format('Y-m-d') ==
               date('Y-m-d', strtotime("fourth {$test[2]} of {$testDate->format('F Y')}"));
           }
           break;
         case 'Last':
-          if ($test[2] === 'Day') {
-            return $testDate->format('t') === $testDate->format('j');
-          } elseif ($test[2] === 'Weekday') {
+          if ($test[2] === 'Weekday') {
             switch ($testDate->format('t') - $testDate->format('j')) {
               case 0: return $testDate->format('N') <= 5;
               case 1:

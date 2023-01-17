@@ -566,7 +566,7 @@
                           <td><label for="dateIssued">Date Issued:</label></td>
                           <td class="pullLeft">' .
                             self::createLimitedMonthInput([
-                              'clientIDs' => (($_SESSION['RepeatClient'] == false) ? 't' : '') . $_SESSION['ClientID'],
+                              'clientIDs' => (($this->RepeatClient == false) ? 't' : '') . $_SESSION['ClientID'],
                               'inputID' => 'dateIssued',
                               'type' => 'month',
                               'required' => true,
@@ -603,7 +603,7 @@
                           <td><label for="startDate">Start Date:</label></td>
                           <td>' .
                             self::createLimitedMonthInput([
-                              'clientIDs' => (($_SESSION['RepeatClient'] == false) ? 't' : '') . $_SESSION['ClientID'],
+                              'clientIDs' => (($this->RepeatClient == false) ? 't' : '') . $_SESSION['ClientID'],
                               'inputID' => 'startDate',
                               'type' => 'month',
                               'required' => true,
@@ -615,7 +615,7 @@
                           <td><label for="endDate">End Date:</label></td>
                           <td>' .
                             self::createLimitedMonthInput([
-                              'clientIDs' => (($_SESSION['RepeatClient'] == false) ? 't' : '') . $_SESSION['ClientID'],
+                              'clientIDs' => (($this->RepeatClient == false) ? 't' : '') . $_SESSION['ClientID'],
                               'inputID' => 'endDate',
                               'type' => 'month',
                               'required' => true,
@@ -670,7 +670,7 @@
                             <td><label for="dateIssued">Date Issued:</label></td>
                             <td class="pullLeft">' .
                               self::createLimitedMonthInput([
-                                'clientIDs' => array_keys($_SESSION['members']),
+                                'clientIDs' => array_keys($this->members),
                                 'inputID' => 'dateIssued',
                                 'type' => 'month',
                                 'required' => true,
@@ -701,7 +701,7 @@
                             <td class="pullLeft"><label for="invoiceStartDateMonth">Start Date:</label></td>
                             <td>' .
                               self::createLimitedMonthInput([
-                                'clientIDs' => array_keys($_SESSION['members']),
+                                'clientIDs' => array_keys($this->members),
                                 'inputID' => 'invoiceStartDate',
                                 'form' => 'multiInvoiceQuery',
                                 'required' => true
@@ -713,7 +713,7 @@
                             <td class="pullLeft"><label for="invoiceEndDateMonth">End Date:</label></td>
                             <td class="pullLeft">' .
                               self::createLimitedMonthInput([
-                                'clientIDs' => array_keys($_SESSION['members']),
+                                'clientIDs' => array_keys($this->members),
                                 'inputID' => 'invoiceEndDate',
                                 'form' => 'multiInvoiceQuery',
                                 'required' => true

@@ -3,7 +3,6 @@
 
   use rjdeliveryomaha\courierinvoice\CommonFunctions;
   use rjdeliveryomaha\courierinvoice\Query;
-  use rjdeliveryomaha\courierinvoice\SecureSessionHandler;
 
   class LoginHandler extends CommonFunctions
   {
@@ -21,8 +20,6 @@
     private $loginType;
     // key names not to include in the session
     private $exclude = [ 'Password', 'AdminPassword', 'Deleted', 'config' ];
-    // key names of percentages
-    private $percentages = [ 'GeneralDiscount', 'ContractDiscount', 'StandardVAT', 'ReducedVAT' ];
     // key names that will be sent through countryFromAbbr()
     private $countryParams = [ 'ShippingCountry', 'BillingCountry' ];
 
@@ -125,6 +122,7 @@
       } elseif (preg_match('/^([\w]+)/', $this->clientID) === 1) {
         if ($this->clientID === $this->userLogin) {
           // login user 0
+          $this->repeatFlag = 1;
           $this->queryData['noSession'] = true;
           $this->queryData['method'] = 'GET';
           $this->queryData['endPoint'] = 'clients';
@@ -193,7 +191,6 @@
       } else {
         throw new \Exception('Invalid Credentials');
       }
-      SecureSessionHandler::regenerate_session();
       // Add the driver info to the session array
       foreach ($this->result[0] as $key => $value) {
         if (!in_array($key, $this->exclude)) {
@@ -201,7 +198,7 @@
         }
       }
       unset($_SESSION['error']);
-      $_SESSION['driverName'] = $this->result[0]['FirstName'] . " " . $this->result[0]['LastName'];
+      $_SESSION['driverName'] = "{$this->result[0]['FirstName']} {$this->result[0]['LastName']}";
       $_SESSION['ulevel'] = 'driver';
       try {
         self::fetchConfig();
@@ -220,7 +217,6 @@
       } else {
         throw new \Exception('Invalid Credentials');
       }
-      SecureSessionHandler::regenerate_session();
       // Add the driver info to the session array
       foreach ($this->result[0] as $key => $value) {
         if (!in_array($key, $this->exclude)) {
@@ -251,16 +247,16 @@
       } else {
         throw new \Exception('Invalid Credentials');
       }
-      SecureSessionHandler::regenerate_session();
-      $clientMarker = ($this->repeatFlag === 1) ? '' : 't';
+      $clientMarker = ($this->repeatFlag === 1) ? $this->result[0]['ClientID'] : "t{$this->result[0]['ClientID']}";
+      $_SESSION['ClientID'] = $clientMarker;
+      $_SESSION['Organization'] = $this->result[0]['Organization'];
+      $_SESSION['client_index'] = $this->result[0]['client_index'];
+      $_SESSION['ClientName'] = $this->result[0]['ClientName'];
+      $_SESSION['Department'] = $this->result[0]['Department'];
       foreach ($this->result[0] as $key => $value) {
         if (!in_array($key, $this->exclude)) {
-          if (in_array($key, $this->percentages)) {
-            $_SESSION['config'][$key]["{$clientMarker}{$this->result[0]['ClientID']}"] =
-              (substr($key, -3) === 'VAT') ?  round(1 + ($value / 100), 2, PHP_ROUND_HALF_UP) : (100 - $value) / 100;
-          } else {
-            $_SESSION[$key] = (in_array($key, $this->countryParams)) ? self::countryFromAbbr($value) : $value;
-          }
+          $_SESSION['members'][$clientMarker][$key] = (in_array($key, $this->countryParams)) ?
+            self::countryFromAbbr($value) : $value;
         }
       }
       unset($_SESSION['error']);
@@ -277,7 +273,11 @@
       } catch (\Exception $e) {
         throw $e;
       }
-      if ($_SESSION['org_id']['RequestTickets'] == 1 || $_SESSION['org_id']['RequestTickets'] >= 3) {
+      if (
+        isset($_SESSION['members'][$this->clientID]) &&
+        ($_SESSION['members'][$this->clientID]['org_id']['RequestTickets'] == 1 ||
+        $_SESSION['members'][$this->clientID]['org_id']['RequestTickets'] >= 3)
+      ) {
         try {
           self::fetchOrgClients();
         } catch (\Exception $e) {
@@ -295,7 +295,6 @@
       } else {
         throw new \Exception('Invalid Credentials');
       }
-      SecureSessionHandler::regenerate_session();
       $_SESSION['pwWarning'] = 0;
       if (password_verify('3Delivery!', $this->result[0]['Password'])) {
         $_SESSION['pwWarning'] += 4;
@@ -345,7 +344,7 @@
             array_merge($_SESSION['config'], $this->configResult[$i]['config'][0]) :
             $this->configResult[$i]['config'][0];
           foreach($this->configResult[$i] as $key => $value) {
-            if (!in_array($key, $this->exclude) && !in_array($key, $this->percentages)) {
+            if (!in_array($key, $this->exclude)) {
               $_SESSION['config'][$key] = (in_array($key, $this->countryParams)) ?
                 self::countryFromAbbr($value) : $value;
             }
@@ -353,19 +352,14 @@
         }
         $clientMarker = (self::test_bool($this->configResult[$i]['RepeatClient']) === true) ?
           $this->configResult[$i]['ClientID'] : "t{$this->configResult[$i]['ClientID']}";
-
-        $_SESSION['config']['GeneralDiscount'][$clientMarker] =
-          (100 - $this->configResult[$i]['GeneralDiscount']) / 100;
-
-        $_SESSION['config']['ContractDiscount'][$clientMarker] =
-          (100 - $this->configResult[$i]['ContractDiscount']) / 100;
-
-        $_SESSION['config']['StandardVAT'][$clientMarker] = $this->configResult[$i]['StandardVAT'];
-
-        $_SESSION['config']['ReducedVAT'][$clientMarker] = $this->configResult[$i]['ReducedVAT'];
+        foreach($this->configResult[$i] as $key => $value) {
+          if (!in_array($key, $this->exclude)) {
+            $_SESSION['members'][$clientMarker][$key] = (in_array($key, $this->countryParams)) ?
+              self::countryFromAbbr($value) : $value;
+          }
+        }
       }
       $_SESSION['config']['config_id'] = "{$this->loginType}{$this->clientID}";
-      $this->config = $_SESSION['config'];
       if ($this->loginType === 'driver') {
         $this->queryData['noSession'] = true;
         $this->queryData['method'] = 'GET';
@@ -388,38 +382,37 @@
 
     private function fetchOrgClients()
     {
-      if (!isset($this->result[0]['clients'])) {
-        $this->queryData = [];
-        $this->queryData['noSession'] = true;
-        $this->queryData['method'] = 'GET';
-        $this->queryData['endPoint'] = 'clients';
-        $this->queryData['queryParams']['filter'] = [
-          ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0]
-        ];
-        if ($this->clientID !== $this->userLogin) {
-          $this->queryData['queryParams']['filter'][] =
-            ['Resource'=>'Organization', 'Filter'=>'eq', 'Value'=>$_SESSION['Organization']];
-        }
-        $this->query = self::createQuery($this->queryData);
-        if ($this->query === false) {
-          throw new \Exception($this->error);
-        }
-        $this->clientResult = self::callQuery($this->query);
-        if ($this->clientResult === false) {
-          throw new \Exception($this->error);
-        }
-        if (empty($this->clientResult)) {
-          throw new \Exception('Unable To Fetch Organization Members');
-        }
-        $this->result[0]['clients'] = $this->clientResult;
+      $this->queryData = [];
+      $this->queryData['noSession'] = true;
+      $this->queryData['method'] = 'GET';
+      $this->queryData['endPoint'] = 'clients';
+      $this->queryData['queryParams']['filter'] = [
+        ['Resource'=>'Deleted', 'Filter'=>'eq', 'Value'=>0]
+      ];
+      if ($this->clientID !== $this->userLogin) {
+        $this->queryData['queryParams']['filter'][] =
+          ['Resource'=>'Organization', 'Filter'=>'eq', 'Value'=>$_SESSION['Organization']];
       }
+      $this->query = self::createQuery($this->queryData);
+      if ($this->query === false) {
+        throw new \Exception($this->error);
+      }
+      $this->clientResult = self::callQuery($this->query);
+      if ($this->clientResult === false) {
+        throw new \Exception($this->error);
+      }
+      if (empty($this->clientResult)) {
+        throw new \Exception('Unable To Fetch Organization Members');
+      }
+      $this->result[0]['clients'] = $this->clientResult;
       foreach ($this->result[0]['clients'] as $member) {
+        if ($member['ClientID'] == $this->clientID) continue;
         $marker = (self::test_bool($member['RepeatClient']) === false) ? 't' : '';
         $_SESSION['members'][$marker . $member['ClientID']] = [];
         foreach ($member as $key => $value) {
           if (!in_array($key, $this->exclude)) {
             $_SESSION['members'][$marker . $member['ClientID']][$key] = (in_array($key, $this->countryParams)) ?
-            self::countryFromAbbr($value) : $value;
+              self::countryFromAbbr($value) : $value;
           }
         }
       }

@@ -25,11 +25,12 @@
     protected $StandardVAT;
     protected $ReducedVAT;
     protected $Organization;
-    protected $same;
+    protected $Same;
     protected $currentPw;
     protected $newPw1;
     protected $newPw2;
     protected $flag;
+    protected $org_id;
     // Only the org flag doesn't need a second password test so set the test flag to true
     private $secondTest = true;
     private $resourceName;
@@ -45,7 +46,7 @@
       'EmailAddress', 'Attention', 'ContractDiscount', 'GeneralDiscount', 'Organization'
     ];
     private $updateValues = [ 'ShippingAddress1', 'ShippingAddress2', 'ShippingCountry', 'BillingName',
-      'BillingAddress1', 'BillingAddress2', 'BillingCountry', 'Telephone', 'EmailAddress', 'Attention'
+      'BillingAddress1', 'BillingAddress2', 'BillingCountry', 'Telephone', 'EmailAddress', 'Attention', 'Same'
     ];
     private $clientInfo;
     private $userType;
@@ -57,24 +58,10 @@
       } catch (\Exception $e) {
         throw $e;
       }
-      if ($this->ulevel === 1 || $this->ulevel === 2) {
-        $this->clientInfo = [
-          'client_index' => $_SESSION['client_index'],
-          'RepeatClient' => $_SESSION['RepeatClient'],
-          'ClientID' => $_SESSION['ClientID'],
-          'ClientName' => $_SESSION['ClientName'],
-          'Department' => $_SESSION['Department'],
-          'ShippingAddress1' => $_SESSION['ShippingAddress1'],
-          'ShippingAddress2' => $_SESSION['ShippingAddress2'],
-          'ShippingCountry' => $_SESSION['ShippingCountry'],
-          'BillingName' => $_SESSION['BillingName'],
-          'BillingAddress1' => $_SESSION['BillingAddress1'],
-          'BillingAddress2' => $_SESSION['BillingAddress2'],
-          'BillingCountry' => $_SESSION['BillingCountry'],
-          'Telephone' => $_SESSION['Telephone'],
-          'EmailAddress' => $_SESSION['EmailAddress'],
-          'Organization' => $_SESSION['Organization'],
-        ];
+      foreach ($this->config as $key => $value) {
+        if (property_exists($this, $key)) {
+         $this->$key = $value;
+        }
       }
     }
 
@@ -241,19 +228,16 @@
 
     public function updateInfo()
     {
-      if (self::test_bool($this->same) === true) {
-        $this->BillingName = $this->ClientName;
-        $this->BillingAddress1 = $this->ShippingAddress1;
-        $this->BillingAddress2 = $this->ShippingAddress2;
-        $this->BillingCountry = $this->ShippingCountry;
+      if (self::test_bool($this->Same) === true) {
+        $this->BillingName = $this->BillingAddress1 = $this->BillingAddress2 = $this->BillingCountry = null;
       }
       // clear the query data of values used i fetchClientIndex
       $this->queryData = [];
       $this->queryData['method'] = 'PUT';
-      $this->queryData['primaryKey'] = $this->clientInfo['client_index'];
+      $this->queryData['primaryKey'] = $this->client_index;
       $this->queryData['endPoint'] = 'clients';
-      $this->error = self::safe_print([ $this->updateValues, $this->postKeys ]);
-      self::writeLoop();
+      /* $this->error = self::safe_print([ $this->updateValues, $this->postKeys ]);
+      self::writeLoop(); */
       for ($i = 0; $i < count($this->updateValues); $i++) {
         if (in_array($this->updateValues[$i], $this->postKeys)) {
           $this->queryData['payload'][$this->updateValues[$i]] =
@@ -289,14 +273,14 @@
         $flag = 'admin';
         $type = 'client';
         $id = $_SESSION['ClientID'];
-        $repeatClient = '<input type="hidden" name="repeatClient" value="' . (int)$_SESSION['RepeatClient'] . '" />';
+        $repeatClient = '<input type="hidden" name="repeatClient" value="' . (int)$this->RepeatClient . '" />';
       } elseif ($this->userType === 'daily') {
         $showPWwarning = ($this->pwWarning === 1 || $this->pwWarning === 3) ? '' : 'hide';
         $formID = 'pwUpdate';
         $flag = 'daily';
         $type = 'client';
         $id = $_SESSION['ClientID'];
-        $repeatClient = '<input type="hidden" name="repeatClient" value="' . (int)$_SESSION['RepeatClient'] . '" />';
+        $repeatClient = '<input type="hidden" name="repeatClient" value="' . (int)$this->RepeatClient . '" />';
       } elseif ($this->userType === 'org') {
         $showPWwarning = ($this->pwWarning === 4) ? '' : 'hide';
         $formID = 'opwUpdate';
@@ -322,31 +306,31 @@
       return "
             <div class=\"PWcontainer\">
               <div class=\"PWform\">
-                <form id=\"{$formID}\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
-                  <input type=\"hidden\" name=\"{$type}\" class=\"{$type}\" value=\"{$id}\" form=\"{$formID}\" />
+                <form id=\"$formID\" action=\"{$this->esc_url($_SERVER['REQUEST_URI'])}\" method=\"post\">
+                  <input type=\"hidden\" name=\"$type\" class=\"$type\" value=\"$id\" form=\"$formID\" />
                   $repeatClient
-                  <input type=\"hidden\" name=\"flag\" class=\"flag\" value=\"{$flag}\" form=\"{$formID}\" />
+                  <input type=\"hidden\" name=\"flag\" class=\"flag\" value=\"$flag\" form=\"$formID\" />
                   <table>
                     <tr>
                       <td><label for=\"currentPw\">Current Password</label>:</td>
-                      <td><input type=\"password\" name=\"currentPw\" class=\"currentPw\" autocomplete=\"current-password\"  form=\"{$formID}\" /></td>
+                      <td><input type=\"password\" name=\"currentPw\" class=\"currentPw\" autocomplete=\"current-password\"  form=\"$formID\" /></td>
                     </tr>
                     <tr>
                       <td><label for=\"newPw1\">New Password</label>:</td>
-                      <td><input type=\"password\" name=\"newPw1\" class=\"newPw1\" autocomplete=\"new-password\" form=\"{$formID}\" />
+                      <td><input type=\"password\" name=\"newPw1\" class=\"newPw1\" autocomplete=\"new-password\" form=\"$formID\" />
                     </tr>
                     <tr>
                       <td><label for=\"newPw2\">Confirm Password</label>:</td>
-                      <td><input type=\"password\" name=\"newPw2\" class=\"newPw2\" autocomplete=\"new-password\" form=\"{$formID}\" /></td>
+                      <td><input type=\"password\" name=\"newPw2\" class=\"newPw2\" autocomplete=\"new-password\" form=\"$formID\" /></td>
                     </tr>
                     <tr>
                       <td>
-                        <button type=\"submit\" class=\"PWsubmit\" form=\"{$formID}\">Submit</button>
-                        <button type=\"reset\" class=\"clearPWform\" form=\"{$formID}\">Clear</button>
+                        <button type=\"submit\" class=\"PWsubmit\" form=\"$formID\">Submit</button>
+                        <button type=\"reset\" class=\"clearPWform\" form=\"$formID\">Clear</button>
                       </td>
                       <td>
                         <label for=\"showText\">Show Text:</label>
-                        <input type=\"checkbox\" class=\"showText\" name=\"showText\"  form=\"{$formID}\" />
+                        <input type=\"checkbox\" class=\"showText\" name=\"showText\"  form=\"$formID\" />
                       </td>
                     </tr>
                     <tr>
@@ -359,7 +343,7 @@
                 <span>Password criteria:</span>
                 <br>
                 <ul>
-                  <li class=\"defaultWarning {$showPWwarning}\">Password should be changed from default.</li>
+                  <li class=\"defaultWarning $showPWwarning\">Password should be changed from default.</li>
                   <li>Passwords must be at least 8 characters long.</li>
                   <li>Passwords must contain:</li>
                     <ul>
@@ -411,22 +395,17 @@
     {
       $requireCountry = (self::test_bool($_SESSION['config']['InternationalAddressing']) === true) ?
         'required' : '';
-      if (self::test_bool($_SESSION['Same']) === true) {
+      if (self::test_bool($this->Same) === true) {
         $sameChecked = 'checked';
         $sameDisabled = 'disabled';
         $hideClass = 'hide';
-        $billingName = $billingAddress1 = $billingAddress2 = $billingCountry = '';
       } else {
         $sameChecked = $hideClass = '';
         $sameDisabled = 'required';
-        $billingName = $_SESSION['BillingName'];
-        $billingAddress1 = $_SESSION['BillingAddress1'];
-        $billingAddress2 = $_SESSION['BillingAddress2'];
-        $billingCountry = $_SESSION['BillingCountry'];
       }
       $hideCountry = (self::test_bool($this->config['InternationalAddressing']) === true) ? '' : 'hide';
       $hideVAT = (self::test_bool($this->config['ApplyVAT']) === true) ? '' : 'hide';
-      $clientMarker = (self::test_bool($_SESSION['RepeatClient']) === true) ?
+      $clientMarker = (self::test_bool($this->RepeatClient) === true) ?
         $_SESSION['ClientID'] : "t{$_SESSION['ClientID']}";
       return "
             <div id=\"clientUpdateForm\">
@@ -450,39 +429,39 @@
                       </tr>
                       <tr>
                         <td>
-                          <label for=\"clientName\">Name</label>:  {$_SESSION['ClientName']}
-                          <input type=\"hidden\" name=\"ClientName\" value=\"{$_SESSION['ClientName']}\" form=\"clientUpdate\" />
+                          <label for=\"clientName\">Name</label>:  {$this->ClientName}
+                          <input type=\"hidden\" name=\"ClientName\" value=\"{$this->ClientName}\" form=\"clientUpdate\" />
                         </td>
                         <td>
-                          <label for=\"department\">Department</label>:  {$_SESSION['Department']}
-                          <input type=\"hidden\" name=\"Department\" value=\"{$_SESSION['Department']}\" form=\"clientUpdate\" />
+                          <label for=\"department\">Department</label>:  {$this->Department}
+                          <input type=\"hidden\" name=\"Department\" value=\"{$this->Department}\" form=\"clientUpdate\" />
                         </td>
                       </tr>
                       <tr>
                         <td>
                           <label for=\"shippingAddress1\">Address 1</label>:
-                          <input type=\"text\" name=\"ShippingAddress1\" required placeholder=\"1234 Main St.\" value=\"{$_SESSION['ShippingAddress1']}\" form=\"clientUpdate\" /><span class=\"error\">*</span>
+                          <input type=\"text\" name=\"ShippingAddress1\" required placeholder=\"1234 Main St.\" value=\"{$this->ShippingAddress1}\" form=\"clientUpdate\" /><span class=\"error\">*</span>
                         </td>
                         <td>
                           <label for=\"shippingAddress2\">Address 2</label>:
-                          <input type=\"text\" name=\"ShippingAddress2\" required placeholder=\"City, State ZIP\" value=\"{$_SESSION['ShippingAddress2']}\" form=\"clientUpdate\" /><span class=\"error\">*</span>
+                          <input type=\"text\" name=\"ShippingAddress2\" required placeholder=\"City, State ZIP\" value=\"{$this->ShippingAddress2}\" form=\"clientUpdate\" /><span class=\"error\">*</span>
                         </td>
                       </tr>
-                      <tr class=\"{$hideCountry}\">
+                      <tr class=\"$hideCountry\">
                         <td></td>
                         <td>
                           <label for=\"shippingCountry\">Shipping Country:</label>
-                          <input list=\"countries\" name=\"ShippingCountry\" class=\"shippingCountry\" value=\"{$_SESSION['ShippingCountry']}\" {$requireCountry} form=\"clientUpdate\" /><span class=\"error\">*</span>
+                          <input list=\"countries\" name=\"ShippingCountry\" class=\"shippingCountry\" value=\"{$this->ShippingCountry}\" $requireCountry form=\"clientUpdate\" /><span class=\"error\">*</span>
                         </td>
                       </tr>
                       <tr>
                         <td>
                           <label for=\"telephone\">Telephone</label>:
-                          <input type=\"tel\" name=\"Telephone\" value=\"{$_SESSION['Telephone']}\" placeholder=\"555-321-1234x567\" form=\"clientUpdate\" />
+                          <input type=\"tel\" name=\"Telephone\" value=\"{$this->Telephone}\" placeholder=\"555-321-1234x567\" form=\"clientUpdate\" />
                         </td>
                         <td>
                           <label for=\"emailAddress\">Email Address</label>:
-                          <input type=\"email\" name=\"EmailAddress\" value=\"{$_SESSION['EmailAddress']}\" form=\"clientUpdate\" />
+                          <input type=\"email\" name=\"EmailAddress\" value=\"{$this->EmailAddress}\" form=\"clientUpdate\" />
                         </td>
                       </tr>
                     </tbody>
@@ -493,53 +472,53 @@
                   <table class=\"centerDiv\">
                     <tr>
                       <td>
-                        <label for=\"same\">Same As Shipping</label>:
-                        <input type=\"hidden\" name=\"same\" value=\"0\" form=\"clientUpdate\" />
-  	                    <input type=\"checkbox\" name=\"same\" id=\"same\" value=\"1\" {$sameChecked} form=\"clientUpdate\" />
+                        <label for=\"Same\">Same As Shipping</label>:
+                        <input type=\"hidden\" name=\"Same\" value=\"0\" form=\"clientUpdate\" />
+  	                    <input type=\"checkbox\" name=\"Same\" id=\"Same\" value=\"1\" $sameChecked form=\"clientUpdate\" />
                       </td>
                       <td></td>
                     </tr>
                     <tr>
                       <td>
                         <label for=\"billingName\">Name</label>:
-                        <input type=\"text\" name=\"BillingName\" value=\"{$billingName}\" form=\"clientUpdate\" {$sameDisabled} /><span class=\"error {$hideClass}\">*</span>
+                        <input type=\"text\" name=\"BillingName\" value=\"{$this->BillingName}\" form=\"clientUpdate\" $sameDisabled /><span class=\"error $hideClass\">*</span>
                       </td>
                       <td></td>
                     </tr>
                     <tr>
                       <td>
                         <label for=\"billingAddress1\">Address 1</label>:
-                        <input type=\"text\" name=\"BillingAddress1\" placeholder=\"1234 Main St.\" value=\"{$billingAddress1}\" form=\"clientUpdate\" {$sameDisabled} /><span class=\"error {$hideClass}\">*</span></td>
+                        <input type=\"text\" name=\"BillingAddress1\" placeholder=\"1234 Main St.\" value=\"{$this->BillingAddress1}\" form=\"clientUpdate\" $sameDisabled /><span class=\"error $hideClass\">*</span></td>
                       <td>
                         <label for=\"billingAddress2\">Address 2</label>:
-                        <input type=\"text\" name=\"BillingAddress2\" placeholder=\"City, State ZIP\" value=\"{$billingAddress2}\" form=\"clientUpdate\" {$sameDisabled} /><span class=\"error {$hideClass}\">*</span>
+                        <input type=\"text\" name=\"BillingAddress2\" placeholder=\"City, State ZIP\" value=\"{$this->BillingAddress2}\" form=\"clientUpdate\" $sameDisabled /><span class=\"error $hideClass\">*</span>
                       </td>
                     </tr>
-                      <tr class=\"{$hideCountry}\">
+                      <tr class=\"$hideCountry\">
                         <td></td>
                         <td>
                           <lable for=\"billingCountry\">Billing Country:</label>
-                          <input list=\"countries\" name=\"BillingCountry\" class=\"billingCountry\" value=\"{$billingCountry}\" {$requireCountry} form=\"clientUpdate\" /><span class=\"error . {$hideClass}\">*</span>
+                          <input list=\"countries\" name=\"BillingCountry\" class=\"billingCountry\" value=\"{$this->BillingCountry}\" $requireCountry form=\"clientUpdate\" /><span class=\"error $hideClass\">*</span>
                         </td>
                       </tr>
                     <tr>
                       <td>
                         <label for=\"attention\">Attention</label>:
-                        <input type=\"text\" name=\"Attention\" value=\"{$_SESSION['Attention']}\" form=\"clientUpdate\" />
+                        <input type=\"text\" name=\"Attention\" value=\"{$this->Attention}\" form=\"clientUpdate\" />
                       </td>
                       <td>
                         <label for=\"credit\">Credit</label>:
                         <span class=\"currencySymbol\">{$_SESSION['config']['CurrencySymbol']}</span>{$this->getCredit()}
                       </td>
                     </tr>
-                    <tr class=\"{$hideVAT}\">
+                    <tr class=\"$hideVAT\">
                       <td>
                         <label for=\"standardVAT\">Standard</label>:
-                        <input type=\"number\" name=\"standardVAT\" id=\"standardVAT\" min=\"0\" max=\"99.99\" step=\"0.01\" value=\"{$_SESSION['config']['StandardVAT'][$clientMarker]}\" form=\"clientUpdate\" />&#37;
+                        <input type=\"number\" name=\"standardVAT\" id=\"standardVAT\" min=\"0\" max=\"99.99\" step=\"0.01\" value=\"{$this->StandardVAT}\" form=\"clientUpdate\" />&#37;
                       </td>
                       <td>
                         <label for=\"reducedVAT\">Reduced</label>:
-                        <input type=\"number\" name=\"reducedVAT\" id=\"reducedVAT\" min=\"0\" max=\"99.99\" step=\"0.01\" value=\"{$_SESSION['config']['ReducedVAT'][$clientMarker]}\" form=\"clientUpdate\" />&#37;
+                        <input type=\"number\" name=\"reducedVAT\" id=\"reducedVAT\" min=\"0\" max=\"99.99\" step=\"0.01\" value=\"{$this->ReducedVAT}\" form=\"clientUpdate\" />&#37;
                       </td>
                     </tr>
                   </table>

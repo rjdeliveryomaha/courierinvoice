@@ -134,6 +134,8 @@
       if ($this->options['testMode'] === true && $this->options['testURL'] === null || $this->options['testURL'] === '') {
         throw new \Exception('Invalid URL');
       }
+      if ($_SERVER['REQUEST_METHOD'] == 'POST' && !isset($_POST))
+        throw new \Exception('Post body unavailable');
       $this->postKeys = array_keys($_POST);
       if (!isset($data['noSession'])) {
         if (
@@ -151,62 +153,20 @@
         $this->config = $_SESSION['config'];
         // RangeCenter is stored as a string it needs to be an array
         if (strpos($_SESSION['config']['RangeCenter'], ',') !== false) $this->config['RangeCenter'] = [
-          'lat' => (float)self::before(',', $_SESSION['config']['RangeCenter']),
-          'lng' => (float)self::after(',', $_SESSION['config']['RangeCenter'])
+          'lat' => (float)self::before(',', $this->config['RangeCenter']),
+          'lng' => (float)self::after(',', $this->config['RangeCenter'])
         ];
 
         if (isset($_SESSION['pwWarning'])) $this->pwWarning = $_SESSION['pwWarning'];
-        if (($this->ulevel === 1 || $this->ulevel === 2) && self::after_last('\\', get_class($this)) !== 'Client') {
-          $this->RepeatClient = $_SESSION['RepeatClient'];
-          $this->ClientID = (self::test_bool($this->RepeatClient) === true) ?
-            $_SESSION['ClientID'] : "t{$_SESSION['ClientID']}";
-          $clientData = [
-            'client_index'=>$_SESSION['client_index'],
-            'RepeatClient'=>$_SESSION['RepeatClient'],
-            'ClientID'=>$_SESSION['ClientID'],
-            'ClientName'=>self::decode($_SESSION['ClientName']),
-            'Department'=>self::decode($_SESSION['Department']),
-            'ShippingAddress1'=>self::decode($_SESSION['ShippingAddress1']),
-            'ShippingAddress2'=>self::decode($_SESSION['ShippingAddress2']),
-            'ShippingCountry'=>$_SESSION['ShippingCountry'],
-            'BillingName'=>self::decode($_SESSION['BillingName']),
-            'BillingAddress1'=>self::decode($_SESSION['BillingAddress1']),
-            'BillingAddress2'=>self::decode($_SESSION['BillingAddress2']),
-            'BillingCountry'=>$_SESSION['BillingCountry'],
-            'Telephone'=>$_SESSION['Telephone'],
-            'EmailAddress'=>self::decode($_SESSION['EmailAddress']),
-            'Organization'=>$_SESSION['Organization']
-          ];
-          if (
-            $_SESSION['org_id']['RequestTickets'] == 1 ||
-            $_SESSION['org_id']['RequestTickets'] >= 3
-          ) {
-            foreach ($_SESSION['members'] as $key => $value) {
-              $temp = self::createClient($value);
-              if ($temp === false) {
-                throw new \Exception($this->error);
-              }
-              $this->members[$key] = $temp;
-            }
-          } else {
-            $this->members[$this->ClientID] = self::createClient($clientData);
-            if ($this->members[$this->ClientID] === false) {
-              throw new \Exception($this->error);
-            }
-          }
-          $this->shippingCountry = $_SESSION['ShippingCountry'];
-        }
-        if ($this->ulevel === 0 && self::after_last('\\', get_class($this)) !== 'Client') {
-          $this->organizationFlag = true;
-          $this->ClientID = $_SESSION['ClientID'];
-          $this->ListBy = $_SESSION['ListBy'];
+        if (is_numeric($this->ulevel)) $this->ClientID = $_SESSION['ClientID'];
+        if (self::after_last('\\', get_class($this)) !== 'Client' && isset($_SESSION['members'])) {
+          $this->organizationFlag = $this->ulevel === 0;
           foreach ($_SESSION['members'] as $key => $value) {
             $temp = self::createClient($value);
             if ($temp === false) {
               throw new \Exception($this->error);
             }
             $this->members[$key] = $temp;
-            $this->shippingCountry = $_SESSION['members'][$key]['ShippingCountry'];
           }
         }
         if (isset($_SESSION['driver_index']) || isset($_SESSION['dispatch_index'])) {
@@ -259,7 +219,7 @@
     public function getProperty($property)
     {
       if (property_exists($this, $property) && !in_array($property, $this->noGetProps)) {
-        return $this->{$property};
+        return (is_array($this->{$property})) ? json_encode($this->{$property}) : $this->{$property};
       }
       return false;
     }
@@ -418,7 +378,7 @@
     {
       // possible filters: email, float, int
       $returnData = array();
-
+      if (!$array) return $returnData;
       foreach ($array as $key => $value) {
         if (is_object($value)) {
           $returnData[$key] = $value;
@@ -651,45 +611,24 @@
       return (preg_match('/(^[\d]{2}EX[\d]+-t[\d]+$)/', $val) || preg_match('/(^[\d]{2}EX[\d]+-[\d]+$)/', $val));
     }
 
-    protected function safe_print_r($data)
+    protected function safe_print_r()
     {
-      echo "<pre>\n{$this->safe_print($data)}\n</pre>";
+      echo '<pre>', $this->safe_print(func_get_args()), '</pre>';
     }
     // http://php.net/manual/en/function.print-r.php#117746
     // why var_export: https://stackoverflow.com/a/139553
-    protected function safe_print($data, $nesting = 15, $indent = '') {
-      $returnData = '';
-      if (!is_object($data) && !is_array($data) && !is_resource($data)) {
-        switch (strtolower(gettype($data))) {
-          case 'string':
-            $returnData .= ucfirst(gettype($data)) . ' (' . strlen($data) . '): ' . var_export($data, true) . "\n";
-            break;
-          case 'integer':
-          case 'double':
-            $returnData .= ucfirst(gettype($data)) . ' (' . var_export($data, true) . ")\n";
-            break;
-          case 'null':
-            $returnData .= ucfirst(gettype($data)) . "\n";
-            break;
-          // boolean is covered by default
-          default:
-            $returnData .= ucfirst(gettype($data)) . ': ' . var_export($data, true) . "\n";
-            break;
-        }
-      } elseif ($nesting < 0) {
-        $returnData .= "** MORE **\n";
-      } else {
-        $returnData .= ucfirst(gettype($data)) . " (\n";
-        $objFullName = (is_object($data)) ? get_class($data) : '';
-        $objType = (strpos($objFullName, '\\') !== false) ? self::after_last('\\', $objFullName) : $objFullName;
-        $objType .= ($objType === '') ? '' : ':';
-        foreach ($data as $k => $v) {
-          $returnData .= $indent . "\t[$objType$k] => ";
-          $returnData .= self::safe_print($v, $nesting - 1, "$indent\t");
-        }
-        $returnData .= "$indent)\n";
+    protected function safe_print() {
+      $argc = func_num_args();
+      $argv = func_get_args();
+      $val = '';
+      if ($argc > 0) {
+        ob_start();
+        call_user_func_array('var_dump', $argv);
+        $result = ob_get_contents();
+        ob_end_clean();
+        $val = strip_tags(preg_replace(['/\]\=/','/>(\r|\n)/','/>\s\s+/'],['] =', '>', '> '],$result));
       }
-      return $returnData;
+      return $val;
     }
     //Turn an array into a nice printed list
     protected function arrayToList($array)
@@ -955,13 +894,14 @@
 
     protected function getCredit()
     {
+      $repeatClient = (int)$_SESSION['members'][$_SESSION['ClientID']]['RepeatClient'];
       $data = [];
       $data['method'] = 'GET';
       $data['endPoint'] = 'invoices';
       $data['queryParams']['include'] = ['Balance', 'DatePaid'];
       $data['queryParams']['filter'] = [
         ['Resource'=>'ClientID', 'Filter'=>'eq', 'Value'=>$_SESSION['ClientID']],
-        ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>$_SESSION['RepeatClient']],
+        ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>$repeatClient],
         ['Resource'=>'Closed', 'Filter'=>'eq', 'Value'=>1]
       ];
       if (!$query = self::createQuery($data)) {
@@ -984,7 +924,7 @@
       $data['queryParams']['include'] = ['TicketPrice'];
       $data['queryParams']['filter'] = [
         ['Resource'=>'BillTo', 'Filter'=>'eq', 'Value'=>$_SESSION['ClientID']],
-        ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>$_SESSION['RepeatClient']],
+        ['Resource'=>'RepeatClient', 'Filter'=>'eq', 'Value'=>$repeatClient],
         ['Resource'=>'InvoiceNumber', 'Filter'=>'eq', 'Value'=>'-'],
         ['Resource'=>'Charge', 'Filter'=>'eq', 'Value'=>9] ];
       if (!$query = self::createQuery($data)) {
@@ -1023,11 +963,11 @@
           <div class="circle"></div>
         </div>
       </div>';
-      if (is_numeric($_SESSION['ulevel'])) {
-        $type = ($_SESSION['ulevel'] > 0) ? 'client' : 'org';
+      if (is_numeric($this->ulevel)) {
+        $type = ($this->ulevel > 0) ? 'client' : 'org';
         $type .= ($this->ClientID === 0) ? '0' : '';
       } else {
-        $type = ($_SESSION['ulevel'] === 'driver') ? 'driver' : 'dispatcher';
+        $type = ($this->ulevel === 'driver') ? 'driver' : 'dispatcher';
       }
       $withPage = $pages = $noPage = [];
       if (
@@ -1084,6 +1024,11 @@
                 ) {
                   $moreNoPage[] = $this->options['extend'][$type][$i][0];
                 } else {
+                  if (
+                    substr($type,0,3) === 'org' &&
+                    $_SESSION['org_id']['RequestTickets'] < 2 &&
+                    $this->options['extend'][$type][$i][1] == 'ticketForm'
+                  ) continue;
                   $moreWithPage[] = $this->options['extend'][$type][$i][0];
                   $morePages[] = $this->options['extend'][$type][$i][1];
                 }
@@ -1244,8 +1189,8 @@
     public function injectCSS()
     {
       $returnData = '';
-      if (is_numeric($_SESSION['ulevel'])) {
-        if ($_SESSION['ulevel'] > 0) {
+      if (is_numeric($this->ulevel)) {
+        if ($this->ulevel > 0) {
           if (
             !isset($this->options['extend']['css']['client']) ||
             !is_array($this->options['extend']['css']['client'])
@@ -1268,7 +1213,7 @@
             ";
           }
         }
-      } elseif ($_SESSION['ulevel'] === 'driver') {
+      } elseif ($this->ulevel === 'driver') {
         if (
           !isset($this->options['extend']['css']['driver']) ||
           !is_array($this->options['extend']['css']['driver'])
@@ -1279,7 +1224,7 @@
           $returnData .= "<link rel=\"stylesheet\" type=\"text/css\" href=\"{$this->options['extend']['css']['driver'][$i]}\">
           ";
         }
-      } elseif ($_SESSION['ulevel'] === 'dispatch') {
+      } elseif ($this->ulevel === 'dispatch') {
         if (
           !isset($this->options['extend']['css']['dispatch']) ||
           !is_array($this->options['extend']['css']['dispatch'])
@@ -1298,28 +1243,32 @@
     {
       self::customize();
       if (is_numeric($_SESSION['ulevel'])) {
+        $userType = 'client';
         $displayClientName = $_SESSION['ClientName'];
-        if ($_SESSION['ulevel'] === 0) {
+        if ($this->ulevel === 0) {
+          $userType = 'org';
           $displayClientName .= '<br>Organizational';
-        } elseif ($_SESSION['ulevel'] > 0) {
+        } elseif ($this->ulevel > 0) {
           $displayClientName .= "<br>{$_SESSION['Department']}";
-          $displayClientName .= ($_SESSION['ulevel'] === 1) ? ' Admin' : '';
+          $displayClientName .= ($this->ulevel === 1) ? ' Admin' : '';
         }
-      } elseif ($_SESSION['ulevel'] === 'driver') {
+      } elseif ($this->ulevel === 'driver') {
+        $userType = 'driver';
         $displayClientName = "{$_SESSION['FirstName']} {$_SESSION['LastName']}";
         if ($_SESSION['CanDispatch'] > 0) {
           $displayClientName .= '<br>Driver / Dispatch';
         } else {
           $displayClientName .= '<br>Driver';
         }
-      } elseif ($_SESSION['ulevel'] === 'dispatch') {
+      } elseif ($this->ulevel === 'dispatch') {
+        $userType = 'dispatch';
         $displayClientName = "{$_SESSION['FirstName']} {$_SESSION['LastName']}";
         $displayClientName .= '<br>Dispatch';
       }
       $mobileMarker = (isset($_SESSION['mobile']) && $_SESSION['mobile'] === true) ? 1 : 0;
       return "
         <div class=\"menu__header\">
-          <p id=\"menuDriverName\">{$displayClientName}</p>
+          <p id=\"userType\" class=\"$userType\">{$displayClientName}</p>
           <div id=\"logoutRefresh\">
             <button type=\"button\" class=\"refresh\">Refresh</button>
             <form id=\"logoutLink\" action=\"logout\" method=\"post\">
