@@ -103,7 +103,7 @@
       }
       start = 2;
     }
-
+    
     for (let i = start; i < desc.length; i++) {
       if (Array.isArray(desc[i])) {
         el.appendChild(make(desc[i]));
@@ -111,7 +111,7 @@
         el.appendChild(document.createTextNode(desc[i]));
       }
     }
-
+    
     return el;
   };
   rjdci.getSpinner = () => {
@@ -138,15 +138,15 @@
       ]
     );
   };
-
+  
   displayErrorMessage = error => {
     return make([ "p", { class: "ceneter" }, [ "span", { class: "error" }, "Error" ], `: ${error.message}` ]);
   };
-
+  
   clearElement = element => {
     while (element.firstChild) element.removeChild(element.firstChild);
   };
-
+  
   rjdci.refreshFormKey = async () => {
     return await rjdci.fetch_template({
       url: "./refreshFormKey.php",
@@ -159,7 +159,7 @@
     })
     .then(newKey => document.querySelector("#formKey").value = newKey);
   };
-
+  
   rjdci.logout = async count => {
     let newCount = count || 0,
       typeTest = document.querySelector("#uid").value;
@@ -202,7 +202,7 @@
       days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
       minutes;
     if (!msg) return;
-
+    
     if (!Array.isArray(msg)) msg = [ msg ];
 
     options = options || {};
@@ -562,7 +562,7 @@
       document.querySelector(".alert").innerHTML = "!";
     }
   };
-
+  
   rjdci.refreshDeliveryRequest =
   rjdci.refreshTicketEntry = async () => {
     let elem = document.querySelector("#deliveryRequest"),
@@ -792,7 +792,7 @@
       }
     }
   };
-
+  
   rjdci.populatePage = async () => {
     let funcs = [],
       knownElements = [
@@ -1238,7 +1238,6 @@
   rjdci.confirmCancel = async eve => {
     eve.preventDefault();
     let postData = {},
-      cancelValues = [ "ticket_index", "notes", "ticketBase", "ticketNumber" ],
       chargeDisplay,
       workspace = rjdci.getClosest(eve.target, ".message2"),
       step,
@@ -1257,14 +1256,21 @@
         }
       }, 500);
     Array.from(document.querySelectorAll("input[form="+eve.target.getAttribute("form")+"], textarea[form="+eve.target.getAttribute("form")+"]")).forEach(element => {
-      if (cancelValues.indexOf(element.getAttribute("name")) !== -1)
-        postData[element.getAttribute("name")] = element.value;
+      postData[element.getAttribute("name")] = element.value;
     });
-    switch(eve.target.getAttribute("class")) {
-      case "confirmDelete": postData.action = "delete"; break;
-      case "confirmCancelRun": postData.action = "cancel"; break;
-      case "confirmDeadRun": postData.action = "deadRun"; step = "p"; break;
-      case "confirmDeclined": postData.action = "declined"; step = "d"; break;
+    if (eve.target.classList.contains("confirmDelete")) {
+      postData.action = "delete";
+    }
+    if (eve.target.classList.contains("confirmCancelRun")) {
+      postData.action = "cancel";
+    }
+    if (eve.target.classList.contains("confirmDeadRun")) {
+      postData.action = "deadRun";
+      step = "p";
+    }
+    if (eve.target.classList.contains("confirmDeclined")) {
+      postData.action = "declined";
+      step = "d";
     }
     postData.formKey = document.querySelector("#formKey").value;
     let id;
@@ -1750,15 +1756,15 @@
       }, 5000);
     });
   };
-
+  
   rjdci.assignRouteListeners = () => {
     return assignTicketListeners(document.querySelector("#route.page"));
   };
-
+  
   rjdci.assignOnCallListeners = () => {
     return assignTicketListeners(document.querySelector("#on_call.page"));
   };
-
+  
   assignTicketListeners = page => {
     if (!page) return;
     const updateNotes = async eve => {
@@ -1805,12 +1811,12 @@
         }, 5000);
       });
     };
-
+    
     Array.from(page.querySelectorAll(".updateNotes")).forEach(element => {
       element.removeEventListener("click", updateNotes);
       element.addEventListener("click", updateNotes);
     });
-
+    
     Array.from(page.querySelectorAll(".dTicket")).forEach(element => {
       element.addEventListener("click", eve => {
         eve.preventDefault();
@@ -1917,7 +1923,7 @@
       });
     });
   };
-
+  
   rjdci.assignTransferListeners = () => {
     let page = document.querySelector("#transfers.page");
     if (!page) return;
@@ -1972,7 +1978,7 @@
       });
     });
   };
-
+  
   rjdci.assignDispatchListeners = () => {
     let page = document.querySelector("#dispatch.page");
     if (!page) return;
@@ -1981,7 +1987,7 @@
       b.addEventListener("click", rjdci.stepTicket);
     });
   };
-
+  
   rjdci.assignActiveTicketsListeners = () => {
     let page = document.querySelector("#active_tickets.page");
     if (!page) return;
@@ -2050,7 +2056,7 @@
         setTimeout(() => { element.innerHTML = "Select Driver &amp; Ticket Type"; }, 3500);
       });
     });
-
+      
     page.querySelector("#clearTicketEditorResults") &&
     page.querySelector("#clearTicketEditorResults").addEventListener("click", eve => {
       eve.preventDefault();
@@ -2067,7 +2073,7 @@
       container.appendChild(make([ "p", { class: "center" }, "Select Driver &amp; Ticket Type"]))
     });
   };
-
+  
   rjdci.assignPriceCalcListeners = () => {
     let page = document.querySelector("#price_calculator.page");
     if (!page) return;
@@ -2242,7 +2248,7 @@
       });
     });
   };
-
+  
   rjdci.assignPasswordListeners = () => {
     Array.from(document.querySelectorAll(".PWcontainer .showText")).forEach(box => {
       box.addEventListener("change", eve => {
@@ -2439,7 +2445,7 @@
       });
     });
   };
-
+  
   rjdci.assignListeners = () => {
     rjdci.assignRouteListeners();
     rjdci.assignOnCallListeners();
@@ -3331,13 +3337,13 @@
   assignTicketFormListeners = () => {
     let workspace = document.querySelector("#delivery_request") || document.querySelector("#ticket_entry");
     if (!workspace || !workspace.querySelector(".billTo")) return;
-
+    
     document.querySelector("#switchTerms") &&
     document.querySelector("#switchTerms").addEventListener("click", e => {
       document.querySelector("#deliveryTerms").style.display =
         (document.querySelector("#deliveryTerms").style.display == "none") ? "block" : "none";
     });
-
+    
     let repeatHandler = eve => {
       workspace.querySelector(".billTo").setAttribute("list", (eve.target.checked) ? "t_clients" : "clients");
       workspace.querySelector(".billTo").value = "";
@@ -4059,7 +4065,7 @@
     rjdci.assignLinkValues();
     const header = document.querySelector("header");
     const menuHeader = document.querySelector(".menu__header");
-
+  
     updateNetworkStatus = () => {
       if (navigator.onLine) {
         header.classList.remove("app__offline");

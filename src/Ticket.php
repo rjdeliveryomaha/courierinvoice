@@ -386,8 +386,8 @@
           $this->VATrate = 0;
           break;
         default:
-          $this->VATtype =
-          $this->VATable =
+          $this->VATtype = 
+          $this->VATable = 
           $this->VATrate = 0;
           break;
       }
@@ -413,8 +413,8 @@
           $this->VATrateIce = 0;
           break;
         default:
-          $this->VATtypeIce =
-          $this->VATableIce =
+          $this->VATtypeIce = 
+          $this->VATableIce = 
           $this->VATrateIce = 0;
           break;
       }
@@ -493,7 +493,7 @@
       }
 
       if (self::test_bool($this->PriceOverride) === false && $this->Charge !== 7) self::getTicketBase();
-
+      
       switch ($this->Charge) {
         case 1:
           $this->RunPrice = $this->TicketBase * $this->config['OneHour'];
@@ -1230,28 +1230,6 @@
       return true;
     }
 
-    public function sendEmail()
-    {
-      if ($this->step === 'pickedUp') {
-        // send email on 1, 3, 5, 7
-        return $this->EmailConfirm % 2 !== 0;
-      } elseif ($this->step === 'delivered') {
-        // send email on 2, 3, 6, 7
-        switch ($this->EmailConfirm) {
-            case 2:
-            case 3:
-            case 6:
-            case 7: return true;
-            default: return false;
-          }
-      } elseif ($this->step === 'returned') {
-        // send email on 4, 5, 6, 7
-        return $this->EmailConfirm > 3;
-      } else {
-        return false;
-      }
-    }
-
     private function queryTicket()
     {
       $ticketQueryResult = [];
@@ -1299,15 +1277,53 @@
       return true;
     }
 
+    public function sendEmail()
+    {
+      switch ($this->action) {
+        case 'step':
+          if ($this->step === 'pickedUp') {
+            // send email on 1, 3, 5, 7
+            return $this->EmailConfirm % 2 !== 0;
+          } elseif ($this->step === 'delivered') {
+            // send email on 2, 3, 6, 7
+            switch ($this->EmailConfirm) {
+              case 2:
+              // no break;
+              case 3:
+              // no break;
+              case 6:
+              // no break;
+              case 7: return true;
+              default: return false;
+            }
+          } elseif ($this->step === 'returned') {
+            // send email on 4, 5, 6, 7
+            return $this->EmailConfirm > 3;
+          } else {
+            return false;
+          }
+          break;
+        case 'delete':
+        // no break;
+        case 'cancel':
+        // no break;
+        case 'deadRun':
+        // no break;
+        case 'declined': return true;
+        default: return false;
+      }
+    }
+
     private function processEmail()
     {
       if (
-        $this->options['emailConfig'] === null ||
-        $this->options['emailConfig'] === '' ||
-        (is_array($this->options['emailConfig']) && empty($this->options['emailConfig']))
+        !$this->options['emailConfig'] ||
+        (is_array($this->options['emailConfig']) && empty($this->options['emailConfig'])) ||
+        !$this->EmailAddress
       ) {
         return false;
       }
+      $recipients = array_map('trim', explode(',', $this->EmailAddress));
       $mailBody = "Ticket number {$this->TicketNumber} picking up from {$this->pClient} at {$this->pAddress1} delivering to {$this->dClient} at {$this->dAddress1} ";
       if ($this->Charge == 6 || ($this->Charge == 7 && $this->d2SigReq)) $mailBody .= 'and returning ';
       switch ($this->action) {
@@ -1332,7 +1348,6 @@
         If you believe that you've received this message in error or have questions or comments please contact
         {$this->myInfo['Name']} by phone at <a href=\"tel:{$this->myInfo['Telephone']}\">{$this->myInfo['Telephone']}</a>
         or by email at <a href=\"mailto:{$this->myInfo['EmailAddress']}\">{$this->myInfo['EmailAddress']}</a>";
-      $recipients = array_map('trim', explode(',', $this->EmailAddress));
       $mail = new PHPMailer(true);
       try {
         //Server settings
@@ -3219,7 +3234,7 @@
           break;
       }
       $emailNoteDisplay = (self::test_bool($this->EmailConfirm) === false) ? 'hide' : '';
-
+      
       $hideBillToLabel = '';
 
       if ($this->userType === 'client' || $this->userType === 'org') {
@@ -3230,7 +3245,7 @@
         $dispatchInputType = 'type="hidden"';
         $billToType = 'type="hidden"';
         $hideBillToLabel = 'hide';
-
+        
         if ($this->userType == 'client') {
           $this->RepeatClient = $this->members[$this->ClientID]->getProperty('RepeatClient');
           $org_id_json = $this->members[$this->ClientID]->getProperty('org_id');
@@ -4400,6 +4415,7 @@
     public function updateTicketProperty()
     {
       if ($this->multiTicket !== null) {
+        if (!is_array($this->multiTicket)) $this->multiTicket = json_decode($this->multiTicket, true);
         $tempIndex = [];
         for ($i = 0; $i < count($this->multiTicket); $i++) {
           foreach ($this->multiTicket[$i] as $key => $value) {
@@ -4451,7 +4467,7 @@
     public function stepTicket()
     {
       if ($this->multiTicket !== null) {
-        if (!is_array($this->multiTicket)) $this->multiTicket = json_decode($this->multiTicket);
+        if (!is_array($this->multiTicket)) $this->multiTicket = json_decode($this->multiTicket, true);
         $tempIndex = [];
         for ($i = 0; $i < count($this->multiTicket); $i++) {
           foreach ($this->multiTicket[$i] as $key => $value) {
@@ -4674,6 +4690,7 @@
     public function cancelTicket()
     {
       if ($this->multiTicket !== null) {
+        if (!is_array($this->multiTicket)) $this->multiTicket = json_decode($this->multiTicket, true);
         $tempIndex = [];
         for ($i = 0; $i < count($this->multiTicket); $i++) {
           foreach ($this->multiTicket[$i] as $key => $value) {
@@ -4946,7 +4963,7 @@
         echo $this->error;
         return false;
       }
-      if ($this->multiTicket === null) {
+      if (!$this->multiTicket) {
         if (self::sendEmail() === true) self::processEmail();
       } else {
         for ($i = 0; $i < count($this->multiTicket); $i++) {
