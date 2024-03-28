@@ -1153,7 +1153,8 @@
       }, 500);
     Array.from(ticketGroup.querySelectorAll(".routeStop")).forEach((element, index) => {
       Array.from(document.querySelectorAll("input[form='" + element.getAttribute("id") + "'], textarea[form='" + element.getAttribute("id") + "']")).forEach(input => {
-        if (input.getAttribute("name") !== "latitude" && input.getAttribute("name") !== "longitude") data[input.getAttribute("name")] = input.value;
+        if (input.getAttribute("name") !== "latitude" && input.getAttribute("name") !== "longitude")
+          data[input.getAttribute("name")] = JSON.stringify(input.value);
         if (input.getAttribute("name") === "step") {
           switch (input.value) {
             case "pickedUp": locationData.step.push("p"); break;
@@ -1256,7 +1257,7 @@
         }
       }, 500);
     Array.from(document.querySelectorAll("input[form="+eve.target.getAttribute("form")+"], textarea[form="+eve.target.getAttribute("form")+"]")).forEach(element => {
-      postData[element.getAttribute("name")] = element.value;
+      postData[element.getAttribute("name")] = JSON.stringify(element.value);
     });
     if (eve.target.classList.contains("confirmDelete")) {
       postData.action = "delete";
@@ -1486,7 +1487,7 @@
       }, 500);
     Array.from(ticketGroup.querySelectorAll(".routeStop")).forEach((element, index) => {
       Array.from(document.querySelectorAll("input[form='" + element.getAttribute("id") + "'], textarea[form='" + element.getAttribute("id") + "']")).forEach(input => {
-        data[input.getAttribute("name")] = input.value;
+        data[input.getAttribute("name")] = JSON.stringify(input.value);
       });
       data.pendingReceiver = pendingReceiver;
       data.transferState = 1;
@@ -1578,7 +1579,7 @@
     postData.action = "transfer";
     postData.pendingReceiver = 0;
     Array.from(ticket.querySelectorAll("input, textarea")).forEach(element => {
-      postData[element.getAttribute("name")] = element.value;
+      postData[element.getAttribute("name")] = JSON.stringify(element.value);
     });
     for (let i = 0; i < eve.target.classList.length; i++) {
       if (testArr.indexOf(eve.target.classList[i] !== - 1)) {
@@ -1701,7 +1702,7 @@
     postData.TransferState = transferState;
     Array.from(ticketGroup.querySelectorAll(".routeStop")).forEach((element, index) => {
       Array.from(document.querySelectorAll("input[form='" + element.getAttribute("id") + "'], textarea[form='" + element.getAttribute("id") + "']")).forEach(elem => {
-        ticketData[elem.getAttribute("name")] = elem.value;
+        ticketData[elem.getAttribute("name")] = JSON.stringify(elem.value);
       });
       ticketData.transferState = transferState;
       ticketData.action = "transfer";
@@ -2070,7 +2071,7 @@
       form.querySelector(".contract").value = 0;
       form.querySelector("input.ticketEditorSearchDate").value = `${d.getFullYear()}-${month}-${day}`;
       while (container.firstChild) container.removeChild(container.firstChild);
-      container.appendChild(make([ "p", { class: "center" }, "Select Driver &amp; Ticket Type"]))
+      container.appendChild(make([ "p", { class: "center" }, "Select Driver & Ticket Type"]))
     });
   };
   
@@ -2131,7 +2132,8 @@
           input.classList.add("elementError");
           setTimeout(() => { input.classList.remove("elementError"); }, 3500);
         } else {
-          if (input.disabled === false && input.type !== "checkbox") postData[input.getAttribute("name")] = input.value;
+          if (input.disabled === false && input.type !== "checkbox")
+            postData[input.getAttribute("name")] = JSON.stringify(input.value);
         }
         if (input.type === "checkbox") {
           postData[input.getAttribute("name")] = (input.checked) ? 1 : 0;
@@ -2460,8 +2462,10 @@
       document.querySelector("#useInvoice") &&
       document.querySelector("#useInvoice").addEventListener("change", eve => {
         document.querySelector("#invoiceNumber").disabled = eve.target.checked === false;
-        rjdci.getClosest(eve.target, "#singleInvoiceQuery").querySelector(".dateIssuedMonth").disabled = eve.target.checked === true;
-        rjdci.getClosest(eve.target, "#singleInvoiceQuery").querySelector(".dateIssuedMonth").required = eve.target.checked === false;
+        Array.from(rjdci.getClosest(eve.target, "#singleInvoiceQuery").querySelectorAll(".dateIssuedMonth")).forEach(ele => {
+		  ele.disabled = eve.target.checked === true;
+		  ele.required = eve.target.checked === false;
+		});
 
       });
       Array.from(document.querySelectorAll("#single, #multi")).forEach(box => {
@@ -3008,8 +3012,8 @@
         });
         document.querySelector("#invoiceChartPDFform input[name='content']").value = cln.outerHTML;
         document.querySelector("#invoiceChartPDFform input[name='formKey']").value = document.querySelector("#formKey").value;
-        document.querySelector("#formKey").value = Number(document.querySelector("#formKey").value) + 1;
         document.querySelector("#invoiceChartPDFform").submit();
+        rjdci.refreshFormKey();
       });
     }
     Array.from(document.querySelectorAll("#invoiceQueryResults .invoiceQuery")).forEach(element => {
