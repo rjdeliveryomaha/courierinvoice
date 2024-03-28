@@ -66,6 +66,11 @@
       } catch (\Exception $e) {
         throw $e;
       }
+      foreach ($this->config as $key => $value) {
+        if (property_exists($this, $key)) {
+         $this->$key = $value;
+        }
+      }
     }
 
     private function displayTerms()
