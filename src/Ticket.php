@@ -3284,7 +3284,7 @@
         } else {
           $dispatchInputValue = ($this->CanDispatch === 1) ?
           $_SESSION['driverName'] . '; ' . $_SESSION['DriverID'] :
-          ($this->DispatchedTo == null) ? '' : $this->DriverName . '; ' . $this->DispatchedTo;
+          (($this->DispatchedTo == null) ? '' : $this->DriverName . '; ' . $this->DispatchedTo);
         }
         $dispatchedBy = ($this->ticketEditor === false) ? "
           <input type=\"hidden\" name=\"dispatchedBy\" class=\"dispatchedBy\" value=\"{$this->DispatchedBy}\" />" : '';
@@ -4467,7 +4467,13 @@
     public function stepTicket()
     {
       if ($this->multiTicket !== null) {
-        if (!is_array($this->multiTicket)) $this->multiTicket = json_decode($this->multiTicket, true);
+        if (!is_array($this->multiTicket))
+			    $this->multiTicket = json_decode($this->multiTicket, true);
+		    if (json_last_error() !== JSON_ERROR_NONE) {
+          $this->error = __function__ . ' Error: ' . json_last_error_msg() . ' Line: ' . __line__;
+          if ($this->enableLogging !== false) self::writeLoop();
+          return '<span data-value="error">' . $this->error . '</span>';
+        }
         $tempIndex = [];
         for ($i = 0; $i < count($this->multiTicket); $i++) {
           foreach ($this->multiTicket[$i] as $key => $value) {
