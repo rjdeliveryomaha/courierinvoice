@@ -58,7 +58,7 @@
       } catch (\Exception $e) {
         throw $e;
       }
-      foreach ($this->config as $key => $value) {
+      foreach ($_SESSION['members'][$this->ClientID] as $key => $value) {
         if (property_exists($this, $key)) {
          $this->$key = $value;
         }
