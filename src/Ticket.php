@@ -121,6 +121,7 @@
     protected $fromMe;
     protected $PriceOverride;
     protected $step;
+    protected $noReturn;
     protected $transferredBy;
     private $stepMarker;
     private $driverDatalist;
@@ -2055,6 +2056,7 @@
         $buttonName = 'Pick Up';
         $button2Class = 'deadRun';
         $button2Name = 'Dead Run';
+        $noReturn = '';
         if (self::test_bool($this->Contract) === false) {
           $label1 .= 'Deadline: ';
           $label2 = '';
@@ -2083,6 +2085,7 @@
           }
           $buttonClass = 'hide';
           $buttonName = 'Deliver';
+          $noReturn = ($this->Charge === 6) ? "<label for=\"noReturn{$this->ticket_index}\">No Return</label><input type=\"checkbox\" name=\"noReturn\" id=\"noReturn{$this->ticket_index}\" class=\"noReturn\" value=\"1\" form=\"ticketForm{$this->ticket_index}\" />" : '';
           $button2Class = 'declined';
           $button2Name = 'Declined';
           if (self::test_bool($this->Contract) === false) {
@@ -2141,6 +2144,7 @@
           $buttonClass = $button2Class = 'hide';
           $buttonName = 'Return';
           $button2Name = '';
+          $noReturn = '';
           $label1 = 'Return: ';
           $label2 = '-';
           $d2TimeArray = explode(':', $this->d2Time);
@@ -2175,6 +2179,7 @@
                       <input type=\"hidden\" name=\"emailAddress\" class=\"emailAddress\" value=\"{$this->EmailAddress}\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"transfers\" class=\"transfers\" value=\"$transfersFormValue\" form=\"ticketForm{$this->ticket_index}\" />
                       <input type=\"hidden\" name=\"ticketBase\" class=\"ticketBase\" value=\"{$this->TicketBase}\" form=\"ticketForm{$this->ticket_index}\" />
+                      <input type=\"hidden\" name=\"diPrice\" class=\"diPrice\" value=\"{$this->diPrice}\" form=\"ticketForm{$this->ticket_index}\" />
                       <label for=\"{$sigName}Print{$this->ticket_index}\">Signer</label><br><input type=\"text\" name=\"{$sigName}Print\" id=\"{$sigName}Print{$this->ticket_index}\" class=\"{$sigName}Print printName\" placeholder=\"$sigPlaceholder\" $sigActive form=\"ticketForm{$this->ticket_index}\" />
                       $addressInputs
                     </form>
@@ -2185,7 +2190,7 @@
                 </tr>
                 <tr>
                   <td>
-                    <button type=\"button\" class=\"dTicket\" form=\"ticketForm{$this->ticket_index}\">$buttonName</button>
+                    <button type=\"button\" class=\"dTicket\" form=\"ticketForm{$this->ticket_index}\">$buttonName</button> $noReturn
                   </td>";
       if ($this->processTransfer === true) {
         $confirm = "
@@ -2433,6 +2438,7 @@
       for ($i = 0; $i < count($this->multiTicket); $i++) {
         // Set the ticket Charge property to the current multiTicket Charge property for the ticketCharge function
         $this->Charge = $this->multiTicket[$i]->Charge;
+        
         if ($this->multiTicket[$i]->diWeight == 0) {
           $iceWeight = '-';
         } else {
@@ -2508,6 +2514,7 @@
             $buttonClass = 'cancelRun';
             $button2Class = 'deadRun';
             $button2Name = 'Dead Run';
+            $noReturn = '';
             break;
           case 'delivered':
             $label = 'Deliver From';
@@ -2515,12 +2522,15 @@
             $buttonClass = 'hide';
             $button2Class = ($this->processTransfer) ? 'hide' : 'declined';
             $button2Name = 'Declined';
+            $noReturn = ($this->Charge === 6) ?
+              "<label for=\"noReturn{$this->ticket_index}\">No Return</label><input type=\"checkbox\" name=\"noReturn\" id=\"noReturn{$this->ticket_index}\" class=\"noReturn\" value=\"1\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />" : '';
             break;
           case 'returned':
             $label = 'Return From';
             $buttonName = 'Not Used';
             $buttonClass = $button2Class = 'hide';
             $button2Name = '';
+            $noReturn = '';
             break;
         }
         $transfersFormValue = ($this->multiTicket[$i]->Transfers) ? htmlspecialchars($this->multiTicket[$i]->Transfers) : '';
@@ -2562,7 +2572,7 @@
         $multiTicket .= "<table class=\"tickets center\">
           <tfoot>
             <tr>
-              <td><button type=\"button\" class=\"$buttonClass\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\">$buttonName</button></td>
+              <td><button type=\"button\" class=\"$buttonClass\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\">$buttonName</button>$noReturn</td>
               <td><button type=\"button\" class=\"$button2Class\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\">$button2Name</button></td>
             </tr>
             <tr>
@@ -2591,6 +2601,7 @@
                   <input type=\"hidden\" name=\"pAddress1\" class=\"pAddress1\" value=\"{$this->multiTicket[$i]->pAddress1}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                   <input type=\"hidden\" name=\"dClient\" class=\"dClient\" value=\"{$this->multiTicket[$i]->dClient}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                   <input type=\"hidden\" name=\"dAddress1\" class=\"dAddress1\" value=\"{$this->multiTicket[$i]->dAddress1}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
+                  <input type=\"hidden\" name=\"diPrice\" class=\"diPrice\" value=\"{$this->multiTicket[$i]->diPrice}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                 </form>
                 <h3 class=\"floatLeft\">{$this->multiTicket[$i]->TicketNumber}</h3>
                 $label
@@ -3671,7 +3682,7 @@
       <div class=\"subContainer\">
         <div id=\"terms\">
           <p id=\"switchTerms\" class=\"error center\">*TERMS</p>
-          <div id=\"deliveryTerms\">{$this->options['deliveryTerms']}</div>
+          <div id=\"deliveryTerms\" class=\"hide\">{$this->options['deliveryTerms']}</div>
         </div>
         <div class=\"mapContainer\" id=\"map\"></div>
       </div>";
@@ -4472,7 +4483,7 @@
 		    if (json_last_error() !== JSON_ERROR_NONE) {
           $this->error = __function__ . ' Error: ' . json_last_error_msg() . ' Line: ' . __line__;
           if ($this->enableLogging !== false) self::writeLoop();
-          return '<span data-value="error">' . $this->error . '</span>';
+          return $this->error;
         }
         $tempIndex = [];
         for ($i = 0; $i < count($this->multiTicket); $i++) {
@@ -4518,6 +4529,11 @@
           case 'delivered':
             $ticketUpdateData['payload']['Notes'] = $this->Notes;
             $ticketUpdateData['payload']['dTimeStamp'] = $this->now->format('Y-m-d H:i:s');
+            if ($this->Charge === 6 && $this->noReturn) {
+              $ticketUpdateData['payload']['Charge'] = 5;
+              $ticketUpdateData['payload']['RunPrice'] = $this->TicketBase;
+              $ticketUpdateData['payload']['TicketPrice'] = $this->TicketBase + $this->diPrice;
+            }
             if ($this->printName !== null && $this->printName !== '') {
               $ticketUpdateData['payload']['dSigPrint'] = $this->printName;
               $ticketUpdateData['payload']['dSigReq'] = 1;
@@ -4597,6 +4613,11 @@
             case 'delivered':
               $tempObj->Notes = $this->multiTicket[$i]['notes'];
               $tempObj->dTimeStamp = $this->now->format('Y-m-d H:i:s');
+              if ($this->multiTicket[$i]['Charge'] == 6 && $this->multiTicket[$i]['noReturn']) {
+                $tempObj->Charge = 5;
+                $tempObj->RunPrice = $this->multiTicket[$i]['TicketBase'];
+                $tempObj->TicketPrice = $this->multiTicket[$i]['TicketBase'] + $this->multiTicket[$i]['diPrice'];
+              }
               if ($this->printName !== null && $this->printName !== '') {
                 $tempObj->dSigPrint = $this->printName;
                 $tempObj->dSigReq = 1;

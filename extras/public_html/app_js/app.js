@@ -1013,7 +1013,7 @@
           element.classList.add("elementError");
           setTimeout(() => { element.classList.remove("elementError"); }, 3000);
         }
-        postData[element.getAttribute("name")] = element.value;
+        postData[element.getAttribute("name")] = (element.getAttribute("type") === "checkbox") ? Number(element.checked) : element.value;
       }
     });
     postData.formKey = document.querySelector("#formKey").value;
@@ -1154,7 +1154,7 @@
     Array.from(ticketGroup.querySelectorAll(".routeStop")).forEach((element, index) => {
       Array.from(document.querySelectorAll("input[form='" + element.getAttribute("id") + "'], textarea[form='" + element.getAttribute("id") + "']")).forEach(input => {
         if (input.getAttribute("name") !== "latitude" && input.getAttribute("name") !== "longitude")
-          data[input.getAttribute("name")] = JSON.stringify(input.value);
+          data[input.getAttribute("name")] = (input.getAttribute("type") === "checkbox") ? Number(input.checked) : input.value;
         if (input.getAttribute("name") === "step") {
           switch (input.value) {
             case "pickedUp": locationData.step.push("p"); break;
@@ -1218,8 +1218,6 @@
     .then(rjdci.refreshFormKey)
     .catch(error => {
       console.error(error.message);
-      clearInterval(dots);
-      workspace.removeChild(ellipsis);
       workspace.appendChild(displayErrorMessage(error));
       setTimeout(() => {
         workspace.innerHTML = "";
@@ -3344,8 +3342,7 @@
     
     document.querySelector("#switchTerms") &&
     document.querySelector("#switchTerms").addEventListener("click", e => {
-      document.querySelector("#deliveryTerms").style.display =
-        (document.querySelector("#deliveryTerms").style.display == "none") ? "block" : "none";
+      document.querySelector("#deliveryTerms").classList.toggle("hide");
     });
     
     let repeatHandler = eve => {
