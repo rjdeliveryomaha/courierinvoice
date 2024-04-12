@@ -4,7 +4,7 @@
   use rjdeliveryomaha\courierinvoice\CommonFunctions;
   use Geocoder\Query\GeocodeQuery;
   use GuzzleHttp\Client as GuzzleClient;
-  use Http\Adapter\Guzzle6\Client as GuzzleAdapter;
+  use Http\Adapter\Guzzle7\Client as GuzzleAdapter;
   use PHPMailer\PHPMailer\PHPMailer;
   use PHPMailer\PHPMailer\Exception;
 
@@ -19,7 +19,7 @@
     protected $invoiceNumber;
     protected $generalDiscount;
     protected $newTicket = false;
-    private $forDisatch = false;
+    protected $forDisatch = false;
     protected $ticketEditor = false;
     protected $updateTicket = false;
     protected $processTransfer = false;
