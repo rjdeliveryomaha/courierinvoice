@@ -19,7 +19,7 @@
     protected $invoiceNumber;
     protected $generalDiscount;
     protected $newTicket = false;
-    protected $forDisatch = false;
+    protected $forDispatch = false;
     protected $ticketEditor = false;
     protected $updateTicket = false;
     protected $processTransfer = false;
@@ -1515,7 +1515,7 @@
     public function regenTicket()
     {
       $hideTableHead = '';
-      if ($this->forDisatch === true) {
+      if ($this->forDispatch === true) {
         $dispatchValue = '';
         if ($this->driverID !== 0) {
           $dispatchValue = "{$this->DriverName}; {$this->driverID}";
@@ -1644,7 +1644,7 @@
         $billed = 'Not Billed';
       }
       $iceAndNotes = '';
-      $readonlyNotes = ($this->forDisatch === true) ? "form=\"dispatchForm{$this->ticket_index}\"" : 'readonly';
+      $readonlyNotes = ($this->forDispatch === true) ? "form=\"dispatchForm{$this->ticket_index}\"" : 'readonly';
       if ($this->options['displayDryIce'] === true) {
         $cSym = "<span class=\"currencySymbol\">{$this->config['CurrencySymbol']}</span>";
         $diPrice = (is_numeric($this->ulevel)) ?
@@ -2692,7 +2692,7 @@
       ];
       $returnData = '';
       $ticketQueryResult = [];
-      $this->forDisatch = true;
+      $this->forDispatch = true;
       // Pull tickets that have not been dispatched
       $ticketQueryData['endPoint'] = 'tickets';
       $ticketQueryData['method'] = 'GET';
@@ -2767,7 +2767,7 @@
         self::clearTicket();
         return $returnData;
       } else {
-        $this->forDisatch = false;
+        $this->forDispatch = false;
         $this->ticketEditor = true;
         // Sort the tickets based on charge code and timestamps
         foreach ($ticketQueryResult as $ticket) {
