@@ -1530,7 +1530,7 @@
             <input type=\"hidden\" name=\"readyDate\" class=\"readyDate\" value=\"{$this->ReadyDate}\" form=\"dispatchForm{$this->ticket_index}\" />
             <button type=\"submit\" class=\"stepTicket\" form=\"dispatchForm{$this->ticket_index}\">Dispatch</button>
             <label for=\"dispatch{$this->ticket_index}\" class=\"hide\">Dispatch To: </label>
-            <input list=\"drivers\" id=\"dispatch{$this->ticket_index}\" name=\"dispatchedTo\" class=\"dispatchedTo\" value=\"$dispatchValue\" form=\"dispatchForm{$this->ticket_index}\" />
+            <input list=\"drivers\" id=\"dispatch{$this->ticket_index}\" name=\"dispatchedTo\" class=\"dispatchedTo\" value=\"$dispatchValue\" form=\"dispatchForm{$this->ticket_index}\" required />
             <p class=\"message2\"></p>
           </form>
         ";
@@ -1973,7 +1973,7 @@
           <hr>
           $iceAndNotes
           <hr>
-          <table class=\"wide $hideTableHead\">
+          <table class=\"wide notForUpdate $hideTableHead\">
             <tr>
               <td colspan=\"2\">
                 <table class=\"wide sigTable\">
@@ -2435,6 +2435,7 @@
             </tbody>
           </table>
           <hr>";
+      $requireSig = '';
       for ($i = 0; $i < count($this->multiTicket); $i++) {
         // Set the ticket Charge property to the current multiTicket Charge property for the ticketCharge function
         $this->Charge = $this->multiTicket[$i]->Charge;
@@ -2515,6 +2516,7 @@
             $button2Class = 'deadRun';
             $button2Name = 'Dead Run';
             $noReturn = '';
+            if ($requireSig == '') $requireSig = ($this->multiTicket[$i]->pSigReq == true) ? 'required' : '';
             break;
           case 'delivered':
             $label = 'Deliver From';
@@ -2522,6 +2524,7 @@
             $buttonClass = 'hide';
             $button2Class = ($this->processTransfer) ? 'hide' : 'declined';
             $button2Name = 'Declined';
+            if ($requireSig == '') $requireSig = ($this->multiTicket[$i]['dSigReq'] == true) ? 'required' : '';
             $noReturn = ($this->Charge === 6) ?
               "<label for=\"noReturn{$this->ticket_index}\">No Return</label><input type=\"checkbox\" name=\"noReturn\" id=\"noReturn{$this->ticket_index}\" class=\"noReturn\" value=\"1\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />" : '';
             break;
@@ -2531,6 +2534,7 @@
             $buttonClass = $button2Class = 'hide';
             $button2Name = '';
             $noReturn = '';
+            if ($requireSig == '') $requireSig = ($this->multiTicket[$i]['d2SigReq'] == true) ? 'required' : '';
             break;
         }
         $transfersFormValue = ($this->multiTicket[$i]->Transfers) ? htmlspecialchars($this->multiTicket[$i]->Transfers) : '';
@@ -2635,7 +2639,7 @@
             <input type=\"hidden\" name=\"sigImage\" id=\"sigImage{$this->multiTicket[0]->ticket_index}\" class=\"sigImage\" />
             <input type=\"hidden\" name=\"latitude\" class=\"latitude\" form=\"ticketForm{$this->ticket_index}\" value=\"\" />
             <input type=\"hidden\" name=\"longitude\" class=\"longitude\" form=\"ticketForm{$this->ticket_index}\" value=\"\" />
-            <label for=\"pSigPrint{$this->ticket_index}\">Signer</label><br><input type=\"text\" name=\"pSigPrint\" id=\"pSigPrint{$this->multiTicket[0]->ticket_index}\" class=\"pSigPrint printName\" form=\"ticketForm{$this->multiTicket[0]->ticket_index}\" /><button type=\"button\" style=\"vertical-align:middle;\" class=\"getSig\"><img src=\"../images/sign.png\" height=\"24\" width=\"24\" alt=\"Open Signature Box\" /></button>
+            <label for=\"pSigPrint{$this->ticket_index}\">Signer</label><br><input type=\"text\" name=\"pSigPrint\" id=\"pSigPrint{$this->multiTicket[0]->ticket_index}\" class=\"pSigPrint printName\" form=\"ticketForm{$this->multiTicket[0]->ticket_index}\" $requireSig /><button type=\"button\" style=\"vertical-align:middle;\" class=\"getSig\"><img src=\"../images/sign.png\" height=\"24\" width=\"24\" alt=\"Open Signature Box\" /></button>
           </p>
           <div class=\"signature-pad sigField\"></div>
           <button type=\"button\" class=\"confirmAll\">Confirm {$count($this->multiTicket)}</button> <button type=\"button\" class=\"transferGroup\">Transfer {$count($this->multiTicket)}</button></div>";
@@ -3322,7 +3326,10 @@
         <input type=\"hidden\" name=\"ticketNumber\" class=\"ticketNumber\" value=\"{$this->TicketNumber}\" form=\"request{$this->ticket_index}\" />
         " : '';
       $d2TimeStampDisabled = ($this->Charge === 6 || $this->Charge === 7) ? '' : 'disabled';
+      $timing = '';
+      $requireRequestedBy = 'required';
       if ($this->ticketEditor === true) {
+        $requireRequestedBy = (self::test_bool($this->Contract) === true) ? '' : 'required';
         $dispatchTimeStamp = preg_replace('/\s/', 'T', $this->DispatchTimeStamp);
         $pTimeStamp = preg_replace('/\s/', 'T', $this->pTimeStamp);
         $dTimeStamp = preg_replace('/\s/', 'T', $this->dTimeStamp);
@@ -3358,8 +3365,6 @@
           </td>
         </tr>
       ";
-      } else {
-        $timing = '';
       }
       $ticketEditorValues = ($this->ticket_index === null) ? '' : "<input type=\"hidden\" name=\"ticketBase\" value=\"{$this->TicketBase}\" form=\"request{$this->ticket_index}\" />
           <input type=\"hidden\" name=\"runPrice\" value=\"{$this->RunPrice}\" form=\"request{$this->ticket_index}\" />
@@ -3473,7 +3478,7 @@
                       </td>
                       <td>
                         <label for=\"requestedBy{$this->ticket_index}\">Requested By:</label>
-                        <input type=\"text\" name=\"requestedBy\" id=\"requestedBy{$this->ticket_index}\" class=\"requestedBy\" value=\"{$this->RequestedBy}\" form=\"request{$this->ticket_index}\" required />
+                        <input type=\"text\" name=\"requestedBy\" id=\"requestedBy{$this->ticket_index}\" class=\"requestedBy\" value=\"{$this->RequestedBy}\" form=\"request{$this->ticket_index}\" $requireRequestedBy />
                       </td>
                     </tr>
                     <tr>
@@ -3513,7 +3518,7 @@
                       <tr>
                         <td><label for=\"pClient{$this->ticket_index}\">Client<span class=\"mobileHide\"> Name</span>:</label></td>
                         <td>
-                          <input list=\"clientName\" name=\"pClient\" id=\"pClient{$this->ticket_index}\" class=\"clientList\" form=\"request{$this->ticket_index}\" value=\"{$this->decode($this->pClient)}\" />";
+                          <input list=\"clientName\" name=\"pClient\" id=\"pClient{$this->ticket_index}\" class=\"clientList\" form=\"request{$this->ticket_index}\" value=\"{$this->decode($this->pClient)}\" required />";
                 if ($this->userType === 'client') {
                   $this->selectID = 'pClient'; $returnData .= self::buildSelectElement();
                 }
@@ -3531,7 +3536,7 @@
                       <tr>
                         <td><label for=\"pAddress1{$this->ticket_index}\">Address 1:</label></td>
                         <td>
-                          <input list=\"addy1\" name=\"pAddress1\" id=\"pAddress1{$this->ticket_index}\" class=\"clientList\" placeholder=\"1234 Main St.\" form=\"request{$this->ticket_index}\" value=\"{$this->decode($this->pAddress1)}\"  />";
+                          <input list=\"addy1\" name=\"pAddress1\" id=\"pAddress1{$this->ticket_index}\" class=\"clientList\" placeholder=\"1234 Main St.\" form=\"request{$this->ticket_index}\" value=\"{$this->decode($this->pAddress1)}\" required  />";
                 if ($this->userType === 'client') {
                   $this->selectID = 'pAddress1'; $returnData .= self::buildSelectElement();
                 }
@@ -3540,7 +3545,7 @@
                       <tr>
                         <td><label for=\"pAddress2{$this->ticket_index}\">Address 2:</label></td>
                         <td>
-                          <input list=\"addy2\" name=\"pAddress2\" id=\"pAddress2{$this->ticket_index}\" class=\"clientList\" placeholder=\"City, State ZIP\" form=\"request{$this->ticket_index}\" value=\"{$this->decode($this->pAddress2)}\"  />";
+                          <input list=\"addy2\" name=\"pAddress2\" id=\"pAddress2{$this->ticket_index}\" class=\"clientList\" placeholder=\"City, State ZIP\" form=\"request{$this->ticket_index}\" value=\"{$this->decode($this->pAddress2)}\" required  />";
                 if ($this->userType === 'client') {
                   $this->selectID = 'pAddress2'; $returnData .= self::buildSelectElement();
                 }
@@ -3550,7 +3555,7 @@
                         <td><label for=\"pCountry{$this->ticket_index}\">Country:</label></td>
                         <td>
                           <input type=\"hidden\" name=\"pCountry\" id=\"pCountryMarker{$this->ticket_index}\" value=\"{$this->config['ShippingCountry']}\" form=\"request{$this->ticket_index}\" />
-                          <input list=\"countries\" name=\"pCountry\" class=\"pCountry\" id=\"pCountry{$this->ticket_index}\" value=\"{$this->countryFromAbbr($this->pCountry)}\" {$this->countryInput} form=\"request{$this->ticket_index}\" />
+                          <input list=\"countries\" name=\"pCountry\" class=\"pCountry\" id=\"pCountry{$this->ticket_index}\" value=\"{$this->countryFromAbbr($this->pCountry)}\" {$this->countryInput} form=\"request{$this->ticket_index}\" {$this->requireCountry} />
                         </td>
                       </tr>
                       <tr>
@@ -3595,7 +3600,7 @@
                       <tr>
                         <td><label for=\"dClient{$this->ticket_index}\">Client<span class=\"mobileHide\"> Name</span>:</label></td>
                         <td>
-                          <input list=\"clientName\" name=\"dClient\" id=\"dClient{$this->ticket_index}\" class=\"clientList\" form=\"request{$this->ticket_index}\" value=\"{$this->decode($this->dClient)}\" />";
+                          <input list=\"clientName\" name=\"dClient\" id=\"dClient{$this->ticket_index}\" class=\"clientList\" form=\"request{$this->ticket_index}\" value=\"{$this->decode($this->dClient)}\" required />";
                 if ($this->userType === 'client') {
                   $this->selectID = 'dClient'; $returnData .= self::buildSelectElement();
                 }
@@ -3613,7 +3618,7 @@
                       <tr>
                         <td><label for=\"dAddress1{$this->ticket_index}\">Address 1:</label></td>
                         <td>
-                          <input list=\"addy1\" name=\"dAddress1\" id=\"dAddress1{$this->ticket_index}\" class=\"clientList\" placeholder=\"1234 Main St.\" form=\"request{$this->ticket_index}\" value=\"{$this->decode($this->dAddress1)}\" />";
+                          <input list=\"addy1\" name=\"dAddress1\" id=\"dAddress1{$this->ticket_index}\" class=\"clientList\" placeholder=\"1234 Main St.\" form=\"request{$this->ticket_index}\" value=\"{$this->decode($this->dAddress1)}\" required />";
                 if ($this->userType === 'client') {
                   $this->selectID = 'dAddress1'; $returnData .= self::buildSelectElement();
                 }
@@ -3622,7 +3627,7 @@
                       <tr>
                         <td><label for=\"dAddress2{$this->ticket_index}\">Address 2:</label></td>
                         <td>
-                          <input list=\"addy2\" name=\"dAddress2\" id=\"dAddress2{$this->ticket_index}\" class=\"clientList\" placeholder=\"City, State ZIP\" form=\"request{$this->ticket_index}\" value=\"{$this->decode($this->dAddress2)}\" />";
+                          <input list=\"addy2\" name=\"dAddress2\" id=\"dAddress2{$this->ticket_index}\" class=\"clientList\" placeholder=\"City, State ZIP\" form=\"request{$this->ticket_index}\" value=\"{$this->decode($this->dAddress2)}\" required />";
                 if ($this->userType === 'client') {
                   $this->selectID = 'dAddress2'; $returnData .= self::buildSelectElement();
                 }
@@ -3632,7 +3637,7 @@
                         <td><label for=\"dCountry{$this->ticket_index}\">Country:</label></td>
                         <td>
                           <input type=\"hidden\" name=\"dCountry\" id=\"dCountryMarker{$this->ticket_index}\" value=\"{$this->config['ShippingCountry']}\" form=\"request{$this->ticket_index}\" />
-                          <input list=\"countries\" name=\"dCountry\" class=\"dCountry\" id=\"dCountry{$this->ticket_index}\" value=\"{$this->countryFromAbbr($this->dCountry)}\" {$this->countryInput} form=\"request{$this->ticket_index}\" />
+                          <input list=\"countries\" name=\"dCountry\" class=\"dCountry\" id=\"dCountry{$this->ticket_index}\" value=\"{$this->countryFromAbbr($this->dCountry)}\" {$this->countryInput} form=\"request{$this->ticket_index}\" {$this->requireCountry} />
                         </td>
                       </tr>
                       <tr>
