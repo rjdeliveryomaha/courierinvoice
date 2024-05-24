@@ -2689,11 +2689,6 @@
 
     public function ticketsToDispatch()
     {
-      $response = (object) [
-        'state' => 'valid',
-        'message' => null,
-        'tickets' => null
-      ];
       $returnData = '';
       $ticketQueryResult = [];
       $this->forDispatch = true;
@@ -2735,27 +2730,18 @@
         $temp = $this->error;
         $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
-        $response->state = 'error';
-        $response->message = self::getError();
-        return json_encode($response);
+        return '<p class="center result"><span class="error">Error:</span> {$this->error}</p>';
       }
       $ticketQueryResult = self::callQuery($ticketQuery);
       if ($ticketQueryResult === false) {
         $temp = $this->error;
         $this->error = ' Line ' . __line__ . ': ' . $temp;
         if ($this->enableLogging !== false) self::writeLoop();
-        $response->state = 'error';
-        $response->message = self::getError();
-        return json_encode($response);
+        return '<p class="center result"><span class="error">Error:</span> {$this->error}</p>';
       }
-
       if (empty($ticketQueryResult)) {
-        $response->state = 'info';
-        $response->message = 'No Tickets Available.';
-        return json_encode($response);
+        return '<p class="center result">No Tickets Available.</p>';
       }
-      $response->tickets = $ticketQueryResult;
-      // return json_encode($response);
       if ($this->driverList === null) {
         self::fetchDrivers();
       }
@@ -4233,7 +4219,7 @@
               $payload[$key] = $target;
             } else {
               if (in_array($key, $this->nullable) && !$value) {
-                $payload[$key] = null;
+                if ($key != 'ReadyDate') $payload[$key] = null;
               } else {
                 $payload[$key] = self::decode($value);
               }
