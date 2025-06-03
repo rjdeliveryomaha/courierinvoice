@@ -1343,7 +1343,8 @@
           $mailBody .= 'has been declined and will be made a round trip.';
           break;
       }
-      $mailBody .= "<br><br>
+      $mailBody .= "<br>
+        Notes: {$this->Notes}<br><br>
         This message is automatically generated.
         Please do not respond.<br><br>
         If you believe that you've received this message in error or have questions or comments please contact
