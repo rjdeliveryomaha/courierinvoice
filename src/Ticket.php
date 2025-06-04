@@ -2682,7 +2682,7 @@
         }
         if (in_array($key, $this->postableKeys)) {
           $returnData .= "
-            <input type=\"hidden\" name=\"{$lcfirst($key)}\" value=\"{$htmlentities($value)}\" form=\"{$this->formName}\" />";
+            <input type=\"hidden\" name=\"{$lcfirst($key)}\" value=\"{$htmlentities($value ?? '')}\" form=\"{$this->formName}\" />";
         }
       }
       return $returnData;

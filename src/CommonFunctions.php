@@ -556,13 +556,13 @@
 
     protected function decode($data)
     {
-      if (preg_match('/(&#\d+;)/', $data)) {
+      if (preg_match('/(&#\d+;)/', $data ?? '')) {
         $data = preg_replace_callback("/(&#[0-9]+;)/", function($m)
         {
           return mb_convert_encoding($m[1], 'UTF-8', 'HTML-ENTITIES');
         }, $data);
       }
-      if (preg_match('/(&\w+;)/', $data)) {
+      if (preg_match('/(&\w+;)/', $data ?? '')) {
         $data = html_entity_decode($data);
       }
       return $data;
@@ -656,6 +656,7 @@
     ***/
     protected function number_format_drop_zero_decimals($n, $n_decimals)
     {
+      if (is_null($n)) $n = 0;
       /*
       ** round($n, $n_decimals) may equal a whole number in cases when rounding up and preceding precision is 9s
       ** ex: round(16.995, 2) equals 17.00. Test for rounded up integer with ceil($n).

@@ -192,7 +192,7 @@
           }
         }
         if (is_array($this->query)) {
-          $encodedQuery = http_build_query($this->query,null,'&',PHP_QUERY_RFC3986);
+          $encodedQuery = http_build_query($this->query,'','&',PHP_QUERY_RFC3986);
           // http://php.net/manual/en/function.http-build-query.php#111819
           $encodedQuery = preg_replace('/%5B[0-9]+%5D/simU', '', $encodedQuery);
         } else {
