@@ -1151,7 +1151,7 @@
         <datalist id="departments">';
 
       foreach ($departments as $department) {
-        $returnData .= "
+        $department && $returnData .= "
           <option vlaue=\"$department\">{$html_entity_decode($department)}</option>";
       }
 
@@ -1177,7 +1177,7 @@
         <datalist id="contacts">';
 
       foreach ($contacts as $contact) {
-        $returnData .= "
+        $contact && $returnData .= "
           <option value=\"$contact\">{$html_entity_decode($contact)}</option>";
       }
 
@@ -1197,10 +1197,12 @@
       $returnData = "
         <select name=\"{$this->selectID}\" class=\"clientSelect\" form=\"request\" disabled>";
       for ($i = 0; $i < count($locations); $i++) {
-        $val = $locations[$i][strtolower(substr($this->selectID, 1))];
-        $display = html_entity_decode($locations[$i][strtolower(substr($this->selectID, 1))]);
-        $returnData .= "
+        if ($locations[$i][strtolower(substr($this->selectID, 1))]) {
+          $val = $locations[$i][strtolower(substr($this->selectID, 1))];
+          $display = html_entity_decode($locations[$i][strtolower(substr($this->selectID, 1))]);
+          $returnData .= "
           <option data-value=\"$i\" value=\"$val\">$display</option>";
+        }
       }
       $returnData .= '
         </select>';
@@ -3194,7 +3196,7 @@
         $diWeightDisabled = '';
       }
       $rtDisplay = ($this->Charge === 6 || $this->Charge === 7) ? 'inline-block' : 'none';
-      if ($this->ReceivedReady === 1) {
+      if ((bool)$this->ReceivedReady) {
         $readyChecked = 'checked';
         $readyNote = 'inline-block';
         $readyDateDisplay = 'none';
@@ -4752,7 +4754,7 @@
           break;
         case 'deadRun':
           if ($this->multiTicket === null) {
-            $newPrice = self::number_format_drop_zero_decimals($this->TicketBase * $this->config['DeadRun'], 2);
+            $newPrice = self::number_format_drop_zero_decimals((float)$this->TicketBase * (float)$this->config['DeadRun'], 2);
             $ticketUpdateData['payload'] = [
               'Charge' => 8,
               'pTimeStamp' => $this->today->format('Y-m-d H:i:s'),
@@ -4767,7 +4769,7 @@
             for ($i = 0; $i < count($this->multiTicket); $i++) {
               $tempObj = new \stdClass();
               $multiTicketIndex = self::recursive_array_search($this->multiTicket[$i]['ticket_index'], $this->sanitized);
-              $newPrice = self::number_format_drop_zero_decimals($this->sanitized[$multiTicketIndex]['TicketBase'] * $this->config['DeadRun'], 2);
+              $newPrice = self::number_format_drop_zero_decimals((float)$this->sanitized[$multiTicketIndex]['TicketBase'] * (float)$this->config['DeadRun'], 2);
               $tempObj->Charge = 8;
               $tempObj->TicketPrice = $newPrice;
               $tempObj->RunPrice = $newPrice;

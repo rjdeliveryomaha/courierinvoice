@@ -203,6 +203,7 @@
       $this->sanitized = self::recursive_santizer($data);
       do {
         if (
+          key($this->sanitized) != null &&
           !in_array(key($this->sanitized), $this->protectedProperties) &&
           !in_array(ucfirst(key($this->sanitized)), $this->protectedProperties)
         ) {
