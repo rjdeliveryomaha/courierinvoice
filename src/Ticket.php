@@ -2527,7 +2527,7 @@
             $buttonClass = 'hide';
             $button2Class = ($this->processTransfer) ? 'hide' : 'declined';
             $button2Name = 'Declined';
-            if ($requireSig == '') $requireSig = ($this->multiTicket[$i]['dSigReq'] == true) ? 'required' : '';
+            if ($requireSig == '') $requireSig = ($this->multiTicket[$i]->dSigReq == true) ? 'required' : '';
             $noReturn = ($this->Charge === 6) ?
               "<label for=\"noReturn{$this->ticket_index}\">No Return</label><input type=\"checkbox\" name=\"noReturn\" id=\"noReturn{$this->ticket_index}\" class=\"noReturn\" value=\"1\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />" : '';
             break;
@@ -2537,7 +2537,7 @@
             $buttonClass = $button2Class = 'hide';
             $button2Name = '';
             $noReturn = '';
-            if ($requireSig == '') $requireSig = ($this->multiTicket[$i]['d2SigReq'] == true) ? 'required' : '';
+            if ($requireSig == '') $requireSig = ($this->multiTicket[$i]->d2SigReq == true) ? 'required' : '';
             break;
         }
         $transfersFormValue = ($this->multiTicket[$i]->Transfers) ? htmlspecialchars($this->multiTicket[$i]->Transfers) : '';
