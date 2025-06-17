@@ -2540,7 +2540,7 @@
             if ($requireSig == '') $requireSig = ($this->multiTicket[$i]->d2SigReq == true) ? 'required' : '';
             break;
         }
-        $transfersFormValue = ($this->multiTicket[$i]->Transfers) ? htmlspecialchars($this->multiTicket[$i]->Transfers) : '';
+        $htmlspecialchars = 'htmlspecialchars';
         $displayDryIce = ($this->options['displayDryIce'] === true) ? "
               <td colspan=\"2\">
                 <table class=\"tFieldLeft\" style=\"width:25%;\">
@@ -2600,14 +2600,14 @@
                   <input type=\"hidden\" name=\"charge\" class=\"charge\" value=\"{$this->multiTicket[$i]->Charge}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                   <input type=\"hidden\" name=\"emailConfirm\" class=\"emailConfirm\" value=\"{$this->multiTicket[$i]->EmailConfirm}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                   <input type=\"hidden\" name=\"emailAddress\" class=\"emailAddress\" value=\"{$this->multiTicket[$i]->EmailAddress}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
-                  <input type=\"hidden\" name=\"transfers\" class=\"transfers\" value=\"$transfersFormValue\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
+                  <input type=\"hidden\" name=\"transfers\" class=\"transfers\" value=\"{$htmlspecialchars($this->multiTicket[$i]->Transfers)}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                   <input type=\"hidden\" name=\"pendingReceiver\" class=\"pendingReceiver\" value=\"{$this->multiTicket[$i]->PendingReceiver}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                   <input type=\"hidden\" name=\"step\" class=\"step\" value=\"{$this->multiTicket[$i]->step}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                   <input type=\"hidden\" name=\"ticketBase\" class=\"ticketBase\" value=\"{$this->multiTicket[$i]->TicketBase}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
-                  <input type=\"hidden\" name=\"pClient\" class=\"pClient\" value=\"{$this->multiTicket[$i]->pClient}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
-                  <input type=\"hidden\" name=\"pAddress1\" class=\"pAddress1\" value=\"{$this->multiTicket[$i]->pAddress1}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
-                  <input type=\"hidden\" name=\"dClient\" class=\"dClient\" value=\"{$this->multiTicket[$i]->dClient}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
-                  <input type=\"hidden\" name=\"dAddress1\" class=\"dAddress1\" value=\"{$this->multiTicket[$i]->dAddress1}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
+                  <input type=\"hidden\" name=\"pClient\" class=\"pClient\" value=\"{$htmlspecialchars($this->multiTicket[$i]->pClient)}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
+                  <input type=\"hidden\" name=\"pAddress1\" class=\"pAddress1\" value=\"{$htmlspecialchars($this->multiTicket[$i]->pAddress1)}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
+                  <input type=\"hidden\" name=\"dClient\" class=\"dClient\" value=\"{$htmlspecialchars($this->multiTicket[$i]->dClient)}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
+                  <input type=\"hidden\" name=\"dAddress1\" class=\"dAddress1\" value=\"{$htmlspecialchars($this->multiTicket[$i]->dAddress1)}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                   <input type=\"hidden\" name=\"diPrice\" class=\"diPrice\" value=\"{$this->multiTicket[$i]->diPrice}\" form=\"ticketForm{$this->multiTicket[$i]->ticket_index}\" />
                 </form>
                 <h3 class=\"floatLeft\">{$this->multiTicket[$i]->TicketNumber}</h3>
