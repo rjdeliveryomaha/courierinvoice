@@ -4607,10 +4607,10 @@
             case 'delivered':
               $tempObj->Notes = $this->multiTicket[$i]['notes'];
               $tempObj->dTimeStamp = $this->now->format('Y-m-d H:i:s');
-              if ($this->multiTicket[$i]['Charge'] == 6 && $this->multiTicket[$i]['noReturn']) {
+              if ($this->multiTicket[$i]['charge'] == 6 && $this->multiTicket[$i]['noReturn']) {
                 $tempObj->Charge = 5;
-                $tempObj->RunPrice = $this->multiTicket[$i]['TicketBase'];
-                $tempObj->TicketPrice = $this->multiTicket[$i]['TicketBase'] + $this->multiTicket[$i]['diPrice'];
+                $tempObj->RunPrice = $this->multiTicket[$i]['ticketBase'];
+                $tempObj->TicketPrice = $this->multiTicket[$i]['ticketBase'] + $this->multiTicket[$i]['diPrice'];
               }
               if ($this->printName !== null && $this->printName !== '') {
                 $tempObj->dSigPrint = $this->printName;
