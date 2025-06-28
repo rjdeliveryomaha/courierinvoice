@@ -134,7 +134,7 @@
       if ($this->options['testMode'] === true && $this->options['testURL'] === null || $this->options['testURL'] === '') {
         throw new \Exception('Invalid URL');
       }
-      if ($_SERVER['REQUEST_METHOD'] == 'POST' && !isset($_POST))
+      if ($_SERVER['REQUEST_METHOD'] && $_SERVER['REQUEST_METHOD'] == 'POST' && !isset($_POST))
         throw new \Exception('Post body unavailable');
       $this->postKeys = array_keys($_POST);
       if (!isset($data['noSession'])) {
