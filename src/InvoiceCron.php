@@ -292,7 +292,7 @@
         $tempInvoice->InvoiceTotal = $tempInvoice->InvoiceSubTotal = $this->getTotal($value['tickets'], $tempInvoice->InvoiceNumber);
         // solve the amount due for the current invoice
         $tempInvoice->AmountDue = (!empty($value['lastInvoice'])) ?
-          $tempInvoice->InvoiceSubTotal - $value['lastInvoice']['BalanceForwarded'] : $tempInvoice->InvoiceSubTotal;
+          $tempInvoice->InvoiceSubTotal - (float)$value['lastInvoice']['BalanceForwarded'] : $tempInvoice->InvoiceSubTotal;
         // solve the total due for all open invoices
         if (array_key_exists('openInvoices', $value) && !empty($value['openInvoices'])) {
           // Past due invoices need to be sortted by age and added to InvoiceTotal
