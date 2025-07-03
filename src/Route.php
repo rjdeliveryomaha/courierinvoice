@@ -610,10 +610,18 @@
         $newTicket['DispatchedBy'] = '1.1';
         $newTicket['Charge'] = (self::test_bool($newTicket['RoundTrip']) === true) ? 6 : 5;
         $newTicket['TicketBase'] = $newTicket['TicketPrice'];
-        $newTicket['DryIce'] = ($newTicket['DryIce']) ? 1 : 0;
-        $newTicket['TicketPrice'] += ($newTicket['DryIce']) ?
-          ((float)$newTicket['diWeight'] * (float)$this->config['diPrice']) : 0;
         $newTicket['ReceivedReady'] = 0;
+        $newTicket['DryIce'] = ($newTicket['DryIce']) ? 1 : 0;
+        $diPrice = (float)$this->config['diPrice'];
+        foreach ($this->members as $member) {
+          if ($member->getProperty('RepeatClient') &&
+              $member->getProperty('ClientID') == $newTicket['BillTo'] &&
+              $member->getProperty('DIPO'))
+          {
+            $diPrice = (float)$member->getProperty('diPrice_C');
+          }
+        }
+        $newTicket['TicketPrice'] += ($newTicket['DryIce']) ? ((float)$newTicket['diWeight'] * $diPrice) : 0;
         $data['multiTicket'][] = $newTicket;
       }
       if (!$ticketPrime = self::createTicket($data)) {
