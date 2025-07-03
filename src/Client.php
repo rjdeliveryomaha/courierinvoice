@@ -26,6 +26,12 @@
     protected $ReducedVAT;
     protected $Organization;
     protected $Same;
+    protected $DIPO;
+    protected $diPrice_C;
+    protected $ClientTerms;
+    protected $DiscountRate;
+    protected $DiscountWindow;
+    protected $TermLength;
     protected $currentPw;
     protected $newPw1;
     protected $newPw2;
@@ -43,7 +49,8 @@
     private $returnable = [
       'client_index', 'RepeatClient', 'ClientID', 'ClientName', 'Department', 'ShippingAddress1', 'ShippingAddress2',
       'ShippingCountry', 'BillingName', 'BillingAddress1', 'BillingAddress2', 'BillingCountry', 'Telephone',
-      'EmailAddress', 'Attention', 'ContractDiscount', 'GeneralDiscount', 'Organization'
+      'EmailAddress', 'Attention', 'ContractDiscount', 'GeneralDiscount', 'Organization', 'DIPO', 'diPrice_C',
+      'ClientTerms', 'DiscountRate', 'DiscountWindow', 'TermLength'
     ];
     private $updateValues = [ 'ShippingAddress1', 'ShippingAddress2', 'ShippingCountry', 'BillingName',
       'BillingAddress1', 'BillingAddress2', 'BillingCountry', 'Telephone', 'EmailAddress', 'Attention', 'Same'
