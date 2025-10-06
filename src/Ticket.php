@@ -2150,14 +2150,16 @@
           $noReturn = '';
           $label1 = 'Return: ';
           $label2 = '-';
-          $d2TimeArray = explode(':', $this->d2Time);
-          $readyObj->setTime($d2TimeArray[0], $d2TimeArray[1], $d2TimeArray[2]);
-          if ($this->dTime > $this->d2Time) {
-            $readyObj->modify('+ 1 day');
+          if (self::test_bool($this->Contract) == true) {
+            $d2TimeArray = explode(':', $this->d2Time);
+            $readyObj->setTime($d2TimeArray[0], $d2TimeArray[1], $d2TimeArray[2]);
+            if ($this->dTime > $this->d2Time) {
+              $readyObj->modify('+ 1 day');
+            }
+            $this->pTime = $readyObj->format('d M g:i a');
+            $timingSource = $readyObj->format('Y-m-d H:i');
+            $this->dTime = '-';
           }
-          $this->pTime = $readyObj->format('d M g:i a');
-          $timingSource = $readyObj->format('Y-m-d H:i');
-          $this->dTime = '-';
         }
       }
       $timingObj = new \dateTime($timingSource);
